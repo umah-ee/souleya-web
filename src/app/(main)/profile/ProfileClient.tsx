@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { Profile } from '@/types/profile';
 import { VIP_NAMES } from '@/types/profile';
 import { fetchProfile, updateProfile, uploadAvatar } from '@/lib/profile';
+import { geocodeLocation } from '@/lib/events';
 
 export default function ProfileClient() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -13,6 +14,7 @@ export default function ProfileClient() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [detectingLocation, setDetectingLocation] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Edit-Form State
@@ -21,6 +23,8 @@ export default function ProfileClient() {
     username: '',
     bio: '',
     location: '',
+    location_lat: null as number | null,
+    location_lng: null as number | null,
   });
 
   useEffect(() => {
@@ -32,6 +36,8 @@ export default function ProfileClient() {
           username: p.username ?? '',
           bio: p.bio ?? '',
           location: p.location ?? '',
+          location_lat: p.location_lat,
+          location_lng: p.location_lng,
         });
       })
       .catch(console.error)
@@ -45,6 +51,8 @@ export default function ProfileClient() {
       username: profile.username ?? '',
       bio: profile.bio ?? '',
       location: profile.location ?? '',
+      location_lat: profile.location_lat,
+      location_lng: profile.location_lng,
     });
     setEditing(true);
     setError('');
@@ -54,6 +62,70 @@ export default function ProfileClient() {
   const handleCancel = () => {
     setEditing(false);
     setError('');
+  };
+
+  // GPS-Standort erkennen
+  const handleDetectLocation = async () => {
+    if (!navigator.geolocation) {
+      setError('Standorterkennung wird von deinem Browser nicht unterstuetzt');
+      return;
+    }
+
+    setDetectingLocation(true);
+    setError('');
+
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: false,
+          timeout: 10000,
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+
+      // Reverse Geocoding → Stadtteil-Name
+      const res = await geocodeLocation(`${longitude},${latitude}`, 'reverse');
+      if (res.results.length > 0) {
+        const place = res.results[0];
+        setForm((f) => ({
+          ...f,
+          location: place.place_name.split(',').slice(0, 2).join(',').trim(),
+          location_lat: place.lat,
+          location_lng: place.lng,
+        }));
+        setSuccess('Standort erkannt');
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError('Standort konnte nicht aufgeloest werden');
+      }
+    } catch {
+      setError('Standorterkennung fehlgeschlagen. Bitte erlaube den Zugriff.');
+    } finally {
+      setDetectingLocation(false);
+    }
+  };
+
+  // Manuelle Ort-Eingabe → Forward Geocoding
+  const handleLocationBlur = async () => {
+    if (!form.location || form.location.length < 3) return;
+
+    // Nur geocoden wenn kein lat/lng vorhanden oder Location geaendert
+    if (form.location_lat && form.location === (profile?.location ?? '')) return;
+
+    try {
+      const res = await geocodeLocation(form.location, 'forward');
+      if (res.results.length > 0) {
+        const place = res.results[0];
+        setForm((f) => ({
+          ...f,
+          location_lat: place.lat,
+          location_lng: place.lng,
+        }));
+      }
+    } catch {
+      // Geocoding fehlgeschlagen, kein Fehler anzeigen
+    }
   };
 
   const handleSave = async () => {
@@ -67,6 +139,8 @@ export default function ProfileClient() {
         username: form.username || undefined,
         bio: form.bio || undefined,
         location: form.location || undefined,
+        location_lat: form.location_lat ?? undefined,
+        location_lng: form.location_lng ?? undefined,
       });
       setProfile(updated);
       setEditing(false);
@@ -291,12 +365,33 @@ export default function ProfileClient() {
               <input
                 type="text"
                 value={form.location}
-                onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, location: e.target.value, location_lat: null, location_lng: null }))}
+                onBlur={handleLocationBlur}
                 placeholder="Ort (z.B. Muenchen – Schwabing)"
                 maxLength={80}
                 className="flex-1 bg-white/[0.06] border border-gold-1/20 rounded-xl px-3 py-2 text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1 transition-colors"
               />
+              <button
+                type="button"
+                onClick={handleDetectLocation}
+                disabled={detectingLocation}
+                className={`
+                  px-3 py-2 rounded-xl font-label text-[0.6rem] tracking-[0.1em] uppercase transition-all duration-200 flex-shrink-0
+                  ${detectingLocation
+                    ? 'bg-gold-1/10 text-[#5A5450] cursor-not-allowed'
+                    : 'border border-gold-1/20 text-gold-1 cursor-pointer hover:border-gold-1/40 hover:bg-gold-1/5'
+                  }
+                `}
+                title="Standort automatisch erkennen"
+              >
+                {detectingLocation ? '…' : '📍 Erkennen'}
+              </button>
             </div>
+            {form.location_lat && (
+              <p className="text-[#5A5450] text-[0.65rem] font-body ml-6">
+                Standort gesetzt (Stadtteil-Genauigkeit)
+              </p>
+            )}
           </div>
         ) : (
           <>
