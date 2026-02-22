@@ -33,27 +33,11 @@ export default function LoginPage() {
   };
 
   return (
-    <main style={{
-      minHeight: '100vh',
-      backgroundColor: '#18161F',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1.5rem',
-      fontFamily: 'var(--font-quicksand), sans-serif',
-    }}>
-      <div style={{
-        backgroundColor: '#2C2A35',
-        border: '1px solid rgba(200,169,110,0.15)',
-        borderRadius: '24px',
-        padding: '3rem 2.5rem',
-        maxWidth: '420px',
-        width: '100%',
-        textAlign: 'center',
-      }}>
+    <main className="min-h-screen bg-dark-est flex items-center justify-center p-6 font-body">
+      <div className="bg-dark border border-gold-1/15 rounded-3xl py-12 px-10 max-w-[420px] w-full text-center">
         {/* Enso Logo */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <svg width="64" height="64" viewBox="0 0 100 100" style={{ margin: '0 auto' }}>
+        <div className="mb-6">
+          <svg width="64" height="64" viewBox="0 0 100 100" className="mx-auto">
             <defs>
               <linearGradient id="enso-login" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#A8894E" />
@@ -67,91 +51,46 @@ export default function LoginPage() {
         </div>
 
         {/* Wordmark */}
-        <h1 style={{
-          fontFamily: 'var(--font-cormorant), Georgia, serif',
-          fontSize: '2rem',
-          fontWeight: 300,
-          letterSpacing: '0.36em',
-          textTransform: 'uppercase',
-          color: '#C8A96E',
-          marginBottom: '0.5rem',
-        }}>
+        <h1 className="font-heading text-[2rem] font-light tracking-[0.36em] uppercase text-gold-1 mb-2">
           Souleya
         </h1>
 
         {!sent ? (
           <>
-            <p style={{
-              fontFamily: 'var(--font-josefin), sans-serif',
-              fontSize: '0.75rem',
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: '#a09a90',
-              marginBottom: '2rem',
-            }}>
+            <p className="font-label text-xs tracking-[0.2em] uppercase text-[#a09a90] mb-8">
               Dein Zugang
             </p>
 
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <form onSubmit={handleLogin} className="flex flex-col gap-4">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Deine E-Mail-Adresse"
                 required
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(200,169,110,0.2)',
-                  borderRadius: '9999px',
-                  color: '#F0EDE8',
-                  fontSize: '0.875rem',
-                  textAlign: 'center',
-                  fontFamily: 'var(--font-quicksand), sans-serif',
-                  outline: 'none',
-                  transition: 'border-color 0.3s, box-shadow 0.3s',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#C8A96E';
-                  e.target.style.boxShadow = '0 0 20px rgba(200,169,110,0.15)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(200,169,110,0.2)';
-                  e.target.style.boxShadow = 'none';
-                }}
+                className="py-3 px-6 bg-white/[0.06] border border-gold-1/20 rounded-full text-[#F0EDE8] text-sm text-center font-body outline-none transition-all duration-300 focus:border-gold-1 focus:shadow-[0_0_20px_rgba(200,169,110,0.15)] placeholder:text-[#5A5450]"
               />
 
               {error && (
-                <p style={{ color: '#E63946', fontSize: '0.8rem' }}>{error}</p>
+                <p className="text-[#E63946] text-[0.8rem]">{error}</p>
               )}
 
               <button
                 type="submit"
                 disabled={loading}
-                style={{
-                  padding: '0.75rem 2rem',
-                  background: loading ? 'rgba(200,169,110,0.3)' : 'linear-gradient(135deg, #A8894E, #D4BC8B)',
-                  border: 'none',
-                  borderRadius: '9999px',
-                  color: '#2C2A35',
-                  fontFamily: 'var(--font-josefin), sans-serif',
-                  fontSize: '0.75rem',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.3s',
-                  boxShadow: loading ? 'none' : '0 0 30px rgba(200,169,110,0.3)',
-                }}
+                className={`
+                  py-3 px-8 border-none rounded-full font-label text-xs tracking-[0.1em] uppercase transition-all duration-300
+                  ${loading
+                    ? 'bg-gold-1/30 text-dark cursor-not-allowed shadow-none'
+                    : 'bg-gradient-to-br from-gold-3 to-gold-2 text-dark cursor-pointer shadow-[0_0_30px_rgba(200,169,110,0.3)] hover:opacity-90'
+                  }
+                `}
               >
                 {loading ? '...' : 'Magic Link senden'}
               </button>
             </form>
 
-            <p style={{
-              marginTop: '1.5rem',
-              fontSize: '0.75rem',
-              color: '#5A5450',
-            }}>
+            <p className="mt-6 text-xs text-[#5A5450]">
               Du erhältst einen einmaligen Login-Link per E-Mail.
               <br />Kein Passwort nötig.
             </p>
@@ -159,46 +98,19 @@ export default function LoginPage() {
         ) : (
           /* Success State */
           <>
-            <div style={{
-              width: '48px', height: '48px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(82,183,136,0.15)',
-              border: '1px solid rgba(82,183,136,0.3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 1.5rem',
-              fontSize: '1.25rem',
-            }}>
+            <div className="w-12 h-12 rounded-full bg-[rgba(82,183,136,0.15)] border border-[rgba(82,183,136,0.3)] flex items-center justify-center mx-auto mb-6 text-xl">
               ✓
             </div>
-            <p style={{
-              fontFamily: 'var(--font-josefin), sans-serif',
-              fontSize: '0.75rem',
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: '#52B788',
-              marginBottom: '1rem',
-            }}>
+            <p className="font-label text-xs tracking-[0.2em] uppercase text-[#52B788] mb-4">
               Magic Link gesendet
             </p>
-            <p style={{ color: '#a09a90', fontSize: '0.875rem', lineHeight: 1.8 }}>
-              Prüfe dein Postfach für <strong style={{ color: '#D4BC8B' }}>{email}</strong>.
+            <p className="text-[#a09a90] text-sm leading-[1.8]">
+              Prüfe dein Postfach für <strong className="text-gold-2">{email}</strong>.
               <br />Klicke den Link um dich anzumelden.
             </p>
             <button
               onClick={() => { setSent(false); setEmail(''); }}
-              style={{
-                marginTop: '1.5rem',
-                background: 'none',
-                border: '1px solid rgba(200,169,110,0.3)',
-                borderRadius: '9999px',
-                padding: '0.5rem 1.5rem',
-                color: '#C8A96E',
-                fontFamily: 'var(--font-josefin), sans-serif',
-                fontSize: '0.75rem',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-              }}
+              className="mt-6 bg-transparent border border-gold-1/30 rounded-full py-2 px-6 text-gold-1 font-label text-xs tracking-[0.1em] uppercase cursor-pointer hover:border-gold-1/50 transition-colors duration-200"
             >
               Andere E-Mail
             </button>

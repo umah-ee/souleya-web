@@ -66,21 +66,17 @@ export default function FeedClient({ user }: Props) {
 
       {/* Pulses */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem 0', color: '#5A5450' }}>
-          <p style={{ fontFamily: 'var(--font-josefin)', fontSize: '0.7rem', letterSpacing: '0.2em' }}>
+        <div className="text-center py-12 text-[#5A5450]">
+          <p className="font-label text-[0.7rem] tracking-[0.2em]">
             WIRD GELADEN …
           </p>
         </div>
       ) : pulses.length === 0 ? (
-        <div style={{
-          textAlign: 'center', padding: '4rem 1rem',
-          border: '1px dashed rgba(200,169,110,0.15)',
-          borderRadius: 16,
-        }}>
-          <p style={{ color: '#A8894E', fontFamily: 'var(--font-cormorant)', fontSize: '1.5rem', fontWeight: 300, marginBottom: 8 }}>
+        <div className="text-center py-16 px-4 border border-dashed border-gold-1/15 rounded-2xl">
+          <p className="text-gold-3 font-heading text-2xl font-light mb-2">
             Der Pulse wartet
           </p>
-          <p style={{ color: '#5A5450', fontSize: '0.875rem' }}>
+          <p className="text-[#5A5450] text-sm">
             Teile als erstes deinen Impuls mit der Community.
           </p>
         </div>
@@ -95,20 +91,11 @@ export default function FeedClient({ user }: Props) {
             />
           ))}
           {hasMore && (
-            <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+            <div className="text-center py-4">
               <button
                 onClick={handleLoadMore}
                 disabled={loadingMore}
-                style={{
-                  padding: '10px 24px',
-                  background: 'none',
-                  border: '1px solid rgba(200,169,110,0.3)',
-                  borderRadius: 99,
-                  color: '#C8A96E',
-                  fontFamily: 'var(--font-josefin)', fontSize: '0.7rem',
-                  letterSpacing: '0.1em', textTransform: 'uppercase',
-                  cursor: 'pointer',
-                }}
+                className="px-6 py-2.5 bg-transparent border border-gold-1/30 rounded-full text-gold-1 font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer hover:border-gold-1/50 transition-colors duration-200"
               >
                 {loadingMore ? '…' : 'Mehr laden'}
               </button>

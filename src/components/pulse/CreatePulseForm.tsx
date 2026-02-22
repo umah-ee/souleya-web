@@ -13,10 +13,12 @@ export default function CreatePulseForm({ onCreated }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const maxLen = 1000;
+  const isEmpty = !content.trim();
+  const isDisabled = isEmpty || loading;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || loading) return;
+    if (isDisabled) return;
 
     setLoading(true);
     setError('');
@@ -31,53 +33,31 @@ export default function CreatePulseForm({ onCreated }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{
-      backgroundColor: '#2C2A35',
-      border: '1px solid rgba(200,169,110,0.15)',
-      borderRadius: 16,
-      padding: '1.25rem',
-      marginBottom: '1.5rem',
-    }}>
+    <form onSubmit={handleSubmit} className="bg-dark rounded-2xl border border-gold-1/15 p-5 mb-6">
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Teile einen Gedanken, eine Erfahrung, einen Impuls …"
         maxLength={maxLen}
         rows={3}
-        style={{
-          width: '100%', background: 'none', border: 'none', resize: 'none',
-          color: '#F0EDE8', fontFamily: 'var(--font-body)', fontSize: '0.95rem',
-          fontWeight: 300, lineHeight: 1.8, outline: 'none',
-        }}
+        className="w-full bg-transparent border-none resize-none text-[#F0EDE8] font-body text-[0.95rem] font-light leading-[1.8] outline-none placeholder:text-[#5A5450]"
       />
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        paddingTop: 12, borderTop: '1px solid rgba(200,169,110,0.08)',
-        marginTop: 8,
-      }}>
-        <span style={{
-          fontSize: '0.7rem', color: content.length > maxLen * 0.9 ? '#F4A261' : '#5A5450',
-          fontFamily: 'var(--font-label)',
-        }}>
+      <div className="flex items-center justify-between pt-3 border-t border-gold-1/[0.08] mt-2">
+        <span className={`text-[0.7rem] font-label ${content.length > maxLen * 0.9 ? 'text-[#F4A261]' : 'text-[#5A5450]'}`}>
           {content.length} / {maxLen}
         </span>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {error && <span style={{ color: '#E63946', fontSize: '0.75rem' }}>{error}</span>}
+        <div className="flex gap-2 items-center">
+          {error && <span className="text-[#E63946] text-xs">{error}</span>}
           <button
             type="submit"
-            disabled={!content.trim() || loading}
-            style={{
-              padding: '8px 20px',
-              background: !content.trim() || loading
-                ? 'rgba(200,169,110,0.2)'
-                : 'linear-gradient(135deg, #A8894E, #D4BC8B)',
-              border: 'none', borderRadius: 99,
-              color: !content.trim() || loading ? '#5A5450' : '#2C2A35',
-              fontFamily: 'var(--font-label)', fontSize: '0.7rem',
-              letterSpacing: '0.1em', textTransform: 'uppercase',
-              cursor: !content.trim() || loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s',
-            }}
+            disabled={isDisabled}
+            className={`
+              px-5 py-2 border-none rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200
+              ${isDisabled
+                ? 'bg-gold-1/20 text-[#5A5450] cursor-not-allowed'
+                : 'bg-gradient-to-br from-gold-3 to-gold-2 text-dark cursor-pointer hover:opacity-90'
+              }
+            `}
           >
             {loading ? '…' : 'Teilen'}
           </button>

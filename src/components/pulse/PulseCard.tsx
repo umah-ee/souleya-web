@@ -21,17 +21,14 @@ function timeAgo(dateString: string): string {
 function AuthorAvatar({ author }: { author: Pulse['author'] }) {
   const initials = (author.display_name ?? author.username ?? '?').slice(0, 1).toUpperCase();
   return (
-    <div style={{
-      width: 40, height: 40, borderRadius: '50%',
-      backgroundColor: 'rgba(200,169,110,0.15)',
-      border: `1px solid ${author.is_origin_soul ? 'rgba(200,169,110,0.5)' : 'rgba(200,169,110,0.2)'}`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontFamily: 'var(--font-cormorant)', fontSize: '1.1rem',
-      color: '#C8A96E', flexShrink: 0,
-    }}>
+    <div className={`
+      w-10 h-10 rounded-full bg-gold-1/15 flex-shrink-0
+      flex items-center justify-center font-heading text-[1.1rem] text-gold-1
+      border ${author.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}
+    `}>
       {author.avatar_url ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={author.avatar_url} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+        <img src={author.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
       ) : initials}
     </div>
   );
@@ -51,7 +48,6 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
     try {
       await toggleLike(pulse.id, liked);
     } catch {
-      // revert on error
       setLiked(liked);
       setLikesCount((c) => c + (newLiked ? -1 : 1));
     }
@@ -67,88 +63,70 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
   const isOwner = currentUserId === pulse.author.id;
 
   return (
-    <article style={{
-      backgroundColor: '#2C2A35',
-      border: '1px solid rgba(200,169,110,0.1)',
-      borderRadius: 16,
-      padding: '1.25rem',
-      marginBottom: '1rem',
-    }}>
+    <article className="bg-dark rounded-2xl border border-gold-1/10 p-5 mb-4">
       {/* Author Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+      <div className="flex items-center gap-3 mb-3">
         <AuthorAvatar author={pulse.author} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{
-              fontFamily: 'var(--font-body)', fontWeight: 500,
-              fontSize: '0.875rem', color: '#F0EDE8',
-            }}>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-body font-medium text-sm text-[#F0EDE8]">
               {pulse.author.display_name ?? pulse.author.username ?? 'Anonym'}
             </span>
             {pulse.author.is_origin_soul && (
-              <span style={{
-                fontSize: '0.6rem', letterSpacing: '0.15em', textTransform: 'uppercase',
-                color: '#A8894E', fontFamily: 'var(--font-label)',
-                border: '1px solid rgba(168,137,78,0.3)',
-                borderRadius: 99, padding: '1px 6px',
-              }}>Origin Soul</span>
+              <span className="text-[0.6rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-1.5 py-px">
+                Origin Soul
+              </span>
             )}
           </div>
-          <span style={{ fontSize: '0.75rem', color: '#5A5450', fontFamily: 'var(--font-label)' }}>
+          <span className="text-xs text-[#5A5450] font-label">
             {timeAgo(pulse.created_at)}
           </span>
         </div>
         {isOwner && (
-          <button onClick={handleDelete} style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: '#5A5450', fontSize: '1rem', padding: 4,
-          }} title="Loeschen">×</button>
+          <button
+            onClick={handleDelete}
+            className="bg-transparent border-none cursor-pointer text-[#5A5450] text-base p-1 hover:text-gold-1/60 transition-colors"
+            title="Loeschen"
+          >
+            ×
+          </button>
         )}
       </div>
 
       {/* Content */}
-      <p style={{
-        color: '#c8c0b8', lineHeight: 1.8, fontSize: '0.95rem',
-        fontFamily: 'var(--font-body)', fontWeight: 300,
-        whiteSpace: 'pre-wrap', marginBottom: 12,
-      }}>
+      <p className="text-[#c8c0b8] leading-[1.8] text-[0.95rem] font-body font-light whitespace-pre-wrap mb-3">
         {pulse.content}
       </p>
 
       {/* Image */}
       {pulse.image_url && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={pulse.image_url} alt="" style={{
-          width: '100%', borderRadius: 8, marginBottom: 12,
-          maxHeight: 400, objectFit: 'cover',
-        }} />
+        <img
+          src={pulse.image_url}
+          alt=""
+          className="w-full rounded-lg mb-3 max-h-[400px] object-cover"
+        />
       )}
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: 16, paddingTop: 8, borderTop: '1px solid rgba(200,169,110,0.06)' }}>
+      <div className="flex gap-4 pt-2 border-t border-gold-1/[0.06]">
         <button
           onClick={handleLike}
           disabled={!currentUserId}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: 'none', border: 'none', cursor: currentUserId ? 'pointer' : 'default',
-            color: liked ? '#C8A96E' : '#5A5450',
-            fontFamily: 'var(--font-label)', fontSize: '0.7rem',
-            letterSpacing: '0.1em', textTransform: 'uppercase',
-            padding: '4px 0', transition: 'color 0.2s',
-          }}
+          className={`
+            flex items-center gap-1.5 bg-transparent border-none py-1
+            font-label text-[0.7rem] tracking-[0.1em] uppercase transition-colors duration-200
+            ${currentUserId ? 'cursor-pointer' : 'cursor-default'}
+            ${liked ? 'text-gold-1' : 'text-[#5A5450]'}
+          `}
         >
-          <span style={{ fontSize: '1rem' }}>{liked ? '♥' : '♡'}</span>
+          <span className="text-base">{liked ? '♥' : '♡'}</span>
           {likesCount > 0 && <span>{likesCount}</span>}
           <span>Like</span>
         </button>
 
-        <span style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          color: '#5A5450', fontFamily: 'var(--font-label)',
-          fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase',
-        }}>
-          <span style={{ fontSize: '1rem' }}>○</span>
+        <span className="flex items-center gap-1.5 text-[#5A5450] font-label text-[0.7rem] tracking-[0.1em] uppercase">
+          <span className="text-base">○</span>
           {pulse.comments_count > 0 && <span>{pulse.comments_count}</span>}
           <span>Kommentare</span>
         </span>
