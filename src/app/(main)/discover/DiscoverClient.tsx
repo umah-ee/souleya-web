@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import type { UserSearchResult } from '@/lib/users';
 import type { ConnectionStatus } from '@/types/circles';
 import type { SoEvent } from '@/types/events';
@@ -86,7 +87,6 @@ export default function DiscoverClient({ userId }: Props) {
   // ── Map Move Handler ──────────────────────────────────────
   const handleMapMove = useCallback((center: { lat: number; lng: number }) => {
     setMapCenter([center.lng, center.lat]);
-    // Neu laden nach Kartenbewegung (debounced ueber useEffect)
   }, []);
 
   // Debounced Reload nach Map-Move
@@ -240,31 +240,37 @@ export default function DiscoverClient({ userId }: Props) {
   };
 
   return (
-    <>
-      {/* Desktop Header */}
-      <div className="hidden md:block mb-6">
-        <h1 className="font-heading text-2xl font-light text-gold-1 tracking-wide">
-          Entdecken
-        </h1>
-        <p className="text-sm text-[#5A5450] font-body mt-1">
-          Finde Souls in deiner Naehe und entdecke Events
-        </p>
-      </div>
+    <div className="-mx-4 -mt-6">
+      {/* ─── KARTE + SCHWEBENDE SUCHE ──────────────────────── */}
+      <div className="relative">
+        {/* Karte – volle Breite, grosse Hoehe */}
+        <div className={isSearchActive ? 'hidden' : 'block'}>
+          <MapView
+            users={nearbyUsers}
+            events={events}
+            center={mapCenter}
+            onMapMove={handleMapMove}
+            fullWidth
+          />
+        </div>
 
-      {/* Suchfeld */}
-      <div className="mb-4">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Name, @username oder E-Mail suchen …"
-          className="w-full py-3 px-5 bg-dark border border-gold-1/15 rounded-2xl text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1/40 transition-colors placeholder:text-[#5A5450]"
-        />
+        {/* Schwebendes Suchfeld ueber der Karte */}
+        <div className={`
+          ${isSearchActive ? 'relative px-4 pt-2' : 'absolute top-3 left-4 right-4 z-10'}
+        `}>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Souls suchen …"
+            className="w-full py-3 px-5 bg-dark-est/90 backdrop-blur-xl border border-gold-1/20 rounded-2xl text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1/40 transition-colors placeholder:text-[#5A5450] shadow-lg shadow-black/20"
+          />
+        </div>
       </div>
 
       {/* ─── SUCHE AKTIV ──────────────────────────────────── */}
       {isSearchActive ? (
-        <>
+        <div className="px-4 py-4">
           {searching && (
             <div className="text-center py-8 text-[#5A5450]">
               <p className="font-label text-[0.7rem] tracking-[0.2em]">SUCHE …</p>
@@ -285,46 +291,43 @@ export default function DiscoverClient({ userId }: Props) {
               </p>
               {searchResults.map((user) => {
                 const initials = (user.display_name ?? user.username ?? '?').slice(0, 1).toUpperCase();
+                const CardWrapper = user.username
+                  ? ({ children }: { children: React.ReactNode }) => <Link href={`/u/${user.username}`} className="block">{children}</Link>
+                  : ({ children }: { children: React.ReactNode }) => <>{children}</>;
                 return (
-                  <div key={user.id} className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4">
-                    <div className={`w-12 h-12 rounded-full bg-gold-1/15 flex-shrink-0 flex items-center justify-center font-heading text-lg text-gold-1 border ${user.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}`}>
-                      {user.avatar_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={user.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                      ) : initials}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-body font-medium text-sm text-[#F0EDE8] truncate">
-                          {user.display_name ?? user.username ?? 'Anonym'}
-                        </span>
-                        {user.is_origin_soul && (
-                          <span className="text-[0.55rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-1.5 py-px flex-shrink-0">Origin</span>
-                        )}
+                  <div key={user.id} className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4 hover:border-gold-1/25 transition-colors">
+                    <CardWrapper>
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`w-12 h-12 rounded-full bg-gold-1/15 flex-shrink-0 flex items-center justify-center font-heading text-lg text-gold-1 border ${user.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}`}>
+                          {user.avatar_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={user.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                          ) : initials}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-body font-medium text-sm text-[#F0EDE8] truncate">
+                              {user.display_name ?? user.username ?? 'Anonym'}
+                            </span>
+                            {user.is_origin_soul && (
+                              <span className="text-[0.55rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-1.5 py-px flex-shrink-0">Origin</span>
+                            )}
+                          </div>
+                          {user.username && <p className="text-xs text-[#5A5450] font-label">@{user.username}</p>}
+                          {user.bio && <p className="text-xs text-[#5A5450] font-body mt-0.5 truncate">{user.bio}</p>}
+                        </div>
                       </div>
-                      {user.username && <p className="text-xs text-[#5A5450] font-label">@{user.username}</p>}
-                      {user.bio && <p className="text-xs text-[#5A5450] font-body mt-0.5 truncate">{user.bio}</p>}
-                    </div>
+                    </CardWrapper>
                     <div className="flex-shrink-0">{getStatusButton(user)}</div>
                   </div>
                 );
               })}
             </div>
           )}
-        </>
+        </div>
       ) : (
-        /* ─── DISCOVER-MODUS (Karte + Listen) ──────────── */
-        <>
-          {/* Karte */}
-          <div className="mb-4">
-            <MapView
-              users={nearbyUsers}
-              events={events}
-              center={mapCenter}
-              onMapMove={handleMapMove}
-            />
-          </div>
-
+        /* ─── DISCOVER-MODUS (Listen unter der Karte) ──────── */
+        <div className="px-4 pt-4">
           {/* Segment Toggle */}
           <div className="flex gap-2 mb-4">
             {(['nearby', 'events'] as DiscoverTab[]).map((t) => (
@@ -362,7 +365,30 @@ export default function DiscoverClient({ userId }: Props) {
                 <div className="space-y-3">
                   {nearbyUsers.map((user) => {
                     const initials = (user.display_name ?? user.username ?? '?').slice(0, 1).toUpperCase();
-                    return (
+                    return user.username ? (
+                      <Link key={user.id} href={`/u/${user.username}`} className="block">
+                        <div className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4 hover:border-gold-1/25 transition-colors">
+                          <div className={`w-12 h-12 rounded-full bg-gold-1/15 flex-shrink-0 flex items-center justify-center font-heading text-lg text-gold-1 border ${user.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}`}>
+                            {user.avatar_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={user.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                            ) : initials}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-body font-medium text-sm text-[#F0EDE8] truncate">
+                                {user.display_name ?? user.username ?? 'Anonym'}
+                              </span>
+                              {user.is_origin_soul && (
+                                <span className="text-[0.55rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-1.5 py-px flex-shrink-0">Origin</span>
+                              )}
+                            </div>
+                            <p className="text-xs text-[#5A5450] font-label">@{user.username}</p>
+                            {user.location && <p className="text-xs text-[#9A9080] font-body mt-0.5">📍 {user.location}</p>}
+                          </div>
+                        </div>
+                      </Link>
+                    ) : (
                       <div key={user.id} className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4">
                         <div className={`w-12 h-12 rounded-full bg-gold-1/15 flex-shrink-0 flex items-center justify-center font-heading text-lg text-gold-1 border ${user.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}`}>
                           {user.avatar_url ? (
@@ -371,15 +397,9 @@ export default function DiscoverClient({ userId }: Props) {
                           ) : initials}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-body font-medium text-sm text-[#F0EDE8] truncate">
-                              {user.display_name ?? user.username ?? 'Anonym'}
-                            </span>
-                            {user.is_origin_soul && (
-                              <span className="text-[0.55rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-1.5 py-px flex-shrink-0">Origin</span>
-                            )}
-                          </div>
-                          {user.username && <p className="text-xs text-[#5A5450] font-label">@{user.username}</p>}
+                          <span className="font-body font-medium text-sm text-[#F0EDE8] truncate">
+                            {user.display_name ?? 'Anonym'}
+                          </span>
                           {user.location && <p className="text-xs text-[#9A9080] font-body mt-0.5">📍 {user.location}</p>}
                         </div>
                       </div>
@@ -420,8 +440,8 @@ export default function DiscoverClient({ userId }: Props) {
               )}
             </>
           )}
-        </>
+        </div>
       )}
-    </>
+    </div>
   );
 }

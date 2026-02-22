@@ -15,8 +15,8 @@ export default function MainLayout({
       {/* Mobile Header */}
       <MobileHeader />
 
-      {/* Content Area */}
-      <main className="md:ml-16 pb-20 md:pb-0">
+      {/* Content Area – pt-14 auf Mobile fuer floating Header */}
+      <main className="md:ml-16 pb-20 md:pb-0 pt-14 md:pt-0">
         <div className="max-w-[640px] mx-auto px-4 py-6">
           {children}
         </div>

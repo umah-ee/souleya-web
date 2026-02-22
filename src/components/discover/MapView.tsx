@@ -20,11 +20,12 @@ interface Props {
   events: SoEvent[];
   center: [number, number]; // [lng, lat]
   onMapMove?: (center: { lat: number; lng: number }) => void;
+  fullWidth?: boolean;
 }
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? '';
 
-export default function MapView({ users, events, center, onMapMove }: Props) {
+export default function MapView({ users, events, center, onMapMove, fullWidth = false }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -74,25 +75,35 @@ export default function MapView({ users, events, center, onMapMove }: Props) {
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
-    // User-Marker (Gold)
+    // User-Marker (Profilbild oder Initiale)
     users.forEach((user) => {
       const initial = (user.display_name ?? user.username ?? '?').slice(0, 1).toUpperCase();
       const el = document.createElement('div');
       el.className = 'souleya-marker-user';
-      el.innerHTML = `<span>${initial}</span>`;
+
+      if (user.avatar_url) {
+        // Profilbild als Marker
+        el.innerHTML = `<img src="${user.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+      } else {
+        // Initiale als Fallback
+        el.innerHTML = `<span style="font-size:14px;font-weight:600;color:#1E1C26;">${initial}</span>`;
+      }
+
+      const borderColor = user.is_origin_soul ? 'rgba(200,169,110,0.8)' : 'rgba(200,169,110,0.5)';
       el.style.cssText = `
-        width: 32px; height: 32px; border-radius: 50%;
-        background: linear-gradient(135deg, #A8894E, #C8A96E);
+        width: 40px; height: 40px; border-radius: 50%;
+        ${user.avatar_url ? '' : 'background: linear-gradient(135deg, #A8894E, #C8A96E);'}
         display: flex; align-items: center; justify-content: center;
-        color: #1E1C26; font-size: 13px; font-weight: 600;
-        border: 2px solid rgba(200,169,110,0.5);
-        cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        border: 2.5px solid ${borderColor};
+        cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        overflow: hidden;
       `;
 
-      const popup = new mapboxgl.Popup({ offset: 20, closeButton: false })
+      const popup = new mapboxgl.Popup({ offset: 24, closeButton: false })
         .setHTML(`
           <div style="font-family: sans-serif; color: #F0EDE8; font-size: 12px;">
             <strong>${user.display_name ?? user.username ?? 'Anonym'}</strong>
+            ${user.username ? `<br><span style="color: #9A9080; font-size: 11px;">@${user.username}</span>` : ''}
             ${user.is_origin_soul ? '<br><span style="color: #C8A96E; font-size: 10px;">Origin Soul</span>' : ''}
           </div>
         `);
@@ -111,15 +122,15 @@ export default function MapView({ users, events, center, onMapMove }: Props) {
       el.className = 'souleya-marker-event';
       el.innerHTML = '<span>☆</span>';
       el.style.cssText = `
-        width: 32px; height: 32px; border-radius: 50%;
+        width: 36px; height: 36px; border-radius: 50%;
         background: linear-gradient(135deg, #7B4FA2, #9B72CF);
         display: flex; align-items: center; justify-content: center;
         color: #fff; font-size: 14px;
         border: 2px solid rgba(155,114,207,0.5);
-        cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.4);
       `;
 
-      const popup = new mapboxgl.Popup({ offset: 20, closeButton: false })
+      const popup = new mapboxgl.Popup({ offset: 22, closeButton: false })
         .setHTML(`
           <div style="font-family: sans-serif; color: #F0EDE8; font-size: 12px;">
             <strong>${event.title}</strong>
@@ -139,14 +150,14 @@ export default function MapView({ users, events, center, onMapMove }: Props) {
 
   if (!MAPBOX_TOKEN) {
     return (
-      <div className="w-full h-[280px] rounded-2xl bg-dark border border-gold-1/10 flex items-center justify-center">
+      <div className={`w-full ${fullWidth ? 'h-[50vh]' : 'h-[280px] rounded-2xl'} bg-dark border border-gold-1/10 flex items-center justify-center`}>
         <p className="text-[#5A5450] text-sm font-body">Karte nicht verfuegbar (Token fehlt)</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-[280px] rounded-2xl overflow-hidden border border-gold-1/10 relative">
+    <div className={`w-full ${fullWidth ? 'h-[50vh]' : 'h-[280px] rounded-2xl'} overflow-hidden ${fullWidth ? '' : 'border border-gold-1/10'} relative`}>
       <div ref={mapContainer} className="w-full h-full" />
       {/* Custom Popup Styles */}
       <style jsx global>{`

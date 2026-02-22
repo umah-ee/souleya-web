@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const tabs = [
-  { href: '/', icon: '◎', label: 'Home' },
+  { href: '/', icon: '◎', label: 'Pulse' },
   { href: '/discover', icon: '◈', label: 'Discover' },
   { href: '/circles', icon: '⊕', label: 'Circle' },
+  { href: '/profile', icon: '◯', label: 'Profil' },
 ];
 
 export default function BottomTabs() {

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import type { Connection } from '@/types/circles';
 
 interface Props {
@@ -11,8 +12,8 @@ export default function ConnectionCard({ connection, onRemove }: Props) {
   const { profile } = connection;
   const initials = (profile.display_name ?? profile.username ?? '?').slice(0, 1).toUpperCase();
 
-  return (
-    <div className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4 mb-3">
+  const profileContent = (
+    <>
       {/* Avatar */}
       <div className={`
         w-11 h-11 rounded-full bg-gold-1/15 flex-shrink-0
@@ -43,11 +44,25 @@ export default function ConnectionCard({ connection, onRemove }: Props) {
           </span>
         )}
       </div>
+    </>
+  );
+
+  return (
+    <div className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4 mb-3 hover:border-gold-1/25 transition-colors">
+      {profile.username ? (
+        <Link href={`/u/${profile.username}`} className="flex items-center gap-3 flex-1 min-w-0">
+          {profileContent}
+        </Link>
+      ) : (
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {profileContent}
+        </div>
+      )}
 
       {/* Entfernen */}
       <button
         onClick={() => onRemove(connection.id)}
-        className="px-3 py-1.5 bg-transparent border border-[#5A5450]/30 rounded-full text-[#5A5450] font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer hover:border-[#E63946]/40 hover:text-[#E63946] transition-colors duration-200"
+        className="px-3 py-1.5 bg-transparent border border-[#5A5450]/30 rounded-full text-[#5A5450] font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer hover:border-[#E63946]/40 hover:text-[#E63946] transition-colors duration-200 flex-shrink-0"
       >
         Entfernen
       </button>
