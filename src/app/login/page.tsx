@@ -1,13 +1,24 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+
+const DEMO_USERS = [
+  { email: 'lena@souleya-demo.com', name: 'Lena Sonnenberg', role: 'Yogalehrerin' },
+  { email: 'sophia@souleya-demo.com', name: 'Sophia Lichtweg', role: 'Reiki-Meisterin' },
+  { email: 'max@souleya-demo.com', name: 'Max Bergmann', role: 'Achtsamkeitstrainer' },
+  { email: 'david@souleya-demo.com', name: 'David Goldbach', role: 'Buddhismus-Lehrer' },
+];
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+  const [showDemo, setShowDemo] = useState(false);
+  const [demoLoading, setDemoLoading] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +41,24 @@ export default function LoginPage() {
       setSent(true);
     }
     setLoading(false);
+  };
+
+  const handleDemoLogin = async (demoEmail: string) => {
+    setDemoLoading(demoEmail);
+    setError('');
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: demoEmail,
+      password: 'Demo1234!',
+    });
+
+    if (error) {
+      setError('Demo-Login fehlgeschlagen. Bitte versuche es erneut.');
+      setDemoLoading(null);
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   return (
@@ -94,6 +123,42 @@ export default function LoginPage() {
               Du erhältst einen einmaligen Login-Link per E-Mail.
               <br />Kein Passwort nötig.
             </p>
+
+            {/* Demo-Zugang */}
+            <div className="mt-8 pt-6 border-t border-gold-1/10">
+              <button
+                onClick={() => setShowDemo(!showDemo)}
+                className="text-xs text-[#5A5450] hover:text-gold-2 transition-colors cursor-pointer font-label tracking-[0.1em] uppercase"
+              >
+                {showDemo ? '▾ Demo-Zugang ausblenden' : '▸ Demo-Zugang'}
+              </button>
+
+              {showDemo && (
+                <div className="mt-4 flex flex-col gap-2">
+                  {DEMO_USERS.map((user) => (
+                    <button
+                      key={user.email}
+                      onClick={() => handleDemoLogin(user.email)}
+                      disabled={demoLoading !== null}
+                      className={`
+                        py-2.5 px-4 rounded-xl text-left transition-all duration-200 border
+                        ${demoLoading === user.email
+                          ? 'bg-gold-1/10 border-gold-1/30 cursor-wait'
+                          : 'bg-white/[0.03] border-white/[0.06] hover:border-gold-1/30 hover:bg-gold-1/5 cursor-pointer'
+                        }
+                        ${demoLoading !== null && demoLoading !== user.email ? 'opacity-40' : ''}
+                      `}
+                    >
+                      <span className="text-sm text-[#F0EDE8] block">{user.name}</span>
+                      <span className="text-[0.7rem] text-[#5A5450]">{user.role}</span>
+                    </button>
+                  ))}
+                  <p className="text-[0.65rem] text-[#3A3530] mt-1">
+                    Demo-Accounts mit vordefinierten Testdaten
+                  </p>
+                </div>
+              )}
+            </div>
           </>
         ) : (
           /* Success State */
