@@ -10,7 +10,7 @@ import CreatePulseForm from '@/components/pulse/CreatePulseForm';
 import { useRouter } from 'next/navigation';
 
 interface Props {
-  user: User;
+  user: User | null;
 }
 
 export default function DashboardClient({ user }: Props) {
@@ -29,7 +29,7 @@ export default function DashboardClient({ user }: Props) {
     } catch (e) {
       console.error(e);
     }
-  }, [user.id]);
+  }, [user?.id]);
 
   useEffect(() => {
     setLoading(true);
@@ -123,7 +123,7 @@ export default function DashboardClient({ user }: Props) {
               <PulseCard
                 key={pulse.id}
                 pulse={pulse}
-                currentUserId={user.id}
+                currentUserId={user?.id}
                 onDelete={handleDelete}
               />
             ))}
