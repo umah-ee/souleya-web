@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 
 const navItems = [
   { href: '/', icon: '◎', label: 'Home' },
+  { href: '/discover', icon: '◈', label: 'Discover' },
   { href: '/circles', icon: '⊕', label: 'Circle' },
 ];
 

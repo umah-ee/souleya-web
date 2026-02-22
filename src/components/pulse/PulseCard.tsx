@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Pulse } from '@/types/pulse';
 import { toggleLike, deletePulse } from '@/lib/pulse';
+import CommentsSection from './CommentsSection';
 
 interface Props {
   pulse: Pulse;
@@ -38,6 +39,8 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
   const [liked, setLiked] = useState(pulse.has_liked ?? false);
   const [likesCount, setLikesCount] = useState(pulse.likes_count);
   const [liking, setLiking] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [commentsCount, setCommentsCount] = useState(pulse.comments_count);
 
   const handleLike = async () => {
     if (!currentUserId || liking) return;
@@ -125,12 +128,24 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
           <span>Like</span>
         </button>
 
-        <span className="flex items-center gap-1.5 text-[#5A5450] font-label text-[0.7rem] tracking-[0.1em] uppercase">
+        <button
+          onClick={() => setShowComments((s) => !s)}
+          className="flex items-center gap-1.5 bg-transparent border-none py-1 cursor-pointer text-[#5A5450] font-label text-[0.7rem] tracking-[0.1em] uppercase transition-colors duration-200 hover:text-gold-1/60"
+        >
           <span className="text-base">○</span>
-          {pulse.comments_count > 0 && <span>{pulse.comments_count}</span>}
+          {commentsCount > 0 && <span>{commentsCount}</span>}
           <span>Kommentare</span>
-        </span>
+        </button>
       </div>
+
+      {/* Comments Section */}
+      {showComments && (
+        <CommentsSection
+          pulseId={pulse.id}
+          currentUserId={currentUserId}
+          onCountChange={(delta) => setCommentsCount((c) => c + delta)}
+        />
+      )}
     </article>
   );
 }
