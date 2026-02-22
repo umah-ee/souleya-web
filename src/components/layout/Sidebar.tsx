@@ -6,7 +6,6 @@ import { createClient } from '@/lib/supabase/client';
 
 const navItems = [
   { href: '/', icon: '◎', label: 'Home' },
-  { href: '/profile', icon: '◯', label: 'Profil' },
 ];
 
 export default function Sidebar() {
@@ -66,6 +65,22 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Avatar → Profil */}
+      <Link
+        href="/profile"
+        className={`
+          w-9 h-9 rounded-full flex items-center justify-center mb-2
+          border transition-colors duration-200
+          ${pathname.startsWith('/profile')
+            ? 'bg-gold-1/15 border-gold-1/50 text-gold-1'
+            : 'bg-gold-1/10 border-gold-1/20 text-gold-1/60 hover:border-gold-1/40'
+          }
+        `}
+        title="Profil"
+      >
+        <span className="font-heading text-sm">◯</span>
+      </Link>
 
       {/* Logout */}
       <button

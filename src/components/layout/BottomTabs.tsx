@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 
 const tabs = [
   { href: '/', icon: '◎', label: 'Home' },
-  { href: '/profile', icon: '◯', label: 'Profil' },
 ];
 
 export default function BottomTabs() {
