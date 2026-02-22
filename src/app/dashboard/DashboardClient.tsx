@@ -23,7 +23,7 @@ export default function DashboardClient({ user }: Props) {
 
   const loadFeed = useCallback(async (pageNum: number, replace: boolean) => {
     try {
-      const result = await fetchFeed(pageNum, 20, user.id);
+      const result = await fetchFeed(pageNum, 20);
       setPulses((prev) => replace ? result.pulses : [...prev, ...result.pulses]);
       setHasMore(result.hasMore);
     } catch (e) {
