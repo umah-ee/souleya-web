@@ -38,7 +38,9 @@ export default function LoginPage() {
       email: email.trim().toLowerCase(),
       options: {
         shouldCreateUser: true,
-        // KEIN emailRedirectTo → Supabase sendet OTP-Code statt Magic Link
+        // emailRedirectTo setzt {{ .RedirectTo }} im E-Mail-Template
+        // → Button in der E-Mail fuehrt zur Web-App statt Landing Page
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
@@ -320,7 +322,10 @@ export default function LoginPage() {
                 const supabase = createClient();
                 const { error } = await supabase.auth.signInWithOtp({
                   email: email.trim().toLowerCase(),
-                  options: { shouldCreateUser: true },
+                  options: {
+                    shouldCreateUser: true,
+                    emailRedirectTo: `${window.location.origin}/auth/callback`,
+                  },
                 });
                 if (error) {
                   setError('Erneutes Senden fehlgeschlagen.');
