@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { MapNearbyUser } from './MapView';
 import type { SoEvent } from '@/types/events';
 import { VIP_NAMES } from '@/types/profile';
+import EnsoRing from '@/components/ui/EnsoRing';
 
 interface UserOverlayProps {
   type: 'user';
@@ -114,21 +115,27 @@ function UserOverlay({
             ✕
           </button>
 
-          {/* Avatar + Info */}
+          {/* Avatar im Enso Ring + Info */}
           <div className="flex items-start gap-4 mb-4">
-            <div
-              className="w-14 h-14 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-xl overflow-hidden"
-              style={{
-                background: 'var(--avatar-bg)',
-                color: 'var(--gold-text)',
-                border: `2px solid ${user.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
-              }}
+            <EnsoRing
+              vipLevel={user.vip_level}
+              isOriginSoul={user.is_origin_soul}
+              size="feed"
+              className="flex-shrink-0"
             >
-              {user.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-              ) : initials}
-            </div>
+              <div
+                className="w-full h-full rounded-full flex items-center justify-center font-heading text-[0.7rem] overflow-hidden"
+                style={{
+                  background: 'var(--avatar-bg)',
+                  color: 'var(--gold-text)',
+                }}
+              >
+                {user.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : initials}
+              </div>
+            </EnsoRing>
 
             <div className="flex-1 min-w-0 pr-6">
               <h3 className="font-body font-medium text-base truncate" style={{ color: 'var(--text-h)' }}>
@@ -153,7 +160,7 @@ function UserOverlay({
                       background: 'var(--gold-bg)',
                     }}
                   >
-                    Origin Soul
+                    First Light
                   </span>
                 )}
               </div>

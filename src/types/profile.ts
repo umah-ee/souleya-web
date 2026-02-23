@@ -34,7 +34,7 @@ export interface UpdateProfileData {
 
 export const VIP_NAMES: Record<number, string> = {
   1: 'Soul Spark',
-  2: 'Radiant Soul',
+  2: 'Awakened Soul',
   3: 'Harmony Keeper',
   4: 'Zen Master',
   5: 'Soul Mentor',

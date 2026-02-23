@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Pulse } from '@/types/pulse';
 import { toggleLike, deletePulse } from '@/lib/pulse';
 import CommentsSection from './CommentsSection';
+import EnsoRing from '@/components/ui/EnsoRing';
 
 interface Props {
   pulse: Pulse;
@@ -22,19 +23,25 @@ function timeAgo(dateString: string): string {
 function AuthorAvatar({ author }: { author: Pulse['author'] }) {
   const initials = (author.display_name ?? author.username ?? '?').slice(0, 1).toUpperCase();
   return (
-    <div
-      className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-[1.1rem]"
-      style={{
-        background: 'var(--avatar-bg)',
-        color: 'var(--gold-text)',
-        border: `1px solid ${author.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
-      }}
+    <EnsoRing
+      vipLevel={author.vip_level}
+      isOriginSoul={author.is_origin_soul}
+      size="feed"
+      className="flex-shrink-0"
     >
-      {author.avatar_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={author.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-      ) : initials}
-    </div>
+      <div
+        className="w-full h-full rounded-full flex items-center justify-center font-heading text-[0.7rem] overflow-hidden"
+        style={{
+          background: 'var(--avatar-bg)',
+          color: 'var(--gold-text)',
+        }}
+      >
+        {author.avatar_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={author.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+        ) : initials}
+      </div>
+    </EnsoRing>
   );
 }
 
@@ -86,7 +93,7 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
                   border: '1px solid var(--gold-border-s)',
                 }}
               >
-                Origin Soul
+                First Light
               </span>
             )}
           </div>

@@ -134,6 +134,18 @@ body {
   transition-timing-function: ease;
 }
 /* Exclude map and animations from transition */
-.mapboxgl-map *, .animate-slide-up {
+.mapboxgl-map *, .animate-slide-up, .first-light-glow, .ritter-glow {
   transition: none !important;
 }
+
+/* ── ENSO RING ANIMATIONS ────────────── */
+@keyframes first-light-glow {
+  0%, 100% { opacity: .5; }
+  50% { opacity: .9; }
+}
+@keyframes glow-ritter {
+  0%, 100% { opacity: .6; }
+  50% { opacity: 1; }
+}
+.first-light-glow { animation: first-light-glow 3s ease-in-out infinite; }
+.ritter-glow { animation: glow-ritter 2.5s ease-in-out infinite; }

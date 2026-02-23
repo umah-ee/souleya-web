@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { Connection } from '@/types/circles';
+import EnsoRing from '@/components/ui/EnsoRing';
 
 function timeAgo(dateString: string): string {
   const now = Date.now();
@@ -26,20 +27,26 @@ export function IncomingRequestCard({ request, onAccept, onDecline }: IncomingPr
 
   const avatarAndInfo = (
     <>
-      {/* Avatar */}
-      <div
-        className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-lg overflow-hidden"
-        style={{
-          background: 'var(--avatar-bg)',
-          color: 'var(--gold-text)',
-          border: `1.5px solid ${profile.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
-        }}
+      {/* Avatar im Enso Ring */}
+      <EnsoRing
+        vipLevel={profile.vip_level}
+        isOriginSoul={profile.is_origin_soul}
+        size="feed"
+        className="flex-shrink-0"
       >
-        {profile.avatar_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-        ) : initials}
-      </div>
+        <div
+          className="w-full h-full rounded-full flex items-center justify-center font-heading text-[0.7rem] overflow-hidden"
+          style={{
+            background: 'var(--avatar-bg)',
+            color: 'var(--gold-text)',
+          }}
+        >
+          {profile.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+          ) : initials}
+        </div>
+      </EnsoRing>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
@@ -103,20 +110,26 @@ export function OutgoingRequestCard({ request, onCancel }: OutgoingProps) {
 
   const avatarAndInfo = (
     <>
-      {/* Avatar */}
-      <div
-        className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-lg overflow-hidden"
-        style={{
-          background: 'var(--avatar-bg)',
-          color: 'var(--gold-text)',
-          border: `1.5px solid ${profile.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
-        }}
+      {/* Avatar im Enso Ring */}
+      <EnsoRing
+        vipLevel={profile.vip_level}
+        isOriginSoul={profile.is_origin_soul}
+        size="feed"
+        className="flex-shrink-0"
       >
-        {profile.avatar_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-        ) : initials}
-      </div>
+        <div
+          className="w-full h-full rounded-full flex items-center justify-center font-heading text-[0.7rem] overflow-hidden"
+          style={{
+            background: 'var(--avatar-bg)',
+            color: 'var(--gold-text)',
+          }}
+        >
+          {profile.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+          ) : initials}
+        </div>
+      </EnsoRing>
 
       {/* Info */}
       <div className="flex-1 min-w-0">

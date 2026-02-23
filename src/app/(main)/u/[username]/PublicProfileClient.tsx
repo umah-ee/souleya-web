@@ -8,23 +8,7 @@ import { VIP_NAMES } from '@/types/profile';
 import { fetchPublicProfile } from '@/lib/users';
 import { getConnectionStatus, sendConnectionRequest } from '@/lib/circles';
 import { createClient } from '@/lib/supabase/client';
-
-// ── Enso Ring SVG (48px) ─────────────────────────────────────
-function EnsoRing() {
-  return (
-    <svg width="48" height="48" viewBox="0 0 100 100">
-      <circle
-        cx="50" cy="50" r="38" fill="none"
-        stroke="var(--gold-border)" strokeWidth="2"
-        strokeDasharray="220 40" strokeLinecap="round"
-        transform="rotate(-90 50 50)"
-      />
-      <circle cx="83" cy="35" r="4" fill="var(--gold)" opacity=".5" />
-      <circle cx="83" cy="35" r="2" fill="var(--gold)" opacity=".8" />
-      <circle cx="83" cy="35" r="0.8" fill="#fff" opacity=".9" />
-    </svg>
-  );
-}
+import EnsoRing from '@/components/ui/EnsoRing';
 
 interface Props {
   username: string;
@@ -203,31 +187,30 @@ export default function PublicProfileClient({ username }: Props) {
             />
           </div>
 
-          {/* ─── AVATAR (80px, zentriert, -40px overlap) ── */}
-          <div className="flex justify-center -mt-[40px] relative z-10">
-            <div
-              className="w-[80px] h-[80px] rounded-full flex items-center justify-center font-heading text-[30px] overflow-hidden"
-              style={{
-                background: 'var(--avatar-bg)',
-                color: 'var(--gold-text)',
-                border: '3px solid var(--gold)',
-                boxShadow: '0 4px 20px rgba(0,0,0,.15)',
-              }}
+          {/* ─── AVATAR im Enso Ring (88px, zentriert) ── */}
+          <div className="flex justify-center -mt-[44px] relative z-10">
+            <EnsoRing
+              vipLevel={profile.vip_level}
+              isOriginSoul={profile.is_origin_soul}
+              size="profile"
             >
-              {profile.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-              ) : initials}
-            </div>
+              <div
+                className="w-full h-full rounded-full flex items-center justify-center font-heading text-[22px] overflow-hidden"
+                style={{
+                  background: 'var(--avatar-bg)',
+                  color: 'var(--gold-text)',
+                }}
+              >
+                {profile.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : initials}
+              </div>
+            </EnsoRing>
           </div>
 
           {/* ─── BODY (zentriert) ──────────────────────── */}
           <div className="px-5 pb-5 pt-3 text-center">
-
-            {/* Enso Ring */}
-            <div className="mb-2 inline-block">
-              <EnsoRing />
-            </div>
 
             {/* Name */}
             <div
@@ -245,7 +228,7 @@ export default function PublicProfileClient({ username }: Props) {
               {profile.username ? `@${profile.username}` : ''}
               {profile.username && ' · '}
               {vipName}
-              {profile.is_origin_soul && ' · Origin Soul'}
+              {profile.is_origin_soul && ' · First Light'}
             </div>
 
             {/* Bio */}
@@ -322,7 +305,7 @@ export default function PublicProfileClient({ username }: Props) {
                 ♡ Seit {new Date(profile.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
               </span>
               {profile.is_origin_soul && (
-                <span className="flex items-center gap-1">✧ Origin Soul</span>
+                <span className="flex items-center gap-1">✧ First Light</span>
               )}
             </div>
           </div>
