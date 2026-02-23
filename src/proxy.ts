@@ -2,7 +2,7 @@ import { createServerClient, type SetAllCookies } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 // Geschuetzte Routen – erfordern Auth (alle App-Routen ausser Login/Auth)
-const PUBLIC_ROUTES = ['/login', '/auth/callback'];
+const PUBLIC_ROUTES = ['/login', '/auth/'];
 
 
 export async function proxy(request: NextRequest) {
