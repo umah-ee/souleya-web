@@ -11,7 +11,7 @@ const DEMO_USERS = [
   { email: 'david@souleya-demo.com', name: 'David Goldbach', role: 'Buddhismus-Lehrer' },
 ];
 
-const OTP_LENGTH = 6;
+const OTP_LENGTH = 8;
 
 export default function LoginPage() {
   return (
