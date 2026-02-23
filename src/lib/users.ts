@@ -23,6 +23,8 @@ export interface PublicProfile {
   vip_level: number;
   is_origin_soul: boolean;
   connections_count: number;
+  pulses_count: number;
+  interests: string[];
   created_at: string;
 }
 

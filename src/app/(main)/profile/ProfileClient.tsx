@@ -8,6 +8,31 @@ import { fetchProfile, updateProfile, uploadAvatar, uploadBanner } from '@/lib/p
 import { geocodeLocation } from '@/lib/events';
 import { createClient } from '@/lib/supabase/client';
 
+// ── Enso Ring SVG (48px) ─────────────────────────────────────
+function EnsoRing() {
+  return (
+    <svg width="48" height="48" viewBox="0 0 100 100">
+      <circle
+        cx="50" cy="50" r="38" fill="none"
+        stroke="var(--gold-border)" strokeWidth="2"
+        strokeDasharray="220 40" strokeLinecap="round"
+        transform="rotate(-90 50 50)"
+      />
+      <circle cx="83" cy="35" r="4" fill="var(--gold)" opacity=".5" />
+      <circle cx="83" cy="35" r="2" fill="var(--gold)" opacity=".8" />
+      <circle cx="83" cy="35" r="0.8" fill="#fff" opacity=".9" />
+    </svg>
+  );
+}
+
+// ── Vorschlaege fuer Interest Tags ───────────────────────────
+const INTEREST_SUGGESTIONS = [
+  'Achtsamkeit', 'Yoga', 'Meditation', 'Atemarbeit', 'Heilung',
+  'Buddhismus', 'Schamanismus', 'Ayurveda', 'Reiki', 'Tantra',
+  'Naturheilkunde', 'Psychologie', 'Coaching', 'Tanz', 'Musik',
+  'Kunst', 'Journaling', 'Fasten', 'Qigong', 'Tai Chi',
+];
+
 export default function ProfileClient() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -30,7 +55,11 @@ export default function ProfileClient() {
     location: '',
     location_lat: null as number | null,
     location_lng: null as number | null,
+    interests: [] as string[],
   });
+
+  // Tag-Input State
+  const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
     fetchProfile()
@@ -43,6 +72,7 @@ export default function ProfileClient() {
           location: p.location ?? '',
           location_lat: p.location_lat,
           location_lng: p.location_lng,
+          interests: p.interests ?? [],
         });
       })
       .catch(console.error)
@@ -58,6 +88,7 @@ export default function ProfileClient() {
       location: profile.location ?? '',
       location_lat: profile.location_lat,
       location_lng: profile.location_lng,
+      interests: profile.interests ?? [],
     });
     setEditing(true);
     setError('');
@@ -143,6 +174,7 @@ export default function ProfileClient() {
         location: form.location || undefined,
         location_lat: form.location_lat ?? undefined,
         location_lng: form.location_lng ?? undefined,
+        interests: form.interests,
       });
       setProfile(updated);
       setEditing(false);
@@ -156,9 +188,7 @@ export default function ProfileClient() {
   };
 
   const handleAvatarClick = () => {
-    if (editing) {
-      fileInputRef.current?.click();
-    }
+    if (editing) fileInputRef.current?.click();
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,9 +217,7 @@ export default function ProfileClient() {
   };
 
   const handleBannerClick = () => {
-    if (editing) {
-      bannerInputRef.current?.click();
-    }
+    if (editing) bannerInputRef.current?.click();
   };
 
   const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,12 +262,31 @@ export default function ProfileClient() {
     router.push('/login');
   };
 
+  // ── Tag Handlers ──────────────────────────────────────────
+  const addTag = (tag: string) => {
+    const trimmed = tag.trim();
+    if (!trimmed || form.interests.length >= 10) return;
+    if (form.interests.includes(trimmed)) return;
+    setForm((f) => ({ ...f, interests: [...f.interests, trimmed] }));
+    setTagInput('');
+  };
+
+  const removeTag = (tag: string) => {
+    setForm((f) => ({ ...f, interests: f.interests.filter((t) => t !== tag) }));
+  };
+
+  const handleTagKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addTag(tagInput);
+    }
+  };
+
+  // ── Loading / Error States ────────────────────────────────
   if (loading) {
     return (
       <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
-        <p className="font-label text-[0.7rem] tracking-[0.2em]">
-          WIRD GELADEN ...
-        </p>
+        <p className="font-label text-[0.7rem] tracking-[0.2em]">WIRD GELADEN ...</p>
       </div>
     );
   }
@@ -254,74 +301,62 @@ export default function ProfileClient() {
 
   const initials = (profile.display_name ?? profile.username ?? profile.email ?? '?').slice(0, 1).toUpperCase();
   const vipName = VIP_NAMES[profile.vip_level] ?? `VIP ${profile.vip_level}`;
+  const interests = profile.interests ?? [];
 
   return (
-    <div className="-mx-4 -mt-6">
-      {/* ─── BANNER ────────────────────────────────────────── */}
-      <div
-        className={`relative w-full h-[180px] overflow-hidden ${editing ? 'cursor-pointer' : ''}`}
-        onClick={handleBannerClick}
-      >
-        {profile.banner_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={profile.banner_url}
-            alt=""
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div
-            className="w-full h-full"
-            style={{ background: 'linear-gradient(135deg, var(--gold-bg-hover), var(--bg-solid))' }}
-          />
-        )}
+    <div className="-mx-4 -mt-6 flex justify-center">
+      <div className="w-full max-w-[480px]">
 
-        {/* Gradient Overlay nach unten */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to top, var(--bg-solid), transparent 60%)' }}
-        />
+        {/* ═══════════════════════════════════════════════════
+            PROFIL-CARD (Style Guide Section 06)
+        ═══════════════════════════════════════════════════ */}
+        <div className="glass-card rounded-[18px] overflow-hidden">
 
-        {/* Banner-Upload Indicator */}
-        {editing && (
+          {/* ─── BANNER (140px) ─────────────────────────── */}
           <div
-            className="absolute top-3 right-3 w-8 h-8 backdrop-blur-sm rounded-full flex items-center justify-center text-sm"
-            style={{
-              background: 'var(--glass-nav)',
-              color: 'var(--gold-text)',
-              border: '1px solid var(--gold-border-s)',
-            }}
+            className={`relative w-full h-[140px] overflow-hidden ${editing ? 'cursor-pointer' : ''}`}
+            onClick={handleBannerClick}
           >
-            {uploadingBanner ? '...' : '📷'}
+            {profile.banner_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profile.banner_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div
+                className="w-full h-full"
+                style={{ background: 'linear-gradient(135deg, #D8CFBE 0%, var(--gold) 50%, #B08840 100%)' }}
+              />
+            )}
+            {/* Gradient Overlay */}
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(to top, var(--bg-solid) 0%, transparent 60%)' }}
+            />
+            {/* Banner-Upload Indicator */}
+            {editing && (
+              <div
+                className="absolute top-3 right-3 w-8 h-8 backdrop-blur-sm rounded-full flex items-center justify-center text-sm"
+                style={{ background: 'var(--glass-nav)', color: 'var(--gold-text)', border: '1px solid var(--gold-border-s)' }}
+              >
+                {uploadingBanner ? '...' : '📷'}
+              </div>
+            )}
+            <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
           </div>
-        )}
 
-        <input
-          ref={bannerInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleBannerUpload}
-        />
-      </div>
-
-      <div className="px-4">
-        {/* ─── AVATAR + NAME (ueberlappt Banner) ──────────── */}
-        <div className="flex items-end gap-4 -mt-12 mb-4 relative z-10">
-          {/* Avatar */}
-          <div className="relative flex-shrink-0">
+          {/* ─── AVATAR (80px, zentriert, -40px overlap) ── */}
+          <div className="flex justify-center -mt-[40px] relative z-10">
             <div
               onClick={handleAvatarClick}
               className={`
-                w-[88px] h-[88px] rounded-full flex items-center justify-center
-                font-heading text-3xl overflow-hidden
+                w-[80px] h-[80px] rounded-full flex items-center justify-center
+                font-heading text-[30px] overflow-hidden relative
                 ${editing ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}
               `}
               style={{
-                background: 'var(--bg-solid)',
+                background: 'var(--avatar-bg)',
                 color: 'var(--gold-text)',
-                border: `3px solid ${profile.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
-                boxShadow: profile.is_origin_soul ? '0 0 20px var(--gold-glow)' : 'none',
+                border: '3px solid var(--gold)',
+                boxShadow: '0 4px 20px rgba(0,0,0,.15)',
               }}
             >
               {profile.avatar_url ? (
@@ -337,242 +372,324 @@ export default function ProfileClient() {
                 </div>
               )}
             </div>
-            {editing && (
-              <div
-                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center text-xs shadow-lg"
-                style={{ background: 'var(--gold)', color: 'var(--text-on-gold)' }}
-              >
-                ✎
-              </div>
-            )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarUpload}
-            />
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
           </div>
 
-          {/* Name + Badges */}
-          <div className="flex-1 min-w-0 pb-1">
-            {editing ? (
-              <div className="space-y-2">
-                <input
-                  type="text"
-                  value={form.display_name}
-                  onChange={(e) => setForm((f) => ({ ...f, display_name: e.target.value }))}
-                  placeholder="Anzeigename"
-                  maxLength={60}
-                  className="w-full rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
-                  style={{
-                    background: 'var(--glass)',
-                    border: '1px solid var(--gold-border-s)',
-                    color: 'var(--text-h)',
-                  }}
-                />
-                <div className="flex items-center gap-1">
-                  <span className="text-sm" style={{ color: 'var(--text-muted)' }}>@</span>
-                  <input
-                    type="text"
-                    value={form.username}
-                    onChange={(e) => setForm((f) => ({ ...f, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
-                    placeholder="username"
-                    maxLength={30}
-                    className="flex-1 rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
-                    style={{
-                      background: 'var(--glass)',
-                      border: '1px solid var(--gold-border-s)',
-                      color: 'var(--text-h)',
-                    }}
-                  />
-                </div>
-              </div>
-            ) : (
+          {/* ─── BODY (zentriert) ──────────────────────── */}
+          <div className="px-5 pb-5 pt-3 text-center">
+
+            {/* Enso Ring */}
+            <div className="mb-2 inline-block">
+              <EnsoRing />
+            </div>
+
+            {/* ── Anzeige-Modus ─────────────────────────── */}
+            {!editing ? (
               <>
-                <h2 className="font-body font-semibold text-lg truncate" style={{ color: 'var(--text-h)' }}>
+                {/* Name */}
+                <div
+                  className="text-[18px] font-heading italic mb-[2px]"
+                  style={{ color: 'var(--text-h)' }}
+                >
                   {profile.display_name ?? profile.email}
-                </h2>
-                {profile.username && (
-                  <p className="text-sm font-body" style={{ color: 'var(--text-muted)' }}>@{profile.username}</p>
-                )}
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span
-                    className="text-[0.6rem] tracking-[0.15em] uppercase font-label rounded-full px-2 py-0.5"
-                    style={{ color: 'var(--gold)', border: '1px solid var(--gold-border-s)' }}
+                </div>
+
+                {/* Handle + Soul Level */}
+                <div
+                  className="text-[11px] mb-[10px]"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  {profile.username ? `@${profile.username}` : profile.email}
+                  {' · '}
+                  {vipName}
+                  {profile.is_origin_soul && ' · Origin Soul'}
+                </div>
+
+                {/* Bio */}
+                {profile.bio && (
+                  <div
+                    className="text-[12px] leading-[1.65] mx-auto max-w-[320px] mb-[14px]"
+                    style={{ color: 'var(--text-body)' }}
                   >
-                    {vipName}
+                    {profile.bio}
+                  </div>
+                )}
+
+                {/* Stats */}
+                <div className="flex justify-center gap-6 mb-[14px]">
+                  <div>
+                    <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
+                      {profile.pulses_count ?? 0}
+                    </span>
+                    <span
+                      className="text-[9px] tracking-[1.5px] uppercase"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      Beiträge
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
+                      {profile.connections_count}
+                    </span>
+                    <span
+                      className="text-[9px] tracking-[1.5px] uppercase"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      Kontakte
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
+                      0
+                    </span>
+                    <span
+                      className="text-[9px] tracking-[1.5px] uppercase"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      Circles
+                    </span>
+                  </div>
+                </div>
+
+                {/* Interest Tags */}
+                {interests.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-[6px] mb-[14px]">
+                    {interests.map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-[8px] tracking-[1.5px] uppercase px-[10px] py-[4px] rounded-[12px] inline-block"
+                        style={{
+                          color: 'var(--gold-text)',
+                          border: '1px solid var(--gold-border)',
+                          background: 'var(--gold-bg)',
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Meta Row */}
+                <div
+                  className="flex flex-wrap justify-center gap-4 pt-3 text-[10px]"
+                  style={{ color: 'var(--text-sec)', borderTop: '1px solid var(--divider-l)' }}
+                >
+                  {profile.location && (
+                    <span className="flex items-center gap-1">☸ {profile.location}</span>
+                  )}
+                  <span className="flex items-center gap-1">
+                    ♡ Seit {new Date(profile.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
                   </span>
                   {profile.is_origin_soul && (
-                    <span
-                      className="text-[0.6rem] tracking-[0.15em] uppercase font-label rounded-full px-2 py-0.5"
-                      style={{
-                        color: 'var(--gold-text)',
-                        border: '1px solid var(--gold-border)',
-                        background: 'var(--gold-bg)',
-                      }}
-                    >
-                      Origin Soul
-                    </span>
+                    <span className="flex items-center gap-1">✧ Origin Soul</span>
                   )}
                 </div>
               </>
+            ) : (
+              /* ── Edit-Modus ───────────────────────────── */
+              <div className="text-left">
+                {/* Name + Username */}
+                <div className="space-y-2 mb-4">
+                  <input
+                    type="text"
+                    value={form.display_name}
+                    onChange={(e) => setForm((f) => ({ ...f, display_name: e.target.value }))}
+                    placeholder="Anzeigename"
+                    maxLength={60}
+                    className="w-full rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
+                    style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
+                  />
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm" style={{ color: 'var(--text-muted)' }}>@</span>
+                    <input
+                      type="text"
+                      value={form.username}
+                      onChange={(e) => setForm((f) => ({ ...f, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
+                      placeholder="username"
+                      maxLength={30}
+                      className="flex-1 rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
+                      style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Bio */}
+                <textarea
+                  value={form.bio}
+                  onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
+                  placeholder="Ueber dich ..."
+                  maxLength={300}
+                  rows={3}
+                  className="w-full rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors resize-none mb-3"
+                  style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
+                />
+
+                {/* Location */}
+                <div className="flex items-center gap-2 mb-1">
+                  <span style={{ color: 'var(--text-muted)' }}>📍</span>
+                  <input
+                    type="text"
+                    value={form.location}
+                    onChange={(e) => setForm((f) => ({ ...f, location: e.target.value, location_lat: null, location_lng: null }))}
+                    onBlur={handleLocationBlur}
+                    placeholder="Ort (z.B. München – Schwabing)"
+                    maxLength={80}
+                    className="flex-1 rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
+                    style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleDetectLocation}
+                    disabled={detectingLocation}
+                    className="px-3 py-2 rounded-xl font-label text-[0.6rem] tracking-[0.1em] uppercase transition-all duration-200 flex-shrink-0"
+                    style={{
+                      background: detectingLocation ? 'var(--gold-bg)' : 'transparent',
+                      border: '1px solid var(--gold-border-s)',
+                      color: detectingLocation ? 'var(--text-muted)' : 'var(--gold-text)',
+                      cursor: detectingLocation ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    {detectingLocation ? '...' : '📍'}
+                  </button>
+                </div>
+                {form.location_lat && (
+                  <p className="text-[0.65rem] font-body ml-6 mb-3" style={{ color: 'var(--text-muted)' }}>
+                    Standort gesetzt
+                  </p>
+                )}
+
+                {/* Interest Tags Edit */}
+                <div className="mb-4">
+                  <p className="font-label text-[9px] tracking-[1.5px] uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
+                    Vorlieben ({form.interests.length}/10)
+                  </p>
+
+                  {/* Aktuelle Tags */}
+                  {form.interests.length > 0 && (
+                    <div className="flex flex-wrap gap-[6px] mb-2">
+                      {form.interests.map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-[8px] tracking-[1.5px] uppercase px-[10px] py-[4px] rounded-[12px] inline-flex items-center gap-1"
+                          style={{
+                            color: 'var(--gold-text)',
+                            border: '1px solid var(--gold-border)',
+                            background: 'var(--gold-bg)',
+                          }}
+                        >
+                          {tag}
+                          <button
+                            onClick={() => removeTag(tag)}
+                            className="ml-1 text-[10px] cursor-pointer bg-transparent border-none"
+                            style={{ color: 'var(--text-muted)' }}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Tag Input */}
+                  {form.interests.length < 10 && (
+                    <input
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={handleTagKeyDown}
+                      placeholder="Tag eingeben + Enter"
+                      maxLength={30}
+                      className="w-full rounded-xl px-3 py-2 text-xs font-body outline-none transition-colors mb-2"
+                      style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
+                    />
+                  )}
+
+                  {/* Vorschlaege */}
+                  <div className="flex flex-wrap gap-1">
+                    {INTEREST_SUGGESTIONS
+                      .filter((s) => !form.interests.includes(s))
+                      .slice(0, 8)
+                      .map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          onClick={() => addTag(suggestion)}
+                          className="text-[7px] tracking-[1px] uppercase px-2 py-[3px] rounded-[10px] cursor-pointer transition-colors"
+                          style={{
+                            color: 'var(--text-muted)',
+                            border: '1px solid var(--divider)',
+                            background: 'transparent',
+                          }}
+                        >
+                          + {suggestion}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+
+                {/* Save/Cancel */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="flex-1 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
+                    style={{
+                      background: saving ? 'var(--gold-bg-hover)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                      color: saving ? 'var(--text-muted)' : 'var(--text-on-gold)',
+                      cursor: saving ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    {saving ? '...' : 'Speichern'}
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="px-6 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
+                    style={{ border: '1px solid var(--divider)', color: 'var(--text-muted)' }}
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
 
+        {/* ═══════════════════════════════════════════════════
+            UNTER DER PROFIL-CARD
+        ═══════════════════════════════════════════════════ */}
+
         {/* Success/Error Messages */}
         {success && (
           <div
-            className="mb-4 py-2 px-4 rounded-xl text-sm font-body text-center"
-            style={{
-              background: 'var(--success-bg)',
-              border: '1px solid var(--success-border)',
-              color: 'var(--success)',
-            }}
+            className="mt-4 py-2 px-4 rounded-xl text-sm font-body text-center"
+            style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)', color: 'var(--success)' }}
           >
             {success}
           </div>
         )}
         {error && (
           <div
-            className="mb-4 py-2 px-4 rounded-xl text-sm font-body text-center"
-            style={{
-              background: 'var(--error-bg)',
-              border: '1px solid var(--error-border)',
-              color: 'var(--error)',
-            }}
+            className="mt-4 py-2 px-4 rounded-xl text-sm font-body text-center"
+            style={{ background: 'var(--error-bg)', border: '1px solid var(--error-border)', color: 'var(--error)' }}
           >
             {error}
           </div>
         )}
 
-        {/* ─── BIO + LOCATION ─────────────────────────────── */}
-        {editing ? (
-          <div className="space-y-3 mb-5">
-            <textarea
-              value={form.bio}
-              onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
-              placeholder="Ueber dich ..."
-              maxLength={300}
-              rows={3}
-              className="w-full rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors resize-none"
-              style={{
-                background: 'var(--glass)',
-                border: '1px solid var(--gold-border-s)',
-                color: 'var(--text-h)',
-              }}
-            />
-            <div className="flex items-center gap-2">
-              <span style={{ color: 'var(--text-muted)' }}>📍</span>
-              <input
-                type="text"
-                value={form.location}
-                onChange={(e) => setForm((f) => ({ ...f, location: e.target.value, location_lat: null, location_lng: null }))}
-                onBlur={handleLocationBlur}
-                placeholder="Ort (z.B. Muenchen – Schwabing)"
-                maxLength={80}
-                className="flex-1 rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
-                style={{
-                  background: 'var(--glass)',
-                  border: '1px solid var(--gold-border-s)',
-                  color: 'var(--text-h)',
-                }}
-              />
-              <button
-                type="button"
-                onClick={handleDetectLocation}
-                disabled={detectingLocation}
-                className="px-3 py-2 rounded-xl font-label text-[0.6rem] tracking-[0.1em] uppercase transition-all duration-200 flex-shrink-0"
-                style={{
-                  background: detectingLocation ? 'var(--gold-bg)' : 'transparent',
-                  border: '1px solid var(--gold-border-s)',
-                  color: detectingLocation ? 'var(--text-muted)' : 'var(--gold-text)',
-                  cursor: detectingLocation ? 'not-allowed' : 'pointer',
-                }}
-                title="Standort automatisch erkennen"
-              >
-                {detectingLocation ? '...' : '📍 Erkennen'}
-              </button>
-            </div>
-            {form.location_lat && (
-              <p className="text-[0.65rem] font-body ml-6" style={{ color: 'var(--text-muted)' }}>
-                Standort gesetzt (Stadtteil-Genauigkeit)
-              </p>
-            )}
-          </div>
-        ) : (
-          <>
-            {profile.bio && (
-              <p className="text-sm font-body leading-[1.8] mb-3" style={{ color: 'var(--text-body)' }}>
-                {profile.bio}
-              </p>
-            )}
-            {profile.location && (
-              <p className="text-sm font-body mb-4" style={{ color: 'var(--text-muted)' }}>
-                📍 {profile.location}
-              </p>
-            )}
-          </>
-        )}
-
-        {/* ─── EDIT ACTIONS ──────────────────────────────── */}
-        {editing ? (
-          <div className="flex gap-3 mb-5">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex-1 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
-              style={{
-                background: saving ? 'var(--gold-bg-hover)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
-                color: saving ? 'var(--text-muted)' : 'var(--text-on-gold)',
-                cursor: saving ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {saving ? '...' : 'Speichern'}
-            </button>
-            <button
-              onClick={handleCancel}
-              className="px-6 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
-              style={{
-                border: '1px solid var(--divider)',
-                color: 'var(--text-muted)',
-              }}
-            >
-              Abbrechen
-            </button>
-          </div>
-        ) : (
+        {/* Profil bearbeiten Button */}
+        {!editing && (
           <button
             onClick={handleEdit}
-            className="w-full py-2.5 mb-5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
-            style={{
-              border: '1px solid var(--gold-border-s)',
-              color: 'var(--gold-text)',
-            }}
+            className="w-full mt-4 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
+            style={{ border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
           >
             Profil bearbeiten
           </button>
         )}
 
-        {/* ─── STATS KACHELN ─────────────────────────────── */}
-        <div className="grid grid-cols-3 gap-3 mb-5">
-          <div className="glass-card rounded-2xl p-4 text-center">
-            <p className="font-body font-semibold text-lg" style={{ color: 'var(--gold-text)' }}>{profile.seeds_balance}</p>
-            <p className="font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1" style={{ color: 'var(--text-muted)' }}>Seeds</p>
-          </div>
-          <div className="glass-card rounded-2xl p-4 text-center">
-            <p className="font-body font-semibold text-lg" style={{ color: 'var(--text-h)' }}>{profile.connections_count}</p>
-            <p className="font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1" style={{ color: 'var(--text-muted)' }}>Verbindungen</p>
-          </div>
-          <div className="glass-card rounded-2xl p-4 text-center">
-            <p className="font-body font-semibold text-lg" style={{ color: 'var(--gold)' }}>{profile.vip_level}</p>
-            <p className="font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1" style={{ color: 'var(--text-muted)' }}>VIP</p>
-          </div>
-        </div>
-
-        {/* ─── EINLADUNGSLINK ────────────────────────────── */}
-        <div className="glass-card rounded-2xl p-5 mb-5">
+        {/* Einladungslink */}
+        <div className="glass-card rounded-[18px] p-5 mt-4">
           <p className="font-label uppercase tracking-wider text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
             Dein Einladungslink
           </p>
@@ -586,18 +703,15 @@ export default function ProfileClient() {
             <button
               onClick={handleCopyReferral}
               className="px-3 py-2 rounded-xl font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200 flex-shrink-0"
-              style={{
-                border: '1px solid var(--gold-border-s)',
-                color: 'var(--gold-text)',
-              }}
+              style={{ border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
             >
               Kopieren
             </button>
           </div>
         </div>
 
-        {/* ─── EINSTELLUNGEN ─────────────────────────────── */}
-        <div className="glass-card rounded-2xl mb-8">
+        {/* Einstellungen */}
+        <div className="glass-card rounded-[18px] mt-4 mb-8">
           <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--divider-l)' }}>
             <p className="font-label uppercase tracking-wider text-[10px]" style={{ color: 'var(--text-muted)' }}>
               Einstellungen
@@ -605,7 +719,7 @@ export default function ProfileClient() {
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-5 py-4 text-sm font-body cursor-pointer transition-colors rounded-b-2xl"
+            className="w-full flex items-center gap-3 px-5 py-4 text-sm font-body cursor-pointer transition-colors rounded-b-[18px]"
             style={{ color: 'var(--error)' }}
           >
             <span className="text-base">↩</span>

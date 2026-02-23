@@ -13,6 +13,8 @@ export interface Profile {
   is_origin_soul: boolean;
   seeds_balance: number;
   connections_count: number;
+  pulses_count: number;
+  interests: string[];
   referral_code: string;
   created_at: string;
   updated_at: string;
@@ -27,6 +29,7 @@ export interface UpdateProfileData {
   banner_url?: string;
   location_lat?: number;
   location_lng?: number;
+  interests?: string[];
 }
 
 export const VIP_NAMES: Record<number, string> = {

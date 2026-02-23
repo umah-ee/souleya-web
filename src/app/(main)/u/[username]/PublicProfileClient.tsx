@@ -9,6 +9,23 @@ import { fetchPublicProfile } from '@/lib/users';
 import { getConnectionStatus, sendConnectionRequest } from '@/lib/circles';
 import { createClient } from '@/lib/supabase/client';
 
+// ── Enso Ring SVG (48px) ─────────────────────────────────────
+function EnsoRing() {
+  return (
+    <svg width="48" height="48" viewBox="0 0 100 100">
+      <circle
+        cx="50" cy="50" r="38" fill="none"
+        stroke="var(--gold-border)" strokeWidth="2"
+        strokeDasharray="220 40" strokeLinecap="round"
+        transform="rotate(-90 50 50)"
+      />
+      <circle cx="83" cy="35" r="4" fill="var(--gold)" opacity=".5" />
+      <circle cx="83" cy="35" r="2" fill="var(--gold)" opacity=".8" />
+      <circle cx="83" cy="35" r="0.8" fill="#fff" opacity=".9" />
+    </svg>
+  );
+}
+
 interface Props {
   username: string;
 }
@@ -76,43 +93,32 @@ export default function PublicProfileClient({ username }: Props) {
   if (loading) {
     return (
       <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
-        <p className="font-label text-[0.7rem] tracking-[0.2em]">
-          WIRD GELADEN ...
-        </p>
+        <p className="font-label text-[0.7rem] tracking-[0.2em]">WIRD GELADEN ...</p>
       </div>
     );
   }
 
   if (error || !profile) {
     return (
-      <div
-        className="text-center py-16 px-4 rounded-2xl"
-        style={{ border: '1px dashed var(--gold-border-s)' }}
-      >
-        <p className="font-heading text-2xl mb-2" style={{ color: 'var(--gold)' }}>
-          Nicht gefunden
-        </p>
-        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-          Dieses Profil existiert nicht oder ist nicht oeffentlich.
-        </p>
+      <div className="text-center py-16 px-4 rounded-2xl" style={{ border: '1px dashed var(--gold-border-s)' }}>
+        <p className="font-heading text-2xl mb-2" style={{ color: 'var(--gold)' }}>Nicht gefunden</p>
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Dieses Profil existiert nicht oder ist nicht oeffentlich.</p>
       </div>
     );
   }
 
   const initials = (profile.display_name ?? profile.username ?? '?').slice(0, 1).toUpperCase();
   const vipName = VIP_NAMES[profile.vip_level] ?? `VIP ${profile.vip_level}`;
+  const interests = profile.interests ?? [];
 
-  // Verbinden-Button Rendering
+  // ── Action Button ─────────────────────────────────────────
   const renderActionButton = () => {
     if (isOwnProfile) {
       return (
         <button
           onClick={handleGoToOwnProfile}
-          className="flex-1 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
-          style={{
-            border: '1px solid var(--gold-border-s)',
-            color: 'var(--gold-text)',
-          }}
+          className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
+          style={{ border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
         >
           Profil bearbeiten
         </button>
@@ -124,7 +130,7 @@ export default function PublicProfileClient({ username }: Props) {
     if (connectionStatus === 'connected') {
       return (
         <span
-          className="flex-1 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase text-center block"
+          className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase"
           style={{ border: '1px solid var(--success-border)', color: 'var(--success)' }}
         >
           Verbunden
@@ -135,7 +141,7 @@ export default function PublicProfileClient({ username }: Props) {
     if (connectionStatus === 'pending_outgoing') {
       return (
         <span
-          className="flex-1 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase text-center block"
+          className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase"
           style={{ border: '1px solid var(--gold-border-s)', color: 'var(--text-muted)' }}
         >
           Angefragt
@@ -146,7 +152,7 @@ export default function PublicProfileClient({ username }: Props) {
     if (connectionStatus === 'pending_incoming') {
       return (
         <span
-          className="flex-1 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase text-center block"
+          className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase"
           style={{ border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
         >
           Anfrage erhalten
@@ -158,7 +164,7 @@ export default function PublicProfileClient({ username }: Props) {
       <button
         onClick={handleConnect}
         disabled={sending}
-        className="flex-1 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
+        className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
         style={{
           background: sending ? 'var(--gold-bg)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
           color: sending ? 'var(--text-muted)' : 'var(--text-on-gold)',
@@ -171,42 +177,41 @@ export default function PublicProfileClient({ username }: Props) {
   };
 
   return (
-    <div className="-mx-4 -mt-6">
-      {/* ─── BANNER ────────────────────────────────────────── */}
-      <div className="relative w-full h-[180px] overflow-hidden">
-        {profile.banner_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={profile.banner_url}
-            alt=""
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div
-            className="w-full h-full"
-            style={{ background: 'linear-gradient(135deg, var(--gold-bg-hover), var(--bg-solid))' }}
-          />
-        )}
+    <div className="-mx-4 -mt-6 flex justify-center">
+      <div className="w-full max-w-[480px]">
 
-        {/* Gradient Overlay */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to top, var(--bg-solid), transparent 60%)' }}
-        />
-      </div>
+        {/* ═══════════════════════════════════════════════════
+            PROFIL-CARD (Style Guide Section 06)
+        ═══════════════════════════════════════════════════ */}
+        <div className="glass-card rounded-[18px] overflow-hidden">
 
-      <div className="px-4">
-        {/* ─── AVATAR + NAME ────────────────────────────── */}
-        <div className="flex items-end gap-4 -mt-12 mb-4 relative z-10">
-          {/* Avatar */}
-          <div className="relative flex-shrink-0">
+          {/* ─── BANNER (140px) ─────────────────────────── */}
+          <div className="relative w-full h-[140px] overflow-hidden">
+            {profile.banner_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profile.banner_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div
+                className="w-full h-full"
+                style={{ background: 'linear-gradient(135deg, #D8CFBE 0%, var(--gold) 50%, #B08840 100%)' }}
+              />
+            )}
+            {/* Gradient Overlay */}
             <div
-              className="w-[88px] h-[88px] rounded-full flex items-center justify-center font-heading text-3xl overflow-hidden"
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(to top, var(--bg-solid) 0%, transparent 60%)' }}
+            />
+          </div>
+
+          {/* ─── AVATAR (80px, zentriert, -40px overlap) ── */}
+          <div className="flex justify-center -mt-[40px] relative z-10">
+            <div
+              className="w-[80px] h-[80px] rounded-full flex items-center justify-center font-heading text-[30px] overflow-hidden"
               style={{
-                background: 'var(--bg-solid)',
+                background: 'var(--avatar-bg)',
                 color: 'var(--gold-text)',
-                border: `3px solid ${profile.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
-                boxShadow: profile.is_origin_soul ? '0 0 20px var(--gold-glow)' : 'none',
+                border: '3px solid var(--gold)',
+                boxShadow: '0 4px 20px rgba(0,0,0,.15)',
               }}
             >
               {profile.avatar_url ? (
@@ -216,68 +221,110 @@ export default function PublicProfileClient({ username }: Props) {
             </div>
           </div>
 
-          {/* Name + Badges */}
-          <div className="flex-1 min-w-0 pb-1">
-            <h2 className="font-body font-semibold text-lg truncate" style={{ color: 'var(--text-h)' }}>
+          {/* ─── BODY (zentriert) ──────────────────────── */}
+          <div className="px-5 pb-5 pt-3 text-center">
+
+            {/* Enso Ring */}
+            <div className="mb-2 inline-block">
+              <EnsoRing />
+            </div>
+
+            {/* Name */}
+            <div
+              className="text-[18px] font-heading italic mb-[2px]"
+              style={{ color: 'var(--text-h)' }}
+            >
               {profile.display_name ?? profile.username ?? 'Anonym'}
-            </h2>
-            {profile.username && (
-              <p className="text-sm font-body" style={{ color: 'var(--text-muted)' }}>@{profile.username}</p>
-            )}
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <span
-                className="text-[0.6rem] tracking-[0.15em] uppercase font-label rounded-full px-2 py-0.5"
-                style={{ color: 'var(--gold)', border: '1px solid var(--gold-border-s)' }}
+            </div>
+
+            {/* Handle + Soul Level */}
+            <div
+              className="text-[11px] mb-[10px]"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              {profile.username ? `@${profile.username}` : ''}
+              {profile.username && ' · '}
+              {vipName}
+              {profile.is_origin_soul && ' · Origin Soul'}
+            </div>
+
+            {/* Bio */}
+            {profile.bio && (
+              <div
+                className="text-[12px] leading-[1.65] mx-auto max-w-[320px] mb-[14px]"
+                style={{ color: 'var(--text-body)' }}
               >
-                {vipName}
+                {profile.bio}
+              </div>
+            )}
+
+            {/* Stats */}
+            <div className="flex justify-center gap-6 mb-[14px]">
+              <div>
+                <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
+                  {profile.pulses_count ?? 0}
+                </span>
+                <span className="text-[9px] tracking-[1.5px] uppercase" style={{ color: 'var(--text-muted)' }}>
+                  Beiträge
+                </span>
+              </div>
+              <div>
+                <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
+                  {profile.connections_count}
+                </span>
+                <span className="text-[9px] tracking-[1.5px] uppercase" style={{ color: 'var(--text-muted)' }}>
+                  Kontakte
+                </span>
+              </div>
+              <div>
+                <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
+                  0
+                </span>
+                <span className="text-[9px] tracking-[1.5px] uppercase" style={{ color: 'var(--text-muted)' }}>
+                  Circles
+                </span>
+              </div>
+            </div>
+
+            {/* Interest Tags */}
+            {interests.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-[6px] mb-[14px]">
+                {interests.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-[8px] tracking-[1.5px] uppercase px-[10px] py-[4px] rounded-[12px] inline-block"
+                    style={{
+                      color: 'var(--gold-text)',
+                      border: '1px solid var(--gold-border)',
+                      background: 'var(--gold-bg)',
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Action Button */}
+            <div className="mb-[14px]">
+              {renderActionButton()}
+            </div>
+
+            {/* Meta Row */}
+            <div
+              className="flex flex-wrap justify-center gap-4 pt-3 text-[10px]"
+              style={{ color: 'var(--text-sec)', borderTop: '1px solid var(--divider-l)' }}
+            >
+              {profile.location && (
+                <span className="flex items-center gap-1">☸ {profile.location}</span>
+              )}
+              <span className="flex items-center gap-1">
+                ♡ Seit {new Date(profile.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
               </span>
               {profile.is_origin_soul && (
-                <span
-                  className="text-[0.6rem] tracking-[0.15em] uppercase font-label rounded-full px-2 py-0.5"
-                  style={{
-                    color: 'var(--gold-text)',
-                    border: '1px solid var(--gold-border)',
-                    background: 'var(--gold-bg)',
-                  }}
-                >
-                  Origin Soul
-                </span>
+                <span className="flex items-center gap-1">✧ Origin Soul</span>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* ─── BIO + LOCATION ──────────────────────────── */}
-        {profile.bio && (
-          <p className="text-sm font-body leading-[1.8] mb-3" style={{ color: 'var(--text-body)' }}>
-            {profile.bio}
-          </p>
-        )}
-        {profile.location && (
-          <p className="text-sm font-body mb-4" style={{ color: 'var(--text-muted)' }}>
-            📍 {profile.location}
-          </p>
-        )}
-
-        {/* ─── ACTION BUTTON ──────────────────────────── */}
-        <div className="mb-5">
-          {renderActionButton()}
-        </div>
-
-        {/* ─── STATS ──────────────────────────────────── */}
-        <div className="grid grid-cols-2 gap-3 mb-8">
-          <div className="glass-card rounded-2xl p-4 text-center">
-            <p className="font-body font-semibold text-lg" style={{ color: 'var(--text-h)' }}>{profile.connections_count}</p>
-            <p className="font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1" style={{ color: 'var(--text-muted)' }}>Verbindungen</p>
-          </div>
-          <div className="glass-card rounded-2xl p-4 text-center">
-            <p className="font-body text-sm" style={{ color: 'var(--text-sec)' }}>
-              {new Date(profile.created_at).toLocaleDateString('de-DE', {
-                month: 'long',
-                year: 'numeric',
-              })}
-            </p>
-            <p className="font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1" style={{ color: 'var(--text-muted)' }}>Mitglied seit</p>
           </div>
         </div>
       </div>
