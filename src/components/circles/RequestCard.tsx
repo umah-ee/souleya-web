@@ -27,11 +27,14 @@ export function IncomingRequestCard({ request, onAccept, onDecline }: IncomingPr
   const avatarAndInfo = (
     <>
       {/* Avatar */}
-      <div className={`
-        w-11 h-11 rounded-full bg-gold-1/15 flex-shrink-0
-        flex items-center justify-center font-heading text-lg text-gold-1
-        border ${profile.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}
-      `}>
+      <div
+        className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-lg overflow-hidden"
+        style={{
+          background: 'var(--avatar-bg)',
+          color: 'var(--gold-text)',
+          border: `1.5px solid ${profile.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+        }}
+      >
         {profile.avatar_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
@@ -40,10 +43,10 @@ export function IncomingRequestCard({ request, onAccept, onDecline }: IncomingPr
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <span className="font-body font-medium text-sm text-[#F0EDE8] truncate block">
+        <span className="font-body font-medium text-sm truncate block" style={{ color: 'var(--text-h)' }}>
           {profile.display_name ?? profile.username ?? 'Anonym'}
         </span>
-        <span className="text-xs text-[#5A5450] font-label">
+        <span className="text-xs font-label" style={{ color: 'var(--text-muted)' }}>
           {timeAgo(request.created_at)}
         </span>
       </div>
@@ -51,7 +54,7 @@ export function IncomingRequestCard({ request, onAccept, onDecline }: IncomingPr
   );
 
   return (
-    <div className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4 mb-3 hover:border-gold-1/25 transition-colors">
+    <div className="flex items-center gap-3 glass-card rounded-2xl p-4 mb-3 transition-colors">
       {profile.username ? (
         <Link href={`/u/${profile.username}`} className="flex items-center gap-3 flex-1 min-w-0">
           {avatarAndInfo}
@@ -66,13 +69,21 @@ export function IncomingRequestCard({ request, onAccept, onDecline }: IncomingPr
       <div className="flex gap-2 flex-shrink-0">
         <button
           onClick={() => onAccept(request.id)}
-          className="px-3 py-1.5 bg-gradient-to-br from-gold-3 to-gold-2 border-none rounded-full text-dark font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer hover:opacity-90 transition-opacity duration-200"
+          className="px-3 py-1.5 border-none rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-opacity duration-200"
+          style={{
+            background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+            color: 'var(--text-on-gold)',
+          }}
         >
           Annehmen
         </button>
         <button
           onClick={() => onDecline(request.id)}
-          className="px-3 py-1.5 bg-transparent border border-[#5A5450]/30 rounded-full text-[#5A5450] font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer hover:border-[#5A5450]/50 transition-colors duration-200"
+          className="px-3 py-1.5 bg-transparent rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
+          style={{
+            border: '1px solid var(--divider)',
+            color: 'var(--text-muted)',
+          }}
         >
           Ablehnen
         </button>
@@ -93,11 +104,14 @@ export function OutgoingRequestCard({ request, onCancel }: OutgoingProps) {
   const avatarAndInfo = (
     <>
       {/* Avatar */}
-      <div className={`
-        w-11 h-11 rounded-full bg-gold-1/15 flex-shrink-0
-        flex items-center justify-center font-heading text-lg text-gold-1
-        border ${profile.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}
-      `}>
+      <div
+        className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-lg overflow-hidden"
+        style={{
+          background: 'var(--avatar-bg)',
+          color: 'var(--gold-text)',
+          border: `1.5px solid ${profile.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+        }}
+      >
         {profile.avatar_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
@@ -106,10 +120,10 @@ export function OutgoingRequestCard({ request, onCancel }: OutgoingProps) {
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <span className="font-body font-medium text-sm text-[#F0EDE8] truncate block">
+        <span className="font-body font-medium text-sm truncate block" style={{ color: 'var(--text-h)' }}>
           {profile.display_name ?? profile.username ?? 'Anonym'}
         </span>
-        <span className="text-xs text-[#5A5450] font-label">
+        <span className="text-xs font-label" style={{ color: 'var(--text-muted)' }}>
           Anfrage gesendet · {timeAgo(request.created_at)}
         </span>
       </div>
@@ -117,7 +131,7 @@ export function OutgoingRequestCard({ request, onCancel }: OutgoingProps) {
   );
 
   return (
-    <div className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4 mb-3 hover:border-gold-1/25 transition-colors">
+    <div className="flex items-center gap-3 glass-card rounded-2xl p-4 mb-3 transition-colors">
       {profile.username ? (
         <Link href={`/u/${profile.username}`} className="flex items-center gap-3 flex-1 min-w-0">
           {avatarAndInfo}
@@ -131,7 +145,11 @@ export function OutgoingRequestCard({ request, onCancel }: OutgoingProps) {
       {/* Cancel */}
       <button
         onClick={() => onCancel(request.id)}
-        className="px-3 py-1.5 bg-transparent border border-[#5A5450]/30 rounded-full text-[#5A5450] font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer hover:border-[#5A5450]/50 transition-colors duration-200 flex-shrink-0"
+        className="px-3 py-1.5 bg-transparent rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200 flex-shrink-0"
+        style={{
+          border: '1px solid var(--divider)',
+          color: 'var(--text-muted)',
+        }}
       >
         Abbrechen
       </button>

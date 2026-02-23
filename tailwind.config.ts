@@ -9,21 +9,61 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Semantische Farben aus Style Guide (CSS Variables)
         gold: {
-          1: '#C8A96E',
-          2: '#D4BC8B',
-          3: '#A8894E',
+          DEFAULT: 'var(--gold)',
+          text: 'var(--gold-text)',
+          deep: 'var(--gold-deep)',
         },
-        dark: {
-          DEFAULT: '#2C2A35',
-          er: '#1E1C26',
-          est: '#18161F',
+        th: {
+          bg: 'var(--bg-solid)',
+          glass: 'var(--glass)',
+          'glass-border': 'var(--glass-border)',
+          'nav': 'var(--glass-nav)',
+          'nav-border': 'var(--glass-nav-b)',
+          divider: 'var(--divider)',
+          'divider-l': 'var(--divider-l)',
+        },
+        tx: {
+          h: 'var(--text-h)',
+          body: 'var(--text-body)',
+          sec: 'var(--text-sec)',
+          muted: 'var(--text-muted)',
+          'on-gold': 'var(--text-on-gold)',
+        },
+        status: {
+          success: 'var(--success)',
+          error: 'var(--error)',
+          warning: 'var(--warning)',
+          purple: 'var(--event-purple)',
         },
       },
+      backgroundColor: {
+        'gold-bg': 'var(--gold-bg)',
+        'gold-bg-hover': 'var(--gold-bg-hover)',
+        'avatar': 'var(--avatar-bg)',
+        'success-bg': 'var(--success-bg)',
+        'error-bg': 'var(--error-bg)',
+        'purple-bg': 'var(--event-purple-bg)',
+      },
+      borderColor: {
+        'gold-b': 'var(--gold-border)',
+        'gold-bs': 'var(--gold-border-s)',
+        'success-b': 'var(--success-border)',
+        'error-b': 'var(--error-border)',
+        'purple-b': 'var(--event-purple-border)',
+      },
       fontFamily: {
-        heading: ['var(--font-cormorant)', 'Georgia', 'serif'],
+        heading: ['Georgia', 'Times New Roman', 'serif'],
         label: ['var(--font-josefin)', 'sans-serif'],
         body: ['var(--font-quicksand)', 'sans-serif'],
+      },
+      borderRadius: {
+        xs: '10px',
+        sm: '12px',
+        md: '18px',
+        lg: '24px',
+        xl: '36px',
       },
       keyframes: {
         'slide-up': {

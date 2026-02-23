@@ -14,7 +14,7 @@ export default function BottomTabs() {
   const pathname = usePathname();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 flex items-center justify-around h-16 bg-dark-er border-t border-gold-1/10">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 flex items-center justify-around h-16 glass-nav" style={{ borderTop: '1px solid var(--glass-nav-b)' }}>
       {tabs.map((tab) => {
         const isActive = tab.href === '/'
           ? pathname === '/'
@@ -24,13 +24,10 @@ export default function BottomTabs() {
           <Link
             key={tab.href}
             href={tab.href}
-            className={`
-              flex flex-col items-center justify-center flex-1 h-full
-              transition-colors duration-200
-              ${isActive ? 'text-gold-1' : 'text-[#5A5450]'}
-            `}
+            className="flex flex-col items-center justify-center flex-1 h-full transition-colors duration-200"
+            style={{ color: isActive ? 'var(--gold-text)' : 'var(--text-muted)' }}
           >
-            <span className={`text-lg ${isActive ? 'opacity-100' : 'opacity-40'}`}>
+            <span className={`text-lg ${isActive ? 'opacity-100' : 'opacity-50'}`}>
               {tab.icon}
             </span>
             <span className="text-[9px] font-label uppercase tracking-[2px] -mt-0.5">

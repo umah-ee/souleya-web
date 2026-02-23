@@ -8,14 +8,14 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-dark-est font-body">
+    <div className="min-h-screen font-body">
       {/* Desktop Sidebar */}
       <Sidebar />
 
       {/* Mobile Header */}
       <MobileHeader />
 
-      {/* Content Area – pt-14 auf Mobile fuer floating Header */}
+      {/* Content Area */}
       <main className="md:ml-16 pb-20 md:pb-0 pt-14 md:pt-0">
         <div className="max-w-[640px] mx-auto px-4 py-6">
           {children}

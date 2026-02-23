@@ -160,32 +160,32 @@ export default function CirclesClient({ user }: Props) {
     <>
       {/* Desktop Header */}
       <div className="hidden md:block mb-6">
-        <h1 className="font-heading text-2xl font-light text-gold-1 tracking-wide">
+        <h1 className="font-heading text-2xl" style={{ color: 'var(--gold-text)' }}>
           Circle
         </h1>
-        <p className="text-sm text-[#5A5450] font-body mt-1">
+        <p className="text-sm font-body mt-1" style={{ color: 'var(--text-muted)' }}>
           Dein persoenlicher Kreis
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-gold-1/10 pb-px">
+      <div className="flex gap-1 mb-6 pb-px" style={{ borderBottom: '1px solid var(--divider-l)' }}>
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`
-              relative px-4 py-2.5 font-label text-[0.7rem] tracking-[0.1em] uppercase
-              transition-colors duration-200 border-b-2 -mb-px
-              ${activeTab === tab.key
-                ? 'text-gold-1 border-gold-1'
-                : 'text-[#5A5450] border-transparent hover:text-gold-1/60'
-              }
-            `}
+            className="relative px-4 py-2.5 font-label text-[0.7rem] tracking-[0.1em] uppercase transition-colors duration-200 -mb-px bg-transparent"
+            style={{
+              color: activeTab === tab.key ? 'var(--gold-text)' : 'var(--text-muted)',
+              borderBottom: activeTab === tab.key ? '2px solid var(--gold-text)' : '2px solid transparent',
+            }}
           >
             {tab.label}
             {tab.badge !== undefined && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-gold-1 text-dark-est text-[10px] font-label font-bold rounded-full px-1">
+              <span
+                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-label font-bold rounded-full px-1"
+                style={{ background: 'var(--gold)', color: 'var(--text-on-gold)' }}
+              >
                 {tab.badge}
               </span>
             )}
@@ -197,17 +197,20 @@ export default function CirclesClient({ user }: Props) {
       {activeTab === 'feed' && (
         <>
           {feedLoading ? (
-            <div className="text-center py-12 text-[#5A5450]">
+            <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
               <p className="font-label text-[0.7rem] tracking-[0.2em]">
                 WIRD GELADEN …
               </p>
             </div>
           ) : pulses.length === 0 ? (
-            <div className="text-center py-16 px-4 border border-dashed border-gold-1/15 rounded-2xl">
-              <p className="text-gold-3 font-heading text-2xl font-light mb-2">
+            <div
+              className="text-center py-16 px-4 rounded-2xl"
+              style={{ border: '1px dashed var(--gold-border-s)' }}
+            >
+              <p className="font-heading text-2xl mb-2" style={{ color: 'var(--gold)' }}>
                 Dein Circle ist noch leer
               </p>
-              <p className="text-[#5A5450] text-sm">
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
                 Verbinde dich mit anderen Souls, um ihre Impulse hier zu sehen.
               </p>
             </div>
@@ -226,7 +229,11 @@ export default function CirclesClient({ user }: Props) {
                   <button
                     onClick={handleLoadMore}
                     disabled={loadingMore}
-                    className="px-6 py-2.5 bg-transparent border border-gold-1/30 rounded-full text-gold-1 font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer hover:border-gold-1/50 transition-colors duration-200"
+                    className="px-6 py-2.5 bg-transparent rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
+                    style={{
+                      border: '1px solid var(--gold-border-s)',
+                      color: 'var(--gold-text)',
+                    }}
                   >
                     {loadingMore ? '…' : 'Mehr laden'}
                   </button>
@@ -240,23 +247,26 @@ export default function CirclesClient({ user }: Props) {
       {activeTab === 'connections' && (
         <>
           {connectionsLoading ? (
-            <div className="text-center py-12 text-[#5A5450]">
+            <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
               <p className="font-label text-[0.7rem] tracking-[0.2em]">
                 WIRD GELADEN …
               </p>
             </div>
           ) : connections.length === 0 ? (
-            <div className="text-center py-16 px-4 border border-dashed border-gold-1/15 rounded-2xl">
-              <p className="text-gold-3 font-heading text-2xl font-light mb-2">
+            <div
+              className="text-center py-16 px-4 rounded-2xl"
+              style={{ border: '1px dashed var(--gold-border-s)' }}
+            >
+              <p className="font-heading text-2xl mb-2" style={{ color: 'var(--gold)' }}>
                 Noch keine Verbindungen
               </p>
-              <p className="text-[#5A5450] text-sm">
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
                 Dein Circle wird wachsen, sobald du dich mit anderen Souls verbindest.
               </p>
             </div>
           ) : (
             <>
-              <p className="text-[#5A5450] font-label text-[0.7rem] tracking-[0.15em] uppercase mb-3">
+              <p className="font-label text-[0.7rem] tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--text-muted)' }}>
                 {connections.length} {connections.length === 1 ? 'Verbindung' : 'Verbindungen'}
               </p>
               {connections.map((connection) => (
@@ -274,17 +284,20 @@ export default function CirclesClient({ user }: Props) {
       {activeTab === 'requests' && (
         <>
           {requestsLoading ? (
-            <div className="text-center py-12 text-[#5A5450]">
+            <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
               <p className="font-label text-[0.7rem] tracking-[0.2em]">
                 WIRD GELADEN …
               </p>
             </div>
           ) : incoming.length === 0 && outgoing.length === 0 ? (
-            <div className="text-center py-16 px-4 border border-dashed border-gold-1/15 rounded-2xl">
-              <p className="text-gold-3 font-heading text-2xl font-light mb-2">
+            <div
+              className="text-center py-16 px-4 rounded-2xl"
+              style={{ border: '1px dashed var(--gold-border-s)' }}
+            >
+              <p className="font-heading text-2xl mb-2" style={{ color: 'var(--gold)' }}>
                 Keine Anfragen
               </p>
-              <p className="text-[#5A5450] text-sm">
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
                 Aktuell gibt es keine offenen Verbindungsanfragen.
               </p>
             </div>
@@ -293,7 +306,7 @@ export default function CirclesClient({ user }: Props) {
               {/* Eingehende */}
               {incoming.length > 0 && (
                 <>
-                  <p className="text-[#5A5450] font-label text-[0.7rem] tracking-[0.15em] uppercase mb-3">
+                  <p className="font-label text-[0.7rem] tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--text-muted)' }}>
                     Eingehend ({incoming.length})
                   </p>
                   {incoming.map((req) => (
@@ -310,7 +323,7 @@ export default function CirclesClient({ user }: Props) {
               {/* Ausgehende */}
               {outgoing.length > 0 && (
                 <>
-                  <p className="text-[#5A5450] font-label text-[0.7rem] tracking-[0.15em] uppercase mb-3 mt-6">
+                  <p className="font-label text-[0.7rem] tracking-[0.15em] uppercase mb-3 mt-6" style={{ color: 'var(--text-muted)' }}>
                     Gesendet ({outgoing.length})
                   </p>
                   {outgoing.map((req) => (

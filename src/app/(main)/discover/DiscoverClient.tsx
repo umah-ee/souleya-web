@@ -233,21 +233,30 @@ export default function DiscoverClient({ userId }: Props) {
 
     if (status === 'connected') {
       return (
-        <span className="px-3 py-1.5 border border-[#52B788]/30 rounded-full text-[#52B788] font-label text-[0.6rem] tracking-[0.1em] uppercase">
+        <span
+          className="px-3 py-1.5 rounded-full font-label text-[0.6rem] tracking-[0.1em] uppercase"
+          style={{ border: '1px solid var(--success-border)', color: 'var(--success)' }}
+        >
           Verbunden
         </span>
       );
     }
     if (status === 'pending_outgoing') {
       return (
-        <span className="px-3 py-1.5 border border-gold-1/20 rounded-full text-[#5A5450] font-label text-[0.6rem] tracking-[0.1em] uppercase">
+        <span
+          className="px-3 py-1.5 rounded-full font-label text-[0.6rem] tracking-[0.1em] uppercase"
+          style={{ border: '1px solid var(--gold-border-s)', color: 'var(--text-muted)' }}
+        >
           Angefragt
         </span>
       );
     }
     if (status === 'pending_incoming') {
       return (
-        <span className="px-3 py-1.5 border border-gold-1/30 rounded-full text-gold-1 font-label text-[0.6rem] tracking-[0.1em] uppercase">
+        <span
+          className="px-3 py-1.5 rounded-full font-label text-[0.6rem] tracking-[0.1em] uppercase"
+          style={{ border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
+        >
           Antworten
         </span>
       );
@@ -257,13 +266,12 @@ export default function DiscoverClient({ userId }: Props) {
       <button
         onClick={() => handleConnect(user.id)}
         disabled={isSending || !userId}
-        className={`
-          px-3 py-1.5 rounded-full font-label text-[0.6rem] tracking-[0.1em] uppercase transition-all duration-200
-          ${isSending
-            ? 'bg-gold-1/20 text-[#5A5450] cursor-not-allowed'
-            : 'bg-gradient-to-br from-gold-3 to-gold-2 text-dark cursor-pointer hover:opacity-90'
-          }
-        `}
+        className="px-3 py-1.5 rounded-full font-label text-[0.6rem] tracking-[0.1em] uppercase transition-all duration-200"
+        style={{
+          background: isSending ? 'var(--gold-bg)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+          color: isSending ? 'var(--text-muted)' : 'var(--text-on-gold)',
+          cursor: isSending ? 'not-allowed' : 'pointer',
+        }}
       >
         {isSending ? '...' : 'Verbinden'}
       </button>
@@ -282,28 +290,36 @@ export default function DiscoverClient({ userId }: Props) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Souls suchen ..."
-              className="w-full py-3 px-5 bg-dark/80 backdrop-blur-xl border border-gold-1/20 rounded-2xl text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1/40 transition-colors placeholder:text-[#5A5450]"
+              className="w-full py-3 px-5 backdrop-blur-xl rounded-2xl text-sm font-body outline-none transition-colors"
+              style={{
+                background: 'var(--glass-nav)',
+                border: '1px solid var(--gold-border-s)',
+                color: 'var(--text-h)',
+              }}
             />
           </div>
 
           {/* Suchergebnisse */}
           <div className="flex-1 overflow-y-auto px-4 pb-4">
             {searching && (
-              <div className="text-center py-8 text-[#5A5450]">
+              <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
                 <p className="font-label text-[0.7rem] tracking-[0.2em]">SUCHE ...</p>
               </div>
             )}
 
             {!searching && searched && searchResults.length === 0 && (
-              <div className="text-center py-12 px-4 border border-dashed border-gold-1/15 rounded-2xl">
-                <p className="text-gold-3 font-heading text-xl font-light mb-2">Keine Ergebnisse</p>
-                <p className="text-[#5A5450] text-sm">Versuche einen anderen Suchbegriff.</p>
+              <div
+                className="text-center py-12 px-4 rounded-2xl"
+                style={{ border: '1px dashed var(--gold-border-s)' }}
+              >
+                <p className="font-heading text-xl mb-2" style={{ color: 'var(--gold)' }}>Keine Ergebnisse</p>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Versuche einen anderen Suchbegriff.</p>
               </div>
             )}
 
             {!searching && searchResults.length > 0 && (
               <div className="space-y-3">
-                <p className="text-[#5A5450] font-label text-[0.7rem] tracking-[0.15em] uppercase">
+                <p className="font-label text-[0.7rem] tracking-[0.15em] uppercase" style={{ color: 'var(--text-muted)' }}>
                   {searchResults.length} {searchResults.length === 1 ? 'Ergebnis' : 'Ergebnisse'}
                 </p>
                 {searchResults.map((user) => {
@@ -312,10 +328,17 @@ export default function DiscoverClient({ userId }: Props) {
                     ? ({ children }: { children: React.ReactNode }) => <Link href={`/u/${user.username}`} className="block">{children}</Link>
                     : ({ children }: { children: React.ReactNode }) => <>{children}</>;
                   return (
-                    <div key={user.id} className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4 hover:border-gold-1/25 transition-colors">
+                    <div key={user.id} className="flex items-center gap-3 glass-card rounded-2xl p-4 transition-colors">
                       <CardWrapper>
                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className={`w-12 h-12 rounded-full bg-gold-1/15 flex-shrink-0 flex items-center justify-center font-heading text-lg text-gold-1 border ${user.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}`}>
+                          <div
+                            className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-lg overflow-hidden"
+                            style={{
+                              background: 'var(--avatar-bg)',
+                              color: 'var(--gold-text)',
+                              border: `1.5px solid ${user.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+                            }}
+                          >
                             {user.avatar_url ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img src={user.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
@@ -323,15 +346,20 @@ export default function DiscoverClient({ userId }: Props) {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="font-body font-medium text-sm text-[#F0EDE8] truncate">
+                              <span className="font-body font-medium text-sm truncate" style={{ color: 'var(--text-h)' }}>
                                 {user.display_name ?? user.username ?? 'Anonym'}
                               </span>
                               {user.is_origin_soul && (
-                                <span className="text-[0.55rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-1.5 py-px flex-shrink-0">Origin</span>
+                                <span
+                                  className="text-[0.55rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px flex-shrink-0"
+                                  style={{ color: 'var(--gold)', border: '1px solid var(--gold-border-s)' }}
+                                >
+                                  Origin
+                                </span>
                               )}
                             </div>
-                            {user.username && <p className="text-xs text-[#5A5450] font-label">@{user.username}</p>}
-                            {user.bio && <p className="text-xs text-[#5A5450] font-body mt-0.5 truncate">{user.bio}</p>}
+                            {user.username && <p className="text-xs font-label" style={{ color: 'var(--text-muted)' }}>@{user.username}</p>}
+                            {user.bio && <p className="text-xs font-body mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>{user.bio}</p>}
                           </div>
                         </div>
                       </CardWrapper>
@@ -363,7 +391,13 @@ export default function DiscoverClient({ userId }: Props) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Souls suchen ..."
-              className="w-full py-3 px-5 bg-dark-est/90 backdrop-blur-xl border border-gold-1/20 rounded-2xl text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1/40 transition-colors placeholder:text-[#5A5450] shadow-lg shadow-black/20"
+              className="w-full py-3 px-5 backdrop-blur-xl rounded-2xl text-sm font-body outline-none transition-colors"
+              style={{
+                background: 'var(--glass-nav)',
+                border: '1px solid var(--gold-border-s)',
+                color: 'var(--text-h)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+              }}
             />
           </div>
 

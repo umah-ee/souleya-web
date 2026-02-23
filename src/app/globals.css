@@ -2,16 +2,138 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --gold1: #C8A96E;
-  --gold2: #D4BC8B;
-  --gold3: #A8894E;
-  --dark: #2C2A35;
-  --darker: #1E1C26;
-  --darkest: #18161F;
+/* ═══════════════════════════════════════════
+   SOULEYA THEME SYSTEM
+   Aus Style Guide v2.0 – Light + Dark
+═══════════════════════════════════════════ */
+
+/* ── LIGHT THEME (Default) ──────────────── */
+:root, [data-theme="light"] {
+  --bg-gradient: linear-gradient(145deg, #F5EFE6 0%, #EDE4D3 35%, #D8CFBE 70%, #C9C2B2 100%);
+  --bg-solid: #EDE4D3;
+
+  --gold:          #C8A96E;
+  --gold-text:     #9A7218;
+  --gold-deep:     #7A6014;
+  --gold-bg:       rgba(200,169,110, .12);
+  --gold-bg-hover: rgba(200,169,110, .20);
+  --gold-border:   rgba(200,169,110, .45);
+  --gold-border-s: rgba(200,169,110, .25);
+  --gold-glow:     rgba(200,169,110, .40);
+
+  --text-h:        #1E180C;
+  --text-body:     #3E3020;
+  --text-sec:      #7A6040;
+  --text-muted:    #9A8870;
+  --text-on-gold:  #FFFFFF;
+
+  --glass:         rgba(255,255,255, .45);
+  --glass-border:  rgba(255,255,255, .75);
+  --glass-shadow:  0 4px 20px rgba(139,105,20,.07);
+  --glass-inset:   inset 0 1px 0 rgba(255,255,255,.9);
+  --glass-blur:    20px;
+
+  --glass-nav:     rgba(255,255,255, .38);
+  --glass-nav-b:   rgba(255,255,255, .55);
+
+  --divider:       rgba(139,105,20, .15);
+  --divider-l:     rgba(139,105,20, .08);
+
+  --img-overlay:   rgba(0,0,0,.55);
+  --avatar-bg:     rgba(200,169,110, .15);
+
+  --success:       #2D8A56;
+  --success-bg:    rgba(45,138,86, .10);
+  --success-border:rgba(45,138,86, .30);
+  --error:         #B43C32;
+  --error-bg:      rgba(180,60,50, .07);
+  --error-border:  rgba(180,60,50, .30);
+  --event-purple:  #7A5FA0;
+  --event-purple-bg:rgba(122,95,160, .10);
+  --event-purple-border:rgba(122,95,160, .30);
+  --warning:       #C07830;
 }
 
+/* ── DARK THEME ─────────────────────────── */
+[data-theme="dark"] {
+  --bg-gradient: linear-gradient(160deg, #282828 0%, #1E1E1E 50%, #161616 100%);
+  --bg-solid: #1E1E1E;
+
+  --gold:          #C8A96E;
+  --gold-text:     #C8A96E;
+  --gold-deep:     #C8A96E;
+  --gold-bg:       rgba(200,169,110, .10);
+  --gold-bg-hover: rgba(200,169,110, .18);
+  --gold-border:   rgba(200,169,110, .30);
+  --gold-border-s: rgba(200,169,110, .18);
+  --gold-glow:     rgba(200,169,110, .35);
+
+  --text-h:        #F0E8D8;
+  --text-body:     #AAAAAA;
+  --text-sec:      #888888;
+  --text-muted:    #666666;
+  --text-on-gold:  #1A1A1A;
+
+  --glass:         rgba(255,255,255, .06);
+  --glass-border:  rgba(255,255,255, .09);
+  --glass-shadow:  none;
+  --glass-inset:   inset 0 1px 0 rgba(255,255,255,.07);
+  --glass-blur:    20px;
+
+  --glass-nav:     rgba(30,30,30, .88);
+  --glass-nav-b:   rgba(255,255,255, .07);
+
+  --divider:       rgba(255,255,255, .08);
+  --divider-l:     rgba(255,255,255, .05);
+
+  --img-overlay:   rgba(0,0,0,.65);
+  --avatar-bg:     rgba(200,169,110, .12);
+
+  --success:       #52B788;
+  --success-bg:    rgba(82,183,136, .10);
+  --success-border:rgba(82,183,136, .30);
+  --error:         #E63946;
+  --error-bg:      rgba(230,57,70, .10);
+  --error-border:  rgba(230,57,70, .30);
+  --event-purple:  #9B72CF;
+  --event-purple-bg:rgba(155,114,207, .10);
+  --event-purple-border:rgba(155,114,207, .30);
+  --warning:       #F4A261;
+}
+
+/* ── BODY ──────────────────────────────── */
 body {
-  background-color: #18161F;
-  color: #F0EDE8;
+  font-weight: 400;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-body);
+  min-height: 100vh;
+  transition: background .4s, color .3s;
+}
+
+/* ── GLASMORPHISM UTILITIES ────────────── */
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+}
+
+.glass-nav {
+  background: var(--glass-nav);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: var(--glass-nav-b);
+}
+
+/* ── THEME TRANSITION ──────────────────── */
+[data-theme] * {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+/* Exclude map and animations from transition */
+.mapboxgl-map *, .animate-slide-up {
+  transition: none !important;
 }

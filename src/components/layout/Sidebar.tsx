@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { useTheme } from '@/components/ThemeProvider';
 
 const navItems = [
   { href: '/', icon: '◎', label: 'Pulse' },
@@ -13,6 +14,7 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -21,14 +23,14 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="hidden md:flex flex-col items-center w-16 h-screen fixed left-0 top-0 bg-dark-er border-r border-gold-1/10 z-20">
+    <aside className="hidden md:flex flex-col items-center w-16 h-screen fixed left-0 top-0 z-20 glass-nav" style={{ borderRight: '1px solid var(--glass-nav-b)' }}>
       {/* Enso Logo */}
       <div className="py-5">
         <svg width="28" height="28" viewBox="0 0 100 100">
           <defs>
             <linearGradient id="sidebar-enso" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#A8894E" />
-              <stop offset="100%" stopColor="#D4BC8B" />
+              <stop offset="0%" stopColor="var(--gold-deep)" />
+              <stop offset="100%" stopColor="var(--gold)" />
             </linearGradient>
           </defs>
           <circle
@@ -49,14 +51,11 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`
-                flex flex-col items-center justify-center w-12 h-12 rounded-xl
-                transition-colors duration-200
-                ${isActive
-                  ? 'text-gold-1 bg-gold-1/10'
-                  : 'text-[#5A5450] hover:text-gold-1/60 hover:bg-white/[0.02]'
-                }
-              `}
+              className="flex flex-col items-center justify-center w-12 h-12 rounded-sm transition-colors duration-200"
+              style={{
+                color: isActive ? 'var(--gold-text)' : 'var(--text-muted)',
+                background: isActive ? 'var(--gold-bg)' : 'transparent',
+              }}
               title={item.label}
             >
               <span className="text-lg">{item.icon}</span>
@@ -68,26 +67,37 @@ export default function Sidebar() {
         })}
       </nav>
 
+      {/* Theme Toggle */}
+      <button
+        onClick={toggleTheme}
+        className="w-9 h-9 rounded-full flex items-center justify-center mb-2 cursor-pointer transition-colors duration-200"
+        style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border-s)' }}
+        title={theme === 'dark' ? 'Hell' : 'Dunkel'}
+      >
+        <span className="text-sm" style={{ color: 'var(--gold-text)' }}>
+          {theme === 'dark' ? '☀' : '☾'}
+        </span>
+      </button>
+
       {/* Avatar → Profil */}
       <Link
         href="/profile"
-        className={`
-          w-9 h-9 rounded-full flex items-center justify-center mb-2
-          border transition-colors duration-200
-          ${pathname.startsWith('/profile')
-            ? 'bg-gold-1/15 border-gold-1/50 text-gold-1'
-            : 'bg-gold-1/10 border-gold-1/20 text-gold-1/60 hover:border-gold-1/40'
-          }
-        `}
+        className="w-9 h-9 rounded-full flex items-center justify-center mb-2 transition-colors duration-200"
+        style={{
+          background: pathname.startsWith('/profile') ? 'var(--gold-bg-hover)' : 'var(--avatar-bg)',
+          border: `1.5px solid ${pathname.startsWith('/profile') ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+          color: 'var(--gold-text)',
+        }}
         title="Profil"
       >
-        <span className="font-heading text-sm">◯</span>
+        <span className="text-sm" style={{ fontFamily: 'Georgia, serif' }}>◯</span>
       </Link>
 
       {/* Logout */}
       <button
         onClick={handleLogout}
-        className="flex flex-col items-center justify-center w-12 h-12 mb-6 rounded-xl text-[#5A5450] hover:text-gold-1/60 hover:bg-white/[0.02] transition-colors duration-200"
+        className="flex flex-col items-center justify-center w-12 h-12 mb-6 rounded-sm transition-colors duration-200 cursor-pointer"
+        style={{ color: 'var(--text-muted)' }}
         title="Abmelden"
       >
         <span className="text-base">⏻</span>

@@ -89,13 +89,13 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
       if (user.avatar_url) {
         el.innerHTML = `<img src="${user.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
       } else {
-        el.innerHTML = `<span style="font-size:14px;font-weight:600;color:#1E1C26;">${initial}</span>`;
+        el.innerHTML = `<span style="font-size:14px;font-weight:600;color:var(--text-on-gold);">${initial}</span>`;
       }
 
       const borderColor = user.is_origin_soul ? 'rgba(200,169,110,0.8)' : 'rgba(200,169,110,0.5)';
       el.style.cssText = `
         width: 40px; height: 40px; border-radius: 50%;
-        ${user.avatar_url ? '' : 'background: linear-gradient(135deg, #A8894E, #C8A96E);'}
+        ${user.avatar_url ? '' : 'background: linear-gradient(135deg, var(--gold-deep), var(--gold));'}
         display: flex; align-items: center; justify-content: center;
         border: 2.5px solid ${borderColor};
         cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.4);
@@ -122,10 +122,10 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
       el.innerHTML = '<span>☆</span>';
       el.style.cssText = `
         width: 36px; height: 36px; border-radius: 50%;
-        background: linear-gradient(135deg, #7B4FA2, #9B72CF);
+        background: linear-gradient(135deg, var(--event-purple), var(--event-purple));
         display: flex; align-items: center; justify-content: center;
         color: #fff; font-size: 14px;
-        border: 2px solid rgba(155,114,207,0.5);
+        border: 2px solid var(--event-purple-border);
         cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.4);
       `;
 
@@ -145,8 +145,10 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
 
   if (!MAPBOX_TOKEN) {
     return (
-      <div className="w-full h-full bg-dark border border-gold-1/10 flex items-center justify-center">
-        <p className="text-[#5A5450] text-sm font-body">Karte nicht verfuegbar (Token fehlt)</p>
+      <div
+        className="w-full h-full glass-card flex items-center justify-center"
+      >
+        <p className="text-sm font-body" style={{ color: 'var(--text-muted)' }}>Karte nicht verfuegbar (Token fehlt)</p>
       </div>
     );
   }
@@ -154,16 +156,17 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
   return (
     <div className="w-full h-full relative">
       <div ref={mapContainer} className="w-full h-full" />
-      {/* Custom Styles */}
+      {/* Custom Styles fuer Mapbox Controls */}
       <style jsx global>{`
         .mapboxgl-ctrl-group {
-          background: #2C2A35 !important;
-          border: 1px solid rgba(200,169,110,0.15) !important;
+          background: var(--glass-nav) !important;
+          border: 1px solid var(--glass-border) !important;
           border-radius: 12px !important;
+          backdrop-filter: blur(16px) !important;
         }
         .mapboxgl-ctrl-group button {
           background: transparent !important;
-          border-bottom: 1px solid rgba(200,169,110,0.1) !important;
+          border-bottom: 1px solid var(--divider-l) !important;
         }
         .mapboxgl-ctrl-group button:last-child {
           border-bottom: none !important;

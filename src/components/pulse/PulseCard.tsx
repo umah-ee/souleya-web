@@ -22,11 +22,14 @@ function timeAgo(dateString: string): string {
 function AuthorAvatar({ author }: { author: Pulse['author'] }) {
   const initials = (author.display_name ?? author.username ?? '?').slice(0, 1).toUpperCase();
   return (
-    <div className={`
-      w-10 h-10 rounded-full bg-gold-1/15 flex-shrink-0
-      flex items-center justify-center font-heading text-[1.1rem] text-gold-1
-      border ${author.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}
-    `}>
+    <div
+      className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-[1.1rem]"
+      style={{
+        background: 'var(--avatar-bg)',
+        color: 'var(--gold-text)',
+        border: `1px solid ${author.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+      }}
+    >
       {author.avatar_url ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={author.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
@@ -66,29 +69,36 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
   const isOwner = currentUserId === pulse.author.id;
 
   return (
-    <article className="bg-dark rounded-2xl border border-gold-1/10 p-5 mb-4">
+    <article className="glass-card rounded-2xl p-5 mb-4">
       {/* Author Header */}
       <div className="flex items-center gap-3 mb-3">
         <AuthorAvatar author={pulse.author} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-body font-medium text-sm text-[#F0EDE8]">
+            <span className="font-body font-medium text-sm" style={{ color: 'var(--text-h)' }}>
               {pulse.author.display_name ?? pulse.author.username ?? 'Anonym'}
             </span>
             {pulse.author.is_origin_soul && (
-              <span className="text-[0.6rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-1.5 py-px">
+              <span
+                className="text-[0.6rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px"
+                style={{
+                  color: 'var(--gold)',
+                  border: '1px solid var(--gold-border-s)',
+                }}
+              >
                 Origin Soul
               </span>
             )}
           </div>
-          <span className="text-xs text-[#5A5450] font-label">
+          <span className="text-xs font-label" style={{ color: 'var(--text-muted)' }}>
             {timeAgo(pulse.created_at)}
           </span>
         </div>
         {isOwner && (
           <button
             onClick={handleDelete}
-            className="bg-transparent border-none cursor-pointer text-[#5A5450] text-base p-1 hover:text-gold-1/60 transition-colors"
+            className="bg-transparent border-none cursor-pointer text-base p-1 transition-colors"
+            style={{ color: 'var(--text-muted)' }}
             title="Loeschen"
           >
             ×
@@ -97,7 +107,7 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
       </div>
 
       {/* Content */}
-      <p className="text-[#c8c0b8] leading-[1.8] text-[0.95rem] font-body font-light whitespace-pre-wrap mb-3">
+      <p className="leading-[1.8] text-[0.95rem] font-body whitespace-pre-wrap mb-3" style={{ color: 'var(--text-body)' }}>
         {pulse.content}
       </p>
 
@@ -112,7 +122,7 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
       )}
 
       {/* Actions */}
-      <div className="flex gap-4 pt-2 border-t border-gold-1/[0.06]">
+      <div className="flex gap-4 pt-2" style={{ borderTop: '1px solid var(--divider-l)' }}>
         <button
           onClick={handleLike}
           disabled={!currentUserId}
@@ -120,8 +130,8 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
             flex items-center gap-1.5 bg-transparent border-none py-1
             font-label text-[0.7rem] tracking-[0.1em] uppercase transition-colors duration-200
             ${currentUserId ? 'cursor-pointer' : 'cursor-default'}
-            ${liked ? 'text-gold-1' : 'text-[#5A5450]'}
           `}
+          style={{ color: liked ? 'var(--gold-text)' : 'var(--text-muted)' }}
         >
           <span className="text-base">{liked ? '♥' : '♡'}</span>
           {likesCount > 0 && <span>{likesCount}</span>}
@@ -130,7 +140,8 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
 
         <button
           onClick={() => setShowComments((s) => !s)}
-          className="flex items-center gap-1.5 bg-transparent border-none py-1 cursor-pointer text-[#5A5450] font-label text-[0.7rem] tracking-[0.1em] uppercase transition-colors duration-200 hover:text-gold-1/60"
+          className="flex items-center gap-1.5 bg-transparent border-none py-1 cursor-pointer font-label text-[0.7rem] tracking-[0.1em] uppercase transition-colors duration-200"
+          style={{ color: 'var(--text-muted)' }}
         >
           <span className="text-base">○</span>
           {commentsCount > 0 && <span>{commentsCount}</span>}

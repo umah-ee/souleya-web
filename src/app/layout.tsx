@@ -1,28 +1,23 @@
 import type { Metadata } from 'next';
-import { Cormorant_Garamond, Josefin_Sans, Quicksand } from 'next/font/google';
+import { Josefin_Sans, Quicksand } from 'next/font/google';
+import ThemeProvider from '@/components/ThemeProvider';
 import './globals.css';
-
-const cormorant = Cormorant_Garamond({
-  variable: '--font-cormorant',
-  subsets: ['latin'],
-  weight: ['300', '400', '500'],
-});
 
 const josefin = Josefin_Sans({
   variable: '--font-josefin',
   subsets: ['latin'],
-  weight: ['100', '200', '300', '400'],
+  weight: ['400'],
 });
 
 const quicksand = Quicksand({
   variable: '--font-quicksand',
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
+  weight: ['400', '500', '600'],
 });
 
 export const metadata: Metadata = {
-  title: 'Souleya – Deine Community für Wachstum',
-  description: 'Community-Plattform für Spiritualität, Gesundheit und persönliche Entwicklung.',
+  title: 'Souleya – Deine Community fuer Wachstum',
+  description: 'Community-Plattform fuer Spiritualitaet, Gesundheit und persoenliche Entwicklung.',
 };
 
 export default function RootLayout({
@@ -31,11 +26,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de">
+    <html lang="de" data-theme="dark" suppressHydrationWarning>
       <body
-        className={`${cormorant.variable} ${josefin.variable} ${quicksand.variable} antialiased`}
+        className={`${josefin.variable} ${quicksand.variable} antialiased font-body`}
       >
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

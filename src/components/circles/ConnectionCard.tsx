@@ -15,11 +15,14 @@ export default function ConnectionCard({ connection, onRemove }: Props) {
   const profileContent = (
     <>
       {/* Avatar */}
-      <div className={`
-        w-11 h-11 rounded-full bg-gold-1/15 flex-shrink-0
-        flex items-center justify-center font-heading text-lg text-gold-1
-        border ${profile.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}
-      `}>
+      <div
+        className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-lg overflow-hidden"
+        style={{
+          background: 'var(--avatar-bg)',
+          color: 'var(--gold-text)',
+          border: `1.5px solid ${profile.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+        }}
+      >
         {profile.avatar_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
@@ -29,17 +32,20 @@ export default function ConnectionCard({ connection, onRemove }: Props) {
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-body font-medium text-sm text-[#F0EDE8] truncate">
+          <span className="font-body font-medium text-sm truncate" style={{ color: 'var(--text-h)' }}>
             {profile.display_name ?? profile.username ?? 'Anonym'}
           </span>
           {profile.is_origin_soul && (
-            <span className="text-[0.6rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-1.5 py-px flex-shrink-0">
+            <span
+              className="text-[0.6rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px flex-shrink-0"
+              style={{ color: 'var(--gold)', border: '1px solid var(--gold-border-s)' }}
+            >
               Origin Soul
             </span>
           )}
         </div>
         {profile.username && (
-          <span className="text-xs text-[#5A5450] font-label">
+          <span className="text-xs font-label" style={{ color: 'var(--text-muted)' }}>
             @{profile.username}
           </span>
         )}
@@ -48,7 +54,7 @@ export default function ConnectionCard({ connection, onRemove }: Props) {
   );
 
   return (
-    <div className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4 mb-3 hover:border-gold-1/25 transition-colors">
+    <div className="flex items-center gap-3 glass-card rounded-2xl p-4 mb-3 transition-colors">
       {profile.username ? (
         <Link href={`/u/${profile.username}`} className="flex items-center gap-3 flex-1 min-w-0">
           {profileContent}
@@ -62,7 +68,11 @@ export default function ConnectionCard({ connection, onRemove }: Props) {
       {/* Entfernen */}
       <button
         onClick={() => onRemove(connection.id)}
-        className="px-3 py-1.5 bg-transparent border border-[#5A5450]/30 rounded-full text-[#5A5450] font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer hover:border-[#E63946]/40 hover:text-[#E63946] transition-colors duration-200 flex-shrink-0"
+        className="px-3 py-1.5 bg-transparent rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200 flex-shrink-0"
+        style={{
+          border: '1px solid var(--divider)',
+          color: 'var(--text-muted)',
+        }}
       >
         Entfernen
       </button>

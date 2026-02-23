@@ -236,7 +236,7 @@ export default function ProfileClient() {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-[#5A5450]">
+      <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
         <p className="font-label text-[0.7rem] tracking-[0.2em]">
           WIRD GELADEN ...
         </p>
@@ -246,7 +246,7 @@ export default function ProfileClient() {
 
   if (!profile) {
     return (
-      <div className="text-center py-12 text-[#5A5450]">
+      <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
         <p className="text-sm">Profil konnte nicht geladen werden.</p>
       </div>
     );
@@ -270,15 +270,28 @@ export default function ProfileClient() {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gold-3/30 via-dark-er to-dark-est" />
+          <div
+            className="w-full h-full"
+            style={{ background: 'linear-gradient(135deg, var(--gold-bg-hover), var(--bg-solid))' }}
+          />
         )}
 
         {/* Gradient Overlay nach unten */}
-        <div className="absolute inset-0 bg-gradient-to-t from-dark-est via-dark-est/40 to-transparent" />
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to top, var(--bg-solid), transparent 60%)' }}
+        />
 
         {/* Banner-Upload Indicator */}
         {editing && (
-          <div className="absolute top-3 right-3 w-8 h-8 bg-dark-est/70 backdrop-blur-sm rounded-full flex items-center justify-center text-gold-1 text-sm border border-gold-1/20">
+          <div
+            className="absolute top-3 right-3 w-8 h-8 backdrop-blur-sm rounded-full flex items-center justify-center text-sm"
+            style={{
+              background: 'var(--glass-nav)',
+              color: 'var(--gold-text)',
+              border: '1px solid var(--gold-border-s)',
+            }}
+          >
             {uploadingBanner ? '...' : '📷'}
           </div>
         )}
@@ -300,27 +313,35 @@ export default function ProfileClient() {
             <div
               onClick={handleAvatarClick}
               className={`
-                w-[88px] h-[88px] rounded-full bg-dark-est flex items-center justify-center
-                font-heading text-3xl text-gold-1 overflow-hidden
-                border-[3px] ${profile.is_origin_soul
-                  ? 'border-gold-1/70 shadow-[0_0_20px_rgba(200,169,110,0.25)]'
-                  : 'border-gold-1/30'
-                }
+                w-[88px] h-[88px] rounded-full flex items-center justify-center
+                font-heading text-3xl overflow-hidden
                 ${editing ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}
               `}
+              style={{
+                background: 'var(--bg-solid)',
+                color: 'var(--gold-text)',
+                border: `3px solid ${profile.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+                boxShadow: profile.is_origin_soul ? '0 0 20px var(--gold-glow)' : 'none',
+              }}
             >
               {profile.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
               ) : initials}
               {uploading && (
-                <div className="absolute inset-0 bg-dark-est/60 rounded-full flex items-center justify-center">
-                  <span className="font-label text-[0.6rem] text-gold-1 tracking-[0.1em]">...</span>
+                <div
+                  className="absolute inset-0 rounded-full flex items-center justify-center"
+                  style={{ background: 'var(--img-overlay)' }}
+                >
+                  <span className="font-label text-[0.6rem] tracking-[0.1em]" style={{ color: 'var(--gold-text)' }}>...</span>
                 </div>
               )}
             </div>
             {editing && (
-              <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-gold-1 rounded-full flex items-center justify-center text-dark-est text-xs shadow-lg">
+              <div
+                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center text-xs shadow-lg"
+                style={{ background: 'var(--gold)', color: 'var(--text-on-gold)' }}
+              >
                 ✎
               </div>
             )}
@@ -343,34 +364,54 @@ export default function ProfileClient() {
                   onChange={(e) => setForm((f) => ({ ...f, display_name: e.target.value }))}
                   placeholder="Anzeigename"
                   maxLength={60}
-                  className="w-full bg-white/[0.06] border border-gold-1/20 rounded-xl px-3 py-2 text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1 transition-colors"
+                  className="w-full rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
+                  style={{
+                    background: 'var(--glass)',
+                    border: '1px solid var(--gold-border-s)',
+                    color: 'var(--text-h)',
+                  }}
                 />
                 <div className="flex items-center gap-1">
-                  <span className="text-[#5A5450] text-sm">@</span>
+                  <span className="text-sm" style={{ color: 'var(--text-muted)' }}>@</span>
                   <input
                     type="text"
                     value={form.username}
                     onChange={(e) => setForm((f) => ({ ...f, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
                     placeholder="username"
                     maxLength={30}
-                    className="flex-1 bg-white/[0.06] border border-gold-1/20 rounded-xl px-3 py-2 text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1 transition-colors"
+                    className="flex-1 rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
+                    style={{
+                      background: 'var(--glass)',
+                      border: '1px solid var(--gold-border-s)',
+                      color: 'var(--text-h)',
+                    }}
                   />
                 </div>
               </div>
             ) : (
               <>
-                <h2 className="text-[#F0EDE8] font-body font-semibold text-lg truncate">
+                <h2 className="font-body font-semibold text-lg truncate" style={{ color: 'var(--text-h)' }}>
                   {profile.display_name ?? profile.email}
                 </h2>
                 {profile.username && (
-                  <p className="text-[#5A5450] text-sm font-body">@{profile.username}</p>
+                  <p className="text-sm font-body" style={{ color: 'var(--text-muted)' }}>@{profile.username}</p>
                 )}
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-[0.6rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-2 py-0.5">
+                  <span
+                    className="text-[0.6rem] tracking-[0.15em] uppercase font-label rounded-full px-2 py-0.5"
+                    style={{ color: 'var(--gold)', border: '1px solid var(--gold-border-s)' }}
+                  >
                     {vipName}
                   </span>
                   {profile.is_origin_soul && (
-                    <span className="text-[0.6rem] tracking-[0.15em] uppercase text-gold-1 font-label border border-gold-1/40 rounded-full px-2 py-0.5 bg-gold-1/10">
+                    <span
+                      className="text-[0.6rem] tracking-[0.15em] uppercase font-label rounded-full px-2 py-0.5"
+                      style={{
+                        color: 'var(--gold-text)',
+                        border: '1px solid var(--gold-border)',
+                        background: 'var(--gold-bg)',
+                      }}
+                    >
                       Origin Soul
                     </span>
                   )}
@@ -382,12 +423,26 @@ export default function ProfileClient() {
 
         {/* Success/Error Messages */}
         {success && (
-          <div className="mb-4 py-2 px-4 bg-[rgba(82,183,136,0.1)] border border-[rgba(82,183,136,0.3)] rounded-xl text-[#52B788] text-sm font-body text-center">
+          <div
+            className="mb-4 py-2 px-4 rounded-xl text-sm font-body text-center"
+            style={{
+              background: 'var(--success-bg)',
+              border: '1px solid var(--success-border)',
+              color: 'var(--success)',
+            }}
+          >
             {success}
           </div>
         )}
         {error && (
-          <div className="mb-4 py-2 px-4 bg-[rgba(230,57,70,0.1)] border border-[rgba(230,57,70,0.3)] rounded-xl text-[#E63946] text-sm font-body text-center">
+          <div
+            className="mb-4 py-2 px-4 rounded-xl text-sm font-body text-center"
+            style={{
+              background: 'var(--error-bg)',
+              border: '1px solid var(--error-border)',
+              color: 'var(--error)',
+            }}
+          >
             {error}
           </div>
         )}
@@ -401,10 +456,15 @@ export default function ProfileClient() {
               placeholder="Ueber dich ..."
               maxLength={300}
               rows={3}
-              className="w-full bg-white/[0.06] border border-gold-1/20 rounded-xl px-3 py-2 text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1 transition-colors resize-none"
+              className="w-full rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors resize-none"
+              style={{
+                background: 'var(--glass)',
+                border: '1px solid var(--gold-border-s)',
+                color: 'var(--text-h)',
+              }}
             />
             <div className="flex items-center gap-2">
-              <span className="text-[#5A5450]">📍</span>
+              <span style={{ color: 'var(--text-muted)' }}>📍</span>
               <input
                 type="text"
                 value={form.location}
@@ -412,26 +472,31 @@ export default function ProfileClient() {
                 onBlur={handleLocationBlur}
                 placeholder="Ort (z.B. Muenchen – Schwabing)"
                 maxLength={80}
-                className="flex-1 bg-white/[0.06] border border-gold-1/20 rounded-xl px-3 py-2 text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1 transition-colors"
+                className="flex-1 rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
+                style={{
+                  background: 'var(--glass)',
+                  border: '1px solid var(--gold-border-s)',
+                  color: 'var(--text-h)',
+                }}
               />
               <button
                 type="button"
                 onClick={handleDetectLocation}
                 disabled={detectingLocation}
-                className={`
-                  px-3 py-2 rounded-xl font-label text-[0.6rem] tracking-[0.1em] uppercase transition-all duration-200 flex-shrink-0
-                  ${detectingLocation
-                    ? 'bg-gold-1/10 text-[#5A5450] cursor-not-allowed'
-                    : 'border border-gold-1/20 text-gold-1 cursor-pointer hover:border-gold-1/40 hover:bg-gold-1/5'
-                  }
-                `}
+                className="px-3 py-2 rounded-xl font-label text-[0.6rem] tracking-[0.1em] uppercase transition-all duration-200 flex-shrink-0"
+                style={{
+                  background: detectingLocation ? 'var(--gold-bg)' : 'transparent',
+                  border: '1px solid var(--gold-border-s)',
+                  color: detectingLocation ? 'var(--text-muted)' : 'var(--gold-text)',
+                  cursor: detectingLocation ? 'not-allowed' : 'pointer',
+                }}
                 title="Standort automatisch erkennen"
               >
                 {detectingLocation ? '...' : '📍 Erkennen'}
               </button>
             </div>
             {form.location_lat && (
-              <p className="text-[#5A5450] text-[0.65rem] font-body ml-6">
+              <p className="text-[0.65rem] font-body ml-6" style={{ color: 'var(--text-muted)' }}>
                 Standort gesetzt (Stadtteil-Genauigkeit)
               </p>
             )}
@@ -439,12 +504,12 @@ export default function ProfileClient() {
         ) : (
           <>
             {profile.bio && (
-              <p className="text-[#c8c0b8] text-sm font-body font-light leading-[1.8] mb-3">
+              <p className="text-sm font-body leading-[1.8] mb-3" style={{ color: 'var(--text-body)' }}>
                 {profile.bio}
               </p>
             )}
             {profile.location && (
-              <p className="text-[#5A5450] text-sm font-body mb-4">
+              <p className="text-sm font-body mb-4" style={{ color: 'var(--text-muted)' }}>
                 📍 {profile.location}
               </p>
             )}
@@ -457,19 +522,22 @@ export default function ProfileClient() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className={`
-                flex-1 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200
-                ${saving
-                  ? 'bg-gold-1/30 text-dark cursor-not-allowed'
-                  : 'bg-gradient-to-br from-gold-3 to-gold-2 text-dark cursor-pointer hover:opacity-90'
-                }
-              `}
+              className="flex-1 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
+              style={{
+                background: saving ? 'var(--gold-bg-hover)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                color: saving ? 'var(--text-muted)' : 'var(--text-on-gold)',
+                cursor: saving ? 'not-allowed' : 'pointer',
+              }}
             >
               {saving ? '...' : 'Speichern'}
             </button>
             <button
               onClick={handleCancel}
-              className="px-6 py-2.5 border border-[#5A5450]/30 rounded-full text-[#5A5450] font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer hover:border-[#5A5450]/50 transition-colors duration-200"
+              className="px-6 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
+              style={{
+                border: '1px solid var(--divider)',
+                color: 'var(--text-muted)',
+              }}
             >
               Abbrechen
             </button>
@@ -477,7 +545,11 @@ export default function ProfileClient() {
         ) : (
           <button
             onClick={handleEdit}
-            className="w-full py-2.5 mb-5 border border-gold-1/25 rounded-full text-gold-1 font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer hover:border-gold-1/40 hover:bg-gold-1/5 transition-colors duration-200"
+            className="w-full py-2.5 mb-5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
+            style={{
+              border: '1px solid var(--gold-border-s)',
+              color: 'var(--gold-text)',
+            }}
           >
             Profil bearbeiten
           </button>
@@ -485,32 +557,39 @@ export default function ProfileClient() {
 
         {/* ─── STATS KACHELN ─────────────────────────────── */}
         <div className="grid grid-cols-3 gap-3 mb-5">
-          <div className="bg-dark rounded-2xl border border-gold-1/10 p-4 text-center">
-            <p className="text-gold-1 font-body font-semibold text-lg">{profile.seeds_balance}</p>
-            <p className="text-[#5A5450] font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1">Seeds</p>
+          <div className="glass-card rounded-2xl p-4 text-center">
+            <p className="font-body font-semibold text-lg" style={{ color: 'var(--gold-text)' }}>{profile.seeds_balance}</p>
+            <p className="font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1" style={{ color: 'var(--text-muted)' }}>Seeds</p>
           </div>
-          <div className="bg-dark rounded-2xl border border-gold-1/10 p-4 text-center">
-            <p className="text-[#F0EDE8] font-body font-semibold text-lg">{profile.connections_count}</p>
-            <p className="text-[#5A5450] font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1">Verbindungen</p>
+          <div className="glass-card rounded-2xl p-4 text-center">
+            <p className="font-body font-semibold text-lg" style={{ color: 'var(--text-h)' }}>{profile.connections_count}</p>
+            <p className="font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1" style={{ color: 'var(--text-muted)' }}>Verbindungen</p>
           </div>
-          <div className="bg-dark rounded-2xl border border-gold-1/10 p-4 text-center">
-            <p className="text-gold-3 font-body font-semibold text-lg">{profile.vip_level}</p>
-            <p className="text-[#5A5450] font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1">VIP</p>
+          <div className="glass-card rounded-2xl p-4 text-center">
+            <p className="font-body font-semibold text-lg" style={{ color: 'var(--gold)' }}>{profile.vip_level}</p>
+            <p className="font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1" style={{ color: 'var(--text-muted)' }}>VIP</p>
           </div>
         </div>
 
         {/* ─── EINLADUNGSLINK ────────────────────────────── */}
-        <div className="bg-dark rounded-2xl border border-gold-1/10 p-5 mb-5">
-          <p className="text-[#5A5450] font-label uppercase tracking-wider text-[10px] mb-2">
+        <div className="glass-card rounded-2xl p-5 mb-5">
+          <p className="font-label uppercase tracking-wider text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
             Dein Einladungslink
           </p>
           <div className="flex items-center gap-3">
-            <code className="flex-1 text-gold-2 font-body text-sm bg-dark-est rounded-xl px-3 py-2 truncate">
+            <code
+              className="flex-1 font-body text-sm rounded-xl px-3 py-2 truncate"
+              style={{ color: 'var(--gold-text)', background: 'var(--glass)' }}
+            >
               souleya.com?ref={profile.referral_code}
             </code>
             <button
               onClick={handleCopyReferral}
-              className="px-3 py-2 border border-gold-1/30 rounded-xl text-gold-1 font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer hover:border-gold-1/50 hover:bg-gold-1/5 transition-colors duration-200 flex-shrink-0"
+              className="px-3 py-2 rounded-xl font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200 flex-shrink-0"
+              style={{
+                border: '1px solid var(--gold-border-s)',
+                color: 'var(--gold-text)',
+              }}
             >
               Kopieren
             </button>
@@ -518,15 +597,16 @@ export default function ProfileClient() {
         </div>
 
         {/* ─── EINSTELLUNGEN ─────────────────────────────── */}
-        <div className="bg-dark rounded-2xl border border-gold-1/10 mb-8">
-          <div className="px-5 py-3 border-b border-gold-1/[0.06]">
-            <p className="text-[#5A5450] font-label uppercase tracking-wider text-[10px]">
+        <div className="glass-card rounded-2xl mb-8">
+          <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--divider-l)' }}>
+            <p className="font-label uppercase tracking-wider text-[10px]" style={{ color: 'var(--text-muted)' }}>
               Einstellungen
             </p>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-5 py-4 text-[#E63946] text-sm font-body cursor-pointer hover:bg-white/[0.02] transition-colors rounded-b-2xl"
+            className="w-full flex items-center gap-3 px-5 py-4 text-sm font-body cursor-pointer transition-colors rounded-b-2xl"
+            style={{ color: 'var(--error)' }}
           >
             <span className="text-base">↩</span>
             Abmelden

@@ -49,14 +49,14 @@ export default function CommentsSection({ pulseId, currentUserId, onCountChange 
   };
 
   return (
-    <div className="mt-3 pt-3 border-t border-gold-1/[0.06]">
+    <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--divider-l)' }}>
       {/* Kommentare */}
       {loading ? (
-        <p className="text-[#5A5450] font-label text-[0.65rem] tracking-[0.15em] py-2">
+        <p className="font-label text-[0.65rem] tracking-[0.15em] py-2" style={{ color: 'var(--text-muted)' }}>
           Lade Kommentare …
         </p>
       ) : comments.length === 0 ? (
-        <p className="text-[#5A5450] font-body text-xs py-2">
+        <p className="font-body text-xs py-2" style={{ color: 'var(--text-muted)' }}>
           Noch keine Kommentare. Sei der Erste!
         </p>
       ) : (
@@ -66,7 +66,14 @@ export default function CommentsSection({ pulseId, currentUserId, onCountChange 
             return (
               <div key={comment.id} className="flex gap-2.5">
                 {/* Mini Avatar */}
-                <div className="w-7 h-7 rounded-full bg-gold-1/10 border border-gold-1/15 flex-shrink-0 flex items-center justify-center font-heading text-[0.7rem] text-gold-1">
+                <div
+                  className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-[0.7rem]"
+                  style={{
+                    background: 'var(--avatar-bg)',
+                    border: '1px solid var(--gold-border-s)',
+                    color: 'var(--gold-text)',
+                  }}
+                >
                   {comment.author.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={comment.author.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
@@ -75,14 +82,14 @@ export default function CommentsSection({ pulseId, currentUserId, onCountChange 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2">
-                    <span className="font-body font-medium text-xs text-[#F0EDE8]">
+                    <span className="font-body font-medium text-xs" style={{ color: 'var(--text-h)' }}>
                       {comment.author.display_name ?? comment.author.username ?? 'Anonym'}
                     </span>
-                    <span className="text-[10px] text-[#5A5450] font-label">
+                    <span className="text-[10px] font-label" style={{ color: 'var(--text-muted)' }}>
                       {timeAgo(comment.created_at)}
                     </span>
                   </div>
-                  <p className="text-[#c8c0b8] text-xs font-body font-light leading-[1.7] mt-0.5">
+                  <p className="text-xs font-body leading-[1.7] mt-0.5" style={{ color: 'var(--text-body)' }}>
                     {comment.content}
                   </p>
                 </div>
@@ -101,18 +108,22 @@ export default function CommentsSection({ pulseId, currentUserId, onCountChange 
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Kommentar schreiben …"
             maxLength={500}
-            className="flex-1 py-2 px-3 bg-white/[0.04] border border-gold-1/10 rounded-xl text-[#F0EDE8] text-xs font-body outline-none focus:border-gold-1/30 transition-colors placeholder:text-[#5A5450]"
+            className="flex-1 py-2 px-3 rounded-xl text-xs font-body outline-none transition-colors"
+            style={{
+              background: 'var(--glass)',
+              border: '1px solid var(--glass-border)',
+              color: 'var(--text-h)',
+            }}
           />
           <button
             type="submit"
             disabled={!newComment.trim() || submitting}
-            className={`
-              px-3 py-2 rounded-xl font-label text-[0.6rem] tracking-[0.1em] uppercase transition-all duration-200
-              ${!newComment.trim() || submitting
-                ? 'bg-gold-1/10 text-[#5A5450] cursor-not-allowed'
-                : 'bg-gold-1/20 text-gold-1 cursor-pointer hover:bg-gold-1/30'
-              }
-            `}
+            className="px-3 py-2 rounded-xl font-label text-[0.6rem] tracking-[0.1em] uppercase transition-all duration-200"
+            style={{
+              background: !newComment.trim() || submitting ? 'var(--gold-bg)' : 'var(--gold-bg-hover)',
+              color: !newComment.trim() || submitting ? 'var(--text-muted)' : 'var(--gold-text)',
+              cursor: !newComment.trim() || submitting ? 'not-allowed' : 'pointer',
+            }}
           >
             {submitting ? '…' : 'Senden'}
           </button>

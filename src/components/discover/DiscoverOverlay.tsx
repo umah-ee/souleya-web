@@ -95,16 +95,21 @@ function UserOverlay({
     <div className="absolute bottom-0 left-0 right-0 z-30 animate-slide-up">
       <div
         ref={overlayRef}
-        className="mx-3 mb-3 bg-dark-est/95 backdrop-blur-xl border border-gold-1/20 rounded-2xl overflow-hidden shadow-2xl shadow-black/50"
+        className="mx-3 mb-3 glass-card rounded-2xl overflow-hidden"
+        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.3)' }}
       >
         {/* Gold-Leiste oben */}
-        <div className="h-[2px] bg-gradient-to-r from-transparent via-gold-1/60 to-transparent" />
+        <div
+          className="h-[2px]"
+          style={{ background: 'linear-gradient(to right, transparent, var(--gold-glow), transparent)' }}
+        />
 
         <div className="p-5">
           {/* Schliessen */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center text-[#5A5450] hover:text-[#F0EDE8] transition-colors cursor-pointer z-10"
+            className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer z-10"
+            style={{ background: 'var(--glass)', color: 'var(--text-muted)' }}
           >
             ✕
           </button>
@@ -112,11 +117,12 @@ function UserOverlay({
           {/* Avatar + Info */}
           <div className="flex items-start gap-4 mb-4">
             <div
-              className={`
-                w-14 h-14 rounded-full bg-gold-1/15 flex-shrink-0 flex items-center justify-center
-                font-heading text-xl text-gold-1 overflow-hidden
-                border-2 ${user.is_origin_soul ? 'border-gold-1/60' : 'border-gold-1/20'}
-              `}
+              className="w-14 h-14 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-xl overflow-hidden"
+              style={{
+                background: 'var(--avatar-bg)',
+                color: 'var(--gold-text)',
+                border: `2px solid ${user.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+              }}
             >
               {user.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -125,18 +131,28 @@ function UserOverlay({
             </div>
 
             <div className="flex-1 min-w-0 pr-6">
-              <h3 className="text-[#F0EDE8] font-body font-medium text-base truncate">
+              <h3 className="font-body font-medium text-base truncate" style={{ color: 'var(--text-h)' }}>
                 {user.display_name ?? user.username ?? 'Anonym'}
               </h3>
               {user.username && (
-                <p className="text-[#5A5450] text-sm font-body">@{user.username}</p>
+                <p className="text-sm font-body" style={{ color: 'var(--text-muted)' }}>@{user.username}</p>
               )}
               <div className="flex items-center gap-2 mt-1 flex-wrap">
-                <span className="text-[0.55rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-1.5 py-px">
+                <span
+                  className="text-[0.55rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px"
+                  style={{ color: 'var(--gold)', border: '1px solid var(--gold-border-s)' }}
+                >
                   {vipName}
                 </span>
                 {user.is_origin_soul && (
-                  <span className="text-[0.55rem] tracking-[0.15em] uppercase text-gold-1 font-label border border-gold-1/40 rounded-full px-1.5 py-px bg-gold-1/10">
+                  <span
+                    className="text-[0.55rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px"
+                    style={{
+                      color: 'var(--gold-text)',
+                      border: '1px solid var(--gold-border)',
+                      background: 'var(--gold-bg)',
+                    }}
+                  >
                     Origin Soul
                   </span>
                 )}
@@ -146,13 +162,13 @@ function UserOverlay({
 
           {/* Bio */}
           {user.bio && (
-            <p className="text-[#9A9080] text-sm font-body font-light leading-relaxed line-clamp-2 mb-3">
+            <p className="text-sm font-body leading-relaxed line-clamp-2 mb-3" style={{ color: 'var(--text-sec)' }}>
               {user.bio}
             </p>
           )}
 
           {/* Location + Connections */}
-          <div className="flex items-center gap-4 text-xs text-[#5A5450] font-body mb-4">
+          <div className="flex items-center gap-4 text-xs font-body mb-4" style={{ color: 'var(--text-muted)' }}>
             {user.location && (
               <span>📍 {user.location}</span>
             )}
@@ -164,7 +180,11 @@ function UserOverlay({
             {user.username && (
               <Link
                 href={`/u/${user.username}`}
-                className="flex-1 py-2.5 border border-gold-1/25 rounded-full text-gold-1 font-label text-[0.65rem] tracking-[0.1em] uppercase text-center hover:border-gold-1/40 transition-colors"
+                className="flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase text-center transition-colors"
+                style={{
+                  border: '1px solid var(--gold-border-s)',
+                  color: 'var(--gold-text)',
+                }}
               >
                 Profil ansehen
               </Link>
@@ -174,24 +194,29 @@ function UserOverlay({
               <button
                 onClick={onConnect}
                 disabled={connecting}
-                className={`
-                  flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase transition-all duration-200
-                  ${connecting
-                    ? 'bg-gold-1/20 text-[#5A5450] cursor-not-allowed'
-                    : 'bg-gradient-to-br from-gold-3 to-gold-2 text-dark cursor-pointer hover:opacity-90'
-                  }
-                `}
+                className="flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase transition-all duration-200"
+                style={{
+                  background: connecting ? 'var(--gold-bg)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                  color: connecting ? 'var(--text-muted)' : 'var(--text-on-gold)',
+                  cursor: connecting ? 'not-allowed' : 'pointer',
+                }}
               >
                 {connecting ? '...' : 'Verbinden'}
               </button>
             )}
             {connectionStatus === 'connected' && (
-              <span className="flex-1 py-2.5 border border-[#52B788]/30 rounded-full text-[#52B788] font-label text-[0.65rem] tracking-[0.1em] uppercase text-center">
+              <span
+                className="flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase text-center"
+                style={{ border: '1px solid var(--success-border)', color: 'var(--success)' }}
+              >
                 Verbunden
               </span>
             )}
             {connectionStatus === 'pending_outgoing' && (
-              <span className="flex-1 py-2.5 border border-gold-1/20 rounded-full text-[#5A5450] font-label text-[0.65rem] tracking-[0.1em] uppercase text-center">
+              <span
+                className="flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase text-center"
+                style={{ border: '1px solid var(--gold-border-s)', color: 'var(--text-muted)' }}
+              >
                 Angefragt
               </span>
             )}
@@ -222,71 +247,84 @@ function EventOverlay({
     <div className="absolute bottom-0 left-0 right-0 z-30 animate-slide-up">
       <div
         ref={overlayRef}
-        className="mx-3 mb-3 bg-dark-est/95 backdrop-blur-xl border border-gold-1/20 rounded-2xl overflow-hidden shadow-2xl shadow-black/50"
+        className="mx-3 mb-3 glass-card rounded-2xl overflow-hidden"
+        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.3)' }}
       >
         {/* Lila-Leiste oben */}
-        <div className="h-[2px] bg-gradient-to-r from-transparent via-[#9B72CF]/60 to-transparent" />
+        <div
+          className="h-[2px]"
+          style={{ background: 'linear-gradient(to right, transparent, var(--event-purple), transparent)' }}
+        />
 
         <div className="p-5">
           {/* Schliessen */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center text-[#5A5450] hover:text-[#F0EDE8] transition-colors cursor-pointer z-10"
+            className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer z-10"
+            style={{ background: 'var(--glass)', color: 'var(--text-muted)' }}
           >
             ✕
           </button>
 
           {/* Kategorie Badge */}
           <div className="mb-3">
-            <span className={`
-              text-[0.6rem] tracking-[0.15em] uppercase font-label px-2 py-0.5 rounded-full
-              ${event.category === 'course'
-                ? 'text-[#9B72CF] border border-[#9B72CF]/30 bg-[#9B72CF]/10'
-                : 'text-gold-1 border border-gold-1/30 bg-gold-1/10'
-              }
-            `}>
+            <span
+              className="text-[0.6rem] tracking-[0.15em] uppercase font-label px-2 py-0.5 rounded-full"
+              style={event.category === 'course' ? {
+                color: 'var(--event-purple)',
+                border: '1px solid var(--event-purple-border)',
+                background: 'var(--event-purple-bg)',
+              } : {
+                color: 'var(--gold-text)',
+                border: '1px solid var(--gold-border-s)',
+                background: 'var(--gold-bg)',
+              }}
+            >
               {event.category === 'course' ? 'Kurs' : 'Meetup'}
             </span>
           </div>
 
           {/* Titel */}
-          <h3 className="text-[#F0EDE8] font-body font-medium text-base mb-2 pr-8">
+          <h3 className="font-body font-medium text-base mb-2 pr-8" style={{ color: 'var(--text-h)' }}>
             {event.title}
           </h3>
 
           {/* Datum + Uhrzeit */}
-          <div className="flex items-center gap-2 text-sm text-[#9A9080] font-body mb-2">
+          <div className="flex items-center gap-2 text-sm font-body mb-2" style={{ color: 'var(--text-sec)' }}>
             <span>📅 {formatDate(event.starts_at)} · {formatTime(event.starts_at)}</span>
             {event.ends_at && <span>– {formatTime(event.ends_at)}</span>}
           </div>
 
           {/* Ort */}
-          <p className="text-sm text-[#5A5450] font-body mb-3">
+          <p className="text-sm font-body mb-3" style={{ color: 'var(--text-muted)' }}>
             📍 {event.location_name}
           </p>
 
           {/* Beschreibung */}
           {event.description && (
-            <p className="text-[#9A9080] text-sm font-body font-light leading-relaxed line-clamp-3 mb-4">
+            <p className="text-sm font-body leading-relaxed line-clamp-3 mb-4" style={{ color: 'var(--text-sec)' }}>
               {event.description}
             </p>
           )}
 
           {/* Creator + Teilnehmer */}
           <div className="flex items-center gap-3 mb-4 text-sm">
-            <div className={`
-              w-6 h-6 rounded-full bg-gold-1/15 flex-shrink-0 flex items-center justify-center
-              text-[10px] text-gold-1 font-heading border
-              ${event.creator?.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}
-            `}>
+            <div
+              className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-heading overflow-hidden"
+              style={{
+                background: 'var(--avatar-bg)',
+                color: 'var(--gold-text)',
+                border: `1px solid ${event.creator?.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+              }}
+            >
               {event.creator?.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={event.creator.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
               ) : creatorInitial}
             </div>
-            <span className="text-[#5A5450] font-body">{creatorName}</span>
-            <span className="text-[#5A5450]/50">·</span>
-            <span className="text-[#5A5450] font-body">
+            <span className="font-body" style={{ color: 'var(--text-muted)' }}>{creatorName}</span>
+            <span style={{ color: 'var(--divider)' }}>·</span>
+            <span className="font-body" style={{ color: 'var(--text-muted)' }}>
               {event.participants_count}{event.max_participants ? `/${event.max_participants}` : ''} Teilnehmer
             </span>
           </div>
@@ -298,7 +336,11 @@ function EventOverlay({
                 <button
                   onClick={() => onLeave?.(event.id)}
                   disabled={joining}
-                  className="w-full py-2.5 border border-[#5A5450]/30 rounded-full text-[#5A5450] font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer hover:border-[#5A5450]/50 transition-colors"
+                  className="w-full py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors"
+                  style={{
+                    border: '1px solid var(--divider)',
+                    color: 'var(--text-muted)',
+                  }}
                 >
                   {joining ? '...' : 'Verlassen'}
                 </button>
@@ -306,15 +348,14 @@ function EventOverlay({
                 <button
                   onClick={() => onJoin?.(event.id)}
                   disabled={joining || isFull}
-                  className={`
-                    w-full py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase transition-all duration-200
-                    ${isFull
-                      ? 'bg-[#5A5450]/20 text-[#5A5450] cursor-not-allowed'
-                      : joining
-                        ? 'bg-gold-1/20 text-[#5A5450] cursor-not-allowed'
-                        : 'bg-gradient-to-br from-gold-3 to-gold-2 text-dark cursor-pointer hover:opacity-90'
-                    }
-                  `}
+                  className="w-full py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase transition-all duration-200"
+                  style={{
+                    background: isFull || joining
+                      ? 'var(--gold-bg)'
+                      : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                    color: isFull || joining ? 'var(--text-muted)' : 'var(--text-on-gold)',
+                    cursor: isFull || joining ? 'not-allowed' : 'pointer',
+                  }}
                 >
                   {isFull ? 'Voll' : joining ? '...' : 'Teilnehmen'}
                 </button>

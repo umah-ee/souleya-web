@@ -53,10 +53,10 @@ export default function FeedClient({ user }: Props) {
     <>
       {/* Desktop Header */}
       <div className="hidden md:block mb-6">
-        <h1 className="font-heading text-2xl font-light text-gold-1 tracking-wide">
+        <h1 className="font-heading text-2xl" style={{ color: 'var(--gold-text)' }}>
           Pulse
         </h1>
-        <p className="text-sm text-[#5A5450] font-body mt-1">
+        <p className="text-sm font-body mt-1" style={{ color: 'var(--text-muted)' }}>
           Impulse aus der Community
         </p>
       </div>
@@ -66,17 +66,20 @@ export default function FeedClient({ user }: Props) {
 
       {/* Pulses */}
       {loading ? (
-        <div className="text-center py-12 text-[#5A5450]">
+        <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
           <p className="font-label text-[0.7rem] tracking-[0.2em]">
             WIRD GELADEN …
           </p>
         </div>
       ) : pulses.length === 0 ? (
-        <div className="text-center py-16 px-4 border border-dashed border-gold-1/15 rounded-2xl">
-          <p className="text-gold-3 font-heading text-2xl font-light mb-2">
+        <div
+          className="text-center py-16 px-4 rounded-2xl"
+          style={{ border: '1px dashed var(--gold-border-s)' }}
+        >
+          <p className="font-heading text-2xl mb-2" style={{ color: 'var(--gold)' }}>
             Der Pulse wartet
           </p>
-          <p className="text-[#5A5450] text-sm">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Teile als erstes deinen Impuls mit der Community.
           </p>
         </div>
@@ -95,7 +98,11 @@ export default function FeedClient({ user }: Props) {
               <button
                 onClick={handleLoadMore}
                 disabled={loadingMore}
-                className="px-6 py-2.5 bg-transparent border border-gold-1/30 rounded-full text-gold-1 font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer hover:border-gold-1/50 transition-colors duration-200"
+                className="px-6 py-2.5 bg-transparent rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
+                style={{
+                  border: '1px solid var(--gold-border-s)',
+                  color: 'var(--gold-text)',
+                }}
               >
                 {loadingMore ? '…' : 'Mehr laden'}
               </button>
