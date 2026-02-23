@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
@@ -11,16 +11,22 @@ const DEMO_USERS = [
   { email: 'david@souleya-demo.com', name: 'David Goldbach', role: 'Buddhismus-Lehrer' },
 ];
 
+const OTP_LENGTH = 6;
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [step, setStep] = useState<'email' | 'otp'>('email');
   const [error, setError] = useState('');
   const [showDemo, setShowDemo] = useState(false);
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
+  const [otpDigits, setOtpDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''));
+  const [verifying, setVerifying] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  // ── Schritt 1: OTP-Code per E-Mail senden ──────────────
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
 
@@ -32,18 +38,97 @@ export default function LoginPage() {
       email: email.trim().toLowerCase(),
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // KEIN emailRedirectTo → Supabase sendet OTP-Code statt Magic Link
       },
     });
 
     if (error) {
       setError('Fehler beim Senden. Bitte versuche es erneut.');
     } else {
-      setSent(true);
+      setStep('otp');
+      setOtpDigits(Array(OTP_LENGTH).fill(''));
+      // Fokus auf erstes Eingabefeld nach Render
+      setTimeout(() => inputRefs.current[0]?.focus(), 100);
     }
     setLoading(false);
   };
 
+  // ── Schritt 2: OTP-Code verifizieren ───────────────────
+  const handleVerifyOtp = async (code: string) => {
+    if (code.length !== OTP_LENGTH) return;
+
+    setVerifying(true);
+    setError('');
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.verifyOtp({
+      email: email.trim().toLowerCase(),
+      token: code,
+      type: 'email',
+    });
+
+    if (error) {
+      setError('Ungültiger Code. Bitte versuche es erneut.');
+      setVerifying(false);
+      // Felder leeren und Fokus auf erstes Feld
+      setOtpDigits(Array(OTP_LENGTH).fill(''));
+      setTimeout(() => inputRefs.current[0]?.focus(), 100);
+    } else {
+      // Erfolg → zur App weiterleiten
+      router.push('/');
+    }
+  };
+
+  // ── OTP-Eingabe: einzelne Ziffern ──────────────────────
+  const handleOtpChange = (index: number, value: string) => {
+    // Nur Zahlen erlauben
+    const digit = value.replace(/\D/g, '').slice(-1);
+    const newDigits = [...otpDigits];
+    newDigits[index] = digit;
+    setOtpDigits(newDigits);
+
+    // Auto-Fokus auf naechstes Feld
+    if (digit && index < OTP_LENGTH - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    // Auto-Submit wenn alle Felder ausgefuellt
+    const code = newDigits.join('');
+    if (code.length === OTP_LENGTH && !newDigits.includes('')) {
+      handleVerifyOtp(code);
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
+      // Bei Backspace auf leeres Feld → vorheriges Feld fokussieren
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH);
+    if (!pasted) return;
+
+    const newDigits = Array(OTP_LENGTH).fill('');
+    for (let i = 0; i < pasted.length; i++) {
+      newDigits[i] = pasted[i];
+    }
+    setOtpDigits(newDigits);
+
+    // Fokus auf naechstes leeres Feld oder letztes
+    const nextEmpty = newDigits.findIndex((d) => !d);
+    const focusIndex = nextEmpty === -1 ? OTP_LENGTH - 1 : nextEmpty;
+    inputRefs.current[focusIndex]?.focus();
+
+    // Auto-Submit wenn komplett
+    if (pasted.length === OTP_LENGTH) {
+      handleVerifyOtp(pasted);
+    }
+  };
+
+  // ── Demo-Login (Passwort-basiert, unveraendert) ────────
   const handleDemoLogin = async (demoEmail: string) => {
     setDemoLoading(demoEmail);
     setError('');
@@ -93,13 +178,13 @@ export default function LoginPage() {
           Souleya
         </h1>
 
-        {!sent ? (
+        {step === 'email' ? (
           <>
             <p className="font-label text-xs tracking-[0.2em] uppercase mb-8" style={{ color: 'var(--text-sec)' }}>
               Dein Zugang
             </p>
 
-            <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
               <input
                 type="email"
                 value={email}
@@ -131,12 +216,12 @@ export default function LoginPage() {
                   boxShadow: loading ? 'none' : '0 0 30px var(--gold-glow)',
                 }}
               >
-                {loading ? '...' : 'Magic Link senden'}
+                {loading ? '...' : 'Login-Code senden'}
               </button>
             </form>
 
             <p className="mt-6 text-xs" style={{ color: 'var(--text-muted)' }}>
-              Du erhältst einen einmaligen Login-Link per E-Mail.
+              Du erhältst einen 6-stelligen Code per E-Mail.
               <br />Kein Passwort nötig.
             </p>
 
@@ -179,35 +264,91 @@ export default function LoginPage() {
             </div>
           </>
         ) : (
-          /* Success State */
+          /* OTP-Code Eingabe */
           <>
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-6 text-xl"
-              style={{
-                background: 'var(--success-bg)',
-                border: '1px solid var(--success-border)',
-                color: 'var(--success)',
-              }}
-            >
-              ✓
+            <p className="font-label text-xs tracking-[0.2em] uppercase mb-2" style={{ color: 'var(--text-sec)' }}>
+              Code eingeben
+            </p>
+            <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
+              Wir haben einen Code an{' '}
+              <strong style={{ color: 'var(--gold-text)' }}>{email}</strong> gesendet.
+            </p>
+
+            {/* OTP-Eingabefelder */}
+            <div className="flex justify-center gap-2 mb-4">
+              {otpDigits.map((digit, i) => (
+                <input
+                  key={i}
+                  ref={(el) => { inputRefs.current[i] = el; }}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleOtpChange(i, e.target.value)}
+                  onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                  onPaste={i === 0 ? handleOtpPaste : undefined}
+                  disabled={verifying}
+                  className="w-11 h-14 rounded-xl text-center text-xl font-heading outline-none transition-all duration-200"
+                  style={{
+                    background: 'var(--glass)',
+                    border: `1px solid ${digit ? 'var(--gold-border-s)' : 'var(--glass-border)'}`,
+                    color: 'var(--gold-text)',
+                    opacity: verifying ? 0.5 : 1,
+                  }}
+                />
+              ))}
             </div>
-            <p className="font-label text-xs tracking-[0.2em] uppercase mb-4" style={{ color: 'var(--success)' }}>
-              Magic Link gesendet
+
+            {error && (
+              <p className="text-[0.8rem] mb-4" style={{ color: 'var(--error)' }}>{error}</p>
+            )}
+
+            {verifying && (
+              <p className="text-xs mb-4 font-label tracking-[0.1em] uppercase" style={{ color: 'var(--gold-text)' }}>
+                Wird verifiziert...
+              </p>
+            )}
+
+            <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
+              Prüfe dein Postfach (auch den Spam-Ordner).
             </p>
-            <p className="text-sm leading-[1.8]" style={{ color: 'var(--text-sec)' }}>
-              Prüfe dein Postfach für <strong style={{ color: 'var(--gold-text)' }}>{email}</strong>.
-              <br />Klicke den Link um dich anzumelden.
-            </p>
+
+            {/* Code erneut senden */}
             <button
-              onClick={() => { setSent(false); setEmail(''); }}
-              className="mt-6 bg-transparent rounded-full py-2 px-6 font-label text-xs tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
-              style={{
-                border: '1px solid var(--gold-border-s)',
-                color: 'var(--gold-text)',
+              onClick={async () => {
+                setError('');
+                const supabase = createClient();
+                const { error } = await supabase.auth.signInWithOtp({
+                  email: email.trim().toLowerCase(),
+                  options: { shouldCreateUser: true },
+                });
+                if (error) {
+                  setError('Erneutes Senden fehlgeschlagen.');
+                } else {
+                  setError('');
+                  setOtpDigits(Array(OTP_LENGTH).fill(''));
+                  setTimeout(() => inputRefs.current[0]?.focus(), 100);
+                }
               }}
+              className="mt-4 bg-transparent border-none cursor-pointer text-xs font-label tracking-[0.1em] uppercase transition-colors duration-200"
+              style={{ color: 'var(--gold-text)' }}
             >
-              Andere E-Mail
+              Code erneut senden
             </button>
+
+            {/* Zurueck zur E-Mail-Eingabe */}
+            <div className="mt-4">
+              <button
+                onClick={() => { setStep('email'); setError(''); setOtpDigits(Array(OTP_LENGTH).fill('')); }}
+                className="bg-transparent rounded-full py-2 px-6 font-label text-xs tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
+                style={{
+                  border: '1px solid var(--gold-border-s)',
+                  color: 'var(--gold-text)',
+                }}
+              >
+                Andere E-Mail
+              </button>
+            </div>
           </>
         )}
       </div>
