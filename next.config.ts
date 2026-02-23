@@ -9,6 +9,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  redirects: async () => [
+    {
+      source: '/dashboard',
+      destination: '/',
+      permanent: true,
+    },
+  ],
 };
 
 export default nextConfig;
