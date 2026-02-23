@@ -59,9 +59,17 @@ export default function ProfileClient() {
           interests: p.interests ?? [],
         });
       })
-      .catch(console.error)
+      .catch((err) => {
+        console.error('[ProfileClient]', err);
+        // Wenn nicht angemeldet → Login
+        if (err.message === 'Nicht angemeldet') {
+          router.push('/login?next=/profile');
+          return;
+        }
+        setError('Profil konnte nicht geladen werden.');
+      })
       .finally(() => setLoading(false));
-  }, []);
+  }, [router]);
 
   const handleEdit = () => {
     if (!profile) return;

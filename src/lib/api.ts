@@ -13,18 +13,27 @@ export async function apiFetch<T = unknown>(
   const supabase = createClient();
 
   // getUser() erzwingt Session-Refresh (getSession() gibt ggf. abgelaufene Tokens zurueck)
-  await supabase.auth.getUser();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.warn(`[apiFetch] Keine Session fuer ${path}:`, userError?.message ?? 'Kein User');
+    throw new Error('Nicht angemeldet');
+  }
+
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
+
+  if (!token) {
+    console.warn(`[apiFetch] User vorhanden aber kein Token fuer ${path}`);
+    throw new Error('Nicht angemeldet');
+  }
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> ?? {}),
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
+  headers['Authorization'] = `Bearer ${token}`;
 
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
