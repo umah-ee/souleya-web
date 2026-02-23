@@ -5,27 +5,32 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import type { SoEvent } from '@/types/events';
 
-interface NearbyUser {
+export interface MapNearbyUser {
   id: string;
   display_name: string | null;
   username: string | null;
   avatar_url: string | null;
+  bio: string | null;
+  location: string | null;
   location_lat: number;
   location_lng: number;
+  vip_level: number;
   is_origin_soul: boolean;
+  connections_count: number;
 }
 
 interface Props {
-  users: NearbyUser[];
+  users: MapNearbyUser[];
   events: SoEvent[];
   center: [number, number]; // [lng, lat]
   onMapMove?: (center: { lat: number; lng: number }) => void;
-  fullWidth?: boolean;
+  onUserClick?: (user: MapNearbyUser) => void;
+  onEventClick?: (event: SoEvent) => void;
 }
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? '';
 
-export default function MapView({ users, events, center, onMapMove, fullWidth = false }: Props) {
+export default function MapView({ users, events, center, onMapMove, onUserClick, onEventClick }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -42,7 +47,7 @@ export default function MapView({ users, events, center, onMapMove, fullWidth = 
       style: 'mapbox://styles/mapbox/dark-v11',
       center: center,
       zoom: 12,
-      maxZoom: 14, // Datenschutz: nicht naeher als Stadtteil
+      maxZoom: 14,
       minZoom: 5,
       attributionControl: false,
     });
@@ -82,10 +87,8 @@ export default function MapView({ users, events, center, onMapMove, fullWidth = 
       el.className = 'souleya-marker-user';
 
       if (user.avatar_url) {
-        // Profilbild als Marker
         el.innerHTML = `<img src="${user.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
       } else {
-        // Initiale als Fallback
         el.innerHTML = `<span style="font-size:14px;font-weight:600;color:#1E1C26;">${initial}</span>`;
       }
 
@@ -99,18 +102,14 @@ export default function MapView({ users, events, center, onMapMove, fullWidth = 
         overflow: hidden;
       `;
 
-      const popup = new mapboxgl.Popup({ offset: 24, closeButton: false })
-        .setHTML(`
-          <div style="font-family: sans-serif; color: #F0EDE8; font-size: 12px;">
-            <strong>${user.display_name ?? user.username ?? 'Anonym'}</strong>
-            ${user.username ? `<br><span style="color: #9A9080; font-size: 11px;">@${user.username}</span>` : ''}
-            ${user.is_origin_soul ? '<br><span style="color: #C8A96E; font-size: 10px;">Origin Soul</span>' : ''}
-          </div>
-        `);
+      // Klick → Callback statt Popup
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onUserClick?.(user);
+      });
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat([user.location_lng, user.location_lat])
-        .setPopup(popup)
         .addTo(map.current!);
 
       markersRef.current.push(marker);
@@ -130,47 +129,33 @@ export default function MapView({ users, events, center, onMapMove, fullWidth = 
         cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.4);
       `;
 
-      const popup = new mapboxgl.Popup({ offset: 22, closeButton: false })
-        .setHTML(`
-          <div style="font-family: sans-serif; color: #F0EDE8; font-size: 12px;">
-            <strong>${event.title}</strong>
-            <br><span style="color: #9A9080; font-size: 11px;">📍 ${event.location_name}</span>
-            <br><span style="color: #9B72CF; font-size: 10px;">${event.category === 'course' ? 'Kurs' : 'Meetup'}</span>
-          </div>
-        `);
+      // Klick → Callback statt Popup
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onEventClick?.(event);
+      });
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat([event.location_lng, event.location_lat])
-        .setPopup(popup)
         .addTo(map.current!);
 
       markersRef.current.push(marker);
     });
-  }, [users, events, mapReady]);
+  }, [users, events, mapReady, onUserClick, onEventClick]);
 
   if (!MAPBOX_TOKEN) {
     return (
-      <div className={`w-full ${fullWidth ? 'h-[50vh]' : 'h-[280px] rounded-2xl'} bg-dark border border-gold-1/10 flex items-center justify-center`}>
+      <div className="w-full h-full bg-dark border border-gold-1/10 flex items-center justify-center">
         <p className="text-[#5A5450] text-sm font-body">Karte nicht verfuegbar (Token fehlt)</p>
       </div>
     );
   }
 
   return (
-    <div className={`w-full ${fullWidth ? 'h-[50vh]' : 'h-[280px] rounded-2xl'} overflow-hidden ${fullWidth ? '' : 'border border-gold-1/10'} relative`}>
+    <div className="w-full h-full relative">
       <div ref={mapContainer} className="w-full h-full" />
-      {/* Custom Popup Styles */}
+      {/* Custom Styles */}
       <style jsx global>{`
-        .mapboxgl-popup-content {
-          background: #2C2A35 !important;
-          border: 1px solid rgba(200,169,110,0.2) !important;
-          border-radius: 12px !important;
-          padding: 8px 12px !important;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
-        }
-        .mapboxgl-popup-tip {
-          border-top-color: #2C2A35 !important;
-        }
         .mapboxgl-ctrl-group {
           background: #2C2A35 !important;
           border: 1px solid rgba(200,169,110,0.15) !important;

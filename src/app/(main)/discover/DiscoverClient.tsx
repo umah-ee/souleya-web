@@ -3,32 +3,17 @@
 import { useState, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import type { MapNearbyUser } from '@/components/discover/MapView';
 import type { UserSearchResult } from '@/lib/users';
 import type { ConnectionStatus } from '@/types/circles';
 import type { SoEvent } from '@/types/events';
 import { searchUsers } from '@/lib/users';
 import { sendConnectionRequest, getConnectionStatus } from '@/lib/circles';
 import { fetchEvents, fetchNearbyUsers, joinEvent, leaveEvent } from '@/lib/events';
-import EventCard from '@/components/discover/EventCard';
+import DiscoverOverlay from '@/components/discover/DiscoverOverlay';
 
 // Mapbox dynamisch laden (nur client-side)
 const MapView = dynamic(() => import('@/components/discover/MapView'), { ssr: false });
-
-type DiscoverTab = 'nearby' | 'events';
-
-interface NearbyUser {
-  id: string;
-  username: string | null;
-  display_name: string | null;
-  avatar_url: string | null;
-  bio: string | null;
-  location: string | null;
-  location_lat: number;
-  location_lng: number;
-  vip_level: number;
-  is_origin_soul: boolean;
-  connections_count: number;
-}
 
 interface Props {
   userId: string | null;
@@ -47,12 +32,15 @@ export default function DiscoverClient({ userId }: Props) {
   const [sending, setSending] = useState<Record<string, boolean>>({});
 
   // ── Karte + Discover ──────────────────────────────────────
-  const [tab, setTab] = useState<DiscoverTab>('nearby');
   const [mapCenter, setMapCenter] = useState<[number, number]>(DEFAULT_CENTER);
-  const [nearbyUsers, setNearbyUsers] = useState<NearbyUser[]>([]);
+  const [nearbyUsers, setNearbyUsers] = useState<MapNearbyUser[]>([]);
   const [events, setEvents] = useState<SoEvent[]>([]);
-  const [loadingNearby, setLoadingNearby] = useState(true);
-  const [loadingEvents, setLoadingEvents] = useState(true);
+
+  // ── Overlay State ─────────────────────────────────────────
+  const [selectedUser, setSelectedUser] = useState<MapNearbyUser | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<SoEvent | null>(null);
+  const [overlayConnectionStatus, setOverlayConnectionStatus] = useState<ConnectionStatus>('none');
+  const [connecting, setConnecting] = useState(false);
   const [joiningEvent, setJoiningEvent] = useState<Record<string, boolean>>({});
 
   // Aktive Suche = Query hat mind. 2 Zeichen
@@ -60,9 +48,6 @@ export default function DiscoverClient({ userId }: Props) {
 
   // ── Nearby Users + Events laden ───────────────────────────
   const loadDiscoverData = useCallback(async (lat: number, lng: number) => {
-    setLoadingNearby(true);
-    setLoadingEvents(true);
-
     try {
       const [nearbyRes, eventsRes] = await Promise.all([
         fetchNearbyUsers(lat, lng),
@@ -72,9 +57,6 @@ export default function DiscoverClient({ userId }: Props) {
       setEvents(eventsRes.data);
     } catch (e) {
       console.error('Discover-Daten laden fehlgeschlagen:', e);
-    } finally {
-      setLoadingNearby(false);
-      setLoadingEvents(false);
     }
   }, []);
 
@@ -97,6 +79,94 @@ export default function DiscoverClient({ userId }: Props) {
     return () => clearTimeout(timer);
   }, [mapCenter, loadDiscoverData]);
 
+  // ── Marker-Klick Handler ──────────────────────────────────
+  const handleUserClick = useCallback(async (user: MapNearbyUser) => {
+    setSelectedEvent(null);
+    setSelectedUser(user);
+    setOverlayConnectionStatus('none');
+
+    // Verbindungsstatus laden
+    if (userId && user.id !== userId) {
+      try {
+        const status = await getConnectionStatus(user.id);
+        setOverlayConnectionStatus(status.status);
+      } catch {
+        // Fehler ignorieren
+      }
+    }
+  }, [userId]);
+
+  const handleEventClick = useCallback((event: SoEvent) => {
+    setSelectedUser(null);
+    setSelectedEvent(event);
+  }, []);
+
+  const handleCloseOverlay = useCallback(() => {
+    setSelectedUser(null);
+    setSelectedEvent(null);
+  }, []);
+
+  // ── Verbinden im Overlay ──────────────────────────────────
+  const handleOverlayConnect = async () => {
+    if (!selectedUser || !userId) return;
+    setConnecting(true);
+    try {
+      await sendConnectionRequest(selectedUser.id);
+      setOverlayConnectionStatus('pending_outgoing');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  // ── Event beitreten/verlassen im Overlay ──────────────────
+  const handleJoinEvent = async (eventId: string) => {
+    setJoiningEvent((s) => ({ ...s, [eventId]: true }));
+    try {
+      const res = await joinEvent(eventId);
+      setEvents((prev) =>
+        prev.map((e) =>
+          e.id === eventId
+            ? { ...e, has_joined: true, participants_count: res.participants_count }
+            : e,
+        ),
+      );
+      if (selectedEvent?.id === eventId) {
+        setSelectedEvent((prev) =>
+          prev ? { ...prev, has_joined: true, participants_count: res.participants_count } : prev,
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setJoiningEvent((s) => ({ ...s, [eventId]: false }));
+    }
+  };
+
+  const handleLeaveEvent = async (eventId: string) => {
+    setJoiningEvent((s) => ({ ...s, [eventId]: true }));
+    try {
+      const res = await leaveEvent(eventId);
+      setEvents((prev) =>
+        prev.map((e) =>
+          e.id === eventId
+            ? { ...e, has_joined: false, participants_count: res.participants_count }
+            : e,
+        ),
+      );
+      if (selectedEvent?.id === eventId) {
+        setSelectedEvent((prev) =>
+          prev ? { ...prev, has_joined: false, participants_count: res.participants_count } : prev,
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setJoiningEvent((s) => ({ ...s, [eventId]: false }));
+    }
+  };
+
   // ── User-Suche (Debounced) ────────────────────────────────
   const handleSearch = useCallback(async (q: string) => {
     if (q.trim().length < 2) {
@@ -111,7 +181,6 @@ export default function DiscoverClient({ userId }: Props) {
       setSearchResults(res.data);
       setSearched(true);
 
-      // Verbindungsstatus laden
       if (userId && res.data.length > 0) {
         const statusMap: Record<string, ConnectionStatus> = {};
         await Promise.all(
@@ -145,7 +214,7 @@ export default function DiscoverClient({ userId }: Props) {
     return () => clearTimeout(timer);
   }, [query, handleSearch]);
 
-  // ── Verbinden-Button ──────────────────────────────────────
+  // ── Verbinden-Button (Suche) ──────────────────────────────
   const handleConnect = async (targetId: string) => {
     setSending((s) => ({ ...s, [targetId]: true }));
     try {
@@ -158,44 +227,6 @@ export default function DiscoverClient({ userId }: Props) {
     }
   };
 
-  // ── Event beitreten/verlassen ─────────────────────────────
-  const handleJoinEvent = async (eventId: string) => {
-    setJoiningEvent((s) => ({ ...s, [eventId]: true }));
-    try {
-      const res = await joinEvent(eventId);
-      setEvents((prev) =>
-        prev.map((e) =>
-          e.id === eventId
-            ? { ...e, has_joined: true, participants_count: res.participants_count }
-            : e,
-        ),
-      );
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setJoiningEvent((s) => ({ ...s, [eventId]: false }));
-    }
-  };
-
-  const handleLeaveEvent = async (eventId: string) => {
-    setJoiningEvent((s) => ({ ...s, [eventId]: true }));
-    try {
-      const res = await leaveEvent(eventId);
-      setEvents((prev) =>
-        prev.map((e) =>
-          e.id === eventId
-            ? { ...e, has_joined: false, participants_count: res.participants_count }
-            : e,
-        ),
-      );
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setJoiningEvent((s) => ({ ...s, [eventId]: false }));
-    }
-  };
-
-  // ── Status-Button fuer Suche ──────────────────────────────
   const getStatusButton = (user: UserSearchResult) => {
     const status = statuses[user.id];
     const isSending = sending[user.id];
@@ -234,140 +265,56 @@ export default function DiscoverClient({ userId }: Props) {
           }
         `}
       >
-        {isSending ? '…' : 'Verbinden'}
+        {isSending ? '...' : 'Verbinden'}
       </button>
     );
   };
 
   return (
-    <div className="-mx-4 -mt-6">
-      {/* ─── KARTE + SCHWEBENDE SUCHE ──────────────────────── */}
-      <div className="relative">
-        {/* Karte – volle Breite, grosse Hoehe */}
-        <div className={isSearchActive ? 'hidden' : 'block'}>
-          <MapView
-            users={nearbyUsers}
-            events={events}
-            center={mapCenter}
-            onMapMove={handleMapMove}
-            fullWidth
-          />
-        </div>
-
-        {/* Schwebendes Suchfeld ueber der Karte */}
-        <div className={`
-          ${isSearchActive ? 'relative px-4 pt-2' : 'absolute top-3 left-4 right-4 z-10'}
-        `}>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Souls suchen …"
-            className="w-full py-3 px-5 bg-dark-est/90 backdrop-blur-xl border border-gold-1/20 rounded-2xl text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1/40 transition-colors placeholder:text-[#5A5450] shadow-lg shadow-black/20"
-          />
-        </div>
-      </div>
-
-      {/* ─── SUCHE AKTIV ──────────────────────────────────── */}
+    <div className="-mx-4 -mt-6" style={{ height: 'calc(100vh - 5rem)' }}>
+      {/* ─── SUCHE AKTIV → Liste statt Karte ────────────────── */}
       {isSearchActive ? (
-        <div className="px-4 py-4">
-          {searching && (
-            <div className="text-center py-8 text-[#5A5450]">
-              <p className="font-label text-[0.7rem] tracking-[0.2em]">SUCHE …</p>
-            </div>
-          )}
-
-          {!searching && searched && searchResults.length === 0 && (
-            <div className="text-center py-12 px-4 border border-dashed border-gold-1/15 rounded-2xl">
-              <p className="text-gold-3 font-heading text-xl font-light mb-2">Keine Ergebnisse</p>
-              <p className="text-[#5A5450] text-sm">Versuche einen anderen Suchbegriff.</p>
-            </div>
-          )}
-
-          {!searching && searchResults.length > 0 && (
-            <div className="space-y-3">
-              <p className="text-[#5A5450] font-label text-[0.7rem] tracking-[0.15em] uppercase">
-                {searchResults.length} {searchResults.length === 1 ? 'Ergebnis' : 'Ergebnisse'}
-              </p>
-              {searchResults.map((user) => {
-                const initials = (user.display_name ?? user.username ?? '?').slice(0, 1).toUpperCase();
-                const CardWrapper = user.username
-                  ? ({ children }: { children: React.ReactNode }) => <Link href={`/u/${user.username}`} className="block">{children}</Link>
-                  : ({ children }: { children: React.ReactNode }) => <>{children}</>;
-                return (
-                  <div key={user.id} className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4 hover:border-gold-1/25 transition-colors">
-                    <CardWrapper>
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className={`w-12 h-12 rounded-full bg-gold-1/15 flex-shrink-0 flex items-center justify-center font-heading text-lg text-gold-1 border ${user.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}`}>
-                          {user.avatar_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={user.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                          ) : initials}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-body font-medium text-sm text-[#F0EDE8] truncate">
-                              {user.display_name ?? user.username ?? 'Anonym'}
-                            </span>
-                            {user.is_origin_soul && (
-                              <span className="text-[0.55rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-1.5 py-px flex-shrink-0">Origin</span>
-                            )}
-                          </div>
-                          {user.username && <p className="text-xs text-[#5A5450] font-label">@{user.username}</p>}
-                          {user.bio && <p className="text-xs text-[#5A5450] font-body mt-0.5 truncate">{user.bio}</p>}
-                        </div>
-                      </div>
-                    </CardWrapper>
-                    <div className="flex-shrink-0">{getStatusButton(user)}</div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      ) : (
-        /* ─── DISCOVER-MODUS (Listen unter der Karte) ──────── */
-        <div className="px-4 pt-4">
-          {/* Segment Toggle */}
-          <div className="flex gap-2 mb-4">
-            {(['nearby', 'events'] as DiscoverTab[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`
-                  flex-1 py-2.5 rounded-2xl font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200
-                  ${tab === t
-                    ? 'bg-gold-1/15 border border-gold-1/25 text-gold-1'
-                    : 'bg-dark border border-gold-1/10 text-[#5A5450] hover:text-gold-3 cursor-pointer'
-                  }
-                `}
-              >
-                {t === 'nearby' ? `In der Naehe (${nearbyUsers.length})` : `Events (${events.length})`}
-              </button>
-            ))}
+        <div className="h-full flex flex-col">
+          {/* Suchfeld oben */}
+          <div className="px-4 pt-3 pb-2">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Souls suchen ..."
+              className="w-full py-3 px-5 bg-dark/80 backdrop-blur-xl border border-gold-1/20 rounded-2xl text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1/40 transition-colors placeholder:text-[#5A5450]"
+            />
           </div>
 
-          {/* ── Tab: Nearby Users ─────────────────────────── */}
-          {tab === 'nearby' && (
-            <>
-              {loadingNearby ? (
-                <div className="text-center py-8 text-[#5A5450]">
-                  <p className="font-label text-[0.7rem] tracking-[0.2em]">LADEN …</p>
-                </div>
-              ) : nearbyUsers.length === 0 ? (
-                <div className="text-center py-12 px-4 border border-dashed border-gold-1/15 rounded-2xl">
-                  <p className="text-gold-3 font-heading text-xl font-light mb-2">Keine Souls in der Naehe</p>
-                  <p className="text-[#5A5450] text-sm">
-                    Bewege die Karte oder setze deinen Standort im Profil, um Souls in deiner Naehe zu finden.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {nearbyUsers.map((user) => {
-                    const initials = (user.display_name ?? user.username ?? '?').slice(0, 1).toUpperCase();
-                    return user.username ? (
-                      <Link key={user.id} href={`/u/${user.username}`} className="block">
-                        <div className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4 hover:border-gold-1/25 transition-colors">
+          {/* Suchergebnisse */}
+          <div className="flex-1 overflow-y-auto px-4 pb-4">
+            {searching && (
+              <div className="text-center py-8 text-[#5A5450]">
+                <p className="font-label text-[0.7rem] tracking-[0.2em]">SUCHE ...</p>
+              </div>
+            )}
+
+            {!searching && searched && searchResults.length === 0 && (
+              <div className="text-center py-12 px-4 border border-dashed border-gold-1/15 rounded-2xl">
+                <p className="text-gold-3 font-heading text-xl font-light mb-2">Keine Ergebnisse</p>
+                <p className="text-[#5A5450] text-sm">Versuche einen anderen Suchbegriff.</p>
+              </div>
+            )}
+
+            {!searching && searchResults.length > 0 && (
+              <div className="space-y-3">
+                <p className="text-[#5A5450] font-label text-[0.7rem] tracking-[0.15em] uppercase">
+                  {searchResults.length} {searchResults.length === 1 ? 'Ergebnis' : 'Ergebnisse'}
+                </p>
+                {searchResults.map((user) => {
+                  const initials = (user.display_name ?? user.username ?? '?').slice(0, 1).toUpperCase();
+                  const CardWrapper = user.username
+                    ? ({ children }: { children: React.ReactNode }) => <Link href={`/u/${user.username}`} className="block">{children}</Link>
+                    : ({ children }: { children: React.ReactNode }) => <>{children}</>;
+                  return (
+                    <div key={user.id} className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4 hover:border-gold-1/25 transition-colors">
+                      <CardWrapper>
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className={`w-12 h-12 rounded-full bg-gold-1/15 flex-shrink-0 flex items-center justify-center font-heading text-lg text-gold-1 border ${user.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}`}>
                             {user.avatar_url ? (
                               // eslint-disable-next-line @next/next/no-img-element
@@ -383,62 +330,67 @@ export default function DiscoverClient({ userId }: Props) {
                                 <span className="text-[0.55rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-1.5 py-px flex-shrink-0">Origin</span>
                               )}
                             </div>
-                            <p className="text-xs text-[#5A5450] font-label">@{user.username}</p>
-                            {user.location && <p className="text-xs text-[#9A9080] font-body mt-0.5">📍 {user.location}</p>}
+                            {user.username && <p className="text-xs text-[#5A5450] font-label">@{user.username}</p>}
+                            {user.bio && <p className="text-xs text-[#5A5450] font-body mt-0.5 truncate">{user.bio}</p>}
                           </div>
                         </div>
-                      </Link>
-                    ) : (
-                      <div key={user.id} className="flex items-center gap-3 bg-dark rounded-2xl border border-gold-1/10 p-4">
-                        <div className={`w-12 h-12 rounded-full bg-gold-1/15 flex-shrink-0 flex items-center justify-center font-heading text-lg text-gold-1 border ${user.is_origin_soul ? 'border-gold-1/50' : 'border-gold-1/20'}`}>
-                          {user.avatar_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={user.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                          ) : initials}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="font-body font-medium text-sm text-[#F0EDE8] truncate">
-                            {user.display_name ?? 'Anonym'}
-                          </span>
-                          {user.location && <p className="text-xs text-[#9A9080] font-body mt-0.5">📍 {user.location}</p>}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </>
+                      </CardWrapper>
+                      <div className="flex-shrink-0">{getStatusButton(user)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* ─── KARTE FULLSCREEN + OVERLAY ──────────────────────── */
+        <div className="relative w-full h-full">
+          {/* Karte – voller Bereich */}
+          <MapView
+            users={nearbyUsers}
+            events={events}
+            center={mapCenter}
+            onMapMove={handleMapMove}
+            onUserClick={handleUserClick}
+            onEventClick={handleEventClick}
+          />
+
+          {/* Schwebendes Suchfeld */}
+          <div className="absolute top-3 left-4 right-4 z-10">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Souls suchen ..."
+              className="w-full py-3 px-5 bg-dark-est/90 backdrop-blur-xl border border-gold-1/20 rounded-2xl text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1/40 transition-colors placeholder:text-[#5A5450] shadow-lg shadow-black/20"
+            />
+          </div>
+
+          {/* User Overlay */}
+          {selectedUser && (
+            <DiscoverOverlay
+              type="user"
+              user={selectedUser}
+              userId={userId}
+              connectionStatus={overlayConnectionStatus}
+              onConnect={handleOverlayConnect}
+              connecting={connecting}
+              onClose={handleCloseOverlay}
+            />
           )}
 
-          {/* ── Tab: Events ───────────────────────────────── */}
-          {tab === 'events' && (
-            <>
-              {loadingEvents ? (
-                <div className="text-center py-8 text-[#5A5450]">
-                  <p className="font-label text-[0.7rem] tracking-[0.2em]">LADEN …</p>
-                </div>
-              ) : events.length === 0 ? (
-                <div className="text-center py-12 px-4 border border-dashed border-gold-1/15 rounded-2xl">
-                  <p className="text-gold-3 font-heading text-xl font-light mb-2">Keine Events in der Naehe</p>
-                  <p className="text-[#5A5450] text-sm">
-                    Bewege die Karte, um Events in anderen Gebieten zu entdecken.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {events.map((event) => (
-                    <EventCard
-                      key={event.id}
-                      event={event}
-                      userId={userId}
-                      onJoin={handleJoinEvent}
-                      onLeave={handleLeaveEvent}
-                      joining={joiningEvent[event.id]}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
+          {/* Event Overlay */}
+          {selectedEvent && (
+            <DiscoverOverlay
+              type="event"
+              event={selectedEvent}
+              userId={userId}
+              onJoin={handleJoinEvent}
+              onLeave={handleLeaveEvent}
+              joining={joiningEvent[selectedEvent.id]}
+              onClose={handleCloseOverlay}
+            />
           )}
         </div>
       )}

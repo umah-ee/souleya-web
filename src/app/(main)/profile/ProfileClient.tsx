@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Profile } from '@/types/profile';
 import { VIP_NAMES } from '@/types/profile';
-import { fetchProfile, updateProfile, uploadAvatar } from '@/lib/profile';
+import { fetchProfile, updateProfile, uploadAvatar, uploadBanner } from '@/lib/profile';
 import { geocodeLocation } from '@/lib/events';
+import { createClient } from '@/lib/supabase/client';
 
 export default function ProfileClient() {
+  const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -14,8 +17,10 @@ export default function ProfileClient() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const [detectingLocation, setDetectingLocation] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   // Edit-Form State
   const [form, setForm] = useState({
@@ -84,7 +89,6 @@ export default function ProfileClient() {
 
       const { latitude, longitude } = position.coords;
 
-      // Reverse Geocoding → Stadtteil-Name
       const res = await geocodeLocation(`${longitude},${latitude}`, 'reverse');
       if (res.results.length > 0) {
         const place = res.results[0];
@@ -109,8 +113,6 @@ export default function ProfileClient() {
   // Manuelle Ort-Eingabe → Forward Geocoding
   const handleLocationBlur = async () => {
     if (!form.location || form.location.length < 3) return;
-
-    // Nur geocoden wenn kein lat/lng vorhanden oder Location geaendert
     if (form.location_lat && form.location === (profile?.location ?? '')) return;
 
     try {
@@ -124,7 +126,7 @@ export default function ProfileClient() {
         }));
       }
     } catch {
-      // Geocoding fehlgeschlagen, kein Fehler anzeigen
+      // Geocoding fehlgeschlagen
     }
   };
 
@@ -163,7 +165,6 @@ export default function ProfileClient() {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
 
-    // Max 5 MB
     if (file.size > 5 * 1024 * 1024) {
       setError('Bild darf maximal 5 MB gross sein');
       return;
@@ -185,6 +186,37 @@ export default function ProfileClient() {
     }
   };
 
+  const handleBannerClick = () => {
+    if (editing) {
+      bannerInputRef.current?.click();
+    }
+  };
+
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Banner darf maximal 10 MB gross sein');
+      return;
+    }
+
+    setUploadingBanner(true);
+    setError('');
+
+    try {
+      const bannerUrl = await uploadBanner(file);
+      const updated = await updateProfile({ banner_url: bannerUrl });
+      setProfile(updated);
+      setSuccess('Banner aktualisiert');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Upload fehlgeschlagen');
+    } finally {
+      setUploadingBanner(false);
+    }
+  };
+
   const handleCopyReferral = async () => {
     if (!profile) return;
     try {
@@ -196,11 +228,17 @@ export default function ProfileClient() {
     }
   };
 
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
+
   if (loading) {
     return (
       <div className="text-center py-12 text-[#5A5450]">
         <p className="font-label text-[0.7rem] tracking-[0.2em]">
-          WIRD GELADEN …
+          WIRD GELADEN ...
         </p>
       </div>
     );
@@ -218,51 +256,56 @@ export default function ProfileClient() {
   const vipName = VIP_NAMES[profile.vip_level] ?? `VIP ${profile.vip_level}`;
 
   return (
-    <>
-      {/* Desktop Header */}
-      <div className="hidden md:flex md:items-center md:justify-between mb-6">
-        <div>
-          <h1 className="font-heading text-2xl font-light text-gold-1 tracking-wide">
-            Profil
-          </h1>
-          <p className="text-sm text-[#5A5450] font-body mt-1">
-            Dein Souleya-Profil
-          </p>
-        </div>
-        {!editing && (
-          <button
-            onClick={handleEdit}
-            className="px-4 py-2 border border-gold-1/30 rounded-full text-gold-1 font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer hover:border-gold-1/50 transition-colors duration-200"
-          >
-            Bearbeiten
-          </button>
+    <div className="-mx-4 -mt-6">
+      {/* ─── BANNER ────────────────────────────────────────── */}
+      <div
+        className={`relative w-full h-[180px] overflow-hidden ${editing ? 'cursor-pointer' : ''}`}
+        onClick={handleBannerClick}
+      >
+        {profile.banner_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={profile.banner_url}
+            alt=""
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gold-3/30 via-dark-er to-dark-est" />
         )}
+
+        {/* Gradient Overlay nach unten */}
+        <div className="absolute inset-0 bg-gradient-to-t from-dark-est via-dark-est/40 to-transparent" />
+
+        {/* Banner-Upload Indicator */}
+        {editing && (
+          <div className="absolute top-3 right-3 w-8 h-8 bg-dark-est/70 backdrop-blur-sm rounded-full flex items-center justify-center text-gold-1 text-sm border border-gold-1/20">
+            {uploadingBanner ? '...' : '📷'}
+          </div>
+        )}
+
+        <input
+          ref={bannerInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleBannerUpload}
+        />
       </div>
 
-      {/* Success/Error Messages */}
-      {success && (
-        <div className="mb-4 py-2 px-4 bg-[rgba(82,183,136,0.1)] border border-[rgba(82,183,136,0.3)] rounded-xl text-[#52B788] text-sm font-body text-center">
-          {success}
-        </div>
-      )}
-      {error && (
-        <div className="mb-4 py-2 px-4 bg-[rgba(230,57,70,0.1)] border border-[rgba(230,57,70,0.3)] rounded-xl text-[#E63946] text-sm font-body text-center">
-          {error}
-        </div>
-      )}
-
-      {/* Profile Card */}
-      <div className="bg-dark rounded-2xl border border-gold-1/10 p-6">
-        {/* Avatar + Name Section */}
-        <div className="flex items-start gap-4 mb-6">
+      <div className="px-4">
+        {/* ─── AVATAR + NAME (ueberlappt Banner) ──────────── */}
+        <div className="flex items-end gap-4 -mt-12 mb-4 relative z-10">
           {/* Avatar */}
           <div className="relative flex-shrink-0">
             <div
               onClick={handleAvatarClick}
               className={`
-                w-20 h-20 rounded-full bg-gold-1/15 flex items-center justify-center
+                w-[88px] h-[88px] rounded-full bg-dark-est flex items-center justify-center
                 font-heading text-3xl text-gold-1 overflow-hidden
-                border-2 ${profile.is_origin_soul ? 'border-gold-1/60 shadow-[0_0_15px_rgba(200,169,110,0.2)]' : 'border-gold-1/20'}
+                border-[3px] ${profile.is_origin_soul
+                  ? 'border-gold-1/70 shadow-[0_0_20px_rgba(200,169,110,0.25)]'
+                  : 'border-gold-1/30'
+                }
                 ${editing ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}
               `}
             >
@@ -272,12 +315,12 @@ export default function ProfileClient() {
               ) : initials}
               {uploading && (
                 <div className="absolute inset-0 bg-dark-est/60 rounded-full flex items-center justify-center">
-                  <span className="font-label text-[0.6rem] text-gold-1 tracking-[0.1em]">…</span>
+                  <span className="font-label text-[0.6rem] text-gold-1 tracking-[0.1em]">...</span>
                 </div>
               )}
             </div>
             {editing && (
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gold-1 rounded-full flex items-center justify-center text-dark-est text-xs">
+              <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-gold-1 rounded-full flex items-center justify-center text-dark-est text-xs shadow-lg">
                 ✎
               </div>
             )}
@@ -290,10 +333,10 @@ export default function ProfileClient() {
             />
           </div>
 
-          {/* Name + Meta */}
-          <div className="flex-1 min-w-0">
+          {/* Name + Badges */}
+          <div className="flex-1 min-w-0 pb-1">
             {editing ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <input
                   type="text"
                   value={form.display_name}
@@ -316,46 +359,46 @@ export default function ProfileClient() {
               </div>
             ) : (
               <>
-                <h2 className="text-[#F0EDE8] font-body font-medium text-lg truncate">
+                <h2 className="text-[#F0EDE8] font-body font-semibold text-lg truncate">
                   {profile.display_name ?? profile.email}
                 </h2>
                 {profile.username && (
-                  <p className="text-[#5A5450] text-sm font-body">
-                    @{profile.username}
-                  </p>
+                  <p className="text-[#5A5450] text-sm font-body">@{profile.username}</p>
                 )}
-                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                  <span className="text-[0.65rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-2 py-0.5">
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <span className="text-[0.6rem] tracking-[0.15em] uppercase text-gold-3 font-label border border-gold-3/30 rounded-full px-2 py-0.5">
                     {vipName}
                   </span>
                   {profile.is_origin_soul && (
-                    <span className="text-[0.65rem] tracking-[0.15em] uppercase text-gold-1 font-label border border-gold-1/40 rounded-full px-2 py-0.5 bg-gold-1/10">
+                    <span className="text-[0.6rem] tracking-[0.15em] uppercase text-gold-1 font-label border border-gold-1/40 rounded-full px-2 py-0.5 bg-gold-1/10">
                       Origin Soul
                     </span>
                   )}
                 </div>
               </>
             )}
-
-            {/* Mobile Edit Button */}
-            {!editing && (
-              <button
-                onClick={handleEdit}
-                className="md:hidden mt-3 px-3 py-1.5 border border-gold-1/30 rounded-full text-gold-1 font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer hover:border-gold-1/50 transition-colors duration-200"
-              >
-                Bearbeiten
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Bio + Location */}
+        {/* Success/Error Messages */}
+        {success && (
+          <div className="mb-4 py-2 px-4 bg-[rgba(82,183,136,0.1)] border border-[rgba(82,183,136,0.3)] rounded-xl text-[#52B788] text-sm font-body text-center">
+            {success}
+          </div>
+        )}
+        {error && (
+          <div className="mb-4 py-2 px-4 bg-[rgba(230,57,70,0.1)] border border-[rgba(230,57,70,0.3)] rounded-xl text-[#E63946] text-sm font-body text-center">
+            {error}
+          </div>
+        )}
+
+        {/* ─── BIO + LOCATION ─────────────────────────────── */}
         {editing ? (
-          <div className="space-y-3 mb-6">
+          <div className="space-y-3 mb-5">
             <textarea
               value={form.bio}
               onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
-              placeholder="Ueber dich …"
+              placeholder="Ueber dich ..."
               maxLength={300}
               rows={3}
               className="w-full bg-white/[0.06] border border-gold-1/20 rounded-xl px-3 py-2 text-[#F0EDE8] text-sm font-body outline-none focus:border-gold-1 transition-colors resize-none"
@@ -384,7 +427,7 @@ export default function ProfileClient() {
                 `}
                 title="Standort automatisch erkennen"
               >
-                {detectingLocation ? '…' : '📍 Erkennen'}
+                {detectingLocation ? '...' : '📍 Erkennen'}
               </button>
             </div>
             {form.location_lat && (
@@ -408,9 +451,9 @@ export default function ProfileClient() {
           </>
         )}
 
-        {/* Edit Actions */}
-        {editing && (
-          <div className="flex gap-3 mb-6">
+        {/* ─── EDIT ACTIONS ──────────────────────────────── */}
+        {editing ? (
+          <div className="flex gap-3 mb-5">
             <button
               onClick={handleSave}
               disabled={saving}
@@ -422,7 +465,7 @@ export default function ProfileClient() {
                 }
               `}
             >
-              {saving ? '…' : 'Speichern'}
+              {saving ? '...' : 'Speichern'}
             </button>
             <button
               onClick={handleCancel}
@@ -431,57 +474,65 @@ export default function ProfileClient() {
               Abbrechen
             </button>
           </div>
+        ) : (
+          <button
+            onClick={handleEdit}
+            className="w-full py-2.5 mb-5 border border-gold-1/25 rounded-full text-gold-1 font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer hover:border-gold-1/40 hover:bg-gold-1/5 transition-colors duration-200"
+          >
+            Profil bearbeiten
+          </button>
         )}
 
-        {/* Stats */}
-        <div className="border-t border-gold-1/10 pt-4 space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-[#5A5450] font-label uppercase tracking-wider text-[10px]">
-              Seeds
-            </span>
-            <span className="text-gold-1 font-body">
-              {profile.seeds_balance}
-            </span>
+        {/* ─── STATS KACHELN ─────────────────────────────── */}
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          <div className="bg-dark rounded-2xl border border-gold-1/10 p-4 text-center">
+            <p className="text-gold-1 font-body font-semibold text-lg">{profile.seeds_balance}</p>
+            <p className="text-[#5A5450] font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1">Seeds</p>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-[#5A5450] font-label uppercase tracking-wider text-[10px]">
-              Verbindungen
-            </span>
-            <span className="text-[#9A9080] font-body text-sm">
-              {profile.connections_count}
-            </span>
+          <div className="bg-dark rounded-2xl border border-gold-1/10 p-4 text-center">
+            <p className="text-[#F0EDE8] font-body font-semibold text-lg">{profile.connections_count}</p>
+            <p className="text-[#5A5450] font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1">Verbindungen</p>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-[#5A5450] font-label uppercase tracking-wider text-[10px]">
-              Mitglied seit
-            </span>
-            <span className="text-[#9A9080] font-body text-sm">
-              {new Date(profile.created_at).toLocaleDateString('de-DE', {
-                month: 'long',
-                year: 'numeric',
-              })}
-            </span>
+          <div className="bg-dark rounded-2xl border border-gold-1/10 p-4 text-center">
+            <p className="text-gold-3 font-body font-semibold text-lg">{profile.vip_level}</p>
+            <p className="text-[#5A5450] font-label text-[0.6rem] tracking-[0.15em] uppercase mt-1">VIP</p>
           </div>
         </div>
-      </div>
 
-      {/* Referral Code */}
-      <div className="mt-4 bg-dark rounded-2xl border border-gold-1/10 p-5">
-        <p className="text-[#5A5450] font-label uppercase tracking-wider text-[10px] mb-2">
-          Dein Einladungslink
-        </p>
-        <div className="flex items-center gap-3">
-          <code className="flex-1 text-gold-2 font-body text-sm bg-dark-est rounded-xl px-3 py-2 truncate">
-            souleya.com?ref={profile.referral_code}
-          </code>
+        {/* ─── EINLADUNGSLINK ────────────────────────────── */}
+        <div className="bg-dark rounded-2xl border border-gold-1/10 p-5 mb-5">
+          <p className="text-[#5A5450] font-label uppercase tracking-wider text-[10px] mb-2">
+            Dein Einladungslink
+          </p>
+          <div className="flex items-center gap-3">
+            <code className="flex-1 text-gold-2 font-body text-sm bg-dark-est rounded-xl px-3 py-2 truncate">
+              souleya.com?ref={profile.referral_code}
+            </code>
+            <button
+              onClick={handleCopyReferral}
+              className="px-3 py-2 border border-gold-1/30 rounded-xl text-gold-1 font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer hover:border-gold-1/50 hover:bg-gold-1/5 transition-colors duration-200 flex-shrink-0"
+            >
+              Kopieren
+            </button>
+          </div>
+        </div>
+
+        {/* ─── EINSTELLUNGEN ─────────────────────────────── */}
+        <div className="bg-dark rounded-2xl border border-gold-1/10 mb-8">
+          <div className="px-5 py-3 border-b border-gold-1/[0.06]">
+            <p className="text-[#5A5450] font-label uppercase tracking-wider text-[10px]">
+              Einstellungen
+            </p>
+          </div>
           <button
-            onClick={handleCopyReferral}
-            className="px-3 py-2 border border-gold-1/30 rounded-xl text-gold-1 font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer hover:border-gold-1/50 hover:bg-gold-1/5 transition-colors duration-200 flex-shrink-0"
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-5 py-4 text-[#E63946] text-sm font-body cursor-pointer hover:bg-white/[0.02] transition-colors rounded-b-2xl"
           >
-            Kopieren
+            <span className="text-base">↩</span>
+            Abmelden
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

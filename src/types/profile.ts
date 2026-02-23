@@ -5,6 +5,7 @@ export interface Profile {
   display_name: string | null;
   bio: string | null;
   avatar_url: string | null;
+  banner_url: string | null;
   location: string | null;
   location_lat: number | null;
   location_lng: number | null;
@@ -23,6 +24,7 @@ export interface UpdateProfileData {
   bio?: string;
   location?: string;
   avatar_url?: string;
+  banner_url?: string;
   location_lat?: number;
   location_lng?: number;
 }
