@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
 const DEMO_USERS = [
@@ -14,6 +14,14 @@ const DEMO_USERS = [
 const OTP_LENGTH = 6;
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'email' | 'otp'>('email');
@@ -24,6 +32,8 @@ export default function LoginPage() {
   const [verifying, setVerifying] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextUrl = searchParams.get('next') ?? '/';
 
   // ── Schritt 1: OTP-Code per E-Mail senden ──────────────
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -77,7 +87,7 @@ export default function LoginPage() {
       setTimeout(() => inputRefs.current[0]?.focus(), 100);
     } else {
       // Erfolg → zur App weiterleiten
-      router.push('/');
+      router.push(nextUrl);
     }
   };
 
@@ -145,7 +155,7 @@ export default function LoginPage() {
       setError('Demo-Login fehlgeschlagen. Bitte versuche es erneut.');
       setDemoLoading(null);
     } else {
-      router.push('/');
+      router.push(nextUrl);
     }
   };
 
