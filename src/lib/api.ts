@@ -11,6 +11,9 @@ export async function apiFetch<T = unknown>(
   options: RequestInit = {},
 ): Promise<T> {
   const supabase = createClient();
+
+  // getUser() erzwingt Session-Refresh (getSession() gibt ggf. abgelaufene Tokens zurueck)
+  await supabase.auth.getUser();
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
 
