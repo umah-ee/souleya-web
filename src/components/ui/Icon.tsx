@@ -33,6 +33,9 @@ export type IconName =
   | 'seedling'
   | 'photo'
   | 'microphone'
+  | 'arrow-left'
+  | 'pencil'
+  | 'corner-up-left'
   | 'chart-bar';
 
 const paths: Record<IconName, React.ReactNode> = {
@@ -191,6 +194,25 @@ const paths: Record<IconName, React.ReactNode> = {
       <path d="M5 10a7 7 0 0 0 14 0" />
       <path d="M8 21l8 0" />
       <path d="M12 17l0 4" />
+    </>
+  ),
+  'arrow-left': (
+    <>
+      <path d="M5 12l14 0" />
+      <path d="M5 12l6 6" />
+      <path d="M5 12l6 -6" />
+    </>
+  ),
+  pencil: (
+    <>
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+    </>
+  ),
+  'corner-up-left': (
+    <>
+      <path d="M18 18v-6a3 3 0 0 0 -3 -3h-10" />
+      <path d="M9 13l-4 -4l4 -4" />
     </>
   ),
   'chart-bar': (
