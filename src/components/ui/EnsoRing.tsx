@@ -26,9 +26,9 @@ const SIZE_CONFIG = {
 
 interface EnsoRingProps {
   /** VIP Level 1–5 */
-  vipLevel: number;
-  /** Origin Soul / First Light – Leuchtpunkt am Kreisanfang */
-  isOriginSoul?: boolean;
+  soulLevel: number;
+  /** First Light – Leuchtpunkt am Kreisanfang */
+  isFirstLight?: boolean;
   /** Ritterschlag – Leuchtpunkt an der Oeffnung */
   hasRitterschlag?: boolean;
   /** Groesse: profile (88px), feed (44px), standalone (48px) */
@@ -40,15 +40,15 @@ interface EnsoRingProps {
 }
 
 export default function EnsoRing({
-  vipLevel,
-  isOriginSoul = false,
+  soulLevel,
+  isFirstLight = false,
   hasRitterschlag = false,
   size = 'standalone',
   children,
   className = '',
 }: EnsoRingProps) {
   const uid = useId();
-  const level = Math.max(1, Math.min(5, vipLevel));
+  const level = Math.max(1, Math.min(5, soulLevel));
   const config = LEVEL_CONFIG[level] ?? LEVEL_CONFIG[1];
   const { svgSize, avatarSize, avatarOffset } = SIZE_CONFIG[size];
   const gradientId = `enso-g${uid}`;
@@ -100,7 +100,7 @@ export default function EnsoRing({
 
         {/* ─── First Light (Origin Soul) ───────────── */}
         {/* Leuchtender Lichtpunkt am Anfang des Kreises */}
-        {isOriginSoul && (
+        {isFirstLight && (
           <>
             <circle
               cx="83" cy="35" r="4" fill="#D4BC8B"

@@ -59,11 +59,12 @@ const config: Config = {
         body: ['var(--font-quicksand)', 'sans-serif'],
       },
       borderRadius: {
-        xs: '10px',
-        sm: '12px',
-        md: '18px',
-        lg: '24px',
-        xl: '36px',
+        input: '8px',     // Alle Inputs, Textareas, Selects
+        xs: '10px',       // Overlay-Badge
+        sm: '12px',       // Badge, Tooltip
+        md: '18px',       // Card
+        lg: '24px',       // Button CTA
+        xl: '36px',       // Grosses Element
       },
       keyframes: {
         'slide-up': {

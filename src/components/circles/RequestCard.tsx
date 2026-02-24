@@ -29,8 +29,8 @@ export function IncomingRequestCard({ request, onAccept, onDecline }: IncomingPr
     <>
       {/* Avatar im Enso Ring */}
       <EnsoRing
-        vipLevel={profile.vip_level}
-        isOriginSoul={profile.is_origin_soul}
+        soulLevel={profile.soul_level}
+        isFirstLight={profile.is_first_light}
         size="feed"
         className="flex-shrink-0"
       >
@@ -112,8 +112,8 @@ export function OutgoingRequestCard({ request, onCancel }: OutgoingProps) {
     <>
       {/* Avatar im Enso Ring */}
       <EnsoRing
-        vipLevel={profile.vip_level}
-        isOriginSoul={profile.is_origin_soul}
+        soulLevel={profile.soul_level}
+        isFirstLight={profile.is_first_light}
         size="feed"
         className="flex-shrink-0"
       >

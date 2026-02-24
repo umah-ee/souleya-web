@@ -4,8 +4,9 @@ import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import type { MapNearbyUser } from './MapView';
 import type { SoEvent } from '@/types/events';
-import { VIP_NAMES } from '@/types/profile';
+import { SOUL_LEVEL_NAMES } from '@/types/profile';
 import EnsoRing from '@/components/ui/EnsoRing';
+import { Icon } from '@/components/ui/Icon';
 
 interface UserOverlayProps {
   type: 'user';
@@ -90,7 +91,7 @@ function UserOverlay({
   overlayRef,
 }: UserOverlayProps & { overlayRef: React.RefObject<HTMLDivElement | null> }) {
   const initials = (user.display_name ?? user.username ?? '?').slice(0, 1).toUpperCase();
-  const vipName = VIP_NAMES[user.vip_level] ?? `VIP ${user.vip_level}`;
+  const vipName = SOUL_LEVEL_NAMES[user.soul_level] ?? `Level ${user.soul_level}`;
 
   return (
     <div className="absolute bottom-0 left-0 right-0 z-30 animate-slide-up">
@@ -112,14 +113,14 @@ function UserOverlay({
             className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer z-10"
             style={{ background: 'var(--glass)', color: 'var(--text-muted)' }}
           >
-            ✕
+            <Icon name="x" size={14} />
           </button>
 
           {/* Avatar im Enso Ring + Info */}
           <div className="flex items-start gap-4 mb-4">
             <EnsoRing
-              vipLevel={user.vip_level}
-              isOriginSoul={user.is_origin_soul}
+              soulLevel={user.soul_level}
+              isFirstLight={user.is_first_light}
               size="feed"
               className="flex-shrink-0"
             >
@@ -151,7 +152,7 @@ function UserOverlay({
                 >
                   {vipName}
                 </span>
-                {user.is_origin_soul && (
+                {user.is_first_light && (
                   <span
                     className="text-[0.55rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px"
                     style={{
@@ -177,7 +178,7 @@ function UserOverlay({
           {/* Location + Connections */}
           <div className="flex items-center gap-4 text-xs font-body mb-4" style={{ color: 'var(--text-muted)' }}>
             {user.location && (
-              <span>📍 {user.location}</span>
+              <span className="flex items-center gap-1"><Icon name="map-pin" size={12} /> {user.location}</span>
             )}
             <span>{user.connections_count} Verbindungen</span>
           </div>
@@ -270,7 +271,7 @@ function EventOverlay({
             className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer z-10"
             style={{ background: 'var(--glass)', color: 'var(--text-muted)' }}
           >
-            ✕
+            <Icon name="x" size={14} />
           </button>
 
           {/* Kategorie Badge */}
@@ -298,13 +299,13 @@ function EventOverlay({
 
           {/* Datum + Uhrzeit */}
           <div className="flex items-center gap-2 text-sm font-body mb-2" style={{ color: 'var(--text-sec)' }}>
-            <span>📅 {formatDate(event.starts_at)} · {formatTime(event.starts_at)}</span>
+            <span className="flex items-center gap-1"><Icon name="calendar" size={14} /> {formatDate(event.starts_at)} · {formatTime(event.starts_at)}</span>
             {event.ends_at && <span>– {formatTime(event.ends_at)}</span>}
           </div>
 
           {/* Ort */}
           <p className="text-sm font-body mb-3" style={{ color: 'var(--text-muted)' }}>
-            📍 {event.location_name}
+            <span className="flex items-center gap-1"><Icon name="map-pin" size={14} /> {event.location_name}</span>
           </p>
 
           {/* Beschreibung */}
@@ -321,7 +322,7 @@ function EventOverlay({
               style={{
                 background: 'var(--avatar-bg)',
                 color: 'var(--gold-text)',
-                border: `1px solid ${event.creator?.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+                border: `1px solid ${event.creator?.is_first_light ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
               }}
             >
               {event.creator?.avatar_url ? (

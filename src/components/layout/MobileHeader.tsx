@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { useTheme } from '@/components/ThemeProvider';
+import { Icon } from '@/components/ui/Icon';
 
 export default function MobileHeader() {
   const { theme, toggleTheme } = useTheme();
@@ -61,12 +62,10 @@ export default function MobileHeader() {
         <button
           onClick={toggleTheme}
           className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-colors"
-          style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border-s)' }}
+          style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
           title={theme === 'dark' ? 'Hell' : 'Dunkel'}
         >
-          <span className="text-sm" style={{ color: 'var(--gold-text)' }}>
-            {theme === 'dark' ? '☀' : '☾'}
-          </span>
+          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={14} />
         </button>
 
         {/* Profilbild */}
@@ -80,7 +79,7 @@ export default function MobileHeader() {
             <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
           ) : (
             <span className="text-sm" style={{ color: 'var(--gold-text)' }}>
-              {initials || '◯'}
+              {initials || <Icon name="user" size={14} />}
             </span>
           )}
         </Link>

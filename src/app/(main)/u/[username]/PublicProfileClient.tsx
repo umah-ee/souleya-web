@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { PublicProfile } from '@/lib/users';
 import type { ConnectionStatus } from '@/types/circles';
-import { VIP_NAMES } from '@/types/profile';
+import { SOUL_LEVEL_NAMES } from '@/types/profile';
 import { fetchPublicProfile } from '@/lib/users';
 import { getConnectionStatus, sendConnectionRequest } from '@/lib/circles';
 import { createClient } from '@/lib/supabase/client';
 import EnsoRing from '@/components/ui/EnsoRing';
+import { Icon } from '@/components/ui/Icon';
 
 interface Props {
   username: string;
@@ -92,7 +93,7 @@ export default function PublicProfileClient({ username }: Props) {
   }
 
   const initials = (profile.display_name ?? profile.username ?? '?').slice(0, 1).toUpperCase();
-  const vipName = VIP_NAMES[profile.vip_level] ?? `VIP ${profile.vip_level}`;
+  const vipName = SOUL_LEVEL_NAMES[profile.soul_level] ?? `Level ${profile.soul_level}`;
   const interests = profile.interests ?? [];
 
   // ── Action Button ─────────────────────────────────────────
@@ -190,8 +191,8 @@ export default function PublicProfileClient({ username }: Props) {
           {/* ─── AVATAR im Enso Ring (88px, zentriert) ── */}
           <div className="flex justify-center -mt-[44px] relative z-10">
             <EnsoRing
-              vipLevel={profile.vip_level}
-              isOriginSoul={profile.is_origin_soul}
+              soulLevel={profile.soul_level}
+              isFirstLight={profile.is_first_light}
               size="profile"
             >
               <div
@@ -228,7 +229,7 @@ export default function PublicProfileClient({ username }: Props) {
               {profile.username ? `@${profile.username}` : ''}
               {profile.username && ' · '}
               {vipName}
-              {profile.is_origin_soul && ' · First Light'}
+              {profile.is_first_light && ' · First Light'}
             </div>
 
             {/* Bio */}
@@ -299,13 +300,13 @@ export default function PublicProfileClient({ username }: Props) {
               style={{ color: 'var(--text-sec)', borderTop: '1px solid var(--divider-l)' }}
             >
               {profile.location && (
-                <span className="flex items-center gap-1">☸ {profile.location}</span>
+                <span className="flex items-center gap-1"><Icon name="map-pin" size={12} /> {profile.location}</span>
               )}
               <span className="flex items-center gap-1">
-                ♡ Seit {new Date(profile.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+                <Icon name="heart" size={12} /> Seit {new Date(profile.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
               </span>
-              {profile.is_origin_soul && (
-                <span className="flex items-center gap-1">✧ First Light</span>
+              {profile.is_first_light && (
+                <span className="flex items-center gap-1"><Icon name="sparkles" size={12} /> First Light</span>
               )}
             </div>
           </div>

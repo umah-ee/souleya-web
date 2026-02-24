@@ -290,7 +290,7 @@ export default function DiscoverClient({ userId }: Props) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Souls suchen ..."
-              className="w-full py-3 px-5 backdrop-blur-xl rounded-2xl text-sm font-body outline-none transition-colors"
+              className="w-full py-3 px-5 backdrop-blur-xl rounded-input text-sm font-body outline-none transition-colors"
               style={{
                 background: 'var(--glass-nav)',
                 border: '1px solid var(--gold-border-s)',
@@ -336,7 +336,7 @@ export default function DiscoverClient({ userId }: Props) {
                             style={{
                               background: 'var(--avatar-bg)',
                               color: 'var(--gold-text)',
-                              border: `1.5px solid ${user.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+                              border: `1.5px solid ${user.is_first_light ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
                             }}
                           >
                             {user.avatar_url ? (
@@ -349,12 +349,12 @@ export default function DiscoverClient({ userId }: Props) {
                               <span className="font-body font-medium text-sm truncate" style={{ color: 'var(--text-h)' }}>
                                 {user.display_name ?? user.username ?? 'Anonym'}
                               </span>
-                              {user.is_origin_soul && (
+                              {user.is_first_light && (
                                 <span
                                   className="text-[0.55rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px flex-shrink-0"
                                   style={{ color: 'var(--gold)', border: '1px solid var(--gold-border-s)' }}
                                 >
-                                  Origin
+                                  First Light
                                 </span>
                               )}
                             </div>
@@ -391,7 +391,7 @@ export default function DiscoverClient({ userId }: Props) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Souls suchen ..."
-              className="w-full py-3 px-5 backdrop-blur-xl rounded-2xl text-sm font-body outline-none transition-colors"
+              className="w-full py-3 px-5 backdrop-blur-xl rounded-input text-sm font-body outline-none transition-colors"
               style={{
                 background: 'var(--glass-nav)',
                 border: '1px solid var(--gold-border-s)',

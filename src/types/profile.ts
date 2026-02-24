@@ -9,8 +9,8 @@ export interface Profile {
   location: string | null;
   location_lat: number | null;
   location_lng: number | null;
-  vip_level: number;
-  is_origin_soul: boolean;
+  soul_level: number;
+  is_first_light: boolean;
   seeds_balance: number;
   connections_count: number;
   pulses_count: number;
@@ -32,7 +32,7 @@ export interface UpdateProfileData {
   interests?: string[];
 }
 
-export const VIP_NAMES: Record<number, string> = {
+export const SOUL_LEVEL_NAMES: Record<number, string> = {
   1: 'Soul Spark',
   2: 'Awakened Soul',
   3: 'Harmony Keeper',

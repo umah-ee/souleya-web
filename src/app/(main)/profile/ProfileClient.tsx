@@ -3,11 +3,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Profile } from '@/types/profile';
-import { VIP_NAMES } from '@/types/profile';
+import { SOUL_LEVEL_NAMES } from '@/types/profile';
 import { fetchProfile, updateProfile, uploadAvatar, uploadBanner } from '@/lib/profile';
 import { geocodeLocation } from '@/lib/events';
 import { createClient } from '@/lib/supabase/client';
 import EnsoRing from '@/components/ui/EnsoRing';
+import { Icon } from '@/components/ui/Icon';
 
 // ── Vorschlaege fuer Interest Tags ───────────────────────────
 const INTEREST_SUGGESTIONS = [
@@ -292,7 +293,7 @@ export default function ProfileClient() {
   }
 
   const initials = (profile.display_name ?? profile.username ?? profile.email ?? '?').slice(0, 1).toUpperCase();
-  const vipName = VIP_NAMES[profile.vip_level] ?? `VIP ${profile.vip_level}`;
+  const vipName = SOUL_LEVEL_NAMES[profile.soul_level] ?? `Level ${profile.soul_level}`;
   const interests = profile.interests ?? [];
 
   return (
@@ -329,7 +330,7 @@ export default function ProfileClient() {
                 className="absolute top-3 right-3 w-8 h-8 backdrop-blur-sm rounded-full flex items-center justify-center text-sm"
                 style={{ background: 'var(--glass-nav)', color: 'var(--gold-text)', border: '1px solid var(--gold-border-s)' }}
               >
-                {uploadingBanner ? '...' : '📷'}
+                {uploadingBanner ? '...' : <Icon name="camera" size={14} />}
               </div>
             )}
             <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
@@ -338,8 +339,8 @@ export default function ProfileClient() {
           {/* ─── AVATAR im Enso Ring (88px, zentriert) ── */}
           <div className="flex justify-center -mt-[44px] relative z-10">
             <EnsoRing
-              vipLevel={profile.vip_level}
-              isOriginSoul={profile.is_origin_soul}
+              soulLevel={profile.soul_level}
+              isFirstLight={profile.is_first_light}
               size="profile"
             >
               <div
@@ -393,7 +394,7 @@ export default function ProfileClient() {
                   {profile.username ? `@${profile.username}` : profile.email}
                   {' · '}
                   {vipName}
-                  {profile.is_origin_soul && ' · First Light'}
+                  {profile.is_first_light && ' · First Light'}
                 </div>
 
                 {/* Bio */}
@@ -468,13 +469,13 @@ export default function ProfileClient() {
                   style={{ color: 'var(--text-sec)', borderTop: '1px solid var(--divider-l)' }}
                 >
                   {profile.location && (
-                    <span className="flex items-center gap-1">☸ {profile.location}</span>
+                    <span className="flex items-center gap-1"><Icon name="map-pin" size={12} /> {profile.location}</span>
                   )}
                   <span className="flex items-center gap-1">
-                    ♡ Seit {new Date(profile.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+                    <Icon name="heart" size={12} /> Seit {new Date(profile.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
                   </span>
-                  {profile.is_origin_soul && (
-                    <span className="flex items-center gap-1">✧ First Light</span>
+                  {profile.is_first_light && (
+                    <span className="flex items-center gap-1"><Icon name="sparkles" size={12} /> First Light</span>
                   )}
                 </div>
               </>
@@ -489,7 +490,7 @@ export default function ProfileClient() {
                     onChange={(e) => setForm((f) => ({ ...f, display_name: e.target.value }))}
                     placeholder="Anzeigename"
                     maxLength={60}
-                    className="w-full rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
+                    className="w-full rounded-input px-3 py-2 text-sm font-body outline-none transition-colors"
                     style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
                   />
                   <div className="flex items-center gap-1">
@@ -500,7 +501,7 @@ export default function ProfileClient() {
                       onChange={(e) => setForm((f) => ({ ...f, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
                       placeholder="username"
                       maxLength={30}
-                      className="flex-1 rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
+                      className="flex-1 rounded-input px-3 py-2 text-sm font-body outline-none transition-colors"
                       style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
                     />
                   </div>
@@ -513,13 +514,13 @@ export default function ProfileClient() {
                   placeholder="Ueber dich ..."
                   maxLength={300}
                   rows={3}
-                  className="w-full rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors resize-none mb-3"
+                  className="w-full rounded-input px-3 py-2 text-sm font-body outline-none transition-colors resize-none mb-3"
                   style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
                 />
 
                 {/* Location */}
                 <div className="flex items-center gap-2 mb-1">
-                  <span style={{ color: 'var(--text-muted)' }}>📍</span>
+                  <span style={{ color: 'var(--text-muted)' }}><Icon name="map-pin" size={14} /></span>
                   <input
                     type="text"
                     value={form.location}
@@ -527,7 +528,7 @@ export default function ProfileClient() {
                     onBlur={handleLocationBlur}
                     placeholder="Ort (z.B. München – Schwabing)"
                     maxLength={80}
-                    className="flex-1 rounded-xl px-3 py-2 text-sm font-body outline-none transition-colors"
+                    className="flex-1 rounded-input px-3 py-2 text-sm font-body outline-none transition-colors"
                     style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
                   />
                   <button
@@ -542,7 +543,7 @@ export default function ProfileClient() {
                       cursor: detectingLocation ? 'not-allowed' : 'pointer',
                     }}
                   >
-                    {detectingLocation ? '...' : '📍'}
+                    {detectingLocation ? '...' : <Icon name="current-location" size={14} />}
                   </button>
                 </div>
                 {form.location_lat && (
@@ -573,10 +574,10 @@ export default function ProfileClient() {
                           {tag}
                           <button
                             onClick={() => removeTag(tag)}
-                            className="ml-1 text-[10px] cursor-pointer bg-transparent border-none"
+                            className="ml-1 cursor-pointer bg-transparent border-none flex items-center"
                             style={{ color: 'var(--text-muted)' }}
                           >
-                            ×
+                            <Icon name="x" size={10} />
                           </button>
                         </span>
                       ))}
@@ -592,7 +593,7 @@ export default function ProfileClient() {
                       onKeyDown={handleTagKeyDown}
                       placeholder="Tag eingeben + Enter"
                       maxLength={30}
-                      className="w-full rounded-xl px-3 py-2 text-xs font-body outline-none transition-colors mb-2"
+                      className="w-full rounded-input px-3 py-2 text-xs font-body outline-none transition-colors mb-2"
                       style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
                     />
                   )}
@@ -613,7 +614,7 @@ export default function ProfileClient() {
                             background: 'transparent',
                           }}
                         >
-                          + {suggestion}
+                          <Icon name="plus" size={8} /> {suggestion}
                         </button>
                       ))}
                   </div>
@@ -713,7 +714,7 @@ export default function ProfileClient() {
             className="w-full flex items-center gap-3 px-5 py-4 text-sm font-body cursor-pointer transition-colors rounded-b-[18px]"
             style={{ color: 'var(--error)' }}
           >
-            <span className="text-base">↩</span>
+            <Icon name="logout" size={16} />
             Abmelden
           </button>
         </div>

@@ -7,8 +7,8 @@ export interface UserSearchResult {
   avatar_url: string | null;
   bio: string | null;
   location: string | null;
-  vip_level: number;
-  is_origin_soul: boolean;
+  soul_level: number;
+  is_first_light: boolean;
   connections_count: number;
 }
 
@@ -20,8 +20,8 @@ export interface PublicProfile {
   banner_url: string | null;
   bio: string | null;
   location: string | null;
-  vip_level: number;
-  is_origin_soul: boolean;
+  soul_level: number;
+  is_first_light: boolean;
   connections_count: number;
   pulses_count: number;
   interests: string[];

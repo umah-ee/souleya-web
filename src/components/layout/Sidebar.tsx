@@ -4,11 +4,13 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useTheme } from '@/components/ThemeProvider';
+import { Icon, type IconName } from '@/components/ui/Icon';
 
-const navItems = [
-  { href: '/', icon: '◎', label: 'Pulse' },
-  { href: '/discover', icon: '◈', label: 'Discover' },
-  { href: '/circles', icon: '⊕', label: 'Circle' },
+const navItems: { href: string; icon: IconName; label: string }[] = [
+  { href: '/', icon: 'home', label: 'Pulse' },
+  { href: '/discover', icon: 'compass', label: 'Discover' },
+  { href: '/circles', icon: 'users', label: 'Kontakte' },
+  { href: '/chat', icon: 'message-circle', label: 'Chat' },
 ];
 
 export default function Sidebar() {
@@ -58,7 +60,7 @@ export default function Sidebar() {
               }}
               title={item.label}
             >
-              <span className="text-lg">{item.icon}</span>
+              <Icon name={item.icon} size={20} />
               <span className="text-[8px] font-label uppercase tracking-[0.15em] mt-0.5">
                 {item.label}
               </span>
@@ -71,12 +73,10 @@ export default function Sidebar() {
       <button
         onClick={toggleTheme}
         className="w-9 h-9 rounded-full flex items-center justify-center mb-2 cursor-pointer transition-colors duration-200"
-        style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border-s)' }}
+        style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
         title={theme === 'dark' ? 'Hell' : 'Dunkel'}
       >
-        <span className="text-sm" style={{ color: 'var(--gold-text)' }}>
-          {theme === 'dark' ? '☀' : '☾'}
-        </span>
+        <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={14} />
       </button>
 
       {/* Avatar → Profil */}
@@ -90,7 +90,7 @@ export default function Sidebar() {
         }}
         title="Profil"
       >
-        <span className="text-sm" style={{ fontFamily: 'Georgia, serif' }}>◯</span>
+        <Icon name="user" size={16} />
       </Link>
 
       {/* Logout */}
@@ -100,7 +100,7 @@ export default function Sidebar() {
         style={{ color: 'var(--text-muted)' }}
         title="Abmelden"
       >
-        <span className="text-base">⏻</span>
+        <Icon name="logout" size={16} />
         <span className="text-[7px] font-label uppercase tracking-[0.1em] mt-0.5">
           Aus
         </span>

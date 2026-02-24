@@ -203,7 +203,7 @@ function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Deine E-Mail-Adresse"
                 required
-                className="py-3 px-6 rounded-full text-sm text-center font-body outline-none transition-all duration-300"
+                className="py-3 px-6 rounded-input text-sm text-center font-body outline-none transition-all duration-300"
                 style={{
                   background: 'var(--glass)',
                   border: '1px solid var(--gold-border-s)',
@@ -300,7 +300,7 @@ function LoginForm() {
                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
                   onPaste={i === 0 ? handleOtpPaste : undefined}
                   disabled={verifying}
-                  className="w-11 h-14 rounded-xl text-center text-xl font-heading outline-none transition-all duration-200"
+                  className="w-11 h-14 rounded-input text-center text-xl font-heading outline-none transition-all duration-200"
                   style={{
                     background: 'var(--glass)',
                     border: `1px solid ${digit ? 'var(--gold-border-s)' : 'var(--glass-border)'}`,

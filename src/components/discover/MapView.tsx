@@ -14,8 +14,8 @@ export interface MapNearbyUser {
   location: string | null;
   location_lat: number;
   location_lng: number;
-  vip_level: number;
-  is_origin_soul: boolean;
+  soul_level: number;
+  is_first_light: boolean;
   connections_count: number;
 }
 
@@ -92,7 +92,7 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
         el.innerHTML = `<span style="font-size:14px;font-weight:600;color:var(--text-on-gold);">${initial}</span>`;
       }
 
-      const borderColor = user.is_origin_soul ? 'rgba(200,169,110,0.8)' : 'rgba(200,169,110,0.5)';
+      const borderColor = user.is_first_light ? 'rgba(200,169,110,0.8)' : 'rgba(200,169,110,0.5)';
       el.style.cssText = `
         width: 40px; height: 40px; border-radius: 50%;
         ${user.avatar_url ? '' : 'background: linear-gradient(135deg, var(--gold-deep), var(--gold));'}
@@ -119,7 +119,7 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
     events.forEach((event) => {
       const el = document.createElement('div');
       el.className = 'souleya-marker-event';
-      el.innerHTML = '<span>☆</span>';
+      el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/></svg>';
       el.style.cssText = `
         width: 36px; height: 36px; border-radius: 50%;
         background: linear-gradient(135deg, var(--event-purple), var(--event-purple));

@@ -108,7 +108,7 @@ export default function CommentsSection({ pulseId, currentUserId, onCountChange 
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Kommentar schreiben …"
             maxLength={500}
-            className="flex-1 py-2 px-3 rounded-xl text-xs font-body outline-none transition-colors"
+            className="flex-1 py-2 px-3 rounded-input text-xs font-body outline-none transition-colors"
             style={{
               background: 'var(--glass)',
               border: '1px solid var(--glass-border)',

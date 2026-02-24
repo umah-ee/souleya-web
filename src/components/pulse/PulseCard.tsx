@@ -5,6 +5,7 @@ import type { Pulse } from '@/types/pulse';
 import { toggleLike, deletePulse } from '@/lib/pulse';
 import CommentsSection from './CommentsSection';
 import EnsoRing from '@/components/ui/EnsoRing';
+import { Icon } from '@/components/ui/Icon';
 
 interface Props {
   pulse: Pulse;
@@ -24,8 +25,8 @@ function AuthorAvatar({ author }: { author: Pulse['author'] }) {
   const initials = (author.display_name ?? author.username ?? '?').slice(0, 1).toUpperCase();
   return (
     <EnsoRing
-      vipLevel={author.vip_level}
-      isOriginSoul={author.is_origin_soul}
+      soulLevel={author.soul_level}
+      isFirstLight={author.is_first_light}
       size="feed"
       className="flex-shrink-0"
     >
@@ -85,7 +86,7 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
             <span className="font-body font-medium text-sm" style={{ color: 'var(--text-h)' }}>
               {pulse.author.display_name ?? pulse.author.username ?? 'Anonym'}
             </span>
-            {pulse.author.is_origin_soul && (
+            {pulse.author.is_first_light && (
               <span
                 className="text-[0.6rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px"
                 style={{
@@ -108,7 +109,7 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
             style={{ color: 'var(--text-muted)' }}
             title="Loeschen"
           >
-            ×
+            <Icon name="x" size={14} />
           </button>
         )}
       </div>
@@ -140,7 +141,7 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
           `}
           style={{ color: liked ? 'var(--gold-text)' : 'var(--text-muted)' }}
         >
-          <span className="text-base">{liked ? '♥' : '♡'}</span>
+          <Icon name={liked ? 'heart-filled' : 'heart'} size={16} />
           {likesCount > 0 && <span>{likesCount}</span>}
           <span>Like</span>
         </button>
@@ -150,7 +151,7 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
           className="flex items-center gap-1.5 bg-transparent border-none py-1 cursor-pointer font-label text-[0.7rem] tracking-[0.1em] uppercase transition-colors duration-200"
           style={{ color: 'var(--text-muted)' }}
         >
-          <span className="text-base">○</span>
+          <Icon name="message-circle" size={16} />
           {commentsCount > 0 && <span>{commentsCount}</span>}
           <span>Kommentare</span>
         </button>

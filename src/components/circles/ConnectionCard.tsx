@@ -17,8 +17,8 @@ export default function ConnectionCard({ connection, onRemove }: Props) {
     <>
       {/* Avatar im Enso Ring */}
       <EnsoRing
-        vipLevel={profile.vip_level}
-        isOriginSoul={profile.is_origin_soul}
+        soulLevel={profile.soul_level}
+        isFirstLight={profile.is_first_light}
         size="feed"
         className="flex-shrink-0"
       >
@@ -42,7 +42,7 @@ export default function ConnectionCard({ connection, onRemove }: Props) {
           <span className="font-body font-medium text-sm truncate" style={{ color: 'var(--text-h)' }}>
             {profile.display_name ?? profile.username ?? 'Anonym'}
           </span>
-          {profile.is_origin_soul && (
+          {profile.is_first_light && (
             <span
               className="text-[0.6rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px flex-shrink-0"
               style={{ color: 'var(--gold)', border: '1px solid var(--gold-border-s)' }}

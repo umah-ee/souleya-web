@@ -2,12 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Icon, type IconName } from '@/components/ui/Icon';
 
-const tabs = [
-  { href: '/', icon: '◎', label: 'Pulse' },
-  { href: '/discover', icon: '◈', label: 'Discover' },
-  { href: '/circles', icon: '⊕', label: 'Circle' },
-  { href: '/profile', icon: '◯', label: 'Profil' },
+const tabs: { href: string; icon: IconName; label: string }[] = [
+  { href: '/', icon: 'home', label: 'Pulse' },
+  { href: '/discover', icon: 'compass', label: 'Discover' },
+  { href: '/circles', icon: 'users', label: 'Kontakte' },
+  { href: '/chat', icon: 'message-circle', label: 'Chat' },
+  { href: '/profile', icon: 'user', label: 'Profil' },
 ];
 
 export default function BottomTabs() {
@@ -27,9 +29,7 @@ export default function BottomTabs() {
             className="flex flex-col items-center justify-center flex-1 h-full transition-colors duration-200"
             style={{ color: isActive ? 'var(--gold-text)' : 'var(--text-muted)' }}
           >
-            <span className={`text-lg ${isActive ? 'opacity-100' : 'opacity-50'}`}>
-              {tab.icon}
-            </span>
+            <Icon name={tab.icon} size={20} style={{ opacity: isActive ? 1 : 0.5 }} />
             <span className="text-[9px] font-label uppercase tracking-[2px] -mt-0.5">
               {tab.label}
             </span>

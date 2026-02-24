@@ -1,6 +1,7 @@
 'use client';
 
 import type { SoEvent } from '@/types/events';
+import { Icon } from '@/components/ui/Icon';
 
 interface Props {
   event: SoEvent;
@@ -63,7 +64,7 @@ export default function EventCard({ event, onJoin, onLeave, joining, userId }: P
 
       {/* Ort */}
       <div className="flex items-center gap-1.5 mb-3">
-        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>📍</span>
+        <span style={{ color: 'var(--text-muted)' }}><Icon name="map-pin" size={12} /></span>
         <span className="text-xs font-body truncate" style={{ color: 'var(--text-sec)' }}>{event.location_name}</span>
       </div>
 
@@ -76,7 +77,7 @@ export default function EventCard({ event, onJoin, onLeave, joining, userId }: P
             style={{
               background: 'var(--avatar-bg)',
               color: 'var(--gold-text)',
-              border: `1px solid ${event.creator?.is_origin_soul ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+              border: `1px solid ${event.creator?.is_first_light ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
             }}
           >
             {event.creator?.avatar_url ? (
