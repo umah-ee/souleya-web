@@ -5,6 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 /**
  * Zentraler API-Client fuer souleya-api (NestJS).
  * Haengt automatisch das Supabase JWT als Bearer Token an.
+ * Session-Refresh wird durch die SSR-Middleware sichergestellt.
  */
 export async function apiFetch<T = unknown>(
   path: string,
@@ -12,19 +13,11 @@ export async function apiFetch<T = unknown>(
 ): Promise<T> {
   const supabase = createClient();
 
-  // getUser() erzwingt Session-Refresh (getSession() gibt ggf. abgelaufene Tokens zurueck)
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    console.warn(`[apiFetch] Keine Session fuer ${path}:`, userError?.message ?? 'Kein User');
-    throw new Error('Nicht angemeldet');
-  }
-
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
 
   if (!token) {
-    console.warn(`[apiFetch] User vorhanden aber kein Token fuer ${path}`);
+    console.warn(`[apiFetch] Keine Session fuer ${path}`);
     throw new Error('Nicht angemeldet');
   }
 

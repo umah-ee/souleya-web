@@ -149,8 +149,8 @@ export default function ProfileClient() {
           location_lng: place.lng,
         }));
       }
-    } catch {
-      // Geocoding fehlgeschlagen
+    } catch (e) {
+      console.error('[ProfileClient] Geocoding fehlgeschlagen:', e);
     }
   };
 

@@ -28,6 +28,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [editingMsg, setEditingMsg] = useState<Message | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const channelRef = useRef<ChannelDetail | null>(null);
 
   // ── Daten laden ───────────────────────────────────────────
   const loadData = useCallback(async () => {
@@ -37,6 +38,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
         fetchMessages(channelId, 1, 50),
       ]);
       setChannel(ch);
+      channelRef.current = ch;
       setMessages(msgs.data);
       setHasMore(msgs.hasMore);
       setPage(1);
@@ -63,11 +65,19 @@ export default function ChatRoomClient({ channelId, user }: Props) {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'messages', filter: `channel_id=eq.${channelId}` },
         (payload) => {
-          const newMsg = payload.new as Message;
+          const raw = payload.new as Message;
+          // Author-Daten aus geladenen Channel-Members anreichern
+          const member = channelRef.current?.members.find((m) => m.user_id === raw.user_id);
+          const enriched: Message = {
+            ...raw,
+            author: member?.profile
+              ? { id: member.profile.id, username: member.profile.username, display_name: member.profile.display_name, avatar_url: member.profile.avatar_url }
+              : raw.author ?? { id: raw.user_id, username: null, display_name: null, avatar_url: null },
+          };
           // Nur hinzufuegen wenn noch nicht vorhanden
           setMessages((prev) => {
-            if (prev.some((m) => m.id === newMsg.id)) return prev;
-            return [...prev, newMsg];
+            if (prev.some((m) => m.id === enriched.id)) return prev;
+            return [...prev, enriched];
           });
           // Gelesen markieren
           markChannelAsRead(channelId).catch(() => {});

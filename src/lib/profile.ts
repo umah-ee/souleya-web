@@ -15,9 +15,10 @@ export async function updateProfile(data: UpdateProfileData): Promise<Profile> {
 
 export async function uploadAvatar(file: File): Promise<string> {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
 
-  if (!user) throw new Error('Nicht angemeldet');
+  if (!session?.user) throw new Error('Nicht angemeldet');
+  const user = session.user;
 
   // Dateiname: userId/avatar.ext (upsert ersetzt vorhandenes Bild)
   const ext = file.name.split('.').pop() ?? 'jpg';
@@ -40,9 +41,10 @@ export async function uploadAvatar(file: File): Promise<string> {
 
 export async function uploadBanner(file: File): Promise<string> {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
 
-  if (!user) throw new Error('Nicht angemeldet');
+  if (!session?.user) throw new Error('Nicht angemeldet');
+  const user = session.user;
 
   const ext = file.name.split('.').pop() ?? 'jpg';
   const path = `${user.id}/banner.${ext}`;
