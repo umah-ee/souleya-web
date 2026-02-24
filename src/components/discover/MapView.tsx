@@ -158,6 +158,9 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
       <div ref={mapContainer} className="w-full h-full" />
       {/* Custom Styles fuer Mapbox Controls */}
       <style jsx global>{`
+        .mapboxgl-canvas {
+          filter: sepia(0.18) saturate(0.85) brightness(1.03) hue-rotate(-3deg);
+        }
         .mapboxgl-ctrl-group {
           background: rgba(255,255,255,0.85) !important;
           border: 1px solid rgba(200,169,110,0.2) !important;
