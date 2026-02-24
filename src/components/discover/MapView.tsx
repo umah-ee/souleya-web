@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import type { SoEvent } from '@/types/events';
+import { useTheme } from '@/components/ThemeProvider';
 
 export interface MapNearbyUser {
   id: string;
@@ -30,11 +31,17 @@ interface Props {
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? '';
 
+const MAP_STYLES = {
+  light: 'mapbox://styles/mapbox/light-v11',
+  dark: 'mapbox://styles/mapbox/dark-v11',
+} as const;
+
 export default function MapView({ users, events, center, onMapMove, onUserClick, onEventClick }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [mapReady, setMapReady] = useState(false);
+  const { theme } = useTheme();
 
   // Map initialisieren
   useEffect(() => {
@@ -44,7 +51,7 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
 
     const m = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
+      style: MAP_STYLES[theme],
       center: center,
       zoom: 12,
       maxZoom: 14,
@@ -71,6 +78,12 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Theme-Wechsel: Mapbox Style live umschalten
+  useEffect(() => {
+    if (!map.current || !mapReady) return;
+    map.current.setStyle(MAP_STYLES[theme]);
+  }, [theme, mapReady]);
 
   // Marker aktualisieren
   useEffect(() => {
@@ -153,24 +166,36 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
     );
   }
 
+  const isDark = theme === 'dark';
+
   return (
     <div className="w-full h-full relative">
       <div ref={mapContainer} className="w-full h-full" />
-      {/* Custom Styles fuer Mapbox Controls */}
+      {/* Custom Styles fuer Mapbox Controls – Theme-abhaengig */}
       <style jsx global>{`
         .mapboxgl-canvas {
-          filter: sepia(0.18) saturate(0.85) brightness(1.03) hue-rotate(-3deg);
+          filter: ${isDark
+            ? 'saturate(0.8) brightness(0.92) hue-rotate(-3deg)'
+            : 'sepia(0.18) saturate(0.85) brightness(1.03) hue-rotate(-3deg)'
+          };
         }
         .mapboxgl-ctrl-group {
-          background: rgba(255,255,255,0.85) !important;
+          background: ${isDark
+            ? 'rgba(40,40,40,0.85)'
+            : 'rgba(255,255,255,0.85)'
+          } !important;
           border: 1px solid rgba(200,169,110,0.2) !important;
           border-radius: 12px !important;
           backdrop-filter: blur(16px) !important;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+          box-shadow: 0 2px 8px rgba(0,0,0,${isDark ? '0.25' : '0.08'}) !important;
         }
         .mapboxgl-ctrl-group button {
           background: transparent !important;
           border-bottom: 1px solid rgba(200,169,110,0.1) !important;
+          color: ${isDark ? '#F0E8D8' : 'inherit'} !important;
+        }
+        .mapboxgl-ctrl-group button span {
+          filter: ${isDark ? 'invert(1)' : 'none'};
         }
         .mapboxgl-ctrl-group button:last-child {
           border-bottom: none !important;
