@@ -493,16 +493,19 @@ export default function ProfileClient() {
                     className="w-full rounded-input px-3 py-2 text-sm font-body outline-none transition-colors"
                     style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
                   />
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm" style={{ color: 'var(--text-muted)' }}>@</span>
+                  <div
+                    className="flex items-center gap-2 w-full rounded-input px-3 py-2"
+                    style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)' }}
+                  >
+                    <span className="text-sm shrink-0" style={{ color: 'var(--text-muted)' }}>@</span>
                     <input
                       type="text"
                       value={form.username}
                       onChange={(e) => setForm((f) => ({ ...f, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
                       placeholder="username"
                       maxLength={30}
-                      className="flex-1 rounded-input px-3 py-2 text-sm font-body outline-none transition-colors"
-                      style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
+                      className="flex-1 text-sm font-body outline-none bg-transparent min-w-0"
+                      style={{ color: 'var(--text-h)' }}
                     />
                   </div>
                 </div>
@@ -519,8 +522,11 @@ export default function ProfileClient() {
                 />
 
                 {/* Location */}
-                <div className="flex items-center gap-2 mb-1">
-                  <span style={{ color: 'var(--text-muted)' }}><Icon name="map-pin" size={14} /></span>
+                <div
+                  className="flex items-center gap-2 w-full rounded-input px-3 py-2 mb-1"
+                  style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)' }}
+                >
+                  <span className="shrink-0" style={{ color: 'var(--text-muted)' }}><Icon name="map-pin" size={14} /></span>
                   <input
                     type="text"
                     value={form.location}
@@ -528,22 +534,23 @@ export default function ProfileClient() {
                     onBlur={handleLocationBlur}
                     placeholder="Ort (z.B. München – Schwabing)"
                     maxLength={80}
-                    className="flex-1 rounded-input px-3 py-2 text-sm font-body outline-none transition-colors"
-                    style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
+                    className="flex-1 text-sm font-body outline-none bg-transparent min-w-0"
+                    style={{ color: 'var(--text-h)' }}
                   />
                   <button
                     type="button"
                     onClick={handleDetectLocation}
                     disabled={detectingLocation}
-                    className="px-3 py-2 rounded-xl font-label text-[0.6rem] tracking-[0.1em] uppercase transition-all duration-200 flex-shrink-0"
+                    className="shrink-0 flex items-center justify-center transition-all duration-200"
                     style={{
-                      background: detectingLocation ? 'var(--gold-bg)' : 'transparent',
-                      border: '1px solid var(--gold-border-s)',
                       color: detectingLocation ? 'var(--text-muted)' : 'var(--gold-text)',
                       cursor: detectingLocation ? 'not-allowed' : 'pointer',
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
                     }}
                   >
-                    {detectingLocation ? '...' : <Icon name="current-location" size={14} />}
+                    {detectingLocation ? '...' : <Icon name="current-location" size={16} />}
                   </button>
                 </div>
                 {form.location_lat && (
