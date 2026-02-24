@@ -97,7 +97,7 @@ function UserOverlay({
       <div
         ref={overlayRef}
         className="mx-3 mb-3 glass-card rounded-2xl overflow-hidden"
-        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.3)' }}
+        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.1)' }}
       >
         {/* Gold-Leiste oben */}
         <div
@@ -255,7 +255,7 @@ function EventOverlay({
       <div
         ref={overlayRef}
         className="mx-3 mb-3 glass-card rounded-2xl overflow-hidden"
-        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.3)' }}
+        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.1)' }}
       >
         {/* Lila-Leiste oben */}
         <div

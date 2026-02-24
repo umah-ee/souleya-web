@@ -279,10 +279,10 @@ export default function DiscoverClient({ userId }: Props) {
   };
 
   return (
-    <div className="-mx-4 -mt-6" style={{ height: 'calc(100vh - 5rem)' }}>
+    <div className="discover-light fixed top-14 md:top-0 bottom-16 md:bottom-0 left-0 md:left-16 right-0 z-10">
       {/* ─── SUCHE AKTIV → Liste statt Karte ────────────────── */}
       {isSearchActive ? (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col" style={{ background: 'var(--bg-solid)' }}>
           {/* Suchfeld oben */}
           <div className="px-4 pt-3 pb-2">
             <input
@@ -396,7 +396,7 @@ export default function DiscoverClient({ userId }: Props) {
                 background: 'var(--glass-nav)',
                 border: '1px solid var(--gold-border-s)',
                 color: 'var(--text-h)',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
               }}
             />
           </div>

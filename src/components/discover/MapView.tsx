@@ -44,7 +44,7 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
 
     const m = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
+      style: 'mapbox://styles/mapbox/light-v11',
       center: center,
       zoom: 12,
       maxZoom: 14,
@@ -98,7 +98,7 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
         ${user.avatar_url ? '' : 'background: linear-gradient(135deg, var(--gold-deep), var(--gold));'}
         display: flex; align-items: center; justify-content: center;
         border: 2.5px solid ${borderColor};
-        cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         overflow: hidden;
       `;
 
@@ -126,7 +126,7 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
         display: flex; align-items: center; justify-content: center;
         color: #fff; font-size: 14px;
         border: 2px solid var(--event-purple-border);
-        cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       `;
 
       // Klick → Callback statt Popup
@@ -159,20 +159,18 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
       {/* Custom Styles fuer Mapbox Controls */}
       <style jsx global>{`
         .mapboxgl-ctrl-group {
-          background: var(--glass-nav) !important;
-          border: 1px solid var(--glass-border) !important;
+          background: rgba(255,255,255,0.85) !important;
+          border: 1px solid rgba(200,169,110,0.2) !important;
           border-radius: 12px !important;
           backdrop-filter: blur(16px) !important;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
         }
         .mapboxgl-ctrl-group button {
           background: transparent !important;
-          border-bottom: 1px solid var(--divider-l) !important;
+          border-bottom: 1px solid rgba(200,169,110,0.1) !important;
         }
         .mapboxgl-ctrl-group button:last-child {
           border-bottom: none !important;
-        }
-        .mapboxgl-ctrl-group button .mapboxgl-ctrl-icon {
-          filter: invert(1) !important;
         }
       `}</style>
     </div>

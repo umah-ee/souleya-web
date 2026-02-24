@@ -149,3 +149,37 @@ body {
 }
 .first-light-glow { animation: first-light-glow 3s ease-in-out infinite; }
 .ritter-glow { animation: glow-ritter 2.5s ease-in-out infinite; }
+
+/* ── DISCOVER LIGHT MAP OVERRIDE ──────── */
+/* Erzwingt helles Design fuer Discover-Bereich,
+   unabhaengig vom globalen Dark/Light Theme */
+.discover-light {
+  --bg-solid:      #EDE4D3;
+  --gold-text:     #9A7218;
+  --gold-deep:     #7A6014;
+  --gold-bg:       rgba(200,169,110, .12);
+  --gold-bg-hover: rgba(200,169,110, .20);
+  --gold-border:   rgba(200,169,110, .45);
+  --gold-border-s: rgba(200,169,110, .25);
+  --gold-glow:     rgba(200,169,110, .40);
+  --text-h:        #1E180C;
+  --text-body:     #3E3020;
+  --text-sec:      #7A6040;
+  --text-muted:    #9A8870;
+  --text-on-gold:  #FFFFFF;
+  --glass:         rgba(255,255,255, .65);
+  --glass-border:  rgba(255,255,255, .80);
+  --glass-shadow:  0 4px 20px rgba(139,105,20,.07);
+  --glass-inset:   inset 0 1px 0 rgba(255,255,255,.9);
+  --glass-nav:     rgba(255,255,255, .72);
+  --glass-nav-b:   rgba(255,255,255, .55);
+  --divider:       rgba(139,105,20, .15);
+  --divider-l:     rgba(139,105,20, .08);
+  --avatar-bg:     rgba(200,169,110, .15);
+  --success:       #2D8A56;
+  --success-bg:    rgba(45,138,86, .10);
+  --success-border:rgba(45,138,86, .30);
+  --event-purple:  #7A5FA0;
+  --event-purple-bg:rgba(122,95,160, .10);
+  --event-purple-border:rgba(122,95,160, .30);
+}
