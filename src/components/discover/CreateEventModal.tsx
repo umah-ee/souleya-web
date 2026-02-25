@@ -12,8 +12,10 @@ interface Props {
 
 interface GeoSuggestion {
   place_name: string;
+  text: string;
   lat: number;
   lng: number;
+  feature_type: string;
 }
 
 export default function CreateEventModal({ onClose, onCreated }: Props) {
@@ -21,6 +23,7 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<'meetup' | 'course'>('meetup');
   const [locationName, setLocationName] = useState('');
+  const [locationAddress, setLocationAddress] = useState('');
   const [locationLat, setLocationLat] = useState<number | null>(null);
   const [locationLng, setLocationLng] = useState<number | null>(null);
   const [date, setDate] = useState('');
@@ -50,8 +53,10 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
         if (res.results && res.results.length > 0) {
           setGeoSuggestions(res.results.map((r) => ({
             place_name: r.place_name,
+            text: r.text,
             lat: r.lat,
             lng: r.lng,
+            feature_type: r.feature_type,
           })));
           setShowGeoDropdown(true);
         } else {
@@ -69,7 +74,14 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
   }, [locationName]);
 
   const handleGeoSelect = (geo: GeoSuggestion) => {
-    setLocationName(geo.place_name);
+    // Bei POI/Adresse: Kurzname als location_name, volle Adresse als location_address
+    if (geo.feature_type === 'poi' || geo.feature_type === 'address') {
+      setLocationName(geo.text);
+      setLocationAddress(geo.place_name);
+    } else {
+      setLocationName(geo.place_name);
+      setLocationAddress('');
+    }
     setLocationLat(geo.lat);
     setLocationLng(geo.lng);
     setShowGeoDropdown(false);
@@ -92,6 +104,7 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
       description: description.trim() || undefined,
       category,
       location_name: locationName.trim(),
+      location_address: locationAddress.trim() || undefined,
       location_lat: locationLat,
       location_lng: locationLng,
       starts_at: startsAt,
@@ -224,10 +237,11 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
               value={locationName}
               onChange={(e) => {
                 setLocationName(e.target.value);
+                setLocationAddress('');
                 setLocationLat(null);
                 setLocationLng(null);
               }}
-              placeholder="Ort suchen ..."
+              placeholder="Adresse, Restaurant oder Ort suchen ..."
               className="w-full py-2.5 px-4 rounded-[8px] text-sm font-body outline-none"
               style={inputStyle}
             />
@@ -237,10 +251,17 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
               </span>
             )}
 
+            {/* Selektierte Adresse anzeigen */}
+            {locationAddress && locationLat != null && (
+              <p className="text-xs font-body mt-1 truncate" style={{ color: 'var(--text-muted)' }}>
+                {locationAddress}
+              </p>
+            )}
+
             {/* Geocoding-Dropdown */}
             {showGeoDropdown && geoSuggestions.length > 0 && (
               <div
-                className="absolute left-0 right-0 top-full mt-1 z-50 rounded-lg overflow-hidden"
+                className="absolute left-0 right-0 top-full mt-1 z-50 rounded-lg overflow-hidden max-h-[220px] overflow-y-auto"
                 style={{
                   background: 'var(--glass-nav)',
                   backdropFilter: 'blur(20px)',
@@ -249,17 +270,24 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
                   boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
                 }}
               >
-                {geoSuggestions.map((geo, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleGeoSelect(geo)}
-                    className="w-full text-left px-3 py-2.5 text-sm font-body flex items-center gap-2 cursor-pointer transition-colors"
-                    style={{ color: 'var(--text-h)', borderBottom: i < geoSuggestions.length - 1 ? '1px solid var(--divider-l)' : undefined }}
-                  >
-                    <Icon name="map-pin" size={12} style={{ color: 'var(--gold)', flexShrink: 0 }} />
-                    <span className="truncate">{geo.place_name}</span>
-                  </button>
-                ))}
+                {geoSuggestions.map((geo, i) => {
+                  const typeLabel = geo.feature_type === 'poi' ? 'Ort' : geo.feature_type === 'address' ? 'Adresse' : geo.feature_type === 'place' ? 'Stadt' : geo.feature_type === 'neighborhood' ? 'Viertel' : 'Gebiet';
+                  const iconName = geo.feature_type === 'poi' ? 'building-store' : 'map-pin';
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => handleGeoSelect(geo)}
+                      className="w-full text-left px-3 py-2.5 font-body flex items-start gap-2 cursor-pointer transition-colors"
+                      style={{ color: 'var(--text-h)', borderBottom: i < geoSuggestions.length - 1 ? '1px solid var(--divider-l)' : undefined }}
+                    >
+                      <Icon name={iconName} size={14} style={{ color: 'var(--gold)', flexShrink: 0, marginTop: '2px' }} />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm truncate block">{geo.place_name}</span>
+                        <span className="text-[0.6rem] font-label uppercase tracking-[0.1em]" style={{ color: 'var(--text-muted)' }}>{typeLabel}</span>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

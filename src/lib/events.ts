@@ -9,6 +9,7 @@ export async function fetchEvents(options?: {
   category?: string;
   page?: number;
   limit?: number;
+  userId?: string;
 }) {
   const params = new URLSearchParams();
   if (options?.lat != null) params.set('lat', String(options.lat));
@@ -17,6 +18,7 @@ export async function fetchEvents(options?: {
   if (options?.category) params.set('category', options.category);
   if (options?.page) params.set('page', String(options.page));
   if (options?.limit) params.set('limit', String(options.limit));
+  if (options?.userId) params.set('userId', options.userId);
 
   const qs = params.toString();
   return apiFetch<{ data: SoEvent[]; total: number; hasMore: boolean }>(
@@ -97,6 +99,7 @@ export async function geocodeLocation(query: string, type: 'forward' | 'reverse'
   return apiFetch<{
     results: Array<{
       place_name: string;
+      text: string;
       lat: number;
       lng: number;
       feature_type: string;

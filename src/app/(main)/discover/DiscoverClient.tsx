@@ -73,14 +73,14 @@ export default function DiscoverClient({ userId }: Props) {
     try {
       const [nearbyRes, eventsRes] = await Promise.all([
         fetchNearbyUsers(lat, lng),
-        fetchEvents({ lat, lng }),
+        fetchEvents({ lat, lng, userId: userId ?? undefined }),
       ]);
       setNearbyUsers(nearbyRes.data);
       setEvents(eventsRes.data);
     } catch (e) {
       console.error('Discover-Daten laden fehlgeschlagen:', e);
     }
-  }, []);
+  }, [userId]);
 
   // Initial laden
   useEffect(() => {
@@ -506,7 +506,7 @@ export default function DiscoverClient({ userId }: Props) {
                           {geo.place_name}
                         </p>
                         <p className="text-xs font-label" style={{ color: 'var(--text-muted)' }}>
-                          {geo.feature_type === 'place' ? 'Stadt' : geo.feature_type === 'locality' ? 'Ortsteil' : 'Gebiet'}
+                          {geo.feature_type === 'poi' ? 'Ort / Lokal' : geo.feature_type === 'address' ? 'Adresse' : geo.feature_type === 'place' ? 'Stadt' : geo.feature_type === 'locality' ? 'Ortsteil' : geo.feature_type === 'neighborhood' ? 'Viertel' : 'Gebiet'}
                         </p>
                       </div>
                       <Icon name="compass" size={14} style={{ color: 'var(--gold)' }} />

@@ -180,3 +180,62 @@ body {
 [data-theme="dark"] {
   --glass-strong: rgba(255,255,255, .10);
 }
+
+/* ── DATE / TIME INPUT STYLING ────────── */
+/* Picker-Icon in Gold */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  filter: var(--picker-icon-filter);
+  transition: opacity 0.2s;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Light Theme: Dunkle Icons invertieren zu Gold-Ton */
+:root, [data-theme="light"] {
+  --picker-icon-filter: sepia(1) saturate(2) hue-rotate(10deg) brightness(0.7);
+}
+[data-theme="light"] input[type="date"],
+[data-theme="light"] input[type="time"],
+[data-theme="light"] input[type="datetime-local"] {
+  color-scheme: light;
+}
+
+/* Dark Theme: Helles Picker-Popup + Gold-Icon */
+[data-theme="dark"] {
+  --picker-icon-filter: sepia(1) saturate(3) hue-rotate(10deg) brightness(1.2);
+}
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+/* Inner-Text im Input */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+}
+
+/* Placeholder-Farbe (wenn leer) */
+input[type="date"]:not(:valid)::-webkit-datetime-edit,
+input[type="time"]:not(:valid)::-webkit-datetime-edit {
+  color: var(--text-muted);
+}
+
+/* Focus-Ring in Gold fuer alle Inputs */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--gold-border) !important;
+  box-shadow: 0 0 0 2px var(--gold-bg);
+}

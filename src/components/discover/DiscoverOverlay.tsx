@@ -430,21 +430,24 @@ function EventOverlay({
               </button>
             )}
 
-            {/* Bookmark Button (Kreis) */}
+            {/* Bookmark Button (Kreis) – invertiert wenn aktiv */}
             <button
               onClick={() => onBookmark?.(event.id)}
               disabled={bookmarking}
-              className="flex items-center justify-center rounded-full cursor-pointer transition-all duration-200"
+              className="flex items-center justify-center rounded-full cursor-pointer transition-all duration-300"
               style={{
                 width: '38px',
                 height: '38px',
-                background: event.is_bookmarked ? 'var(--gold-bg)' : 'var(--glass-strong, var(--glass))',
-                border: `1px solid ${event.is_bookmarked ? 'var(--gold-border)' : 'var(--glass-border)'}`,
-                color: event.is_bookmarked ? 'var(--gold-text)' : 'var(--text-muted)',
+                background: event.is_bookmarked
+                  ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'
+                  : 'var(--glass-strong, var(--glass))',
+                border: `1px solid ${event.is_bookmarked ? 'var(--gold)' : 'var(--glass-border)'}`,
+                color: event.is_bookmarked ? 'var(--text-on-gold)' : 'var(--text-muted)',
+                boxShadow: event.is_bookmarked ? '0 0 12px rgba(200,169,110,0.35)' : 'none',
                 flexShrink: 0,
               }}
             >
-              <Icon name="bookmark" size={16} />
+              <Icon name={event.is_bookmarked ? 'bookmark-filled' : 'bookmark'} size={16} />
             </button>
           </div>
         </div>
