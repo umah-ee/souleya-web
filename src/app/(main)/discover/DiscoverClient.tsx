@@ -570,6 +570,7 @@ export default function DiscoverClient({ userId }: Props) {
                   userId={userId}
                   onJoin={handleJoinEvent}
                   onLeave={handleLeaveEvent}
+                  onShare={setShareEvent}
                   joining={joiningEvent[selectedEvent.id]}
                   onClose={handleCloseOverlay}
                 />
@@ -589,7 +590,7 @@ export default function DiscoverClient({ userId }: Props) {
                   <p className="text-sm" style={{ color: 'var(--text-muted)' }}>In dieser Gegend gibt es noch keine Events.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-5 max-w-[640px] mx-auto">
+                <div className="grid grid-cols-2 gap-5 max-w-[860px] mx-auto">
                   {events.map((event) => (
                     <EventCardCompact
                       key={event.id}

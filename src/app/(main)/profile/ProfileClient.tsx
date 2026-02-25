@@ -46,6 +46,11 @@ export default function ProfileClient() {
   // Tag-Input State
   const [tagInput, setTagInput] = useState('');
 
+  // Location Autocomplete State
+  const [locationSuggestions, setLocationSuggestions] = useState<Array<{ place_name: string; lat: number; lng: number }>>([]);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const locationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     fetchProfile()
       .then((p) => {
@@ -134,24 +139,47 @@ export default function ProfileClient() {
     }
   };
 
-  // Manuelle Ort-Eingabe → Forward Geocoding
-  const handleLocationBlur = async () => {
-    if (!form.location || form.location.length < 3) return;
-    if (form.location_lat && form.location === (profile?.location ?? '')) return;
+  // Live-Autocomplete: Debounced Forward Geocoding beim Tippen
+  const handleLocationChange = (value: string) => {
+    setForm((f) => ({ ...f, location: value, location_lat: null, location_lng: null }));
 
-    try {
-      const res = await geocodeLocation(form.location, 'forward');
-      if (res.results.length > 0) {
-        const place = res.results[0];
-        setForm((f) => ({
-          ...f,
-          location_lat: place.lat,
-          location_lng: place.lng,
-        }));
-      }
-    } catch (e) {
-      console.error('[ProfileClient] Geocoding fehlgeschlagen:', e);
+    if (locationTimer.current) clearTimeout(locationTimer.current);
+    if (value.trim().length < 3) {
+      setLocationSuggestions([]);
+      setShowLocationDropdown(false);
+      return;
     }
+
+    locationTimer.current = setTimeout(async () => {
+      try {
+        const res = await geocodeLocation(value, 'forward');
+        if (res.results && res.results.length > 0) {
+          setLocationSuggestions(res.results.map((r) => ({
+            place_name: r.place_name,
+            lat: r.lat,
+            lng: r.lng,
+          })));
+          setShowLocationDropdown(true);
+        } else {
+          setLocationSuggestions([]);
+          setShowLocationDropdown(false);
+        }
+      } catch {
+        setLocationSuggestions([]);
+        setShowLocationDropdown(false);
+      }
+    }, 400);
+  };
+
+  const handleLocationSelect = (geo: { place_name: string; lat: number; lng: number }) => {
+    setForm((f) => ({
+      ...f,
+      location: geo.place_name.split(',').slice(0, 2).join(',').trim(),
+      location_lat: geo.lat,
+      location_lng: geo.lng,
+    }));
+    setShowLocationDropdown(false);
+    setLocationSuggestions([]);
   };
 
   const handleSave = async () => {
@@ -521,37 +549,73 @@ export default function ProfileClient() {
                   style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
                 />
 
-                {/* Location */}
-                <div
-                  className="flex items-center gap-2 w-full rounded-input px-3 py-2 mb-1"
-                  style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)' }}
-                >
-                  <span className="shrink-0" style={{ color: 'var(--text-muted)' }}><Icon name="map-pin" size={14} /></span>
-                  <input
-                    type="text"
-                    value={form.location}
-                    onChange={(e) => setForm((f) => ({ ...f, location: e.target.value, location_lat: null, location_lng: null }))}
-                    onBlur={handleLocationBlur}
-                    placeholder="Ort (z.B. München – Schwabing)"
-                    maxLength={80}
-                    className="flex-1 text-sm font-body outline-none bg-transparent min-w-0"
-                    style={{ color: 'var(--text-h)' }}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleDetectLocation}
-                    disabled={detectingLocation}
-                    className="shrink-0 flex items-center justify-center transition-all duration-200"
-                    style={{
-                      color: detectingLocation ? 'var(--text-muted)' : 'var(--gold-text)',
-                      cursor: detectingLocation ? 'not-allowed' : 'pointer',
-                      background: 'none',
-                      border: 'none',
-                      padding: 0,
-                    }}
+                {/* Location mit Autocomplete */}
+                <div className="relative mb-1">
+                  <div
+                    className="flex items-center gap-2 w-full rounded-input px-3 py-2"
+                    style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)' }}
                   >
-                    {detectingLocation ? '...' : <Icon name="current-location" size={16} />}
-                  </button>
+                    <span className="shrink-0" style={{ color: 'var(--text-muted)' }}><Icon name="map-pin" size={14} /></span>
+                    <input
+                      type="text"
+                      value={form.location}
+                      onChange={(e) => handleLocationChange(e.target.value)}
+                      onBlur={() => setTimeout(() => setShowLocationDropdown(false), 200)}
+                      onFocus={() => { if (locationSuggestions.length > 0) setShowLocationDropdown(true); }}
+                      placeholder="Ort (z.B. München – Schwabing)"
+                      maxLength={80}
+                      className="flex-1 text-sm font-body outline-none bg-transparent min-w-0"
+                      style={{ color: 'var(--text-h)' }}
+                    />
+                    {form.location_lat != null && (
+                      <span className="shrink-0" style={{ color: 'var(--success)' }}>
+                        <Icon name="map-pin" size={12} />
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleDetectLocation}
+                      disabled={detectingLocation}
+                      className="shrink-0 flex items-center justify-center transition-all duration-200"
+                      style={{
+                        color: detectingLocation ? 'var(--text-muted)' : 'var(--gold-text)',
+                        cursor: detectingLocation ? 'not-allowed' : 'pointer',
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                      }}
+                    >
+                      {detectingLocation ? '...' : <Icon name="current-location" size={16} />}
+                    </button>
+                  </div>
+
+                  {/* Autocomplete Dropdown */}
+                  {showLocationDropdown && locationSuggestions.length > 0 && (
+                    <div
+                      className="absolute left-0 right-0 top-full mt-1 z-50 rounded-lg overflow-hidden"
+                      style={{
+                        background: 'var(--bg-solid)',
+                        border: '1px solid var(--glass-border)',
+                        boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                      }}
+                    >
+                      {locationSuggestions.map((geo, i) => (
+                        <button
+                          key={i}
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => handleLocationSelect(geo)}
+                          className="w-full text-left px-3 py-2.5 text-sm font-body flex items-center gap-2 cursor-pointer transition-colors"
+                          style={{
+                            color: 'var(--text-h)',
+                            borderBottom: i < locationSuggestions.length - 1 ? '1px solid var(--divider-l)' : undefined,
+                          }}
+                        >
+                          <Icon name="map-pin" size={12} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+                          <span className="truncate">{geo.place_name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {form.location_lat && (
                   <p className="text-[0.65rem] font-body ml-6 mb-3" style={{ color: 'var(--text-muted)' }}>

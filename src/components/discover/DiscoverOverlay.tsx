@@ -32,6 +32,7 @@ interface EventOverlayProps {
   onConnect?: never;
   onJoin?: (id: string) => void;
   onLeave?: (id: string) => void;
+  onShare?: (event: SoEvent) => void;
   connecting?: never;
   joining?: boolean;
   onClose: () => void;
@@ -243,6 +244,7 @@ function EventOverlay({
   userId,
   onJoin,
   onLeave,
+  onShare,
   joining,
   onClose,
   overlayRef,
@@ -366,14 +368,18 @@ function EventOverlay({
             </span>
           </div>
 
-          {/* Action Button */}
-          {userId && !isCreator && (
-            <div>
-              {event.has_joined ? (
+          {/* Action Bar (Join + Share + Bookmark) */}
+          <div
+            className="flex items-center gap-2"
+            style={{ paddingTop: '12px', borderTop: '1px solid var(--divider-l)' }}
+          >
+            {/* Teilnehmen / Verlassen */}
+            {userId && !isCreator ? (
+              event.has_joined ? (
                 <button
                   onClick={() => onLeave?.(event.id)}
                   disabled={joining}
-                  className="w-full py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors"
+                  className="flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors"
                   style={{
                     border: '1px solid var(--divider)',
                     color: 'var(--text-muted)',
@@ -385,7 +391,7 @@ function EventOverlay({
                 <button
                   onClick={() => onJoin?.(event.id)}
                   disabled={joining || isFull}
-                  className="w-full py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase transition-all duration-200"
+                  className="flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase transition-all duration-200 flex items-center justify-center gap-1.5"
                   style={{
                     background: isFull || joining
                       ? 'var(--gold-bg)'
@@ -394,11 +400,47 @@ function EventOverlay({
                     cursor: isFull || joining ? 'not-allowed' : 'pointer',
                   }}
                 >
+                  <Icon name="calendar-plus" size={14} />
                   {isFull ? 'Voll' : joining ? '...' : 'Teilnehmen'}
                 </button>
-              )}
-            </div>
-          )}
+              )
+            ) : (
+              <div className="flex-1" />
+            )}
+
+            {/* Share Button (Kreis) */}
+            {onShare && (
+              <button
+                onClick={() => { onShare(event); onClose(); }}
+                className="flex items-center justify-center rounded-full cursor-pointer transition-all duration-200"
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  background: 'var(--glass-strong, var(--glass))',
+                  border: '1px solid var(--glass-border)',
+                  color: 'var(--text-muted)',
+                  flexShrink: 0,
+                }}
+              >
+                <Icon name="share" size={16} />
+              </button>
+            )}
+
+            {/* Bookmark Button (Kreis) */}
+            <button
+              className="flex items-center justify-center rounded-full cursor-pointer transition-all duration-200"
+              style={{
+                width: '38px',
+                height: '38px',
+                background: 'var(--glass-strong, var(--glass))',
+                border: '1px solid var(--glass-border)',
+                color: 'var(--text-muted)',
+                flexShrink: 0,
+              }}
+            >
+              <Icon name="bookmark" size={16} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
