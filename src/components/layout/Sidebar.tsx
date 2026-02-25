@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -13,16 +14,38 @@ const navItems: { href: string; icon: IconName; label: string }[] = [
   { href: '/chat', icon: 'message-circle', label: 'Chat' },
 ];
 
+const moreItems: { href: string; icon: IconName; label: string }[] = [
+  { href: '/places', icon: 'map-pin-heart', label: 'Soul Places' },
+  { href: '/studio', icon: 'school', label: 'Studio' },
+  { href: '/analytics', icon: 'chart-dots', label: 'Analytics' },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  // Click outside schliesst
+  useEffect(() => {
+    if (!moreOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [moreOpen]);
 
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push('/login');
   };
+
+  const isMoreActive = moreItems.some((item) => pathname.startsWith(item.href));
 
   return (
     <aside className="hidden md:flex flex-col items-center w-16 h-screen fixed left-0 top-0 z-20 glass-nav" style={{ borderRight: '1px solid var(--glass-nav-b)' }}>
@@ -67,6 +90,65 @@ export default function Sidebar() {
             </Link>
           );
         })}
+
+        {/* (+) Mehr-Menue */}
+        <div ref={moreRef} className="relative">
+          <button
+            onClick={() => setMoreOpen(!moreOpen)}
+            className="flex flex-col items-center justify-center w-12 h-12 rounded-sm transition-all duration-200 cursor-pointer"
+            style={{
+              color: isMoreActive || moreOpen ? 'var(--gold-text)' : 'var(--text-muted)',
+              background: isMoreActive || moreOpen ? 'var(--gold-bg)' : 'transparent',
+            }}
+            title="Mehr"
+          >
+            <Icon name="plus" size={20} style={{ transition: 'transform 200ms', transform: moreOpen ? 'rotate(45deg)' : 'none' }} />
+            <span className="text-[8px] font-label uppercase tracking-[0.15em] mt-0.5">
+              Mehr
+            </span>
+          </button>
+
+          {/* Flyout-Menue */}
+          {moreOpen && (
+            <div
+              className="absolute left-full top-0 ml-2 rounded-xl overflow-hidden"
+              style={{
+                background: 'var(--bg-solid)',
+                border: '1px solid var(--glass-border)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                minWidth: '160px',
+                zIndex: 50,
+              }}
+            >
+              {/* Gold-Leiste */}
+              <div
+                className="h-[2px]"
+                style={{ background: 'linear-gradient(to right, transparent, var(--gold-glow), transparent)' }}
+              />
+
+              {moreItems.map((item, i) => {
+                const isActive = pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMoreOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 transition-colors duration-200"
+                    style={{
+                      color: isActive ? 'var(--gold-text)' : 'var(--text-h)',
+                      background: isActive ? 'var(--gold-bg)' : 'transparent',
+                      borderBottom: i < moreItems.length - 1 ? '1px solid var(--divider-l)' : undefined,
+                    }}
+                  >
+                    <Icon name={item.icon} size={18} style={{ color: isActive ? 'var(--gold)' : 'var(--text-muted)' }} />
+                    <span className="text-sm font-body">{item.label}</span>
+                    <Icon name="chevron-right" size={12} style={{ marginLeft: 'auto', color: 'var(--text-muted)', opacity: 0.5 }} />
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </nav>
 
       {/* Theme Toggle */}
@@ -79,7 +161,7 @@ export default function Sidebar() {
         <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={14} />
       </button>
 
-      {/* Avatar → Profil */}
+      {/* Avatar -> Profil */}
       <Link
         href="/profile"
         className="w-9 h-9 rounded-full flex items-center justify-center mb-2 transition-colors duration-200"

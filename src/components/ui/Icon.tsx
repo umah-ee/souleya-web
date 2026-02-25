@@ -45,7 +45,12 @@ export type IconName =
   | 'calendar-plus'
   | 'layout-grid'
   | 'map-2'
-  | 'building-store';
+  | 'building-store'
+  | 'dots'
+  | 'chevron-right'
+  | 'map-pin-heart'
+  | 'school'
+  | 'chart-dots';
 
 const paths: Record<IconName, React.ReactNode> = {
   home: (
@@ -293,6 +298,38 @@ const paths: Record<IconName, React.ReactNode> = {
       <path d="M5 21l0 -10.15" />
       <path d="M19 21l0 -10.15" />
       <path d="M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4" />
+    </>
+  ),
+  dots: (
+    <>
+      <path d="M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+      <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+      <path d="M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+    </>
+  ),
+  'chevron-right': (
+    <path d="M9 6l6 6l-6 6" />
+  ),
+  'map-pin-heart': (
+    <>
+      <path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+      <path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" />
+    </>
+  ),
+  school: (
+    <>
+      <path d="M22 9l-10 -4l-10 4l10 4l10 -4v6" />
+      <path d="M6 10.6v5.4a6 3 0 0 0 12 0v-5.4" />
+    </>
+  ),
+  'chart-dots': (
+    <>
+      <path d="M3 3v18h18" />
+      <path d="M9 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M19 7m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M14 15m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M10.16 10.62l2.34 2.88" />
+      <path d="M15.088 13.328l2.837 -4.586" />
     </>
   ),
 };
