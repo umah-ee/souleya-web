@@ -36,7 +36,13 @@ export type IconName =
   | 'arrow-left'
   | 'pencil'
   | 'corner-up-left'
-  | 'chart-bar';
+  | 'chart-bar'
+  | 'share'
+  | 'bookmark'
+  | 'clock'
+  | 'calendar-plus'
+  | 'layout-grid'
+  | 'map-2';
 
 const paths: Record<IconName, React.ReactNode> = {
   home: (
@@ -220,6 +226,51 @@ const paths: Record<IconName, React.ReactNode> = {
       <rect x="3" y="12" width="4" height="8" rx="1" />
       <rect x="10" y="8" width="4" height="12" rx="1" />
       <rect x="17" y="4" width="4" height="16" rx="1" />
+    </>
+  ),
+  share: (
+    <>
+      <path d="M6 15a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M14 6a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M14 18a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M9.7 13.7l4.6 2.6" />
+      <path d="M9.7 16.3l4.6 -2.6" />
+      <path d="M14.3 7.3l-4.6 2.7" />
+    </>
+  ),
+  bookmark: (
+    <path d="M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z" />
+  ),
+  clock: (
+    <>
+      <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+      <path d="M12 7v5l3 3" />
+    </>
+  ),
+  'calendar-plus': (
+    <>
+      <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
+      <path d="M16 3v4" />
+      <path d="M8 3v4" />
+      <path d="M4 11h16" />
+      <path d="M10 16h4" />
+      <path d="M12 14v4" />
+    </>
+  ),
+  'layout-grid': (
+    <>
+      <rect x="4" y="4" width="6" height="6" rx="1" />
+      <rect x="14" y="4" width="6" height="6" rx="1" />
+      <rect x="4" y="14" width="6" height="6" rx="1" />
+      <rect x="14" y="14" width="6" height="6" rx="1" />
+    </>
+  ),
+  'map-2': (
+    <>
+      <path d="M18 6l0 12" />
+      <path d="M6 6l0 12" />
+      <path d="M3 6l3 -3l6 3l6 -3l3 3" />
+      <path d="M3 18l3 -3l6 3l6 -3l3 3" />
     </>
   ),
 };

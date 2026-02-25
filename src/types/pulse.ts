@@ -11,6 +11,7 @@ export interface Pulse {
   id: string;
   content: string;
   image_url: string | null;
+  metadata?: Record<string, unknown> | null;
   likes_count: number;
   comments_count: number;
   created_at: string;

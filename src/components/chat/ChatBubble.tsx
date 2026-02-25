@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Message } from '@/types/chat';
 import { Icon } from '@/components/ui/Icon';
+import EventShareCard from '@/components/shared/EventShareCard';
 
 function formatTime(dateString: string): string {
   return new Date(dateString).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
@@ -134,6 +135,24 @@ export default function ChatBubble({ message, isOwn, showAuthor, onReply, onEdit
               <div className="flex items-center gap-2">
                 <Icon name="map-pin" size={14} style={{ color: 'var(--gold-text)' }} />
                 <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Standort</span>
+              </div>
+            )}
+
+            {/* Event Embed */}
+            {Boolean(message.metadata?.event_id) && (
+              <div className="mt-1.5 -mx-0.5">
+                <EventShareCard
+                  data={{
+                    event_id: String(message.metadata.event_id),
+                    event_title: String(message.metadata.event_title ?? ''),
+                    event_category: message.metadata.event_category as 'meetup' | 'course' | undefined,
+                    event_cover_url: message.metadata.event_cover_url as string | null | undefined,
+                    event_starts_at: message.metadata.event_starts_at as string | undefined,
+                    event_location_name: message.metadata.event_location_name as string | undefined,
+                    event_participants_count: message.metadata.event_participants_count as number | undefined,
+                  }}
+                  onClick={() => { window.location.href = '/discover'; }}
+                />
               </div>
             )}
 

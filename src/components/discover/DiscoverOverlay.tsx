@@ -252,11 +252,14 @@ function EventOverlay({
   const creatorInitial = creatorName.slice(0, 1).toUpperCase();
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-30 animate-slide-up">
+    <div
+      className="absolute inset-0 z-30 flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,.35)' }}
+    >
       <div
         ref={overlayRef}
-        className="mx-3 mb-3 glass-card rounded-2xl overflow-hidden"
-        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.1)' }}
+        className="mx-4 glass-card rounded-2xl overflow-hidden max-w-[400px] w-full animate-slide-up"
+        style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}
       >
         {/* Lila-Leiste oben */}
         <div
@@ -264,7 +267,7 @@ function EventOverlay({
           style={{ background: 'linear-gradient(to right, transparent, var(--event-purple), transparent)' }}
         />
 
-        <div className="p-5">
+        <div className="p-5 relative">
           {/* Schliessen */}
           <button
             onClick={onClose}

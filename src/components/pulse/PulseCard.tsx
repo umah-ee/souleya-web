@@ -6,6 +6,7 @@ import { toggleLike, deletePulse } from '@/lib/pulse';
 import CommentsSection from './CommentsSection';
 import EnsoRing from '@/components/ui/EnsoRing';
 import { Icon } from '@/components/ui/Icon';
+import EventShareCard from '@/components/shared/EventShareCard';
 
 interface Props {
   pulse: Pulse;
@@ -127,6 +128,24 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
           alt=""
           className="w-full rounded-lg mb-3 max-h-[400px] object-cover"
         />
+      )}
+
+      {/* Event Embed */}
+      {pulse.metadata != null && Boolean(pulse.metadata.event_id) && (
+        <div className="mb-3">
+          <EventShareCard
+            data={{
+              event_id: String(pulse.metadata.event_id),
+              event_title: String(pulse.metadata.event_title ?? ''),
+              event_category: pulse.metadata.event_category as 'meetup' | 'course' | undefined,
+              event_cover_url: pulse.metadata.event_cover_url as string | null | undefined,
+              event_starts_at: pulse.metadata.event_starts_at as string | undefined,
+              event_location_name: pulse.metadata.event_location_name as string | undefined,
+              event_participants_count: pulse.metadata.event_participants_count as number | undefined,
+            }}
+            onClick={() => { window.location.href = '/discover'; }}
+          />
+        </div>
       )}
 
       {/* Actions */}
