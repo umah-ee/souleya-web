@@ -1,6 +1,7 @@
 'use client';
 
 import { Icon } from '@/components/ui/Icon';
+import { getEventCover } from '@/lib/demo-covers';
 
 export interface EventShareData {
   event_id: string;
@@ -31,6 +32,7 @@ function formatTime(dateString: string): string {
 
 export default function EventShareCard({ data, onClick }: Props) {
   const isCourse = data.event_category === 'course';
+  const thumbUrl = getEventCover(data.event_cover_url ?? null, data.event_id);
 
   return (
     <div
@@ -40,31 +42,20 @@ export default function EventShareCard({ data, onClick }: Props) {
     >
       <div className="flex">
         {/* Links: Thumbnail */}
-        <div
-          className="w-[88px] flex-shrink-0 relative overflow-hidden"
-          style={{
-            background: data.event_cover_url
-              ? undefined
-              : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
-          }}
-        >
-          {data.event_cover_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={data.event_cover_url}
-              alt=""
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              {data.event_starts_at ? (
-                <>
-                  <span className="text-white font-heading text-lg leading-none">{formatDay(data.event_starts_at)}</span>
-                  <span className="text-white/80 font-label text-[0.4rem] tracking-[0.12em] uppercase">{formatMonth(data.event_starts_at)}</span>
-                </>
-              ) : (
-                <Icon name="calendar" size={20} style={{ color: 'rgba(255,255,255,.8)' }} />
-              )}
+        <div className="w-[88px] flex-shrink-0 relative overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={thumbUrl}
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          {/* Datum-Overlay auf dem Bild */}
+          {data.event_starts_at && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center"
+              style={{ background: 'rgba(0,0,0,.35)' }}
+            >
+              <span className="text-white font-heading text-lg leading-none">{formatDay(data.event_starts_at)}</span>
+              <span className="text-white/80 font-label text-[0.4rem] tracking-[0.12em] uppercase">{formatMonth(data.event_starts_at)}</span>
             </div>
           )}
         </div>

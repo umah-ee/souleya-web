@@ -2,6 +2,7 @@
 
 import type { SoEvent } from '@/types/events';
 import { Icon } from '@/components/ui/Icon';
+import { getEventCover } from '@/lib/demo-covers';
 
 interface Props {
   event: SoEvent;
@@ -35,6 +36,9 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, join
   const creatorName = event.creator?.display_name ?? event.creator?.username ?? 'Anonym';
   const creatorInitial = creatorName.slice(0, 1).toUpperCase();
 
+  // Hero-Bild: cover_url oder Demo-Fallback
+  const heroUrl = getEventCover(event.cover_url, event.id);
+
   // Statische Karten-URL (Mapbox Static Images API)
   const mapToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
   const staticMapUrl = mapToken
@@ -55,17 +59,10 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, join
       {/* ── Hero Image (140px Compact) ────────────── */}
       <div
         className="relative overflow-hidden"
-        style={{
-          height: '140px',
-          background: event.cover_url
-            ? undefined
-            : 'linear-gradient(135deg, var(--gold-deep), var(--gold), var(--gold-deep))',
-        }}
+        style={{ height: '140px' }}
       >
-        {event.cover_url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={event.cover_url} alt="" className="w-full h-full object-cover block" />
-        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={heroUrl} alt="" className="w-full h-full object-cover block" />
 
         {/* Gradient-Overlay */}
         <div

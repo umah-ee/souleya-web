@@ -7,6 +7,7 @@ import type { SoEvent } from '@/types/events';
 import { SOUL_LEVEL_NAMES } from '@/types/profile';
 import EnsoRing from '@/components/ui/EnsoRing';
 import { Icon } from '@/components/ui/Icon';
+import { getEventCover } from '@/lib/demo-covers';
 
 interface UserOverlayProps {
   type: 'user';
@@ -250,6 +251,7 @@ function EventOverlay({
   const isFull = event.max_participants != null && event.participants_count >= event.max_participants;
   const creatorName = event.creator?.display_name ?? event.creator?.username ?? 'Anonym';
   const creatorInitial = creatorName.slice(0, 1).toUpperCase();
+  const heroUrl = getEventCover(event.cover_url, event.id);
 
   return (
     <div
@@ -261,45 +263,65 @@ function EventOverlay({
         className="mx-4 glass-card rounded-2xl overflow-hidden max-w-[400px] w-full animate-slide-up"
         style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}
       >
-        {/* Lila-Leiste oben */}
-        <div
-          className="h-[2px]"
-          style={{ background: 'linear-gradient(to right, transparent, var(--event-purple), transparent)' }}
-        />
+        {/* Hero-Bild */}
+        <div className="relative overflow-hidden" style={{ height: '160px' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={heroUrl} alt="" className="w-full h-full object-cover block" />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(to top, rgba(0,0,0,.65) 0%, rgba(0,0,0,.15) 40%, transparent 70%)',
+            }}
+          />
 
-        <div className="p-5 relative">
           {/* Schliessen */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer z-10"
-            style={{ background: 'var(--glass)', color: 'var(--text-muted)' }}
+            className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer z-10"
+            style={{
+              background: 'rgba(0,0,0,.35)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,.2)',
+            }}
           >
             <Icon name="x" size={14} />
           </button>
 
           {/* Kategorie Badge */}
-          <div className="mb-3">
+          <div className="absolute top-3 left-3.5">
             <span
-              className="text-[0.6rem] tracking-[0.15em] uppercase font-label px-2 py-0.5 rounded-full"
-              style={event.category === 'course' ? {
-                color: 'var(--event-purple)',
-                border: '1px solid var(--event-purple-border)',
-                background: 'var(--event-purple-bg)',
-              } : {
-                color: 'var(--gold-text)',
-                border: '1px solid var(--gold-border-s)',
-                background: 'var(--gold-bg)',
+              className="text-[0.5rem] tracking-[0.12em] uppercase font-label px-2.5 py-1 rounded-[10px]"
+              style={{
+                background: event.category === 'course'
+                  ? 'rgba(120,160,140,.85)'
+                  : 'rgba(200,169,110,.85)',
+                color: '#fff',
               }}
             >
-              {event.category === 'course' ? 'Kurs' : 'Meetup'}
+              {event.category === 'course' ? 'Kurs' : 'Event'}
             </span>
           </div>
 
-          {/* Titel */}
-          <h3 className="font-body font-medium text-base mb-2 pr-8" style={{ color: 'var(--text-h)' }}>
-            {event.title}
-          </h3>
+          {/* Titel auf Hero */}
+          <div className="absolute bottom-3 left-3.5 right-3.5">
+            <h3
+              className="line-clamp-2"
+              style={{
+                fontSize: '16px',
+                fontStyle: 'italic',
+                color: '#fff',
+                lineHeight: '1.35',
+                textShadow: '0 1px 8px rgba(0,0,0,.3)',
+              }}
+            >
+              {event.title}
+            </h3>
+          </div>
+        </div>
 
+        <div className="p-5">
           {/* Datum + Uhrzeit */}
           <div className="flex items-center gap-2 text-sm font-body mb-2" style={{ color: 'var(--text-sec)' }}>
             <span className="flex items-center gap-1"><Icon name="calendar" size={14} /> {formatDate(event.starts_at)} · {formatTime(event.starts_at)}</span>
