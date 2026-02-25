@@ -1,0 +1,208 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { Icon } from './Icon';
+
+interface Props {
+  value: string; // YYYY-MM-DD
+  onChange: (value: string) => void;
+  placeholder?: string;
+  min?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+const MONTHS = [
+  'Januar', 'Februar', 'Maerz', 'April', 'Mai', 'Juni',
+  'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+];
+
+function daysInMonth(year: number, month: number): number {
+  return new Date(year, month + 1, 0).getDate();
+}
+
+function firstDayOfMonth(year: number, month: number): number {
+  const day = new Date(year, month, 1).getDay();
+  return day === 0 ? 6 : day - 1; // Mo=0, So=6
+}
+
+function pad(n: number): string {
+  return n < 10 ? `0${n}` : `${n}`;
+}
+
+function formatDisplay(dateStr: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('de-DE', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+export default function SoDatePicker({ value, onChange, placeholder = 'Datum waehlen ...', className = '', style }: Props) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Calendar view month/year
+  const now = new Date();
+  const selectedDate = value ? new Date(value + 'T00:00:00') : null;
+  const [viewYear, setViewYear] = useState(selectedDate?.getFullYear() ?? now.getFullYear());
+  const [viewMonth, setViewMonth] = useState(selectedDate?.getMonth() ?? now.getMonth());
+
+  // Click outside schließt
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const prevMonth = () => {
+    if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); }
+    else setViewMonth((m) => m - 1);
+  };
+
+  const nextMonth = () => {
+    if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); }
+    else setViewMonth((m) => m + 1);
+  };
+
+  const selectDay = (day: number) => {
+    const dateStr = `${viewYear}-${pad(viewMonth + 1)}-${pad(day)}`;
+    onChange(dateStr);
+    setOpen(false);
+  };
+
+  const days = daysInMonth(viewYear, viewMonth);
+  const startDay = firstDayOfMonth(viewYear, viewMonth);
+  const todayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+
+  // Grid: leere Zellen vor dem 1. + Tage
+  const cells: (number | null)[] = [];
+  for (let i = 0; i < startDay; i++) cells.push(null);
+  for (let d = 1; d <= days; d++) cells.push(d);
+
+  return (
+    <div ref={ref} className={`relative ${className}`}>
+      {/* Trigger Input */}
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full py-2.5 px-4 rounded-[8px] text-sm font-body outline-none text-left flex items-center gap-2 cursor-pointer"
+        style={{
+          background: 'var(--glass)',
+          border: '1px solid var(--gold-border-s)',
+          color: value ? 'var(--text-h)' : 'var(--text-muted)',
+          ...style,
+        }}
+      >
+        <Icon name="calendar" size={14} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+        <span className="flex-1 truncate">{value ? formatDisplay(value) : placeholder}</span>
+      </button>
+
+      {/* Calendar Dropdown */}
+      {open && (
+        <div
+          className="absolute left-0 right-0 top-full mt-1 z-50 rounded-xl overflow-hidden"
+          style={{
+            background: 'var(--bg-solid)',
+            border: '1px solid var(--glass-border)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+            minWidth: '280px',
+          }}
+        >
+          {/* Gold-Leiste */}
+          <div
+            className="h-[2px]"
+            style={{ background: 'linear-gradient(to right, transparent, var(--gold-glow), transparent)' }}
+          />
+
+          {/* Header: Monat + Jahr + Navigation */}
+          <div className="flex items-center justify-between px-4 py-3">
+            <button
+              type="button"
+              onClick={prevMonth}
+              className="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+              style={{ color: 'var(--text-muted)', background: 'var(--glass)' }}
+            >
+              <Icon name="arrow-left" size={14} />
+            </button>
+
+            <span className="font-heading text-sm" style={{ color: 'var(--text-h)' }}>
+              {MONTHS[viewMonth]} {viewYear}
+            </span>
+
+            <button
+              type="button"
+              onClick={nextMonth}
+              className="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+              style={{ color: 'var(--text-muted)', background: 'var(--glass)' }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" width={14} height={14}>
+                <path d="M9 6l6 6l-6 6" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Wochentage */}
+          <div className="grid grid-cols-7 px-3 pb-1">
+            {WEEKDAYS.map((d) => (
+              <div
+                key={d}
+                className="text-center text-[0.55rem] font-label tracking-[0.1em] uppercase py-1"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {d}
+              </div>
+            ))}
+          </div>
+
+          {/* Tage-Grid */}
+          <div className="grid grid-cols-7 px-3 pb-3 gap-y-0.5">
+            {cells.map((day, i) => {
+              if (day === null) return <div key={`e-${i}`} />;
+              const dateStr = `${viewYear}-${pad(viewMonth + 1)}-${pad(day)}`;
+              const isSelected = dateStr === value;
+              const isToday = dateStr === todayStr;
+              const isPast = dateStr < todayStr;
+
+              return (
+                <button
+                  key={day}
+                  type="button"
+                  disabled={isPast}
+                  onClick={() => selectDay(day)}
+                  className="w-full aspect-square flex items-center justify-center rounded-full text-sm font-body cursor-pointer transition-all duration-200"
+                  style={{
+                    background: isSelected
+                      ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'
+                      : isToday
+                        ? 'var(--gold-bg)'
+                        : 'transparent',
+                    color: isSelected
+                      ? 'var(--text-on-gold)'
+                      : isPast
+                        ? 'var(--text-muted)'
+                        : isToday
+                          ? 'var(--gold-text)'
+                          : 'var(--text-h)',
+                    cursor: isPast ? 'default' : 'pointer',
+                    opacity: isPast ? 0.4 : 1,
+                    boxShadow: isSelected ? '0 0 10px rgba(200,169,110,0.3)' : 'none',
+                  }}
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

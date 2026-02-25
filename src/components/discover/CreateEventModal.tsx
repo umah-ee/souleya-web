@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import type { CreateEventData } from '@/types/events';
 import { createEvent, geocodeLocation } from '@/lib/events';
 import { Icon } from '@/components/ui/Icon';
+import SoDatePicker from '@/components/ui/SoDatePicker';
+import SoTimePicker from '@/components/ui/SoTimePicker';
 
 interface Props {
   onClose: () => void;
@@ -292,42 +294,38 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
             )}
           </div>
 
-          {/* Datum + Zeiten */}
-          <div className="grid grid-cols-3 gap-2">
-            <div>
-              <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
-                Datum *
-              </label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full py-2.5 px-3 rounded-[8px] text-sm font-body outline-none"
-                style={inputStyle}
-              />
-            </div>
+          {/* Datum */}
+          <div>
+            <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
+              Datum *
+            </label>
+            <SoDatePicker
+              value={date}
+              onChange={setDate}
+              placeholder="Datum waehlen ..."
+            />
+          </div>
+
+          {/* Zeiten */}
+          <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
                 Start *
               </label>
-              <input
-                type="time"
+              <SoTimePicker
                 value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full py-2.5 px-3 rounded-[8px] text-sm font-body outline-none"
-                style={inputStyle}
+                onChange={setStartTime}
+                placeholder="Startzeit"
               />
             </div>
             <div>
               <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
                 Ende
               </label>
-              <input
-                type="time"
+              <SoTimePicker
                 value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="w-full py-2.5 px-3 rounded-[8px] text-sm font-body outline-none"
-                style={inputStyle}
+                onChange={setEndTime}
+                placeholder="Endzeit"
               />
             </div>
           </div>

@@ -11,6 +11,7 @@ import { searchUsers } from '@/lib/users';
 import { sendConnectionRequest, getConnectionStatus } from '@/lib/circles';
 import { fetchEvents, fetchNearbyUsers, joinEvent, leaveEvent, geocodeLocation, bookmarkEvent, unbookmarkEvent } from '@/lib/events';
 import { Icon } from '@/components/ui/Icon';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import DiscoverOverlay from '@/components/discover/DiscoverOverlay';
 import EventCardCompact from '@/components/discover/EventCardCompact';
 import CreateEventModal from '@/components/discover/CreateEventModal';
@@ -65,6 +66,12 @@ export default function DiscoverClient({ userId }: Props) {
   // ── Share Event Modal ───────────────────────────────────────
   const [shareEvent, setShareEvent] = useState<SoEvent | null>(null);
 
+  // ── Confirm Dialog (Entmerken) ────────────────────────────
+  const [confirmUnbookmark, setConfirmUnbookmark] = useState<string | null>(null);
+
+  // ── Lokaler Bookmark-State (verhindert Überschreiben durch Refetch) ──
+  const localBookmarks = useRef<Record<string, boolean>>({});
+
   // Aktive Suche = Query hat mind. 2 Zeichen
   const isSearchActive = query.trim().length >= 2;
 
@@ -76,7 +83,14 @@ export default function DiscoverClient({ userId }: Props) {
         fetchEvents({ lat, lng, userId: userId ?? undefined }),
       ]);
       setNearbyUsers(nearbyRes.data);
-      setEvents(eventsRes.data);
+      // Lokale Bookmark-Overrides mergen (verhindert Flackern bei Refetch)
+      const merged = eventsRes.data.map((e) => ({
+        ...e,
+        is_bookmarked: e.id in localBookmarks.current
+          ? localBookmarks.current[e.id]
+          : e.is_bookmarked,
+      }));
+      setEvents(merged);
     } catch (e) {
       console.error('Discover-Daten laden fehlgeschlagen:', e);
     }
@@ -194,14 +208,30 @@ export default function DiscoverClient({ userId }: Props) {
     const event = events.find((e) => e.id === eventId) ?? selectedEvent;
     if (!event) return;
 
-    const wasBookmarked = event.is_bookmarked;
+    // Wenn bereits gemerkt → Bestaetigungsdialog zeigen
+    if (event.is_bookmarked) {
+      setConfirmUnbookmark(eventId);
+      return;
+    }
+
+    // Bookmark setzen
+    await executeBookmark(eventId, false);
+  };
+
+  const executeBookmark = async (eventId: string, wasBookmarked: boolean) => {
+    const newState = !wasBookmarked;
+
+    // Lokalen Override setzen (ueberlebt Refetch)
+    localBookmarks.current[eventId] = newState;
+    // Nach 5s Override entfernen (Server hat dann den korrekten State)
+    setTimeout(() => { delete localBookmarks.current[eventId]; }, 5000);
 
     // Optimistisches Update
     setEvents((prev) =>
-      prev.map((e) => (e.id === eventId ? { ...e, is_bookmarked: !wasBookmarked } : e)),
+      prev.map((e) => (e.id === eventId ? { ...e, is_bookmarked: newState } : e)),
     );
     if (selectedEvent?.id === eventId) {
-      setSelectedEvent((prev) => (prev ? { ...prev, is_bookmarked: !wasBookmarked } : prev));
+      setSelectedEvent((prev) => (prev ? { ...prev, is_bookmarked: newState } : prev));
     }
 
     setBookmarkingEvent((s) => ({ ...s, [eventId]: true }));
@@ -213,6 +243,7 @@ export default function DiscoverClient({ userId }: Props) {
       }
     } catch (e) {
       // Revert bei Fehler
+      localBookmarks.current[eventId] = wasBookmarked;
       setEvents((prev) =>
         prev.map((ev) => (ev.id === eventId ? { ...ev, is_bookmarked: wasBookmarked } : ev)),
       );
@@ -222,6 +253,13 @@ export default function DiscoverClient({ userId }: Props) {
       console.error(e);
     } finally {
       setBookmarkingEvent((s) => ({ ...s, [eventId]: false }));
+    }
+  };
+
+  const handleConfirmUnbookmark = () => {
+    if (confirmUnbookmark) {
+      executeBookmark(confirmUnbookmark, true);
+      setConfirmUnbookmark(null);
     }
   };
 
@@ -680,6 +718,16 @@ export default function DiscoverClient({ userId }: Props) {
           )}
         </div>
       )}
+
+      {/* Confirm Dialog: Event entmerken */}
+      <ConfirmDialog
+        open={confirmUnbookmark !== null}
+        title="Event entmerken?"
+        message="Moechtest du dieses Event nicht mehr merken?"
+        confirmLabel="Entmerken"
+        onConfirm={handleConfirmUnbookmark}
+        onCancel={() => setConfirmUnbookmark(null)}
+      />
     </div>
   );
 }
