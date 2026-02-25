@@ -12,6 +12,13 @@ export async function fetchFeed(page = 1, limit = 20) {
   return { pulses: res.data, total: res.total, hasMore: res.hasMore };
 }
 
+// ── Eigene Pulses laden (paginiert) ────────────────────────
+export async function fetchMyPulses(page = 1, limit = 50) {
+  return apiFetch<{ data: Pulse[]; total: number; hasMore: boolean }>(
+    `/pulse/mine?page=${page}&limit=${limit}`,
+  );
+}
+
 // ── Pulse erstellen (erweitert: Bilder, Orte, Metadata, Umfragen) ──
 export async function createPulse(data: CreatePulseData): Promise<Pulse> {
   return apiFetch<Pulse>('/pulse', {

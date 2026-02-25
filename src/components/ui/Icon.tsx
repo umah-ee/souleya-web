@@ -39,6 +39,8 @@ export type IconName =
   | 'chart-bar'
   | 'share'
   | 'bookmark'
+  | 'bookmark-filled'
+  | 'alert-triangle'
   | 'clock'
   | 'calendar-plus'
   | 'layout-grid'
@@ -240,6 +242,16 @@ const paths: Record<IconName, React.ReactNode> = {
   ),
   bookmark: (
     <path d="M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z" />
+  ),
+  'bookmark-filled': (
+    <path d="M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z" fill="currentColor" stroke="currentColor" />
+  ),
+  'alert-triangle': (
+    <>
+      <path d="M12 9v4" />
+      <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+      <path d="M12 16h.01" />
+    </>
   ),
   clock: (
     <>
