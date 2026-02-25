@@ -13,6 +13,7 @@ import { fetchEvents, fetchNearbyUsers, joinEvent, leaveEvent, geocodeLocation, 
 import { Icon } from '@/components/ui/Icon';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import DiscoverOverlay from '@/components/discover/DiscoverOverlay';
+import ProfileModal from '@/components/discover/ProfileModal';
 import EventCardCompact from '@/components/discover/EventCardCompact';
 import CreateEventModal from '@/components/discover/CreateEventModal';
 import ShareEventModal from '@/components/discover/ShareEventModal';
@@ -624,10 +625,9 @@ export default function DiscoverClient({ userId }: Props) {
                 onEventClick={handleEventClick}
               />
 
-              {/* User Overlay */}
+              {/* User Profile Modal */}
               {selectedUser && (
-                <DiscoverOverlay
-                  type="user"
+                <ProfileModal
                   user={selectedUser}
                   userId={userId}
                   connectionStatus={overlayConnectionStatus}
