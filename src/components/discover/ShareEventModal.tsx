@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import type { SoEvent } from '@/types/events';
-import { apiFetch } from '@/lib/api';
+import type { Connection, ConnectionProfile } from '@/types/circles';
+import { getConnections } from '@/lib/circles';
+import { createDirectChannel, sendMessage } from '@/lib/chat';
 import { Icon } from '@/components/ui/Icon';
 import EventShareCard from '@/components/shared/EventShareCard';
 
@@ -11,48 +13,59 @@ interface Props {
   onClose: () => void;
 }
 
-interface ChannelOverview {
-  id: string;
-  type: string;
-  name: string | null;
-  avatar_url: string | null;
-}
-
 export default function ShareEventModal({ event, onClose }: Props) {
-  const [channels, setChannels] = useState<ChannelOverview[]>([]);
-  const [loadingChannels, setLoadingChannels] = useState(false);
+  const [contacts, setContacts] = useState<ConnectionProfile[]>([]);
+  const [loadingContacts, setLoadingContacts] = useState(false);
   const [sendingTo, setSendingTo] = useState<string | null>(null);
   const [sent, setSent] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Channels laden
+  // Kontakte laden
   useEffect(() => {
-    setLoadingChannels(true);
-    apiFetch<ChannelOverview[]>('/chat/channels')
-      .then((data) => setChannels(data))
-      .catch((e) => console.error('Channels laden fehlgeschlagen:', e))
-      .finally(() => setLoadingChannels(false));
+    setLoadingContacts(true);
+    getConnections(1, 100)
+      .then((res) => {
+        const profiles = res.data.map((c: Connection) => c.profile);
+        setContacts(profiles);
+      })
+      .catch((e) => console.error('Kontakte laden fehlgeschlagen:', e))
+      .finally(() => setLoadingContacts(false));
   }, []);
 
-  // Event im Chat teilen
-  const handleShareToChat = async (channelId: string) => {
-    setSendingTo(channelId);
+  // Gefilterte Kontakte
+  const filteredContacts = searchQuery.trim()
+    ? contacts.filter((c) => {
+        const q = searchQuery.toLowerCase();
+        return (
+          (c.display_name ?? '').toLowerCase().includes(q) ||
+          (c.username ?? '').toLowerCase().includes(q)
+        );
+      })
+    : contacts;
+
+  // Event an Kontakt senden: Direct-Chat erstellen (oder vorhandenen verwenden) + Nachricht senden
+  const handleShareToContact = async (contactId: string) => {
+    setSendingTo(contactId);
     try {
-      await apiFetch(`/chat/channels/${channelId}/messages`, {
-        method: 'POST',
-        body: JSON.stringify({
-          content: `📍 ${event.title}`,
-          metadata: {
-            event_id: event.id,
-            event_title: event.title,
-            event_category: event.category,
-            event_cover_url: event.cover_url,
-            event_starts_at: event.starts_at,
-            event_location_name: event.location_name,
-            event_participants_count: event.participants_count,
-          },
-        }),
+      // Direct-Channel erstellen oder existierenden holen
+      const channel = await createDirectChannel(contactId);
+
+      // Event-Nachricht senden
+      await sendMessage(channel.id, {
+        type: 'text',
+        content: `📍 ${event.title}`,
+        metadata: {
+          event_id: event.id,
+          event_title: event.title,
+          event_category: event.category,
+          event_cover_url: event.cover_url,
+          event_starts_at: event.starts_at,
+          event_location_name: event.location_name,
+          event_participants_count: event.participants_count,
+        },
       });
-      setSent((prev) => new Set([...prev, channelId]));
+
+      setSent((prev) => new Set([...prev, contactId]));
     } catch (e) {
       console.error('Event teilen fehlgeschlagen:', e);
     } finally {
@@ -60,9 +73,8 @@ export default function ShareEventModal({ event, onClose }: Props) {
     }
   };
 
-  // Event im Pulse teilen (navigiert zum Pulse-Erstellen)
+  // Event im Pulse teilen
   const handleShareToPulse = () => {
-    // Pulse-Erstellung mit Event-Referenz via URL-Parameter
     const params = new URLSearchParams({
       event_id: event.id,
       event_title: event.title,
@@ -142,54 +154,81 @@ export default function ShareEventModal({ event, onClose }: Props) {
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px" style={{ background: 'var(--divider-l)' }} />
             <span className="font-label text-[0.6rem] tracking-[0.15em] uppercase" style={{ color: 'var(--text-muted)' }}>
-              oder im Chat
+              An Kontakt senden
             </span>
             <div className="flex-1 h-px" style={{ background: 'var(--divider-l)' }} />
           </div>
 
-          {/* Channel-Liste */}
-          {loadingChannels && (
+          {/* Kontakte-Suche (ab 5+ Kontakten) */}
+          {contacts.length >= 5 && (
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Kontakt suchen ..."
+              className="w-full py-2.5 px-4 rounded-[8px] text-sm font-body outline-none"
+              style={{
+                background: 'var(--glass)',
+                border: '1px solid var(--glass-border)',
+                color: 'var(--text-h)',
+              }}
+            />
+          )}
+
+          {/* Kontakte laden */}
+          {loadingContacts && (
             <div className="text-center py-4" style={{ color: 'var(--text-muted)' }}>
-              <p className="font-label text-[0.65rem] tracking-[0.15em]">LADE CHATS ...</p>
+              <p className="font-label text-[0.65rem] tracking-[0.15em]">LADE KONTAKTE ...</p>
             </div>
           )}
 
-          {!loadingChannels && channels.length === 0 && (
+          {/* Keine Kontakte */}
+          {!loadingContacts && contacts.length === 0 && (
             <p className="text-center text-sm font-body py-4" style={{ color: 'var(--text-muted)' }}>
-              Noch keine Chats vorhanden.
+              Noch keine Kontakte vorhanden.
             </p>
           )}
 
-          {!loadingChannels && channels.map((ch) => {
-            const isSent = sent.has(ch.id);
-            const isSending = sendingTo === ch.id;
-            const initial = (ch.name ?? '?').slice(0, 1).toUpperCase();
+          {/* Keine Suchergebnisse */}
+          {!loadingContacts && contacts.length > 0 && filteredContacts.length === 0 && (
+            <p className="text-center text-sm font-body py-4" style={{ color: 'var(--text-muted)' }}>
+              Kein Kontakt gefunden.
+            </p>
+          )}
+
+          {/* Kontaktliste */}
+          {!loadingContacts && filteredContacts.map((contact) => {
+            const isSent = sent.has(contact.id);
+            const isSending = sendingTo === contact.id;
+            const initial = (contact.display_name ?? contact.username ?? '?').slice(0, 1).toUpperCase();
 
             return (
-              <div key={ch.id} className="flex items-center gap-3 glass-card rounded-2xl p-3">
+              <div key={contact.id} className="flex items-center gap-3 glass-card rounded-2xl p-3">
                 <div
                   className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-heading text-sm overflow-hidden"
                   style={{
                     background: 'var(--avatar-bg)',
                     color: 'var(--gold-text)',
-                    border: '1px solid var(--gold-border-s)',
+                    border: `1.5px solid ${contact.is_first_light ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
                   }}
                 >
-                  {ch.avatar_url ? (
+                  {contact.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={ch.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                    <img src={contact.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
                   ) : initial}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-body text-sm truncate" style={{ color: 'var(--text-h)' }}>
-                    {ch.name ?? 'Chat'}
+                    {contact.display_name ?? contact.username ?? 'Anonym'}
                   </p>
-                  <p className="text-xs font-label" style={{ color: 'var(--text-muted)' }}>
-                    {ch.type === 'direct' ? 'Direktnachricht' : 'Gruppe'}
-                  </p>
+                  {contact.username && (
+                    <p className="text-xs font-label" style={{ color: 'var(--text-muted)' }}>
+                      @{contact.username}
+                    </p>
+                  )}
                 </div>
                 <button
-                  onClick={() => handleShareToChat(ch.id)}
+                  onClick={() => handleShareToContact(contact.id)}
                   disabled={isSending || isSent}
                   className="px-3 py-1.5 rounded-full font-label text-[0.55rem] tracking-[0.1em] uppercase transition-all duration-200"
                   style={{

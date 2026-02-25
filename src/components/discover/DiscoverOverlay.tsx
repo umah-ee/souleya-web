@@ -260,8 +260,12 @@ function EventOverlay({
     >
       <div
         ref={overlayRef}
-        className="mx-4 glass-card rounded-2xl overflow-hidden max-w-[400px] w-full animate-slide-up"
-        style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}
+        className="mx-4 rounded-2xl overflow-hidden max-w-[400px] w-full animate-slide-up"
+        style={{
+          background: 'var(--bg-solid)',
+          border: '1px solid var(--glass-border)',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.35)',
+        }}
       >
         {/* Hero-Bild */}
         <div className="relative overflow-hidden" style={{ height: '160px' }}>

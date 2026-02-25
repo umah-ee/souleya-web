@@ -56,10 +56,10 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, join
         boxShadow: 'var(--glass-shadow), var(--glass-inset)',
       }}
     >
-      {/* ── Hero Image (140px Compact) ────────────── */}
+      {/* ── Hero Image (160px Compact) ────────────── */}
       <div
         className="relative overflow-hidden"
-        style={{ height: '140px' }}
+        style={{ height: '160px' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={heroUrl} alt="" className="w-full h-full object-cover block" />
@@ -138,15 +138,15 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, join
       </div>
 
       {/* ── Body mit Map-Hintergrund ─────────────── */}
-      <div style={{ padding: '0 14px 14px' }}>
+      <div style={{ padding: '0 16px 16px' }}>
         {/* Content Area (Info links, Map rechts) */}
-        <div className="relative overflow-hidden" style={{ padding: '14px 0 12px', minHeight: '90px' }}>
+        <div className="relative overflow-hidden" style={{ padding: '16px 0 14px', minHeight: '100px' }}>
 
           {/* Statischer Map-Hintergrund (rechte Seite) */}
           {staticMapUrl && (
             <div
               className="absolute top-0 bottom-0"
-              style={{ right: '-14px', width: '45%', zIndex: 0, overflow: 'hidden' }}
+              style={{ right: '-16px', width: '45%', zIndex: 0, overflow: 'hidden' }}
             >
               <div
                 className="absolute inset-0"

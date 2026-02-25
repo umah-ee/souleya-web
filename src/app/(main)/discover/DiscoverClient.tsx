@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import type { MapNearbyUser } from '@/components/discover/MapView';
@@ -332,27 +332,101 @@ export default function DiscoverClient({ userId }: Props) {
     loadDiscoverData(mapCenter[1], mapCenter[0]);
   };
 
+  // ── Geolocation: Am eigenen Standort suchen ────────────────
+  const [locating, setLocating] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const handleGeolocate = () => {
+    if (!navigator.geolocation) return;
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setMapCenter([pos.coords.longitude, pos.coords.latitude]);
+        loadDiscoverData(pos.coords.latitude, pos.coords.longitude);
+        setQuery('');
+        setView('map');
+        setLocating(false);
+      },
+      () => setLocating(false),
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
+
   return (
     <div className="fixed top-14 md:top-0 bottom-16 md:bottom-0 left-0 md:left-16 right-0 z-10">
-      {/* ─── SUCHE AKTIV → Liste statt Karte ────────────────── */}
-      {isSearchActive ? (
-        <div className="h-full flex flex-col" style={{ background: 'var(--bg-solid)' }}>
-          {/* Suchfeld oben */}
-          <div className="px-4 pt-3 pb-2">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Souls oder Orte suchen ..."
-              className="w-full py-3 px-5 backdrop-blur-xl rounded-[8px] text-sm font-body outline-none transition-colors"
-              style={{
-                background: 'var(--glass-nav)',
-                border: '1px solid var(--gold-border-s)',
-                color: 'var(--text-h)',
-              }}
-            />
-          </div>
+      {/* ─── GEMEINSAMES SUCHFELD (bleibt immer gemountet) ──── */}
+      <div
+        className="absolute top-3 left-4 right-4 z-20 flex gap-2"
+        style={isSearchActive ? { position: 'relative', top: 0, left: 0, right: 0, padding: '12px 16px 8px' } : undefined}
+      >
+        <div className="flex-1 relative">
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Souls oder Orte suchen ..."
+            className="w-full py-3 px-5 pr-12 backdrop-blur-xl rounded-[8px] text-sm font-body outline-none transition-colors"
+            style={{
+              background: 'var(--glass-nav)',
+              border: '1px solid var(--gold-border-s)',
+              color: 'var(--text-h)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+            }}
+          />
+          {/* Geolocation Button rechts im Input */}
+          <button
+            onClick={handleGeolocate}
+            disabled={locating}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200"
+            style={{
+              color: locating ? 'var(--gold)' : 'var(--text-muted)',
+              background: 'transparent',
+            }}
+            title="Meinen Standort verwenden"
+          >
+            <Icon name="current-location" size={18} />
+          </button>
+        </div>
 
+        {/* Segment Toggle (nur wenn Suche nicht aktiv) */}
+        {!isSearchActive && (
+          <div
+            className="flex rounded-[8px] overflow-hidden flex-shrink-0 backdrop-blur-xl"
+            style={{
+              background: 'var(--glass-nav)',
+              border: '1px solid var(--gold-border-s)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+            }}
+          >
+            <button
+              onClick={() => setView('map')}
+              className="px-3 py-2 flex items-center justify-center cursor-pointer transition-all duration-200"
+              style={{
+                background: view === 'map' ? 'var(--gold-bg)' : 'transparent',
+                color: view === 'map' ? 'var(--gold-text)' : 'var(--text-muted)',
+                borderRight: '1px solid var(--divider-l)',
+              }}
+            >
+              <Icon name="map-2" size={16} />
+            </button>
+            <button
+              onClick={() => setView('board')}
+              className="px-3 py-2 flex items-center justify-center cursor-pointer transition-all duration-200"
+              style={{
+                background: view === 'board' ? 'var(--gold-bg)' : 'transparent',
+                color: view === 'board' ? 'var(--gold-text)' : 'var(--text-muted)',
+              }}
+            >
+              <Icon name="layout-grid" size={16} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ─── SUCHE AKTIV → Ergebnisliste ────────────────────── */}
+      {isSearchActive ? (
+        <div className="h-full flex flex-col pt-[60px]" style={{ background: 'var(--bg-solid)' }}>
           {/* Suchergebnisse */}
           <div className="flex-1 overflow-y-auto px-4 pb-4">
             {searching && (
@@ -505,7 +579,7 @@ export default function DiscoverClient({ userId }: Props) {
 
           {/* Pinnwand (sichtbar wenn view === 'board') */}
           {view === 'board' && (
-            <div className="h-full overflow-y-auto pt-16 px-3 pb-4" style={{ background: 'var(--bg-solid)' }}>
+            <div className="h-full overflow-y-auto pt-16 px-4 pb-4" style={{ background: 'var(--bg-solid)' }}>
               {events.length === 0 ? (
                 <div
                   className="text-center py-12 px-4 rounded-2xl mt-4"
@@ -515,7 +589,7 @@ export default function DiscoverClient({ userId }: Props) {
                   <p className="text-sm" style={{ color: 'var(--text-muted)' }}>In dieser Gegend gibt es noch keine Events.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-5 max-w-[640px] mx-auto">
                   {events.map((event) => (
                     <EventCardCompact
                       key={event.id}
@@ -531,55 +605,6 @@ export default function DiscoverClient({ userId }: Props) {
               )}
             </div>
           )}
-
-          {/* Schwebendes Suchfeld + Toggle */}
-          <div className="absolute top-3 left-4 right-4 z-10 flex gap-2">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Souls oder Orte suchen ..."
-              className="flex-1 py-3 px-5 backdrop-blur-xl rounded-[8px] text-sm font-body outline-none transition-colors"
-              style={{
-                background: 'var(--glass-nav)',
-                border: '1px solid var(--gold-border-s)',
-                color: 'var(--text-h)',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-              }}
-            />
-
-            {/* Segment Toggle */}
-            <div
-              className="flex rounded-[8px] overflow-hidden flex-shrink-0 backdrop-blur-xl"
-              style={{
-                background: 'var(--glass-nav)',
-                border: '1px solid var(--gold-border-s)',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-              }}
-            >
-              <button
-                onClick={() => setView('map')}
-                className="px-3 py-2 flex items-center justify-center cursor-pointer transition-all duration-200"
-                style={{
-                  background: view === 'map' ? 'var(--gold-bg)' : 'transparent',
-                  color: view === 'map' ? 'var(--gold-text)' : 'var(--text-muted)',
-                  borderRight: '1px solid var(--divider-l)',
-                }}
-              >
-                <Icon name="map-2" size={16} />
-              </button>
-              <button
-                onClick={() => setView('board')}
-                className="px-3 py-2 flex items-center justify-center cursor-pointer transition-all duration-200"
-                style={{
-                  background: view === 'board' ? 'var(--gold-bg)' : 'transparent',
-                  color: view === 'board' ? 'var(--gold-text)' : 'var(--text-muted)',
-                }}
-              >
-                <Icon name="layout-grid" size={16} />
-              </button>
-            </div>
-          </div>
 
           {/* FAB – Event erstellen */}
           {userId && (
