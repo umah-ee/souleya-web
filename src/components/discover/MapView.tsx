@@ -179,13 +179,18 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
             : 'sepia(0.18) saturate(0.85) brightness(1.03) hue-rotate(-3deg)'
           };
         }
+        .mapboxgl-ctrl-top-right {
+          top: 50% !important;
+          transform: translateY(-50%) !important;
+          right: 12px !important;
+        }
         .mapboxgl-ctrl-group {
           background: ${isDark
             ? 'rgba(40,40,40,0.85)'
             : 'rgba(255,255,255,0.85)'
           } !important;
           border: 1px solid rgba(200,169,110,0.2) !important;
-          border-radius: 12px !important;
+          border-radius: 8px !important;
           backdrop-filter: blur(16px) !important;
           box-shadow: 0 2px 8px rgba(0,0,0,${isDark ? '0.25' : '0.08'}) !important;
         }

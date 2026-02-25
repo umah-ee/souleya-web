@@ -116,7 +116,7 @@ export default function SoDatePicker({ value, onChange, placeholder = 'Datum wae
   const calendarDropdown = open ? createPortal(
     <div
       ref={dropdownRef}
-      className="rounded-xl overflow-hidden"
+      className="rounded-[8px] overflow-hidden"
       style={{
         position: 'fixed',
         top: pos.top,
@@ -139,7 +139,7 @@ export default function SoDatePicker({ value, onChange, placeholder = 'Datum wae
         <button
           type="button"
           onClick={prevMonth}
-          className="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+          className="w-7 h-7 rounded-[6px] flex items-center justify-center cursor-pointer transition-colors"
           style={{ color: 'var(--text-muted)', background: 'var(--glass)' }}
         >
           <Icon name="arrow-left" size={14} />
@@ -152,7 +152,7 @@ export default function SoDatePicker({ value, onChange, placeholder = 'Datum wae
         <button
           type="button"
           onClick={nextMonth}
-          className="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+          className="w-7 h-7 rounded-[6px] flex items-center justify-center cursor-pointer transition-colors"
           style={{ color: 'var(--text-muted)', background: 'var(--glass)' }}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" width={14} height={14}>
@@ -189,7 +189,7 @@ export default function SoDatePicker({ value, onChange, placeholder = 'Datum wae
               type="button"
               disabled={isPast}
               onClick={() => selectDay(day)}
-              className="flex items-center justify-center rounded-full text-[13px] font-body transition-all duration-200"
+              className="flex items-center justify-center rounded-[6px] text-[13px] font-body transition-all duration-200"
               style={{
                 width: '100%',
                 height: '32px',

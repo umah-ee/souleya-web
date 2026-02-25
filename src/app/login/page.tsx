@@ -255,7 +255,7 @@ function LoginForm() {
                       onClick={() => handleDemoLogin(user.email)}
                       disabled={demoLoading !== null}
                       className={`
-                        py-2.5 px-4 rounded-xl text-left transition-all duration-200
+                        py-2.5 px-4 rounded-[8px] text-left transition-all duration-200
                         ${demoLoading !== null && demoLoading !== user.email ? 'opacity-40' : ''}
                       `}
                       style={{

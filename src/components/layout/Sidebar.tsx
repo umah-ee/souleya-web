@@ -111,7 +111,7 @@ export default function Sidebar() {
           {/* Flyout-Menue */}
           {moreOpen && (
             <div
-              className="absolute left-full top-0 ml-2 rounded-xl overflow-hidden"
+              className="absolute left-full top-0 ml-2 rounded-[8px] overflow-hidden"
               style={{
                 background: 'var(--bg-solid)',
                 border: '1px solid var(--glass-border)',

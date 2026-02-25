@@ -99,7 +99,7 @@ export default function SoTimePicker({ value, onChange, placeholder = 'Uhrzeit w
   const dropdown = open ? createPortal(
     <div
       ref={dropdownRef}
-      className="rounded-xl overflow-hidden"
+      className="rounded-[8px] overflow-hidden"
       style={{
         position: 'fixed',
         top: pos.top,
@@ -122,7 +122,7 @@ export default function SoTimePicker({ value, onChange, placeholder = 'Uhrzeit w
         <button
           type="button"
           onClick={() => setMode('hour')}
-          className="flex-1 py-1.5 rounded-lg text-center font-label text-[0.6rem] tracking-[0.1em] uppercase cursor-pointer transition-all"
+          className="flex-1 py-1.5 rounded-[6px] text-center font-label text-[0.6rem] tracking-[0.1em] uppercase cursor-pointer transition-all"
           style={{
             background: mode === 'hour' ? 'var(--gold-bg)' : 'transparent',
             color: mode === 'hour' ? 'var(--gold-text)' : 'var(--text-muted)',
@@ -133,7 +133,7 @@ export default function SoTimePicker({ value, onChange, placeholder = 'Uhrzeit w
         <button
           type="button"
           onClick={() => setMode('minute')}
-          className="flex-1 py-1.5 rounded-lg text-center font-label text-[0.6rem] tracking-[0.1em] uppercase cursor-pointer transition-all"
+          className="flex-1 py-1.5 rounded-[6px] text-center font-label text-[0.6rem] tracking-[0.1em] uppercase cursor-pointer transition-all"
           style={{
             background: mode === 'minute' ? 'var(--gold-bg)' : 'transparent',
             color: mode === 'minute' ? 'var(--gold-text)' : 'var(--text-muted)',
@@ -154,7 +154,7 @@ export default function SoTimePicker({ value, onChange, placeholder = 'Uhrzeit w
                 type="button"
                 data-selected={isSelected}
                 onClick={() => handleSelectHour(h)}
-                className="py-1.5 rounded-lg text-sm font-body text-center cursor-pointer transition-all duration-200"
+                className="py-1.5 rounded-[6px] text-sm font-body text-center cursor-pointer transition-all duration-200"
                 style={{
                   background: isSelected
                     ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'
@@ -181,7 +181,7 @@ export default function SoTimePicker({ value, onChange, placeholder = 'Uhrzeit w
                 type="button"
                 data-selected={isSelected}
                 onClick={() => handleSelectMinute(m)}
-                className="py-1.5 rounded-lg text-sm font-body text-center cursor-pointer transition-all duration-200"
+                className="py-1.5 rounded-[6px] text-sm font-body text-center cursor-pointer transition-all duration-200"
                 style={{
                   background: isSelected
                     ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'

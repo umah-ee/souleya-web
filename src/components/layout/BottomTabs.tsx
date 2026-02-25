@@ -8,9 +8,7 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 const tabs: { href: string; icon: IconName; label: string }[] = [
   { href: '/', icon: 'sparkles', label: 'Pulse' },
   { href: '/discover', icon: 'compass', label: 'Discover' },
-  // (+) wird in der Mitte eingefuegt
   { href: '/chat', icon: 'message-circle', label: 'Chat' },
-  { href: '/profile', icon: 'user', label: 'Profil' },
 ];
 
 const moreItems: { href: string; icon: IconName; label: string }[] = [
@@ -43,15 +41,13 @@ export default function BottomTabs() {
   }, [pathname]);
 
   const isMoreActive = moreItems.some((item) => pathname.startsWith(item.href));
-  const firstTabs = tabs.slice(0, 2);
-  const lastTabs = tabs.slice(2);
 
   return (
     <div ref={moreRef} className="md:hidden">
       {/* Flyout-Menue oberhalb der Tabs */}
       {moreOpen && (
         <div
-          className="fixed bottom-[72px] left-1/2 -translate-x-1/2 rounded-xl overflow-hidden"
+          className="fixed bottom-[72px] right-3 rounded-[8px] overflow-hidden"
           style={{
             background: 'var(--bg-solid)',
             border: '1px solid var(--glass-border)',
@@ -93,8 +89,8 @@ export default function BottomTabs() {
         className="fixed bottom-0 left-0 right-0 z-20 flex items-center justify-around h-16 glass-nav"
         style={{ borderTop: '1px solid var(--glass-nav-b)' }}
       >
-        {/* Erste Tabs */}
-        {firstTabs.map((tab) => {
+        {/* Tabs */}
+        {tabs.map((tab) => {
           const isActive = tab.href === '/'
             ? pathname === '/'
             : pathname.startsWith(tab.href);
@@ -114,51 +110,25 @@ export default function BottomTabs() {
           );
         })}
 
-        {/* (+) Mehr-Button in der Mitte */}
+        {/* (+) Mehr-Button an letzter Stelle – wie ein normaler Tab ohne Rahmen */}
         <button
           onClick={() => setMoreOpen(!moreOpen)}
           className="flex flex-col items-center justify-center flex-1 h-full transition-colors duration-200 cursor-pointer"
           style={{ color: isMoreActive || moreOpen ? 'var(--gold-text)' : 'var(--text-muted)' }}
         >
-          <div
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200"
+          <Icon
+            name="plus"
+            size={20}
             style={{
-              background: moreOpen
-                ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'
-                : isMoreActive
-                  ? 'var(--gold-bg)'
-                  : 'var(--glass)',
-              border: `1px solid ${moreOpen ? 'var(--gold)' : 'var(--glass-border)'}`,
-              color: moreOpen ? 'var(--text-on-gold)' : isMoreActive ? 'var(--gold-text)' : 'var(--text-muted)',
-              boxShadow: moreOpen ? '0 0 12px rgba(200,169,110,0.3)' : 'none',
+              opacity: isMoreActive || moreOpen ? 1 : 0.5,
+              transition: 'transform 200ms',
+              transform: moreOpen ? 'rotate(45deg)' : 'none',
             }}
-          >
-            <Icon
-              name="plus"
-              size={18}
-              style={{ transition: 'transform 200ms', transform: moreOpen ? 'rotate(45deg)' : 'none' }}
-            />
-          </div>
+          />
+          <span className="text-[9px] font-label uppercase tracking-[2px] -mt-0.5">
+            Mehr
+          </span>
         </button>
-
-        {/* Letzte Tabs */}
-        {lastTabs.map((tab) => {
-          const isActive = pathname.startsWith(tab.href);
-
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className="flex flex-col items-center justify-center flex-1 h-full transition-colors duration-200"
-              style={{ color: isActive ? 'var(--gold-text)' : 'var(--text-muted)' }}
-            >
-              <Icon name={tab.icon} size={20} style={{ opacity: isActive ? 1 : 0.5 }} />
-              <span className="text-[9px] font-label uppercase tracking-[2px] -mt-0.5">
-                {tab.label}
-              </span>
-            </Link>
-          );
-        })}
       </nav>
     </div>
   );

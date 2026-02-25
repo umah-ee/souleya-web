@@ -78,7 +78,7 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
         <div className="absolute top-3 left-3.5 right-3.5 flex justify-between items-start">
           {/* Frosted Date Chip */}
           <div
-            className="text-center rounded-xl"
+            className="text-center rounded-[4px]"
             style={{
               background: 'rgba(255,255,255,.18)',
               backdropFilter: 'blur(12px)',
@@ -106,7 +106,7 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
               fontSize: '8px',
               letterSpacing: '1.5px',
               padding: '5px 12px',
-              borderRadius: '10px',
+              borderRadius: '8px',
               background: event.category === 'course'
                 ? 'rgba(120,160,140,.85)'
                 : 'rgba(200,169,110,.85)',
