@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { createPulse } from '@/lib/pulse';
+import { createPulse, uploadPulseImage } from '@/lib/pulse';
 import type { Pulse } from '@/types/pulse';
 import { Icon } from '@/components/ui/Icon';
 
@@ -26,9 +26,11 @@ export default function CreatePulseForm({ onCreated }: Props) {
   const [error, setError] = useState('');
   const maxLen = 1000;
 
-  // ── Bild ──────────────────────────────────────────────────
-  const [imageUrl, setImageUrl] = useState('');
-  const [showImageInput, setShowImageInput] = useState(false);
+  // ── Bild (File Upload) ──────────────────────────────────────
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Ort ───────────────────────────────────────────────────
   const [location, setLocation] = useState<LocationData | null>(null);
@@ -45,9 +47,37 @@ export default function CreatePulseForm({ onCreated }: Props) {
   const [pollOptions, setPollOptions] = useState(['', '']);
 
   const hasContent = content.trim().length > 0;
-  const hasAttachment = !!imageUrl.trim() || !!location || !!poll;
+  const hasAttachment = !!imageFile || !!location || !!poll;
   const isEmpty = !hasContent && !hasAttachment;
-  const isDisabled = isEmpty || loading;
+  const isDisabled = isEmpty || loading || uploading;
+
+  // ── Bild auswaehlen ─────────────────────────────────────────
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Max 10 MB
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Bild darf maximal 10 MB gross sein');
+      return;
+    }
+
+    setImageFile(file);
+    setError('');
+
+    // Vorschau erstellen
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setImagePreview(ev.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   // ── Geocoding-Suche (Mapbox) ──────────────────────────────
   const handleLocationSearch = (query: string) => {
@@ -119,9 +149,24 @@ export default function CreatePulseForm({ onCreated }: Props) {
     setLoading(true);
     setError('');
     try {
+      // Bild hochladen (falls vorhanden)
+      let imageUrl: string | undefined;
+      if (imageFile) {
+        setUploading(true);
+        try {
+          imageUrl = await uploadPulseImage(imageFile);
+        } catch (uploadErr) {
+          setError(uploadErr instanceof Error ? uploadErr.message : 'Bild-Upload fehlgeschlagen');
+          setLoading(false);
+          setUploading(false);
+          return;
+        }
+        setUploading(false);
+      }
+
       const pulse = await createPulse({
-        content: content.trim() || (poll ? poll.question : ''),
-        image_url: imageUrl.trim() || undefined,
+        content: content.trim() || undefined,
+        image_url: imageUrl,
         location_lat: location?.lat,
         location_lng: location?.lng,
         location_name: location?.name,
@@ -132,14 +177,16 @@ export default function CreatePulseForm({ onCreated }: Props) {
             }
           : undefined,
       });
+
       // Reset
       setContent('');
-      setImageUrl('');
-      setShowImageInput(false);
+      handleRemoveImage();
       setLocation(null);
       setPoll(null);
       setPollQuestion('');
       setPollOptions(['', '']);
+      setShowLocationPicker(false);
+      setShowPollCreator(false);
       onCreated(pulse);
     } catch {
       setError('Fehler beim Erstellen. Bitte erneut versuchen.');
@@ -149,6 +196,15 @@ export default function CreatePulseForm({ onCreated }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-5 mb-6">
+      {/* Hidden File Input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleImageSelect}
+      />
+
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
@@ -161,19 +217,18 @@ export default function CreatePulseForm({ onCreated }: Props) {
 
       {/* ── Anhaenge Vorschau ────────────────────────────── */}
       <div className="space-y-2 mb-2">
-        {/* Bild-URL Vorschau */}
-        {imageUrl.trim() && (
+        {/* Bild Vorschau */}
+        {imagePreview && (
           <div className="relative inline-block">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={imageUrl}
+              src={imagePreview}
               alt=""
               className="max-h-[120px] rounded-lg object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
             <button
               type="button"
-              onClick={() => { setImageUrl(''); setShowImageInput(false); }}
+              onClick={handleRemoveImage}
               className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center cursor-pointer"
               style={{ background: 'var(--bg-solid)', border: '1px solid var(--divider)', color: 'var(--text-muted)' }}
             >
@@ -231,24 +286,6 @@ export default function CreatePulseForm({ onCreated }: Props) {
           </div>
         )}
       </div>
-
-      {/* ── Bild-URL Input ───────────────────────────────── */}
-      {showImageInput && !imageUrl.trim() && (
-        <div className="mb-3">
-          <input
-            type="url"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="Bild-URL einfuegen …"
-            className="w-full py-2 px-3 rounded-[8px] text-sm font-body outline-none"
-            style={{
-              background: 'var(--glass)',
-              border: '1px solid var(--glass-border)',
-              color: 'var(--text-h)',
-            }}
-          />
-        </div>
-      )}
 
       {/* ── Location Picker ──────────────────────────────── */}
       {showLocationPicker && !location && (
@@ -381,13 +418,21 @@ export default function CreatePulseForm({ onCreated }: Props) {
       <div className="flex items-center justify-between pt-3 mt-2" style={{ borderTop: '1px solid var(--divider-l)' }}>
         {/* Attachment-Buttons */}
         <div className="flex items-center gap-1">
-          {/* Bild */}
+          {/* Bild (File Picker) */}
           <button
             type="button"
-            onClick={() => { setShowImageInput(!showImageInput); setShowLocationPicker(false); setShowPollCreator(false); }}
+            onClick={() => {
+              if (imageFile) {
+                handleRemoveImage();
+              } else {
+                fileInputRef.current?.click();
+              }
+              setShowLocationPicker(false);
+              setShowPollCreator(false);
+            }}
             className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent border-none cursor-pointer transition-colors"
-            style={{ color: showImageInput || imageUrl.trim() ? 'var(--gold)' : 'var(--text-muted)' }}
-            title="Bild hinzufuegen"
+            style={{ color: imageFile ? 'var(--gold)' : 'var(--text-muted)' }}
+            title={imageFile ? 'Bild entfernen' : 'Bild hinzufuegen'}
           >
             <Icon name="photo" size={16} />
           </button>
@@ -395,7 +440,7 @@ export default function CreatePulseForm({ onCreated }: Props) {
           {/* Ort */}
           <button
             type="button"
-            onClick={() => { setShowLocationPicker(!showLocationPicker); setShowImageInput(false); setShowPollCreator(false); }}
+            onClick={() => { setShowLocationPicker(!showLocationPicker); setShowPollCreator(false); }}
             className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent border-none cursor-pointer transition-colors"
             style={{ color: showLocationPicker || location ? 'var(--gold)' : 'var(--text-muted)' }}
             title="Ort hinzufuegen"
@@ -406,7 +451,7 @@ export default function CreatePulseForm({ onCreated }: Props) {
           {/* Umfrage */}
           <button
             type="button"
-            onClick={() => { setShowPollCreator(!showPollCreator); setShowImageInput(false); setShowLocationPicker(false); }}
+            onClick={() => { setShowPollCreator(!showPollCreator); setShowLocationPicker(false); }}
             className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent border-none cursor-pointer transition-colors"
             style={{ color: showPollCreator || poll ? 'var(--gold)' : 'var(--text-muted)' }}
             title="Umfrage erstellen"
@@ -435,7 +480,7 @@ export default function CreatePulseForm({ onCreated }: Props) {
               cursor: isDisabled ? 'not-allowed' : 'pointer',
             }}
           >
-            {loading ? '…' : 'Teilen'}
+            {uploading ? 'Hochladen …' : loading ? '…' : 'Teilen'}
           </button>
         </div>
       </div>

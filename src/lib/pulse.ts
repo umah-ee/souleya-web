@@ -1,5 +1,8 @@
 import { apiFetch } from './api';
+import { createClient } from './supabase/client';
 import type { Pulse, PulseComment, PulsePoll, CreatePulseData } from '../types/pulse';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 // ── Feed laden (paginiert) ──────────────────────────────────
 export async function fetchFeed(page = 1, limit = 20) {
@@ -53,4 +56,32 @@ export async function addComment(pulseId: string, content: string): Promise<Puls
     method: 'POST',
     body: JSON.stringify({ content }),
   });
+}
+
+// ── Bild hochladen (ueber API → Supabase Storage) ───────────
+export async function uploadPulseImage(file: File): Promise<string> {
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
+  if (!token) throw new Error('Nicht angemeldet');
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`${API_URL}/pulse/upload-image`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.message ?? `Upload fehlgeschlagen: ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.url;
 }

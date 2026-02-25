@@ -229,10 +229,12 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
         )}
       </div>
 
-      {/* Content */}
-      <p className="leading-[1.8] text-[0.95rem] font-body whitespace-pre-wrap mb-3" style={{ color: 'var(--text-body)' }}>
-        {pulse.content}
-      </p>
+      {/* Content (ausblenden wenn auto-generiert und Location/Poll den Inhalt zeigt) */}
+      {pulse.content && pulse.content !== '✨' && !(pulse.content.startsWith('📍') && pulse.location_name) && (
+        <p className="leading-[1.8] text-[0.95rem] font-body whitespace-pre-wrap mb-3" style={{ color: 'var(--text-body)' }}>
+          {pulse.content}
+        </p>
+      )}
 
       {/* Image */}
       {pulse.image_url && (
