@@ -125,8 +125,12 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
     >
       <div
         ref={modalRef}
-        className="glass-card rounded-2xl overflow-hidden mx-4 max-w-[440px] w-full max-h-[85vh] flex flex-col"
-        style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}
+        className="rounded-2xl overflow-hidden mx-4 max-w-[440px] w-full max-h-[85vh] flex flex-col"
+        style={{
+          background: 'var(--bg-solid)',
+          border: '1px solid var(--glass-border)',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.35)',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Gold-Leiste */}

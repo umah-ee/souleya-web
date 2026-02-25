@@ -150,4 +150,33 @@ body {
 .first-light-glow { animation: first-light-glow 3s ease-in-out infinite; }
 .ritter-glow { animation: glow-ritter 2.5s ease-in-out infinite; }
 
-/* discover-light Klasse entfernt – Discover nutzt jetzt globale Theme-Tokens */
+/* ── EVENT CARD MAP FADE ────────────── */
+/* Fade-Overlay fuer die statische Karte im EventCard Body */
+[data-theme="light"] .ev-map-fade {
+  background: linear-gradient(to right,
+    rgba(237,228,211, 1) 0%,
+    rgba(237,228,211, .97) 8%,
+    rgba(237,228,211, .78) 30%,
+    rgba(237,228,211, .30) 60%,
+    rgba(237,228,211, .06) 82%,
+    transparent 100%
+  );
+}
+[data-theme="dark"] .ev-map-fade {
+  background: linear-gradient(to right,
+    rgba(30,30,30, 1) 0%,
+    rgba(30,30,30, .97) 8%,
+    rgba(30,30,30, .78) 30%,
+    rgba(30,30,30, .30) 60%,
+    rgba(30,30,30, .06) 82%,
+    transparent 100%
+  );
+}
+
+/* ── GLASS STRONG TOKEN ────────────── */
+:root, [data-theme="light"] {
+  --glass-strong: rgba(255,255,255, .60);
+}
+[data-theme="dark"] {
+  --glass-strong: rgba(255,255,255, .10);
+}
