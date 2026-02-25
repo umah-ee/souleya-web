@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import type { Pulse } from '@/types/pulse';
-import { toggleLike, deletePulse } from '@/lib/pulse';
+import type { Pulse, PulsePoll } from '@/types/pulse';
+import { toggleLike, deletePulse, votePoll } from '@/lib/pulse';
 import CommentsSection from './CommentsSection';
 import EnsoRing from '@/components/ui/EnsoRing';
 import { Icon } from '@/components/ui/Icon';
@@ -44,6 +44,120 @@ function AuthorAvatar({ author }: { author: Pulse['author'] }) {
         ) : initials}
       </div>
     </EnsoRing>
+  );
+}
+
+// ── Poll-Anzeige ────────────────────────────────────────────
+function PollDisplay({
+  poll: initialPoll,
+  pulseId,
+  currentUserId,
+}: {
+  poll: PulsePoll;
+  pulseId: string;
+  currentUserId?: string;
+}) {
+  const [poll, setPoll] = useState(initialPoll);
+  const [voting, setVoting] = useState(false);
+
+  const totalVotes = poll.total_votes ?? poll.options.reduce((s, o) => s + o.votes_count, 0);
+  const hasVoted = !!poll.user_vote_option_id;
+
+  const handleVote = async (optionId: string) => {
+    if (!currentUserId || voting) return;
+    setVoting(true);
+    try {
+      const updated = await votePoll(pulseId, optionId);
+      setPoll(updated);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setVoting(false);
+    }
+  };
+
+  return (
+    <div className="mb-3">
+      <p className="font-body font-medium text-sm mb-2" style={{ color: 'var(--text-h)' }}>
+        {poll.question}
+      </p>
+      <div className="space-y-1.5">
+        {poll.options.map((opt) => {
+          const pct = totalVotes > 0 ? Math.round((opt.votes_count / totalVotes) * 100) : 0;
+          const isSelected = poll.user_vote_option_id === opt.id;
+
+          return (
+            <button
+              key={opt.id}
+              onClick={() => handleVote(opt.id)}
+              disabled={!currentUserId || voting}
+              className="w-full relative overflow-hidden rounded-lg text-left transition-all duration-200"
+              style={{
+                background: 'var(--glass)',
+                border: isSelected ? '1.5px solid var(--gold)' : '1px solid var(--glass-border)',
+                cursor: currentUserId ? 'pointer' : 'default',
+                padding: '8px 12px',
+              }}
+            >
+              {/* Fortschrittsbalken */}
+              {hasVoted && (
+                <div
+                  className="absolute inset-0 transition-all duration-500"
+                  style={{
+                    background: isSelected
+                      ? 'linear-gradient(to right, rgba(200,169,110,0.15), rgba(200,169,110,0.05))'
+                      : 'rgba(200,169,110,0.05)',
+                    width: `${pct}%`,
+                  }}
+                />
+              )}
+              <div className="relative flex items-center justify-between">
+                <span className="font-body text-sm" style={{ color: 'var(--text-h)' }}>
+                  {opt.label}
+                </span>
+                {hasVoted && (
+                  <span className="font-label text-[0.65rem] ml-2" style={{ color: 'var(--text-muted)' }}>
+                    {pct}%
+                  </span>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-[0.65rem] font-label mt-1.5" style={{ color: 'var(--text-muted)' }}>
+        {totalVotes} {totalVotes === 1 ? 'Stimme' : 'Stimmen'}
+      </p>
+    </div>
+  );
+}
+
+// ── Location-Anzeige (Static Mapbox Image) ──────────────────
+function LocationEmbed({ lat, lng, name }: { lat: number; lng: number; name: string }) {
+  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? '';
+  const staticUrl = `https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/pin-s+c8a96e(${lng},${lat})/${lng},${lat},13,0/400x160@2x?access_token=${token}`;
+
+  return (
+    <div className="mb-3 rounded-lg overflow-hidden" style={{ border: '1px solid var(--glass-border)' }}>
+      {token ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={staticUrl}
+          alt={name}
+          className="w-full h-[120px] object-cover"
+        />
+      ) : (
+        <div className="w-full h-[80px] flex items-center justify-center" style={{ background: 'var(--glass)' }}>
+          <Icon name="map-pin" size={20} style={{ color: 'var(--text-muted)' }} />
+        </div>
+      )}
+      <div className="px-3 py-2 flex items-center gap-2" style={{ background: 'var(--glass)' }}>
+        <Icon name="map-pin" size={12} style={{ color: 'var(--gold)' }} />
+        <span className="text-xs font-body truncate" style={{ color: 'var(--text-h)' }}>
+          {name}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -127,6 +241,24 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
           src={pulse.image_url}
           alt=""
           className="w-full rounded-lg mb-3 max-h-[400px] object-cover"
+        />
+      )}
+
+      {/* Location Embed */}
+      {pulse.location_lat != null && pulse.location_lng != null && pulse.location_name && (
+        <LocationEmbed
+          lat={pulse.location_lat}
+          lng={pulse.location_lng}
+          name={pulse.location_name}
+        />
+      )}
+
+      {/* Poll */}
+      {pulse.poll && (
+        <PollDisplay
+          poll={pulse.poll}
+          pulseId={pulse.id}
+          currentUserId={currentUserId}
         />
       )}
 

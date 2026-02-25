@@ -7,7 +7,7 @@ import { useTheme } from '@/components/ThemeProvider';
 import { Icon, type IconName } from '@/components/ui/Icon';
 
 const navItems: { href: string; icon: IconName; label: string }[] = [
-  { href: '/', icon: 'home', label: 'Home' },
+  { href: '/', icon: 'sparkles', label: 'Pulse' },
   { href: '/discover', icon: 'compass', label: 'Discover' },
   { href: '/circles', icon: 'users', label: 'Circle' },
   { href: '/chat', icon: 'message-circle', label: 'Chat' },

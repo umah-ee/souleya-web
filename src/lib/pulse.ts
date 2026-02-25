@@ -1,5 +1,5 @@
 import { apiFetch } from './api';
-import type { Pulse, PulseComment } from '../types/pulse';
+import type { Pulse, PulseComment, PulsePoll, CreatePulseData } from '../types/pulse';
 
 // ── Feed laden (paginiert) ──────────────────────────────────
 export async function fetchFeed(page = 1, limit = 20) {
@@ -9,11 +9,11 @@ export async function fetchFeed(page = 1, limit = 20) {
   return { pulses: res.data, total: res.total, hasMore: res.hasMore };
 }
 
-// ── Pulse erstellen ─────────────────────────────────────────
-export async function createPulse(content: string, imageUrl?: string) {
+// ── Pulse erstellen (erweitert: Bilder, Orte, Metadata, Umfragen) ──
+export async function createPulse(data: CreatePulseData): Promise<Pulse> {
   return apiFetch<Pulse>('/pulse', {
     method: 'POST',
-    body: JSON.stringify({ content, image_url: imageUrl ?? undefined }),
+    body: JSON.stringify(data),
   });
 }
 
@@ -27,6 +27,14 @@ export async function toggleLike(
   } else {
     return apiFetch(`/pulse/${pulseId}/like`, { method: 'POST' });
   }
+}
+
+// ── Poll abstimmen ──────────────────────────────────────────
+export async function votePoll(pulseId: string, optionId: string): Promise<PulsePoll> {
+  return apiFetch<PulsePoll>(`/pulse/${pulseId}/vote`, {
+    method: 'POST',
+    body: JSON.stringify({ option_id: optionId }),
+  });
 }
 
 // ── Pulse loeschen ──────────────────────────────────────────

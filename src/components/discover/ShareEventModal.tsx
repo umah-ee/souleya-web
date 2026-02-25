@@ -6,6 +6,7 @@ import type { Connection, ConnectionProfile } from '@/types/circles';
 import type { ChannelOverview } from '@/types/chat';
 import { getConnections } from '@/lib/circles';
 import { fetchChannels, createDirectChannel, sendMessage } from '@/lib/chat';
+import { createPulse } from '@/lib/pulse';
 import { Icon } from '@/components/ui/Icon';
 import EventShareCard from '@/components/shared/EventShareCard';
 
@@ -113,14 +114,29 @@ export default function ShareEventModal({ event, onClose }: Props) {
     }
   };
 
-  // Event im Feed teilen
-  const handleShareToFeed = () => {
-    const params = new URLSearchParams({
-      event_id: event.id,
-      event_title: event.title,
-    });
-    window.location.href = `/circles?share_event=${params.toString()}`;
-    onClose();
+  // Event im Feed teilen (direkt als Pulse erstellen)
+  const [sharingToFeed, setSharingToFeed] = useState(false);
+  const [sharedToFeed, setSharedToFeed] = useState(false);
+
+  const handleShareToFeed = async () => {
+    setSharingToFeed(true);
+    try {
+      const content = shareMessage.trim()
+        ? `${shareMessage.trim()}\n\n📍 ${event.title}`
+        : `📍 ${event.title}`;
+
+      await createPulse({
+        content,
+        metadata: eventMetadata,
+      });
+      setSharedToFeed(true);
+      // Kurz warten, dann schliessen
+      setTimeout(() => onClose(), 800);
+    } catch (e) {
+      console.error('Im Feed teilen fehlgeschlagen:', e);
+    } finally {
+      setSharingToFeed(false);
+    }
   };
 
   return (
@@ -198,17 +214,26 @@ export default function ShareEventModal({ event, onClose }: Props) {
           {/* Im Feed teilen */}
           <button
             onClick={handleShareToFeed}
+            disabled={sharingToFeed || sharedToFeed}
             className="w-full flex items-center gap-3 glass-card rounded-2xl p-3 transition-colors cursor-pointer"
+            style={{ opacity: sharedToFeed ? 0.7 : 1 }}
           >
             <div
               className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center"
-              style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}
+              style={{
+                background: sharedToFeed ? 'var(--success-bg)' : 'var(--gold-bg)',
+                color: sharedToFeed ? 'var(--success)' : 'var(--gold-text)',
+              }}
             >
-              <Icon name="sparkles" size={18} />
+              <Icon name={sharedToFeed ? 'star' : 'sparkles'} size={18} />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-body text-sm font-medium" style={{ color: 'var(--text-h)' }}>Im Feed teilen</p>
-              <p className="text-xs font-body" style={{ color: 'var(--text-muted)' }}>Im Circle-Feed teilen</p>
+              <p className="font-body text-sm font-medium" style={{ color: 'var(--text-h)' }}>
+                {sharedToFeed ? 'Im Feed geteilt' : sharingToFeed ? 'Wird geteilt …' : 'Im Feed teilen'}
+              </p>
+              <p className="text-xs font-body" style={{ color: 'var(--text-muted)' }}>
+                {sharedToFeed ? 'Erscheint jetzt im Circle-Feed' : 'Im Circle-Feed teilen'}
+              </p>
             </div>
           </button>
 
