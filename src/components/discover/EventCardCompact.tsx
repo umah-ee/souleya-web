@@ -9,7 +9,9 @@ interface Props {
   onJoin?: (id: string) => void;
   onLeave?: (id: string) => void;
   onShare?: (event: SoEvent) => void;
+  onBookmark?: (id: string) => void;
   joining?: boolean;
+  bookmarking?: boolean;
   userId?: string | null;
 }
 
@@ -30,7 +32,7 @@ function formatTime(dateString: string): string {
   return new Date(dateString).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 }
 
-export default function EventCardCompact({ event, onJoin, onLeave, onShare, joining, userId }: Props) {
+export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBookmark, joining, bookmarking, userId }: Props) {
   const isCreator = userId === event.creator_id;
   const isFull = event.max_participants != null && event.participants_count >= event.max_participants;
   const creatorName = event.creator?.display_name ?? event.creator?.username ?? 'Anonym';
@@ -278,14 +280,15 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, join
 
           {/* Bookmark Button (Kreis) */}
           <button
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onBookmark?.(event.id); }}
+            disabled={bookmarking}
             className="flex items-center justify-center rounded-full cursor-pointer transition-all duration-200"
             style={{
               width: '38px',
               height: '38px',
-              background: 'var(--glass-strong, var(--glass))',
-              border: '1px solid var(--glass-border)',
-              color: 'var(--text-muted)',
+              background: event.is_bookmarked ? 'var(--gold-bg)' : 'var(--glass-strong, var(--glass))',
+              border: `1px solid ${event.is_bookmarked ? 'var(--gold-border)' : 'var(--glass-border)'}`,
+              color: event.is_bookmarked ? 'var(--gold-text)' : 'var(--text-muted)',
               flexShrink: 0,
             }}
           >

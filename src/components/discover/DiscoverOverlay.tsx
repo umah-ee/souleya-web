@@ -33,8 +33,10 @@ interface EventOverlayProps {
   onJoin?: (id: string) => void;
   onLeave?: (id: string) => void;
   onShare?: (event: SoEvent) => void;
+  onBookmark?: (id: string) => void;
   connecting?: never;
   joining?: boolean;
+  bookmarking?: boolean;
   onClose: () => void;
 }
 
@@ -245,7 +247,9 @@ function EventOverlay({
   onJoin,
   onLeave,
   onShare,
+  onBookmark,
   joining,
+  bookmarking,
   onClose,
   overlayRef,
 }: EventOverlayProps & { overlayRef: React.RefObject<HTMLDivElement | null> }) {
@@ -428,13 +432,15 @@ function EventOverlay({
 
             {/* Bookmark Button (Kreis) */}
             <button
+              onClick={() => onBookmark?.(event.id)}
+              disabled={bookmarking}
               className="flex items-center justify-center rounded-full cursor-pointer transition-all duration-200"
               style={{
                 width: '38px',
                 height: '38px',
-                background: 'var(--glass-strong, var(--glass))',
-                border: '1px solid var(--glass-border)',
-                color: 'var(--text-muted)',
+                background: event.is_bookmarked ? 'var(--gold-bg)' : 'var(--glass-strong, var(--glass))',
+                border: `1px solid ${event.is_bookmarked ? 'var(--gold-border)' : 'var(--glass-border)'}`,
+                color: event.is_bookmarked ? 'var(--gold-text)' : 'var(--text-muted)',
                 flexShrink: 0,
               }}
             >

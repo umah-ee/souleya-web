@@ -4,11 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import type { User } from '@supabase/supabase-js';
 import type { Pulse } from '@/types/pulse';
 import type { Connection } from '@/types/circles';
+import { SOUL_LEVEL_NAMES } from '@/types/profile';
 import PulseCard from '@/components/pulse/PulseCard';
+import CreatePulseForm from '@/components/pulse/CreatePulseForm';
 import ConnectionCard from '@/components/circles/ConnectionCard';
 import { IncomingRequestCard, OutgoingRequestCard } from '@/components/circles/RequestCard';
+import { fetchFeed } from '@/lib/pulse';
 import {
-  fetchCircleFeed,
   getConnections,
   getIncomingRequests,
   getOutgoingRequests,
@@ -16,8 +18,9 @@ import {
   cancelRequest,
   removeConnection,
 } from '@/lib/circles';
+import { Icon } from '@/components/ui/Icon';
 
-type Tab = 'feed' | 'connections' | 'requests';
+type Tab = 'feed' | 'connections' | 'requests' | 'mentors';
 
 interface Props {
   user: User | null;
@@ -43,10 +46,14 @@ export default function CirclesClient({ user }: Props) {
   const [requestsLoading, setRequestsLoading] = useState(false);
   const [incomingCount, setIncomingCount] = useState(0);
 
-  // ── Feed laden ──────────────────────────────────────────
+  // Mentoren State
+  const [mentors, setMentors] = useState<Connection[]>([]);
+  const [mentorsLoading, setMentorsLoading] = useState(false);
+
+  // ── Feed laden (globaler Pulse-Feed) ──────────────────────
   const loadFeed = useCallback(async (pageNum: number, replace: boolean) => {
     try {
-      const result = await fetchCircleFeed(pageNum, 20);
+      const result = await fetchFeed(pageNum, 20);
       setPulses((prev) => replace ? result.pulses : [...prev, ...result.pulses]);
       setFeedHasMore(result.hasMore);
     } catch (e) {
@@ -85,6 +92,20 @@ export default function CirclesClient({ user }: Props) {
     }
   }, []);
 
+  // ── Mentoren laden (soul_level >= 4) ──────────────────────
+  const loadMentors = useCallback(async () => {
+    setMentorsLoading(true);
+    try {
+      const result = await getConnections(1, 100);
+      const filtered = result.data.filter((c) => c.profile.soul_level >= 4);
+      setMentors(filtered);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setMentorsLoading(false);
+    }
+  }, []);
+
   // Initial Load
   useEffect(() => {
     setFeedLoading(true);
@@ -97,7 +118,8 @@ export default function CirclesClient({ user }: Props) {
   useEffect(() => {
     if (activeTab === 'connections') loadConnections();
     if (activeTab === 'requests') loadRequests();
-  }, [activeTab, loadConnections, loadRequests]);
+    if (activeTab === 'mentors') loadMentors();
+  }, [activeTab, loadConnections, loadRequests, loadMentors]);
 
   // ── Handlers ────────────────────────────────────────────
   const handleLoadMore = async () => {
@@ -106,6 +128,10 @@ export default function CirclesClient({ user }: Props) {
     await loadFeed(nextPage, false);
     setFeedPage(nextPage);
     setLoadingMore(false);
+  };
+
+  const handleCreated = (pulse: Pulse) => {
+    setPulses((prev) => [pulse, ...prev]);
   };
 
   const handleAccept = async (id: string) => {
@@ -154,6 +180,7 @@ export default function CirclesClient({ user }: Props) {
     { key: 'feed', label: 'Feed' },
     { key: 'connections', label: 'Verbindungen' },
     { key: 'requests', label: 'Anfragen', badge: incomingCount > 0 ? incomingCount : undefined },
+    { key: 'mentors', label: 'Mentoren' },
   ];
 
   return (
@@ -193,9 +220,12 @@ export default function CirclesClient({ user }: Props) {
         ))}
       </div>
 
-      {/* Tab Content */}
+      {/* ── Feed Tab ──────────────────────────────────────── */}
       {activeTab === 'feed' && (
         <>
+          {/* Pulse erstellen */}
+          {user && <CreatePulseForm onCreated={handleCreated} />}
+
           {feedLoading ? (
             <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
               <p className="font-label text-[0.7rem] tracking-[0.2em]">
@@ -207,11 +237,14 @@ export default function CirclesClient({ user }: Props) {
               className="text-center py-16 px-4 rounded-2xl"
               style={{ border: '1px dashed var(--gold-border-s)' }}
             >
+              <div className="mb-3">
+                <Icon name="message-circle" size={32} style={{ color: 'var(--gold)', opacity: 0.6 }} />
+              </div>
               <p className="font-heading text-2xl mb-2" style={{ color: 'var(--gold)' }}>
-                Dein Circle ist noch leer
+                Noch keine Impulse
               </p>
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                Verbinde dich mit anderen Souls, um ihre Impulse hier zu sehen.
+                Teile als erstes deinen Impuls mit der Community.
               </p>
             </div>
           ) : (
@@ -244,6 +277,7 @@ export default function CirclesClient({ user }: Props) {
         </>
       )}
 
+      {/* ── Verbindungen Tab ──────────────────────────────── */}
       {activeTab === 'connections' && (
         <>
           {connectionsLoading ? (
@@ -281,6 +315,7 @@ export default function CirclesClient({ user }: Props) {
         </>
       )}
 
+      {/* ── Anfragen Tab ──────────────────────────────────── */}
       {activeTab === 'requests' && (
         <>
           {requestsLoading ? (
@@ -335,6 +370,59 @@ export default function CirclesClient({ user }: Props) {
                   ))}
                 </>
               )}
+            </>
+          )}
+        </>
+      )}
+
+      {/* ── Mentoren Tab ──────────────────────────────────── */}
+      {activeTab === 'mentors' && (
+        <>
+          {mentorsLoading ? (
+            <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
+              <p className="font-label text-[0.7rem] tracking-[0.2em]">
+                WIRD GELADEN …
+              </p>
+            </div>
+          ) : mentors.length === 0 ? (
+            <div
+              className="text-center py-16 px-4 rounded-2xl"
+              style={{ border: '1px dashed var(--gold-border-s)' }}
+            >
+              <div className="mb-3">
+                <Icon name="sparkles" size={32} style={{ color: 'var(--gold)', opacity: 0.6 }} />
+              </div>
+              <p className="font-heading text-2xl mb-2" style={{ color: 'var(--gold)' }}>
+                Noch keine Mentoren
+              </p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                Verbinde dich mit Zen Masters oder Soul Mentors, um sie hier zu sehen.
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="font-label text-[0.7rem] tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--text-muted)' }}>
+                {mentors.length} {mentors.length === 1 ? 'Mentor' : 'Mentoren'}
+              </p>
+              {mentors.map((mentor) => (
+                <div key={mentor.id} className="relative">
+                  <ConnectionCard
+                    connection={mentor}
+                    onRemove={handleRemoveConnection}
+                  />
+                  {/* Soul Level Badge */}
+                  <span
+                    className="absolute top-3 right-24 text-[0.6rem] tracking-[0.12em] uppercase font-label rounded-full px-2 py-0.5"
+                    style={{
+                      background: 'var(--gold-bg)',
+                      color: 'var(--gold)',
+                      border: '1px solid var(--gold-border-s)',
+                    }}
+                  >
+                    {SOUL_LEVEL_NAMES[mentor.profile.soul_level] ?? `Level ${mentor.profile.soul_level}`}
+                  </span>
+                </div>
+              ))}
             </>
           )}
         </>

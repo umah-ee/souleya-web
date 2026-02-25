@@ -48,6 +48,29 @@ export async function leaveEvent(eventId: string) {
   );
 }
 
+// ── Meine Events (teilgenommen + gemerkt) ─────────────────
+export async function fetchMyEvents(page = 1, limit = 20) {
+  return apiFetch<{ data: SoEvent[]; total: number; hasMore: boolean }>(
+    `/events/my?page=${page}&limit=${limit}`,
+  );
+}
+
+// ── Event merken (Bookmark) ────────────────────────────────
+export async function bookmarkEvent(eventId: string) {
+  return apiFetch<{ bookmarked: boolean }>(
+    `/events/${eventId}/bookmark`,
+    { method: 'POST' },
+  );
+}
+
+// ── Event-Bookmark entfernen ───────────────────────────────
+export async function unbookmarkEvent(eventId: string) {
+  return apiFetch<{ bookmarked: boolean }>(
+    `/events/${eventId}/bookmark`,
+    { method: 'DELETE' },
+  );
+}
+
 // ── Nearby Users ────────────────────────────────────────────
 export async function fetchNearbyUsers(lat: number, lng: number, radius = 25) {
   return apiFetch<{

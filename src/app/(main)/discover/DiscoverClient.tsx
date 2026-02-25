@@ -9,7 +9,7 @@ import type { ConnectionStatus } from '@/types/circles';
 import type { SoEvent } from '@/types/events';
 import { searchUsers } from '@/lib/users';
 import { sendConnectionRequest, getConnectionStatus } from '@/lib/circles';
-import { fetchEvents, fetchNearbyUsers, joinEvent, leaveEvent, geocodeLocation } from '@/lib/events';
+import { fetchEvents, fetchNearbyUsers, joinEvent, leaveEvent, geocodeLocation, bookmarkEvent, unbookmarkEvent } from '@/lib/events';
 import { Icon } from '@/components/ui/Icon';
 import DiscoverOverlay from '@/components/discover/DiscoverOverlay';
 import EventCardCompact from '@/components/discover/EventCardCompact';
@@ -57,6 +57,7 @@ export default function DiscoverClient({ userId }: Props) {
   const [overlayConnectionStatus, setOverlayConnectionStatus] = useState<ConnectionStatus>('none');
   const [connecting, setConnecting] = useState(false);
   const [joiningEvent, setJoiningEvent] = useState<Record<string, boolean>>({});
+  const [bookmarkingEvent, setBookmarkingEvent] = useState<Record<string, boolean>>({});
 
   // ── Create Event Modal ──────────────────────────────────────
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -185,6 +186,42 @@ export default function DiscoverClient({ userId }: Props) {
       console.error(e);
     } finally {
       setJoiningEvent((s) => ({ ...s, [eventId]: false }));
+    }
+  };
+
+  // ── Event merken/entmerken ───────────────────────────────
+  const handleBookmarkEvent = async (eventId: string) => {
+    const event = events.find((e) => e.id === eventId) ?? selectedEvent;
+    if (!event) return;
+
+    const wasBookmarked = event.is_bookmarked;
+
+    // Optimistisches Update
+    setEvents((prev) =>
+      prev.map((e) => (e.id === eventId ? { ...e, is_bookmarked: !wasBookmarked } : e)),
+    );
+    if (selectedEvent?.id === eventId) {
+      setSelectedEvent((prev) => (prev ? { ...prev, is_bookmarked: !wasBookmarked } : prev));
+    }
+
+    setBookmarkingEvent((s) => ({ ...s, [eventId]: true }));
+    try {
+      if (wasBookmarked) {
+        await unbookmarkEvent(eventId);
+      } else {
+        await bookmarkEvent(eventId);
+      }
+    } catch (e) {
+      // Revert bei Fehler
+      setEvents((prev) =>
+        prev.map((ev) => (ev.id === eventId ? { ...ev, is_bookmarked: wasBookmarked } : ev)),
+      );
+      if (selectedEvent?.id === eventId) {
+        setSelectedEvent((prev) => (prev ? { ...prev, is_bookmarked: wasBookmarked } : prev));
+      }
+      console.error(e);
+    } finally {
+      setBookmarkingEvent((s) => ({ ...s, [eventId]: false }));
     }
   };
 
@@ -571,7 +608,9 @@ export default function DiscoverClient({ userId }: Props) {
                   onJoin={handleJoinEvent}
                   onLeave={handleLeaveEvent}
                   onShare={setShareEvent}
+                  onBookmark={handleBookmarkEvent}
                   joining={joiningEvent[selectedEvent.id]}
+                  bookmarking={bookmarkingEvent[selectedEvent.id]}
                   onClose={handleCloseOverlay}
                 />
               )}
@@ -599,7 +638,9 @@ export default function DiscoverClient({ userId }: Props) {
                       onJoin={handleJoinEvent}
                       onLeave={handleLeaveEvent}
                       onShare={setShareEvent}
+                      onBookmark={handleBookmarkEvent}
                       joining={joiningEvent[event.id]}
+                      bookmarking={bookmarkingEvent[event.id]}
                     />
                   ))}
                 </div>
