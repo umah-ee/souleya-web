@@ -230,7 +230,11 @@ export default function ChatRoomClient({ channelId, user }: Props) {
         content,
         reply_to: replyTo?.id,
       });
-      setMessages((prev) => [...prev, msg]);
+      // Nachricht nur hinzufügen wenn Realtime sie noch nicht eingefügt hat
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
       setText('');
       setReplyTo(null);
     } catch (e) {

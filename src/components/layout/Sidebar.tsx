@@ -29,9 +29,11 @@ export default function Sidebar() {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
-  // Unread-Count beim Mount laden
+  // Unread-Count beim Mount laden – kurzer Delay damit parallel ladende
+  // Seiten (z.B. ChatListClient) zuerst updateFromChannels() aufrufen können
   useEffect(() => {
-    refreshUnread();
+    const t = setTimeout(refreshUnread, 400);
+    return () => clearTimeout(t);
   }, [refreshUnread]);
 
   // Click outside schliesst
