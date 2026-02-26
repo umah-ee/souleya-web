@@ -16,22 +16,25 @@ interface Props {
 
 export default function ChatListClient({ user }: Props) {
   const router = useRouter();
-  const { refreshUnread } = useUnread();
+  const { updateFromChannels } = useUnread();
   const [channels, setChannels] = useState<ChannelOverview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [showNewChat, setShowNewChat] = useState(false);
 
   const loadChannels = useCallback(async () => {
+    setError(false);
     try {
       const data = await fetchChannels();
       setChannels(data);
-      refreshUnread();
+      updateFromChannels(data);
     } catch (e) {
       console.error(e);
+      setError(true);
     } finally {
       setLoading(false);
     }
-  }, [refreshUnread]);
+  }, [updateFromChannels]);
 
   useEffect(() => {
     loadChannels();
@@ -72,6 +75,25 @@ export default function ChatListClient({ user }: Props) {
       {loading ? (
         <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
           <p className="font-label text-[0.7rem] tracking-[0.2em]">WIRD GELADEN ...</p>
+        </div>
+      ) : error ? (
+        <div
+          className="text-center py-16 px-4 rounded-2xl"
+          style={{ border: '1px dashed var(--gold-border-s)' }}
+        >
+          <p className="font-heading text-2xl mb-2" style={{ color: 'var(--gold)' }}>
+            Fehler beim Laden
+          </p>
+          <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
+            Chats konnten nicht geladen werden.
+          </p>
+          <button
+            onClick={loadChannels}
+            className="px-4 py-2 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer"
+            style={{ border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
+          >
+            Erneut versuchen
+          </button>
         </div>
       ) : channels.length === 0 ? (
         <div
