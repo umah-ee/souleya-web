@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useTheme } from '@/components/ThemeProvider';
 import { Icon, type IconName } from '@/components/ui/Icon';
+import { useUnread } from '@/components/chat/UnreadContext';
 
 const navItems: { href: string; icon: IconName; label: string }[] = [
   { href: '/', icon: 'sparkles', label: 'Pulse' },
@@ -24,8 +25,14 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
+  const { totalUnread, refreshUnread } = useUnread();
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
+
+  // Unread-Count beim Mount laden
+  useEffect(() => {
+    refreshUnread();
+  }, [refreshUnread]);
 
   // Click outside schliesst
   useEffect(() => {
@@ -76,7 +83,7 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center justify-center w-12 h-12 rounded-sm transition-colors duration-200"
+              className="relative flex flex-col items-center justify-center w-12 h-12 rounded-sm transition-colors duration-200"
               style={{
                 color: isActive ? 'var(--gold-text)' : 'var(--text-muted)',
                 background: isActive ? 'var(--gold-bg)' : 'transparent',
@@ -87,6 +94,18 @@ export default function Sidebar() {
               <span className="text-[8px] font-label uppercase tracking-[0.15em] mt-0.5">
                 {item.label}
               </span>
+              {/* Unread Badge */}
+              {item.href === '/chat' && totalUnread > 0 && (
+                <span
+                  className="absolute top-0.5 right-0.5 min-w-[16px] h-[16px] flex items-center justify-center rounded-full text-[9px] font-label px-1"
+                  style={{
+                    background: 'var(--gold)',
+                    color: 'var(--text-on-gold)',
+                  }}
+                >
+                  {totalUnread > 99 ? '99+' : totalUnread}
+                </span>
+              )}
             </Link>
           );
         })}

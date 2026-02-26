@@ -3,11 +3,18 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
-import type { ChannelDetail, Message } from '@/types/chat';
-import { fetchChannel, fetchMessages, sendMessage, markChannelAsRead, deleteMessage, editMessage } from '@/lib/chat';
+import type { ChannelDetail, Message, ReactionSummary } from '@/types/chat';
+import {
+  fetchChannel, fetchMessages, sendMessage, markChannelAsRead,
+  deleteMessage, editMessage, addReaction, removeReaction,
+} from '@/lib/chat';
 import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
 import ChatBubble from '@/components/chat/ChatBubble';
+
+const QUICK_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '👏', '🙏', '✨', '🔥', '🕊️', '🌿', '💛'];
+
+type ReactionsMap = Record<string, ReactionSummary[]>;
 
 interface Props {
   channelId: string;
@@ -26,9 +33,44 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [sending, setSending] = useState(false);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [editingMsg, setEditingMsg] = useState<Message | null>(null);
+  const [emojiPickerMsgId, setEmojiPickerMsgId] = useState<string | null>(null);
+  const [reactions, setReactions] = useState<ReactionsMap>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const channelRef = useRef<ChannelDetail | null>(null);
+
+  // ── Reactions batch laden (via Supabase direkt) ──────────
+  const loadReactionsForMessages = useCallback(async (messageIds: string[]) => {
+    if (messageIds.length === 0) return;
+    try {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('reactions')
+        .select('message_id, emoji, user_id')
+        .in('message_id', messageIds);
+
+      if (!data) return;
+
+      const map: ReactionsMap = {};
+      for (const row of data) {
+        if (!map[row.message_id]) map[row.message_id] = [];
+        const existing = map[row.message_id].find((r) => r.emoji === row.emoji);
+        if (existing) {
+          existing.count += 1;
+          if (row.user_id === user?.id) existing.has_reacted = true;
+        } else {
+          map[row.message_id].push({
+            emoji: row.emoji,
+            count: 1,
+            has_reacted: row.user_id === user?.id,
+          });
+        }
+      }
+      setReactions((prev) => ({ ...prev, ...map }));
+    } catch (e) {
+      console.error('Reactions laden fehlgeschlagen:', e);
+    }
+  }, [user?.id]);
 
   // ── Daten laden ───────────────────────────────────────────
   const loadData = useCallback(async () => {
@@ -42,15 +84,14 @@ export default function ChatRoomClient({ channelId, user }: Props) {
       setMessages(msgs.data);
       setHasMore(msgs.hasMore);
       setPage(1);
-
-      // Als gelesen markieren
       await markChannelAsRead(channelId);
+      loadReactionsForMessages(msgs.data.map((m) => m.id));
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  }, [channelId]);
+  }, [channelId, loadReactionsForMessages]);
 
   useEffect(() => {
     loadData();
@@ -66,7 +107,6 @@ export default function ChatRoomClient({ channelId, user }: Props) {
         { event: 'INSERT', schema: 'public', table: 'messages', filter: `channel_id=eq.${channelId}` },
         (payload) => {
           const raw = payload.new as Message;
-          // Author-Daten aus geladenen Channel-Members anreichern
           const member = channelRef.current?.members.find((m) => m.user_id === raw.user_id);
           const enriched: Message = {
             ...raw,
@@ -74,13 +114,63 @@ export default function ChatRoomClient({ channelId, user }: Props) {
               ? { id: member.profile.id, username: member.profile.username, display_name: member.profile.display_name, avatar_url: member.profile.avatar_url }
               : raw.author ?? { id: raw.user_id, username: null, display_name: null, avatar_url: null },
           };
-          // Nur hinzufuegen wenn noch nicht vorhanden
           setMessages((prev) => {
             if (prev.some((m) => m.id === enriched.id)) return prev;
             return [...prev, enriched];
           });
-          // Gelesen markieren
           markChannelAsRead(channelId).catch(() => {});
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'messages', filter: `channel_id=eq.${channelId}` },
+        (payload) => {
+          const updated = payload.new as Message;
+          setMessages((prev) => prev.map((m) => m.id === updated.id ? { ...m, ...updated } : m));
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'reactions' },
+        (payload) => {
+          const row = payload.new as { message_id: string; emoji: string; user_id: string };
+          setReactions((prev) => {
+            const msgReactions = [...(prev[row.message_id] ?? [])];
+            const existing = msgReactions.find((r) => r.emoji === row.emoji);
+            if (existing) {
+              return {
+                ...prev,
+                [row.message_id]: msgReactions.map((r) =>
+                  r.emoji === row.emoji
+                    ? { ...r, count: r.count + 1, has_reacted: r.has_reacted || row.user_id === user?.id }
+                    : r,
+                ),
+              };
+            }
+            return {
+              ...prev,
+              [row.message_id]: [...msgReactions, { emoji: row.emoji, count: 1, has_reacted: row.user_id === user?.id }],
+            };
+          });
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'reactions' },
+        (payload) => {
+          const row = payload.old as { message_id: string; emoji: string; user_id: string };
+          setReactions((prev) => {
+            const msgReactions = prev[row.message_id];
+            if (!msgReactions) return prev;
+            const updated = msgReactions
+              .map((r) =>
+                r.emoji === row.emoji
+                  ? { ...r, count: r.count - 1, has_reacted: row.user_id === user?.id ? false : r.has_reacted }
+                  : r,
+              )
+              .filter((r) => r.count > 0);
+            return { ...prev, [row.message_id]: updated };
+          });
         },
       )
       .subscribe();
@@ -88,7 +178,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     return () => {
       supabase.removeChannel(sub);
     };
-  }, [channelId]);
+  }, [channelId, user?.id]);
 
   // ── Auto-Scroll ───────────────────────────────────────────
   useEffect(() => {
@@ -105,6 +195,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
       setMessages((prev) => [...result.data, ...prev]);
       setHasMore(result.hasMore);
       setPage(nextPage);
+      loadReactionsForMessages(result.data.map((m) => m.id));
     } catch (e) {
       console.error(e);
     } finally {
@@ -117,7 +208,6 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     const content = text.trim();
     if (!content || sending) return;
 
-    // Edit-Mode
     if (editingMsg) {
       setSending(true);
       try {
@@ -179,6 +269,27 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     inputRef.current?.focus();
   };
 
+  // ── Reactions ─────────────────────────────────────────────
+  const handleToggleReaction = async (msgId: string, emoji: string) => {
+    const existing = reactions[msgId]?.find((r) => r.emoji === emoji);
+    try {
+      if (existing?.has_reacted) {
+        await removeReaction(msgId, emoji);
+      } else {
+        await addReaction(msgId, emoji);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleEmojiSelect = async (emoji: string) => {
+    if (!emojiPickerMsgId) return;
+    const msgId = emojiPickerMsgId;
+    setEmojiPickerMsgId(null);
+    await handleToggleReaction(msgId, emoji);
+  };
+
   // ── Channel-Name bestimmen ────────────────────────────────
   const getChannelName = () => {
     if (!channel) return '';
@@ -226,7 +337,6 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           <Icon name="arrow-left" size={20} />
         </button>
 
-        {/* Avatar */}
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center font-heading text-sm overflow-hidden shrink-0"
           style={{ background: 'var(--avatar-bg)', color: 'var(--gold-text)', border: '1.5px solid var(--gold-border-s)' }}
@@ -256,7 +366,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
       </div>
 
       {/* ── Nachrichten ────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1 relative">
         {hasMore && (
           <div className="text-center pb-3">
             <button
@@ -281,13 +391,58 @@ export default function ChatRoomClient({ channelId, user }: Props) {
               message={msg}
               isOwn={isOwn}
               showAuthor={showAuthor}
+              reactions={reactions[msg.id] ?? []}
               onReply={() => handleReply(msg)}
+              onReact={() => setEmojiPickerMsgId(msg.id)}
               onEdit={isOwn && msg.type === 'text' ? () => handleStartEdit(msg) : undefined}
               onDelete={isOwn ? () => handleDelete(msg.id) : undefined}
+              onToggleReaction={(emoji) => handleToggleReaction(msg.id, emoji)}
             />
           );
         })}
         <div ref={messagesEndRef} />
+
+        {/* Emoji Picker Popover */}
+        {emojiPickerMsgId && (
+          <div className="fixed inset-0 z-40" onClick={() => setEmojiPickerMsgId(null)}>
+            <div
+              className="absolute bottom-24 left-1/2 -translate-x-1/2 rounded-2xl p-3 z-50"
+              style={{
+                background: 'var(--bg-solid)',
+                border: '1px solid var(--glass-border)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p
+                className="text-[10px] font-label tracking-[0.15em] uppercase text-center mb-3"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                Reaktion wählen
+              </p>
+              <div className="grid grid-cols-6 gap-1.5">
+                {QUICK_EMOJIS.map((emoji) => {
+                  const hasReacted = reactions[emojiPickerMsgId]?.some(
+                    (r) => r.emoji === emoji && r.has_reacted,
+                  );
+                  return (
+                    <button
+                      key={emoji}
+                      onClick={() => handleEmojiSelect(emoji)}
+                      className="w-11 h-11 rounded-xl flex items-center justify-center text-xl cursor-pointer transition-colors duration-150"
+                      style={{
+                        background: hasReacted ? 'rgba(200,169,110,0.15)' : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${hasReacted ? 'rgba(200,169,110,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                      }}
+                    >
+                      {emoji}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Reply/Edit Banner ──────────────────────────────── */}
@@ -323,7 +478,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Nachricht schreiben ..."
+          placeholder={editingMsg ? 'Nachricht bearbeiten ...' : 'Nachricht schreiben ...'}
           maxLength={5000}
           className="flex-1 px-4 py-2.5 text-sm font-body outline-none"
           style={{

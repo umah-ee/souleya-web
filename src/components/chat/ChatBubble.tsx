@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Message } from '@/types/chat';
+import type { Message, ReactionSummary } from '@/types/chat';
 import { Icon } from '@/components/ui/Icon';
 import EventShareCard from '@/components/shared/EventShareCard';
 
@@ -13,12 +13,18 @@ interface Props {
   message: Message;
   isOwn: boolean;
   showAuthor: boolean;
+  reactions?: ReactionSummary[];
   onReply?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  onReact?: () => void;
+  onToggleReaction?: (emoji: string) => void;
 }
 
-export default function ChatBubble({ message, isOwn, showAuthor, onReply, onEdit, onDelete }: Props) {
+export default function ChatBubble({
+  message, isOwn, showAuthor, reactions = [],
+  onReply, onEdit, onDelete, onReact, onToggleReaction,
+}: Props) {
   const [showActions, setShowActions] = useState(false);
   const authorName = message.author?.display_name ?? message.author?.username ?? 'Anonym';
 
@@ -167,12 +173,44 @@ export default function ChatBubble({ message, isOwn, showAuthor, onReply, onEdit
             </div>
           </div>
 
+          {/* Reactions */}
+          {reactions.length > 0 && (
+            <div className={`flex flex-wrap gap-1 mt-1 px-1 ${isOwn ? 'justify-end' : ''}`}>
+              {reactions.map((r) => (
+                <button
+                  key={r.emoji}
+                  onClick={() => onToggleReaction?.(r.emoji)}
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] cursor-pointer transition-colors duration-150"
+                  style={{
+                    background: r.has_reacted ? 'rgba(200,169,110,0.15)' : 'rgba(255,255,255,0.06)',
+                    border: `1px solid ${r.has_reacted ? 'rgba(200,169,110,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                  }}
+                >
+                  <span>{r.emoji}</span>
+                  {r.count > 1 && (
+                    <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{r.count}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Action Buttons (Hover) */}
-          {showActions && (onReply || onEdit || onDelete) && (
+          {showActions && (onReply || onEdit || onDelete || onReact) && (
             <div
-              className={`absolute top-0 ${isOwn ? '-left-16' : '-right-16'} flex gap-0.5`}
+              className={`absolute top-0 ${isOwn ? '-left-20' : '-right-20'} flex gap-0.5`}
               style={{ zIndex: 10 }}
             >
+              {onReact && (
+                <button
+                  onClick={onReact}
+                  className="w-6 h-6 rounded flex items-center justify-center cursor-pointer transition-colors"
+                  style={{ color: 'var(--text-muted)', background: 'var(--glass)' }}
+                  title="Reagieren"
+                >
+                  <Icon name="face-smile" size={12} />
+                </button>
+              )}
               {onReply && (
                 <button
                   onClick={onReply}

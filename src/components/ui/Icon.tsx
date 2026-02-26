@@ -50,7 +50,9 @@ export type IconName =
   | 'chevron-right'
   | 'map-pin-heart'
   | 'school'
-  | 'chart-dots';
+  | 'chart-dots'
+  | 'face-smile'
+  | 'check';
 
 const paths: Record<IconName, React.ReactNode> = {
   home: (
@@ -331,6 +333,17 @@ const paths: Record<IconName, React.ReactNode> = {
       <path d="M10.16 10.62l2.34 2.88" />
       <path d="M15.088 13.328l2.837 -4.586" />
     </>
+  ),
+  'face-smile': (
+    <>
+      <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+      <path d="M9 10l.01 0" />
+      <path d="M15 10l.01 0" />
+      <path d="M9.5 15a3.5 3.5 0 0 0 5 0" />
+    </>
+  ),
+  check: (
+    <path d="M5 12l5 5l10 -10" />
   ),
 };
 

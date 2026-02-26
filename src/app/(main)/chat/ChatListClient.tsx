@@ -8,6 +8,7 @@ import { fetchChannels } from '@/lib/chat';
 import { Icon } from '@/components/ui/Icon';
 import ChannelListItem from '@/components/chat/ChannelListItem';
 import NewChatModal from '@/components/chat/NewChatModal';
+import { useUnread } from '@/components/chat/UnreadContext';
 
 interface Props {
   user: User | null;
@@ -15,6 +16,7 @@ interface Props {
 
 export default function ChatListClient({ user }: Props) {
   const router = useRouter();
+  const { refreshUnread } = useUnread();
   const [channels, setChannels] = useState<ChannelOverview[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewChat, setShowNewChat] = useState(false);
@@ -23,12 +25,13 @@ export default function ChatListClient({ user }: Props) {
     try {
       const data = await fetchChannels();
       setChannels(data);
+      refreshUnread();
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [refreshUnread]);
 
   useEffect(() => {
     loadChannels();

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icon, type IconName } from '@/components/ui/Icon';
+import { useUnread } from '@/components/chat/UnreadContext';
 
 const tabs: { href: string; icon: IconName; label: string }[] = [
   { href: '/', icon: 'sparkles', label: 'Pulse' },
@@ -20,6 +21,7 @@ const moreItems: { href: string; icon: IconName; label: string }[] = [
 
 export default function BottomTabs() {
   const pathname = usePathname();
+  const { totalUnread } = useUnread();
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
@@ -99,13 +101,25 @@ export default function BottomTabs() {
             <Link
               key={tab.href}
               href={tab.href}
-              className="flex flex-col items-center justify-center flex-1 h-full transition-colors duration-200"
+              className="relative flex flex-col items-center justify-center flex-1 h-full transition-colors duration-200"
               style={{ color: isActive ? 'var(--gold-text)' : 'var(--text-muted)' }}
             >
               <Icon name={tab.icon} size={20} style={{ opacity: isActive ? 1 : 0.5 }} />
               <span className="text-[9px] font-label uppercase tracking-[2px] -mt-0.5">
                 {tab.label}
               </span>
+              {/* Unread Badge */}
+              {tab.href === '/chat' && totalUnread > 0 && (
+                <span
+                  className="absolute top-1.5 right-1/4 min-w-[16px] h-[16px] flex items-center justify-center rounded-full text-[9px] font-label px-1"
+                  style={{
+                    background: 'var(--gold)',
+                    color: 'var(--text-on-gold)',
+                  }}
+                >
+                  {totalUnread > 99 ? '99+' : totalUnread}
+                </span>
+              )}
             </Link>
           );
         })}
