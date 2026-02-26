@@ -24,6 +24,7 @@ export default function ChatListClient({ user }: Props) {
 
   const loadChannels = useCallback(async () => {
     setError(false);
+    setLoading(true);
     try {
       const data = await fetchChannels();
       setChannels(data);
