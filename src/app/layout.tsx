@@ -16,8 +16,9 @@ const quicksand = Quicksand({
 });
 
 export const metadata: Metadata = {
-  title: 'Souleya – Deine Community fuer Wachstum',
-  description: 'Community-Plattform fuer Spiritualitaet, Gesundheit und persoenliche Entwicklung.',
+  title: 'Souleya – Deine Community für Wachstum',
+  description: 'Community-Plattform für Spiritualität, Gesundheit und persönliche Entwicklung.',
+  icons: { icon: '/icon.svg' },
 };
 
 export default function RootLayout({
