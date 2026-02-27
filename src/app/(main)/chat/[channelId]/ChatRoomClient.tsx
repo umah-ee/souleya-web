@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
 import ChatBubble from '@/components/chat/ChatBubble';
 import GroupInfoPanel from '@/components/chat/GroupInfoPanel';
+import CreatePollForm from '@/components/chat/CreatePollForm';
 
 const QUICK_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '👏', '🙏', '✨', '🔥', '🕊️', '🌿', '💛'];
 
@@ -37,6 +38,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [emojiPickerMsgId, setEmojiPickerMsgId] = useState<string | null>(null);
   const [reactions, setReactions] = useState<ReactionsMap>({});
   const [showGroupInfo, setShowGroupInfo] = useState(false);
+  const [showPollForm, setShowPollForm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const channelRef = useRef<ChannelDetail | null>(null);
@@ -173,6 +175,13 @@ export default function ChatRoomClient({ channelId, user }: Props) {
               .filter((r) => r.count > 0);
             return { ...prev, [row.message_id]: updated };
           });
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'poll_votes' },
+        () => {
+          window.dispatchEvent(new Event('poll-vote-update'));
         },
       )
       .subscribe();
@@ -421,6 +430,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
               message={msg}
               isOwn={isOwn}
               showAuthor={showAuthor}
+              currentUserId={user?.id ?? ''}
               reactions={reactions[msg.id] ?? []}
               onReply={() => handleReply(msg)}
               onReact={() => setEmojiPickerMsgId(msg.id)}
@@ -498,40 +508,59 @@ export default function ChatRoomClient({ channelId, user }: Props) {
       )}
 
       {/* ── Input ──────────────────────────────────────────── */}
-      <div
-        className="flex items-center gap-2 px-4 py-3 shrink-0"
-        style={{ borderTop: '1px solid var(--divider-l)' }}
-      >
-        <input
-          ref={inputRef}
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={editingMsg ? 'Nachricht bearbeiten ...' : 'Nachricht schreiben ...'}
-          maxLength={5000}
-          className="flex-1 px-4 py-2.5 text-sm font-body outline-none"
-          style={{
-            background: 'var(--input-bg)',
-            border: '1px solid var(--input-border)',
-            borderRadius: '8px',
-            color: 'var(--text-body)',
+      {showPollForm ? (
+        <CreatePollForm
+          channelId={channelId}
+          onCreated={(msg) => {
+            setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+            setShowPollForm(false);
           }}
+          onCancel={() => setShowPollForm(false)}
         />
-        <button
-          onClick={handleSend}
-          disabled={!text.trim() || sending}
-          className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200"
-          style={{
-            background: text.trim() && !sending
-              ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'
-              : 'var(--gold-bg)',
-            color: text.trim() && !sending ? 'var(--text-on-gold)' : 'var(--text-muted)',
-          }}
+      ) : (
+        <div
+          className="flex items-center gap-1.5 px-4 py-3 shrink-0"
+          style={{ borderTop: '1px solid var(--divider-l)' }}
         >
-          <Icon name="send" size={16} />
-        </button>
-      </div>
+          <button
+            onClick={() => setShowPollForm(true)}
+            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 cursor-pointer"
+            style={{ color: 'var(--text-muted)' }}
+            title="Abstimmung"
+          >
+            <Icon name="chart-bar" size={16} />
+          </button>
+          <input
+            ref={inputRef}
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={editingMsg ? 'Nachricht bearbeiten ...' : 'Nachricht schreiben ...'}
+            maxLength={5000}
+            className="flex-1 px-4 py-2.5 text-sm font-body outline-none"
+            style={{
+              background: 'var(--input-bg)',
+              border: '1px solid var(--input-border)',
+              borderRadius: '8px',
+              color: 'var(--text-body)',
+            }}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!text.trim() || sending}
+            className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200"
+            style={{
+              background: text.trim() && !sending
+                ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'
+                : 'var(--gold-bg)',
+              color: text.trim() && !sending ? 'var(--text-on-gold)' : 'var(--text-muted)',
+            }}
+          >
+            <Icon name="send" size={16} />
+          </button>
+        </div>
+      )}
 
       {/* Gruppen-Info Panel */}
       {showGroupInfo && channel && channel.type !== 'direct' && (

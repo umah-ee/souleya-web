@@ -1,7 +1,7 @@
 import { apiFetch } from './api';
 import type {
   ChannelOverview, ChannelDetail, Channel,
-  Message, ReactionSummary, UnreadCount,
+  Message, ReactionSummary, UnreadCount, PollResult,
 } from '../types/chat';
 
 // ══════════════════════════════════════════════════════════════
@@ -131,4 +131,32 @@ export async function markChannelAsRead(channelId: string) {
 
 export async function fetchUnreadCounts() {
   return apiFetch<UnreadCount[]>('/chat/unread');
+}
+
+// ══════════════════════════════════════════════════════════════
+// POLLS
+// ══════════════════════════════════════════════════════════════
+
+export async function createPoll(channelId: string, data: {
+  question: string;
+  options: string[];
+  multiple_choice?: boolean;
+  is_anonymous?: boolean;
+  expires_at?: string;
+}) {
+  return apiFetch<Message>(`/chat/channels/${channelId}/polls`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function votePoll(pollId: string, optionId: string) {
+  return apiFetch<PollResult>(`/chat/polls/${pollId}/vote`, {
+    method: 'POST',
+    body: JSON.stringify({ option_id: optionId }),
+  });
+}
+
+export async function getPollResults(pollId: string) {
+  return apiFetch<PollResult>(`/chat/polls/${pollId}`);
 }

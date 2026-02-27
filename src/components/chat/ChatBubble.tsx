@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Message, ReactionSummary } from '@/types/chat';
 import { Icon } from '@/components/ui/Icon';
 import EventShareCard from '@/components/shared/EventShareCard';
+import PollBubble from '@/components/chat/PollBubble';
 
 function formatTime(dateString: string): string {
   return new Date(dateString).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
@@ -13,6 +14,7 @@ interface Props {
   message: Message;
   isOwn: boolean;
   showAuthor: boolean;
+  currentUserId: string;
   reactions?: ReactionSummary[];
   onReply?: () => void;
   onEdit?: () => void;
@@ -22,7 +24,7 @@ interface Props {
 }
 
 export default function ChatBubble({
-  message, isOwn, showAuthor, reactions = [],
+  message, isOwn, showAuthor, currentUserId, reactions = [],
   onReply, onEdit, onDelete, onReact, onToggleReaction,
 }: Props) {
   const [showActions, setShowActions] = useState(false);
@@ -142,6 +144,10 @@ export default function ChatBubble({
                 <Icon name="map-pin" size={14} style={{ color: 'var(--gold-text)' }} />
                 <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Standort</span>
               </div>
+            )}
+
+            {message.type === 'poll' && (
+              <PollBubble message={message} isOwn={isOwn} currentUserId={currentUserId} />
             )}
 
             {/* Event Embed */}
