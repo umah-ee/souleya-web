@@ -11,6 +11,7 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
 import ChatBubble from '@/components/chat/ChatBubble';
+import GroupInfoPanel from '@/components/chat/GroupInfoPanel';
 
 const QUICK_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '👏', '🙏', '✨', '🔥', '🕊️', '🌿', '💛'];
 
@@ -35,6 +36,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [editingMsg, setEditingMsg] = useState<Message | null>(null);
   const [emojiPickerMsgId, setEmojiPickerMsgId] = useState<string | null>(null);
   const [reactions, setReactions] = useState<ReactionsMap>({});
+  const [showGroupInfo, setShowGroupInfo] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const channelRef = useRef<ChannelDetail | null>(null);
@@ -326,6 +328,11 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     return `${channel.members.length} Mitglieder`;
   };
 
+  const handleChannelUpdated = (updated: ChannelDetail) => {
+    setChannel(updated);
+    channelRef.current = updated;
+  };
+
   if (loading) {
     return (
       <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
@@ -375,7 +382,10 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           )}
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div
+          className={`flex-1 min-w-0 ${channel.type !== 'direct' ? 'cursor-pointer' : ''}`}
+          onClick={() => { if (channel.type !== 'direct') setShowGroupInfo(true); }}
+        >
           <div className="text-sm font-heading truncate" style={{ color: 'var(--text-h)' }}>
             {getChannelName()}
           </div>
@@ -522,6 +532,16 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           <Icon name="send" size={16} />
         </button>
       </div>
+
+      {/* Gruppen-Info Panel */}
+      {showGroupInfo && channel && channel.type !== 'direct' && (
+        <GroupInfoPanel
+          channel={channel}
+          currentUserId={user?.id ?? ''}
+          onClose={() => setShowGroupInfo(false)}
+          onChannelUpdated={handleChannelUpdated}
+        />
+      )}
     </div>
   );
 }
