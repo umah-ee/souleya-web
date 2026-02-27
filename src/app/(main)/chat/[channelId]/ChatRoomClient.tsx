@@ -180,9 +180,25 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     };
   }, [channelId, user?.id]);
 
-  // ── Auto-Scroll ───────────────────────────────────────────
+  // ── Auto-Scroll (nur bei neuen Nachrichten am Ende) ──────
+  const prevMsgCountRef = useRef(0);
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const prevCount = prevMsgCountRef.current;
+    const newCount = messages.length;
+    prevMsgCountRef.current = newCount;
+
+    // Nur scrollen wenn Nachrichten am Ende hinzukamen (nicht bei loadOlder/Edit/Reaction)
+    if (newCount > prevCount && prevCount > 0) {
+      const lastMsg = messages[newCount - 1];
+      const prevLastMsg = messages[prevCount - 1];
+      // Nur wenn die letzte Nachricht neu ist (nicht bei prepend durch loadOlder)
+      if (lastMsg?.id !== prevLastMsg?.id) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else if (prevCount === 0 && newCount > 0) {
+      // Initialer Load – sofort nach unten
+      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+    }
   }, [messages]);
 
   // ── Aeltere Nachrichten laden ─────────────────────────────
@@ -435,8 +451,8 @@ export default function ChatRoomClient({ channelId, user }: Props) {
                       onClick={() => handleEmojiSelect(emoji)}
                       className="w-11 h-11 rounded-xl flex items-center justify-center text-xl cursor-pointer transition-colors duration-150"
                       style={{
-                        background: hasReacted ? 'rgba(200,169,110,0.15)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${hasReacted ? 'rgba(200,169,110,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                        background: hasReacted ? 'var(--gold-bg)' : 'var(--glass)',
+                        border: `1px solid ${hasReacted ? 'var(--gold-border-s)' : 'var(--glass-border)'}`,
                       }}
                     >
                       {emoji}
