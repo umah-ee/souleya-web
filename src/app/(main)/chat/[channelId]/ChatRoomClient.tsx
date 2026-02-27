@@ -7,12 +7,14 @@ import type { ChannelDetail, Message, ReactionSummary } from '@/types/chat';
 import {
   fetchChannel, fetchMessages, sendMessage, markChannelAsRead,
   deleteMessage, editMessage, addReaction, removeReaction,
+  uploadChatImage,
 } from '@/lib/chat';
 import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
 import ChatBubble from '@/components/chat/ChatBubble';
 import GroupInfoPanel from '@/components/chat/GroupInfoPanel';
 import CreatePollForm from '@/components/chat/CreatePollForm';
+import SeedsTransferModal from '@/components/chat/SeedsTransferModal';
 
 const QUICK_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '👏', '🙏', '✨', '🔥', '🕊️', '🌿', '💛'];
 
@@ -39,8 +41,13 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [reactions, setReactions] = useState<ReactionsMap>({});
   const [showGroupInfo, setShowGroupInfo] = useState(false);
   const [showPollForm, setShowPollForm] = useState(false);
+  const [showSeedsModal, setShowSeedsModal] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const channelRef = useRef<ChannelDetail | null>(null);
 
   // ── Reactions batch laden (via Supabase direkt) ──────────
@@ -300,6 +307,42 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     inputRef.current?.focus();
   };
 
+  // ── Bild-Upload ─────────────────────────────────────────────
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > 10 * 1024 * 1024) return; // 10 MB limit
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    // Reset file input so same file can be re-selected
+    e.target.value = '';
+  };
+
+  const handleCancelImage = () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const handleSendImage = async () => {
+    if (!imageFile || !user?.id || uploadingImage) return;
+    setUploadingImage(true);
+    try {
+      const url = await uploadChatImage(imageFile, user.id);
+      const msg = await sendMessage(channelId, { type: 'image', content: url });
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
+      handleCancelImage();
+    } catch (e) {
+      console.error('Bild-Upload fehlgeschlagen:', e);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   // ── Reactions ─────────────────────────────────────────────
   const handleToggleReaction = async (msgId: string, emoji: string) => {
     const existing = reactions[msgId]?.find((r) => r.emoji === emoji);
@@ -485,6 +528,49 @@ export default function ChatRoomClient({ channelId, user }: Props) {
         )}
       </div>
 
+      {/* ── Bild-Vorschau Banner ────────────────────────────── */}
+      {imagePreview && (
+        <div
+          className="px-4 py-2 flex items-center gap-3 text-[11px]"
+          style={{ borderTop: '1px solid var(--gold-border-s)', background: 'var(--gold-bg)' }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imagePreview}
+            alt="Vorschau"
+            className="w-12 h-12 rounded-lg object-cover"
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-[12px] truncate" style={{ color: 'var(--text-body)' }}>
+              {imageFile?.name}
+            </p>
+            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              {imageFile ? `${(imageFile.size / 1024).toFixed(0)} KB` : ''}
+            </p>
+          </div>
+          <button
+            onClick={handleCancelImage}
+            className="cursor-pointer p-1"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            <Icon name="x" size={14} />
+          </button>
+          <button
+            onClick={handleSendImage}
+            disabled={uploadingImage}
+            className="px-3 py-1.5 rounded-full font-label text-[0.6rem] tracking-[0.1em] uppercase cursor-pointer transition-all"
+            style={{
+              background: uploadingImage
+                ? 'var(--gold-bg)'
+                : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+              color: uploadingImage ? 'var(--text-muted)' : 'var(--text-on-gold)',
+            }}
+          >
+            {uploadingImage ? 'Wird hochgeladen ...' : 'Senden'}
+          </button>
+        </div>
+      )}
+
       {/* ── Reply/Edit Banner ──────────────────────────────── */}
       {(replyTo || editingMsg) && (
         <div
@@ -522,6 +608,21 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           className="flex items-center gap-1.5 px-4 py-3 shrink-0"
           style={{ borderTop: '1px solid var(--divider-l)' }}
         >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 cursor-pointer"
+            style={{ color: 'var(--text-muted)' }}
+            title="Bild senden"
+          >
+            <Icon name="photo" size={16} />
+          </button>
           <button
             onClick={() => setShowPollForm(true)}
             className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 cursor-pointer"
@@ -529,6 +630,14 @@ export default function ChatRoomClient({ channelId, user }: Props) {
             title="Abstimmung"
           >
             <Icon name="chart-bar" size={16} />
+          </button>
+          <button
+            onClick={() => setShowSeedsModal(true)}
+            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 cursor-pointer"
+            style={{ color: 'var(--text-muted)' }}
+            title="Seeds senden"
+          >
+            <Icon name="seedling" size={16} />
           </button>
           <input
             ref={inputRef}
@@ -569,6 +678,18 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           currentUserId={user?.id ?? ''}
           onClose={() => setShowGroupInfo(false)}
           onChannelUpdated={handleChannelUpdated}
+        />
+      )}
+
+      {/* Seeds Transfer Modal */}
+      {showSeedsModal && channel && (
+        <SeedsTransferModal
+          channelId={channelId}
+          channelType={channel.type}
+          members={channel.members}
+          currentUserId={user?.id ?? ''}
+          onClose={() => setShowSeedsModal(false)}
+          onSent={() => setShowSeedsModal(false)}
         />
       )}
     </div>

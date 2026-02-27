@@ -1,4 +1,5 @@
 import { apiFetch } from './api';
+import { createClient } from './supabase/client';
 import type {
   ChannelOverview, ChannelDetail, Channel,
   Message, ReactionSummary, UnreadCount, PollResult,
@@ -159,4 +160,41 @@ export async function votePoll(pollId: string, optionId: string) {
 
 export async function getPollResults(pollId: string) {
   return apiFetch<PollResult>(`/chat/polls/${pollId}`);
+}
+
+// ══════════════════════════════════════════════════════════════
+// SEEDS TRANSFER
+// ══════════════════════════════════════════════════════════════
+
+export async function transferSeeds(channelId: string, data: {
+  amount: number;
+  message?: string;
+  to_user_id?: string;
+}) {
+  return apiFetch<{ success: boolean; message_id: string; new_balance: number }>(
+    `/chat/channels/${channelId}/seeds`,
+    { method: 'POST', body: JSON.stringify(data) },
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// IMAGE UPLOAD
+// ══════════════════════════════════════════════════════════════
+
+export async function uploadChatImage(file: File, userId: string): Promise<string> {
+  const supabase = createClient();
+  const ext = file.name.split('.').pop() ?? 'jpg';
+  const path = `${userId}/${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from('chat-images')
+    .upload(path, file, { contentType: file.type, upsert: false });
+
+  if (error) throw new Error(`Upload fehlgeschlagen: ${error.message}`);
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('chat-images')
+    .getPublicUrl(path);
+
+  return publicUrl;
 }
