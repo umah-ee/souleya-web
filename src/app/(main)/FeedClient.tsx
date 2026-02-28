@@ -11,6 +11,11 @@ import PulseCard from '@/components/pulse/PulseCard';
 import ShareEventModal from '@/components/discover/ShareEventModal';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Icon } from '@/components/ui/Icon';
+import { fetchChallenges, joinChallenge, checkinChallenge, fetchChallenge } from '@/lib/challenges';
+import type { Challenge } from '@/types/challenges';
+import ChallengeCard from '@/components/challenges/ChallengeCard';
+import ChallengeDetailModal from '@/components/challenges/ChallengeDetailModal';
+import CreateChallengeModal from '@/components/challenges/CreateChallengeModal';
 
 interface Props {
   user: User | null;
@@ -67,6 +72,11 @@ export default function FeedClient({ user }: Props) {
   // Bestaetigungsdialog fuer Entmerken
   const [confirmUnbookmark, setConfirmUnbookmark] = useState<string | null>(null);
 
+  // Challenges
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [showCreateChallenge, setShowCreateChallenge] = useState(false);
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
+
   // ── Daten laden ─────────────────────────────────────────────
   const loadData = useCallback(async (pageNum: number, replace: boolean) => {
     try {
@@ -92,6 +102,12 @@ export default function FeedClient({ user }: Props) {
     setLoading(true);
     loadData(1, true).finally(() => setLoading(false));
   }, [loadData, user]);
+
+  // Challenges laden
+  useEffect(() => {
+    if (!user) return;
+    fetchChallenges({ page: 1, limit: 10 }).then(res => setChallenges(res.data)).catch(console.error);
+  }, [user]);
 
   const handleLoadMore = async () => {
     setLoadingMore(true);
@@ -216,6 +232,39 @@ export default function FeedClient({ user }: Props) {
     setPulses((prev) => prev.filter((p) => p.id !== pulseId));
   };
 
+  // ── Challenge-Aktionen ──────────────────────────────────────
+  const handleJoinChallenge = async (challengeId: string) => {
+    try {
+      const res = await joinChallenge(challengeId);
+      setChallenges(prev => prev.map(c =>
+        c.id === challengeId ? { ...c, has_joined: true, participants_count: res.participants_count } : c
+      ));
+    } catch (e) { console.error(e); }
+  };
+
+  const handleCheckinChallenge = async (challengeId: string) => {
+    const challenge = challenges.find(c => c.id === challengeId);
+    if (!challenge) return;
+    const startDate = new Date(challenge.starts_at);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const startDay = new Date(startDate); startDay.setHours(0,0,0,0);
+    const diffMs = today.getTime() - startDay.getTime();
+    const currentDayNumber = Math.max(1, Math.min(challenge.duration_days, Math.floor(diffMs / 86400000) + 1));
+    try {
+      await checkinChallenge(challengeId, currentDayNumber);
+      const updated = await fetchChallenge(challengeId);
+      setChallenges(prev => prev.map(c => c.id === challengeId ? updated : c));
+    } catch (e) { console.error(e); }
+  };
+
+  const handleChallengeCreated = (challenge: Challenge) => {
+    setChallenges(prev => [challenge, ...prev]);
+  };
+
+  const handleChallengeUpdate = (challengeId: string, updates: Partial<Challenge>) => {
+    setChallenges(prev => prev.map(c => c.id === challengeId ? { ...c, ...updates } : c));
+  };
+
   const isEmpty = timelineItems.length === 0;
 
   return (
@@ -229,6 +278,67 @@ export default function FeedClient({ user }: Props) {
           Deine Events, Kurse und Beitraege auf einen Blick
         </p>
       </div>
+
+      {/* ── Aktive Challenges ──────────────────────────── */}
+      {!loading && challenges.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Icon name="target" size={16} style={{ color: 'var(--gold)' }} />
+              <span className="font-label text-[0.65rem] tracking-[0.15em] uppercase" style={{ color: 'var(--gold-text)' }}>
+                Aktive Challenges
+              </span>
+            </div>
+            {user && (
+              <button
+                onClick={() => setShowCreateChallenge(true)}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full font-label text-[0.6rem] tracking-[0.1em] uppercase cursor-pointer transition-all duration-200"
+                style={{ background: 'var(--glass)', border: '1px solid var(--glass-border)', color: 'var(--text-muted)' }}
+              >
+                <Icon name="plus" size={12} />
+                Neue Challenge
+              </button>
+            )}
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin" style={{ scrollbarWidth: 'none' }}>
+            {challenges.map(challenge => {
+              const startDate = new Date(challenge.starts_at);
+              const today = new Date(); today.setHours(0,0,0,0);
+              const startDay = new Date(startDate); startDay.setHours(0,0,0,0);
+              const diffMs = today.getTime() - startDay.getTime();
+              const currentDayNumber = Math.max(1, Math.min(challenge.duration_days, Math.floor(diffMs / 86400000) + 1));
+              const checkinDays = new Set((challenge.my_progress?.checkins ?? []).map(c => c.day_number));
+              const checkedInToday = checkinDays.has(currentDayNumber);
+              return (
+                <div key={challenge.id} className="flex-shrink-0" style={{ width: 280 }}>
+                  <ChallengeCard
+                    challenge={challenge}
+                    currentDayNumber={currentDayNumber}
+                    checkedInToday={checkedInToday}
+                    onClick={() => setSelectedChallenge(challenge)}
+                    onJoin={() => handleJoinChallenge(challenge.id)}
+                    onCheckin={() => handleCheckinChallenge(challenge.id)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Wenn keine Challenges aber User eingeloggt: nur den Button zeigen */}
+      {!loading && challenges.length === 0 && user && (
+        <div className="mb-6 text-center">
+          <button
+            onClick={() => setShowCreateChallenge(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-all duration-200"
+            style={{ background: 'var(--glass)', border: '1px solid var(--glass-border)', color: 'var(--text-muted)' }}
+          >
+            <Icon name="target" size={14} />
+            Erste Challenge starten
+          </button>
+        </div>
+      )}
 
       {/* Content */}
       {loading ? (
@@ -400,6 +510,27 @@ export default function FeedClient({ user }: Props) {
         onConfirm={handleConfirmUnbookmark}
         onCancel={() => setConfirmUnbookmark(null)}
       />
+
+      {/* CreateChallengeModal */}
+      {showCreateChallenge && (
+        <CreateChallengeModal
+          onClose={() => setShowCreateChallenge(false)}
+          onCreated={handleChallengeCreated}
+        />
+      )}
+
+      {/* ChallengeDetailModal */}
+      {selectedChallenge && (
+        <ChallengeDetailModal
+          challenge={selectedChallenge}
+          currentUserId={user?.id}
+          onClose={() => setSelectedChallenge(null)}
+          onUpdate={(updates) => {
+            handleChallengeUpdate(selectedChallenge.id, updates);
+            setSelectedChallenge(prev => prev ? { ...prev, ...updates } : null);
+          }}
+        />
+      )}
     </>
   );
 }

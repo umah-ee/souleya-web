@@ -8,6 +8,7 @@ import { Icon } from '@/components/ui/Icon';
 interface Props {
   onClose: () => void;
   onCreated: (challenge: Challenge) => void;
+  channelId?: string;
 }
 
 const PRESET_EMOJIS = [
@@ -18,7 +19,7 @@ const PRESET_EMOJIS = [
 
 const DURATION_PRESETS = [7, 14, 21, 30, 90];
 
-export default function CreateChallengeModal({ onClose, onCreated }: Props) {
+export default function CreateChallengeModal({ onClose, onCreated, channelId }: Props) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState('\u{1F3AF}');
@@ -65,6 +66,7 @@ export default function CreateChallengeModal({ onClose, onCreated }: Props) {
       max_participants: maxParticipants
         ? parseInt(maxParticipants, 10)
         : undefined,
+      channel_id: channelId,
     };
 
     setSaving(true);

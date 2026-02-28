@@ -52,7 +52,11 @@ export type IconName =
   | 'school'
   | 'chart-dots'
   | 'face-smile'
-  | 'check';
+  | 'check'
+  | 'target'
+  | 'flame'
+  | 'trophy'
+  | 'circle-check';
 
 const paths: Record<IconName, React.ReactNode> = {
   home: (
@@ -344,6 +348,32 @@ const paths: Record<IconName, React.ReactNode> = {
   ),
   check: (
     <path d="M5 12l5 5l10 -10" />
+  ),
+  target: (
+    <>
+      <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+      <path d="M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0" />
+      <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+    </>
+  ),
+  flame: (
+    <path d="M12 12c2 -2.96 0 -7 -1 -8c0 3.038 -1.773 4.741 -3 6c-1.226 1.26 -2 3.24 -2 5a6 6 0 1 0 12 0c0 -1.532 -1.056 -3.94 -2 -5c-1.786 3 -2.791 3 -4 2z" />
+  ),
+  trophy: (
+    <>
+      <path d="M8 21l8 0" />
+      <path d="M12 17l0 4" />
+      <path d="M7 4l10 0" />
+      <path d="M17 4v8a5 5 0 0 1 -10 0v-8" />
+      <path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+    </>
+  ),
+  'circle-check': (
+    <>
+      <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+      <path d="M9 12l2 2l4 -4" />
+    </>
   ),
 };
 

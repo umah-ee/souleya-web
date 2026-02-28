@@ -15,6 +15,9 @@ import ChatBubble from '@/components/chat/ChatBubble';
 import GroupInfoPanel from '@/components/chat/GroupInfoPanel';
 import CreatePollForm from '@/components/chat/CreatePollForm';
 import SeedsTransferModal from '@/components/chat/SeedsTransferModal';
+import CreateChallengeModal from '@/components/challenges/CreateChallengeModal';
+import { createChallenge } from '@/lib/challenges';
+import type { Challenge } from '@/types/challenges';
 
 const QUICK_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '👏', '🙏', '✨', '🔥', '🕊️', '🌿', '💛'];
 
@@ -42,6 +45,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [showGroupInfo, setShowGroupInfo] = useState(false);
   const [showPollForm, setShowPollForm] = useState(false);
   const [showSeedsModal, setShowSeedsModal] = useState(false);
+  const [showChallengeModal, setShowChallengeModal] = useState(false);
   const [pendingImages, setPendingImages] = useState<File[]>([]);
   const [pendingImagePreviews, setPendingImagePreviews] = useState<string[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -692,6 +696,14 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           >
             <Icon name="seedling" size={16} />
           </button>
+          <button
+            onClick={() => setShowChallengeModal(true)}
+            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 cursor-pointer"
+            style={{ color: 'var(--text-muted)' }}
+            title="Challenge starten"
+          >
+            <Icon name="target" size={16} />
+          </button>
           <input
             ref={inputRef}
             type="text"
@@ -731,6 +743,17 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           currentUserId={user?.id ?? ''}
           onClose={() => setShowGroupInfo(false)}
           onChannelUpdated={handleChannelUpdated}
+        />
+      )}
+
+      {/* Challenge Modal */}
+      {showChallengeModal && (
+        <CreateChallengeModal
+          channelId={channelId}
+          onClose={() => setShowChallengeModal(false)}
+          onCreated={() => {
+            setShowChallengeModal(false);
+          }}
         />
       )}
 
