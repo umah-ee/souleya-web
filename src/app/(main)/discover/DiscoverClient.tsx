@@ -548,21 +548,28 @@ export default function DiscoverClient({ userId }: Props) {
 
         {/* Tag-Filter (nur bei Orte-Segment oder Alle) */}
         {!isSearchActive && (segment === 'orte' || segment === 'alle') && (
-          <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-            {PLACE_TAGS.slice(0, 15).map((tag) => (
-              <button
-                key={tag}
-                onClick={() => toggleTag(tag)}
-                className="flex-shrink-0 px-2.5 py-1.5 rounded-full text-[0.6rem] tracking-[0.08em] font-label cursor-pointer transition-all duration-200 whitespace-nowrap"
-                style={{
-                  background: activeTags.includes(tag) ? 'var(--gold-bg)' : 'transparent',
-                  border: `1px solid ${activeTags.includes(tag) ? 'var(--gold-border)' : 'var(--divider)'}`,
-                  color: activeTags.includes(tag) ? 'var(--gold-text)' : 'var(--text-muted)',
-                }}
-              >
-                {tag}
-              </button>
-            ))}
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {PLACE_TAGS.slice(0, 15).map((tag) => {
+              const isActive = activeTags.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                  className="flex-shrink-0 px-3 py-1.5 rounded-full text-[0.65rem] tracking-[0.06em] font-label cursor-pointer transition-all duration-200 whitespace-nowrap"
+                  style={{
+                    background: isActive
+                      ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'
+                      : 'var(--glass)',
+                    border: `1px solid ${isActive ? 'var(--gold)' : 'var(--glass-border)'}`,
+                    color: isActive ? 'var(--text-on-gold)' : 'var(--text-sec)',
+                    backdropFilter: isActive ? 'none' : 'blur(8px)',
+                    WebkitBackdropFilter: isActive ? 'none' : 'blur(8px)',
+                  }}
+                >
+                  {tag}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>

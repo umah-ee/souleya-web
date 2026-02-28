@@ -264,7 +264,7 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
           {onShare && (
             <button
               onClick={(e) => { e.stopPropagation(); onShare(event); }}
-              className="flex items-center justify-center rounded-full cursor-pointer transition-all duration-200"
+              className="group flex items-center justify-center rounded-full cursor-pointer transition-all duration-200 hover:scale-110"
               style={{
                 width: '38px',
                 height: '38px',
@@ -272,6 +272,16 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
                 border: '1px solid var(--glass-border)',
                 color: 'var(--text-muted)',
                 flexShrink: 0,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--gold-border)';
+                e.currentTarget.style.color = 'var(--gold-text)';
+                e.currentTarget.style.background = 'var(--gold-bg)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--glass-border)';
+                e.currentTarget.style.color = 'var(--text-muted)';
+                e.currentTarget.style.background = 'var(--glass-strong, var(--glass))';
               }}
             >
               <Icon name="share" size={16} />
@@ -282,7 +292,7 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
           <button
             onClick={(e) => { e.stopPropagation(); onBookmark?.(event.id); }}
             disabled={bookmarking}
-            className="flex items-center justify-center rounded-full cursor-pointer transition-all duration-300"
+            className="flex items-center justify-center rounded-full cursor-pointer transition-all duration-300 hover:scale-110"
             style={{
               width: '38px',
               height: '38px',
@@ -293,6 +303,20 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
               color: event.is_bookmarked ? 'var(--text-on-gold)' : 'var(--text-muted)',
               boxShadow: event.is_bookmarked ? '0 0 12px rgba(200,169,110,0.35)' : 'none',
               flexShrink: 0,
+            }}
+            onMouseEnter={(e) => {
+              if (!event.is_bookmarked) {
+                e.currentTarget.style.borderColor = 'var(--gold-border)';
+                e.currentTarget.style.color = 'var(--gold-text)';
+                e.currentTarget.style.background = 'var(--gold-bg)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!event.is_bookmarked) {
+                e.currentTarget.style.borderColor = 'var(--glass-border)';
+                e.currentTarget.style.color = 'var(--text-muted)';
+                e.currentTarget.style.background = 'var(--glass-strong, var(--glass))';
+              }
             }}
           >
             <Icon name={event.is_bookmarked ? 'bookmark-filled' : 'bookmark'} size={16} />
