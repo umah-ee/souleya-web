@@ -56,7 +56,10 @@ export type IconName =
   | 'target'
   | 'flame'
   | 'trophy'
-  | 'circle-check';
+  | 'circle-check'
+  | 'book'
+  | 'run'
+  | 'droplet';
 
 const paths: Record<IconName, React.ReactNode> = {
   home: (
@@ -374,6 +377,26 @@ const paths: Record<IconName, React.ReactNode> = {
       <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
       <path d="M9 12l2 2l4 -4" />
     </>
+  ),
+  book: (
+    <>
+      <path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />
+      <path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />
+      <path d="M3 6l0 13" />
+      <path d="M12 6l0 13" />
+      <path d="M21 6l0 13" />
+    </>
+  ),
+  run: (
+    <>
+      <path d="M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+      <path d="M4 17l5 1l.75 -1.5" />
+      <path d="M15 21l0 -4l-4 -3l1 -6" />
+      <path d="M7 12l0 -3l5 -1l3 3l3 1" />
+    </>
+  ),
+  droplet: (
+    <path d="M6.8 11a6 6 0 1 0 10.396 0l-5.197 -8l-5.2 8z" />
   ),
 };
 

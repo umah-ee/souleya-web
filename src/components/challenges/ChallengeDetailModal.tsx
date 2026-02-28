@@ -211,9 +211,12 @@ export default function ChallengeDetailModal({
         {/* Header */}
         <div className="px-5 pt-4 pb-2 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className="text-[48px] leading-none flex-shrink-0">
-              {challenge.emoji}
-            </span>
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border-s)' }}
+            >
+              <Icon name={(challenge.emoji || 'target') as any} size={28} style={{ color: 'var(--gold)' }} />
+            </div>
             <div className="min-w-0 flex-1">
               <h2
                 className="font-heading text-lg leading-tight"
@@ -317,7 +320,7 @@ export default function ChallengeDetailModal({
                   border: '1px solid var(--gold-border-s)',
                 }}
               >
-                <span>&#128293;</span> {progress!.current_streak} Tage Streak
+                <Icon name="flame" size={14} style={{ color: 'var(--gold-text)' }} /> {progress!.current_streak} Tage Streak
               </span>
             </div>
           )}
@@ -456,7 +459,7 @@ export default function ChallengeDetailModal({
                             color: 'var(--gold-text)',
                           }}
                         >
-                          &#128293; {p.current_streak}
+                          <Icon name="flame" size={10} style={{ color: 'var(--gold-text)' }} /> {p.current_streak}
                         </span>
                       )}
 

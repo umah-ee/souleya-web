@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { Challenge } from '@/types/challenges';
+import { Icon } from '@/components/ui/Icon';
 
 interface Props {
   challenge: Challenge;
@@ -76,7 +77,12 @@ export default function ChallengeCard({
     >
       {/* Header: Emoji + Title + Duration Badge */}
       <div className="flex items-start gap-3 mb-3">
-        <span className="text-[28px] leading-none flex-shrink-0">{challenge.emoji}</span>
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border-s)' }}
+        >
+          <Icon name={(challenge.emoji || 'target') as any} size={22} style={{ color: 'var(--gold)' }} />
+        </div>
         <div className="flex-1 min-w-0">
           <h3
             className="font-heading text-base leading-tight truncate"
@@ -196,7 +202,7 @@ export default function ChallengeCard({
               border: '1px solid var(--gold-border-s)',
             }}
           >
-            <span>&#128293;</span> {currentStreak} Tage Streak
+            <Icon name="flame" size={12} style={{ color: 'var(--gold-text)' }} /> {currentStreak} Tage Streak
           </span>
         </div>
       )}

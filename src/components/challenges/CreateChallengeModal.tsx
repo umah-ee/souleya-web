@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { createChallenge } from '@/lib/challenges';
 import type { Challenge, CreateChallengeData } from '@/types/challenges';
-import { Icon } from '@/components/ui/Icon';
+import { Icon, type IconName } from '@/components/ui/Icon';
 
 interface Props {
   onClose: () => void;
@@ -11,10 +11,10 @@ interface Props {
   channelId?: string;
 }
 
-const PRESET_EMOJIS = [
-  '\u{1F9D8}', '\u{1F3C3}', '\u{1F4AA}', '\u{1F343}', '\u{1F4D6}',
-  '\u270D\uFE0F', '\u{1F9E0}', '\u{1F4A4}', '\u{1F957}', '\u{1F3AF}',
-  '\u{1F525}', '\u{1F54A}\uFE0F', '\u{1F49B}', '\u2728', '\u{1F30A}', '\u{1FAC1}',
+const PRESET_ICONS: IconName[] = [
+  'target', 'flame', 'heart', 'star', 'sparkles',
+  'moon', 'sun', 'seedling', 'pencil', 'trophy',
+  'circle-check', 'compass', 'users', 'book', 'run', 'droplet',
 ];
 
 const DURATION_PRESETS = [7, 14, 21, 30, 90];
@@ -22,7 +22,7 @@ const DURATION_PRESETS = [7, 14, 21, 30, 90];
 export default function CreateChallengeModal({ onClose, onCreated, channelId }: Props) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedEmoji, setSelectedEmoji] = useState('\u{1F3AF}');
+  const [selectedIcon, setSelectedIcon] = useState<IconName>('target');
   const [selectedDuration, setSelectedDuration] = useState<number | null>(21);
   const [customDuration, setCustomDuration] = useState('');
   const [startDate, setStartDate] = useState(
@@ -60,7 +60,7 @@ export default function CreateChallengeModal({ onClose, onCreated, channelId }: 
     const data: CreateChallengeData = {
       title: title.trim(),
       description: description.trim() || undefined,
-      emoji: selectedEmoji,
+      emoji: selectedIcon,
       duration_days: effectiveDuration,
       starts_at: startDate || undefined,
       max_participants: maxParticipants
@@ -186,23 +186,23 @@ export default function CreateChallengeModal({ onClose, onCreated, channelId }: 
             </span>
           </div>
 
-          {/* Emoji Picker */}
+          {/* Icon Picker */}
           <div>
             <label
               className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1.5"
               style={{ color: 'var(--text-muted)' }}
             >
-              Emoji
+              Icon
             </label>
             <div className="flex flex-wrap gap-1.5">
-              {PRESET_EMOJIS.map((emoji) => {
-                const isSelected = selectedEmoji === emoji;
+              {PRESET_ICONS.map((icon) => {
+                const isSelected = selectedIcon === icon;
                 return (
                   <button
-                    key={emoji}
+                    key={icon}
                     type="button"
-                    onClick={() => setSelectedEmoji(emoji)}
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-xl cursor-pointer transition-all duration-150"
+                    onClick={() => setSelectedIcon(icon)}
+                    className="w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-150"
                     style={{
                       background: isSelected ? 'var(--gold-bg)' : 'var(--glass)',
                       border: isSelected
@@ -211,7 +211,7 @@ export default function CreateChallengeModal({ onClose, onCreated, channelId }: 
                       transform: isSelected ? 'scale(1.1)' : 'scale(1)',
                     }}
                   >
-                    {emoji}
+                    <Icon name={icon} size={20} style={{ color: isSelected ? 'var(--gold)' : 'var(--text-muted)' }} />
                   </button>
                 );
               })}
