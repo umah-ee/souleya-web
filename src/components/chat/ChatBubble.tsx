@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Message, ReactionSummary } from '@/types/chat';
 import { Icon } from '@/components/ui/Icon';
 import EventShareCard from '@/components/shared/EventShareCard';
 import PollBubble from '@/components/chat/PollBubble';
+import ImageGrid from '@/components/shared/ImageGrid';
+import { fetchChallenge } from '@/lib/challenges';
+import type { Challenge } from '@/types/challenges';
+import ChallengeCard from '@/components/challenges/ChallengeCard';
 
 function formatTime(dateString: string): string {
   return new Date(dateString).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
@@ -21,6 +25,16 @@ interface Props {
   onDelete?: () => void;
   onReact?: () => void;
   onToggleReaction?: (emoji: string) => void;
+}
+
+// ── Inline Challenge Embed ────────────────────────────────
+function InlineChallengeEmbed({ challengeId }: { challengeId: string }) {
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  useEffect(() => {
+    fetchChallenge(challengeId).then(setChallenge).catch(console.error);
+  }, [challengeId]);
+  if (!challenge) return null;
+  return <ChallengeCard challenge={challenge} />;
 }
 
 export default function ChatBubble({
@@ -120,17 +134,27 @@ export default function ChatBubble({
               </p>
             )}
 
-            {message.type === 'image' && (
-              <div className="rounded-lg overflow-hidden -mx-1 -mt-0.5 mb-1">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={message.content ?? ''}
-                  alt=""
-                  className="max-w-full rounded-lg"
-                  style={{ maxHeight: '300px', objectFit: 'cover' }}
-                />
-              </div>
-            )}
+            {message.type === 'image' && (() => {
+              const imageUrls = (message.metadata?.image_urls as string[] | undefined);
+              const urls = imageUrls && imageUrls.length > 1
+                ? imageUrls
+                : message.content ? [message.content] : [];
+              return urls.length > 0 ? (
+                <div className="rounded-lg overflow-hidden -mx-1 -mt-0.5 mb-1">
+                  {urls.length === 1 ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={urls[0]}
+                      alt=""
+                      className="max-w-full rounded-lg"
+                      style={{ maxHeight: '300px', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <ImageGrid images={urls} maxHeight={280} />
+                  )}
+                </div>
+              ) : null;
+            })()}
 
             {message.type === 'voice' && (
               <div className="flex items-center gap-2">
@@ -148,6 +172,12 @@ export default function ChatBubble({
 
             {message.type === 'poll' && (
               <PollBubble message={message} isOwn={isOwn} currentUserId={currentUserId} />
+            )}
+
+            {message.type === 'challenge' && Boolean(message.metadata?.challenge_id) && (
+              <div className="-mx-1 my-0.5">
+                <InlineChallengeEmbed challengeId={String(message.metadata.challenge_id)} />
+              </div>
             )}
 
             {/* Event Embed */}

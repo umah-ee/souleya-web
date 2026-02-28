@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Pulse, PulsePoll } from '@/types/pulse';
 import { toggleLike, deletePulse, votePoll } from '@/lib/pulse';
+import { fetchChallenge, joinChallenge, checkinChallenge } from '@/lib/challenges';
+import type { Challenge } from '@/types/challenges';
+import ChallengeCard from '@/components/challenges/ChallengeCard';
 import CommentsSection from './CommentsSection';
 import EnsoRing from '@/components/ui/EnsoRing';
 import { Icon } from '@/components/ui/Icon';
 import EventShareCard from '@/components/shared/EventShareCard';
+import ImageGrid from '@/components/shared/ImageGrid';
 
 interface Props {
   pulse: Pulse;
@@ -161,6 +165,44 @@ function LocationEmbed({ lat, lng, name }: { lat: number; lng: number; name: str
   );
 }
 
+// ── Inline Challenge Card ─────────────────────────────────
+function InlineChallengeCard({ challengeId, currentUserId }: { challengeId: string; currentUserId?: string }) {
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchChallenge(challengeId).then(setChallenge).catch(console.error).finally(() => setLoading(false));
+  }, [challengeId]);
+
+  if (loading) return <div className="py-4 text-center text-xs" style={{ color: 'var(--text-muted)' }}>Lade Challenge …</div>;
+  if (!challenge) return null;
+
+  const startDate = new Date(challenge.starts_at);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const startDay = new Date(startDate); startDay.setHours(0,0,0,0);
+  const diffMs = today.getTime() - startDay.getTime();
+  const currentDayNumber = Math.max(1, Math.min(challenge.duration_days, Math.floor(diffMs / 86400000) + 1));
+  const checkinDays = new Set((challenge.my_progress?.checkins ?? []).map(c => c.day_number));
+  const checkedInToday = checkinDays.has(currentDayNumber);
+
+  return (
+    <ChallengeCard
+      challenge={challenge}
+      currentDayNumber={currentDayNumber}
+      checkedInToday={checkedInToday}
+      onJoin={async () => {
+        const res = await joinChallenge(challenge.id);
+        setChallenge(prev => prev ? { ...prev, has_joined: true, participants_count: res.participants_count } : null);
+      }}
+      onCheckin={async () => {
+        await checkinChallenge(challenge.id, currentDayNumber);
+        const updated = await fetchChallenge(challengeId);
+        setChallenge(updated);
+      }}
+    />
+  );
+}
+
 export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
   const [liked, setLiked] = useState(pulse.has_liked ?? false);
   const [likesCount, setLikesCount] = useState(pulse.likes_count);
@@ -236,15 +278,19 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
         </p>
       )}
 
-      {/* Image */}
-      {pulse.image_url && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={pulse.image_url}
-          alt=""
-          className="w-full rounded-lg mb-3 max-h-[400px] object-cover"
-        />
-      )}
+      {/* Bilder (Multi-Image oder Einzelbild) */}
+      {(() => {
+        const images = pulse.image_urls?.length
+          ? pulse.image_urls
+          : pulse.image_url
+            ? [pulse.image_url]
+            : [];
+        return images.length > 0 ? (
+          <div className="mb-3">
+            <ImageGrid images={images} />
+          </div>
+        ) : null;
+      })()}
 
       {/* Location Embed */}
       {pulse.location_lat != null && pulse.location_lng != null && pulse.location_name && (
@@ -279,6 +325,13 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
             }}
             onClick={() => { window.location.href = '/discover'; }}
           />
+        </div>
+      )}
+
+      {/* Challenge Embed */}
+      {pulse.metadata != null && pulse.metadata.type === 'challenge' && Boolean(pulse.metadata.challenge_id) && (
+        <div className="mb-3">
+          <InlineChallengeCard challengeId={String(pulse.metadata.challenge_id)} currentUserId={currentUserId} />
         </div>
       )}
 

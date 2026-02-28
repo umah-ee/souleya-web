@@ -26,11 +26,12 @@ export default function CreatePulseForm({ onCreated }: Props) {
   const [error, setError] = useState('');
   const maxLen = 1000;
 
-  // ── Bild (File Upload) ──────────────────────────────────────
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  // ── Bilder (File Upload, max 10) ────────────────────────────
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const maxImages = 10;
 
   // ── Ort ───────────────────────────────────────────────────
   const [location, setLocation] = useState<LocationData | null>(null);
@@ -47,35 +48,60 @@ export default function CreatePulseForm({ onCreated }: Props) {
   const [pollOptions, setPollOptions] = useState(['', '']);
 
   const hasContent = content.trim().length > 0;
-  const hasAttachment = !!imageFile || !!location || !!poll;
+  const hasAttachment = imageFiles.length > 0 || !!location || !!poll;
   const isEmpty = !hasContent && !hasAttachment;
   const isDisabled = isEmpty || loading || uploading;
 
-  // ── Bild auswaehlen ─────────────────────────────────────────
+  // ── Bilder auswaehlen ────────────────────────────────────────
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    // Max 10 MB
-    if (file.size > 10 * 1024 * 1024) {
-      setError('Bild darf maximal 10 MB gross sein');
-      return;
+    const newFiles: File[] = [];
+    const newPreviews: string[] = [];
+    const remaining = maxImages - imageFiles.length;
+
+    for (let i = 0; i < Math.min(files.length, remaining); i++) {
+      const file = files[i];
+      // Max 10 MB pro Bild
+      if (file.size > 10 * 1024 * 1024) {
+        setError('Jedes Bild darf maximal 10 MB gross sein');
+        continue;
+      }
+      newFiles.push(file);
     }
 
-    setImageFile(file);
+    if (newFiles.length === 0) return;
     setError('');
 
-    // Vorschau erstellen
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setImagePreview(ev.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    // Vorschauen erstellen
+    let loaded = 0;
+    newFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        newPreviews.push(ev.target?.result as string);
+        loaded++;
+        if (loaded === newFiles.length) {
+          setImageFiles((prev) => [...prev, ...newFiles]);
+          setImagePreviews((prev) => [...prev, ...newPreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // File-Input zuruecksetzen (damit gleiche Datei erneut gewaehlt werden kann)
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
+  const handleRemoveImage = (index?: number) => {
+    if (index !== undefined) {
+      setImageFiles((prev) => prev.filter((_, i) => i !== index));
+      setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      // Alle entfernen
+      setImageFiles([]);
+      setImagePreviews([]);
+    }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -149,12 +175,15 @@ export default function CreatePulseForm({ onCreated }: Props) {
     setLoading(true);
     setError('');
     try {
-      // Bild hochladen (falls vorhanden)
-      let imageUrl: string | undefined;
-      if (imageFile) {
+      // Bilder hochladen (falls vorhanden)
+      const imageUrls: string[] = [];
+      if (imageFiles.length > 0) {
         setUploading(true);
         try {
-          imageUrl = await uploadPulseImage(imageFile);
+          for (const file of imageFiles) {
+            const url = await uploadPulseImage(file);
+            imageUrls.push(url);
+          }
         } catch (uploadErr) {
           setError(uploadErr instanceof Error ? uploadErr.message : 'Bild-Upload fehlgeschlagen');
           setLoading(false);
@@ -166,7 +195,9 @@ export default function CreatePulseForm({ onCreated }: Props) {
 
       const pulse = await createPulse({
         content: content.trim() || undefined,
-        image_url: imageUrl,
+        // Abwaertskompatibilitaet: image_url = erstes Bild
+        image_url: imageUrls.length > 0 ? imageUrls[0] : undefined,
+        image_urls: imageUrls.length > 0 ? imageUrls : undefined,
         location_lat: location?.lat,
         location_lng: location?.lng,
         location_name: location?.name,
@@ -196,11 +227,12 @@ export default function CreatePulseForm({ onCreated }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-5 mb-6">
-      {/* Hidden File Input */}
+      {/* Hidden File Input (mehrere Bilder) */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp,image/gif"
+        multiple
         className="hidden"
         onChange={handleImageSelect}
       />
@@ -217,23 +249,39 @@ export default function CreatePulseForm({ onCreated }: Props) {
 
       {/* ── Anhaenge Vorschau ────────────────────────────── */}
       <div className="space-y-2 mb-2">
-        {/* Bild Vorschau */}
-        {imagePreview && (
-          <div className="relative inline-block">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imagePreview}
-              alt=""
-              className="max-h-[120px] rounded-lg object-cover"
-            />
-            <button
-              type="button"
-              onClick={handleRemoveImage}
-              className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center cursor-pointer"
-              style={{ background: 'var(--bg-solid)', border: '1px solid var(--divider)', color: 'var(--text-muted)' }}
-            >
-              <Icon name="x" size={10} />
-            </button>
+        {/* Bilder Vorschau */}
+        {imagePreviews.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {imagePreviews.map((preview, i) => (
+              <div key={i} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={preview}
+                  alt=""
+                  className="h-[80px] w-[80px] rounded-lg object-cover"
+                  style={{ border: '1px solid var(--glass-border)' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(i)}
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center cursor-pointer"
+                  style={{ background: 'var(--bg-solid)', border: '1px solid var(--divider)', color: 'var(--text-muted)' }}
+                >
+                  <Icon name="x" size={10} />
+                </button>
+              </div>
+            ))}
+            {imageFiles.length < maxImages && (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="h-[80px] w-[80px] rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                style={{ border: '1px dashed var(--glass-border)', color: 'var(--text-muted)', background: 'transparent' }}
+                title="Weitere Bilder hinzufuegen"
+              >
+                <Icon name="plus" size={20} />
+              </button>
+            )}
           </div>
         )}
 
@@ -418,11 +466,11 @@ export default function CreatePulseForm({ onCreated }: Props) {
       <div className="flex items-center justify-between pt-3 mt-2" style={{ borderTop: '1px solid var(--divider-l)' }}>
         {/* Attachment-Buttons */}
         <div className="flex items-center gap-1">
-          {/* Bild (File Picker) */}
+          {/* Bilder (File Picker) */}
           <button
             type="button"
             onClick={() => {
-              if (imageFile) {
+              if (imageFiles.length > 0 && imageFiles.length >= maxImages) {
                 handleRemoveImage();
               } else {
                 fileInputRef.current?.click();
@@ -431,8 +479,8 @@ export default function CreatePulseForm({ onCreated }: Props) {
               setShowPollCreator(false);
             }}
             className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent border-none cursor-pointer transition-colors"
-            style={{ color: imageFile ? 'var(--gold)' : 'var(--text-muted)' }}
-            title={imageFile ? 'Bild entfernen' : 'Bild hinzufuegen'}
+            style={{ color: imageFiles.length > 0 ? 'var(--gold)' : 'var(--text-muted)' }}
+            title={imageFiles.length > 0 ? `${imageFiles.length}/${maxImages} Bilder` : 'Bilder hinzufuegen'}
           >
             <Icon name="photo" size={16} />
           </button>

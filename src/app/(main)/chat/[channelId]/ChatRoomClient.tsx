@@ -42,8 +42,8 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [showGroupInfo, setShowGroupInfo] = useState(false);
   const [showPollForm, setShowPollForm] = useState(false);
   const [showSeedsModal, setShowSeedsModal] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [pendingImages, setPendingImages] = useState<File[]>([]);
+  const [pendingImagePreviews, setPendingImagePreviews] = useState<string[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -307,30 +307,59 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     inputRef.current?.focus();
   };
 
-  // ── Bild-Upload ─────────────────────────────────────────────
+  // ── Bild-Upload (mehrere Bilder) ────────────────────────────
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) return;
-    if (file.size > 10 * 1024 * 1024) return; // 10 MB limit
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const maxImages = 10;
+    const remaining = maxImages - pendingImages.length;
+    const newFiles: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (let i = 0; i < Math.min(files.length, remaining); i++) {
+      const file = files[i];
+      if (!file.type.startsWith('image/')) continue;
+      if (file.size > 10 * 1024 * 1024) continue; // 10 MB limit
+      newFiles.push(file);
+      newPreviews.push(URL.createObjectURL(file));
+    }
+
+    if (newFiles.length > 0) {
+      setPendingImages((prev) => [...prev, ...newFiles]);
+      setPendingImagePreviews((prev) => [...prev, ...newPreviews]);
+    }
     // Reset file input so same file can be re-selected
     e.target.value = '';
   };
 
+  const handleRemovePendingImage = (index: number) => {
+    URL.revokeObjectURL(pendingImagePreviews[index]);
+    setPendingImages((prev) => prev.filter((_, i) => i !== index));
+    setPendingImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleCancelImage = () => {
-    if (imagePreview) URL.revokeObjectURL(imagePreview);
-    setImageFile(null);
-    setImagePreview(null);
+    pendingImagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    setPendingImages([]);
+    setPendingImagePreviews([]);
   };
 
   const handleSendImage = async () => {
-    if (!imageFile || !user?.id || uploadingImage) return;
+    if (pendingImages.length === 0 || !user?.id || uploadingImage) return;
     setUploadingImage(true);
     try {
-      const url = await uploadChatImage(imageFile, user.id);
-      const msg = await sendMessage(channelId, { type: 'image', content: url });
+      const uploadedUrls: string[] = [];
+      for (const file of pendingImages) {
+        const url = await uploadChatImage(file, user.id);
+        uploadedUrls.push(url);
+      }
+
+      const msg = await sendMessage(channelId, {
+        type: 'image',
+        content: uploadedUrls[0],
+        metadata: uploadedUrls.length > 1 ? { image_urls: uploadedUrls } : undefined,
+      });
       setMessages((prev) => {
         if (prev.some((m) => m.id === msg.id)) return prev;
         return [...prev, msg];
@@ -528,46 +557,69 @@ export default function ChatRoomClient({ channelId, user }: Props) {
         )}
       </div>
 
-      {/* ── Bild-Vorschau Banner ────────────────────────────── */}
-      {imagePreview && (
+      {/* ── Bilder-Vorschau Banner ───────────────────────────── */}
+      {pendingImagePreviews.length > 0 && (
         <div
-          className="px-4 py-2 flex items-center gap-3 text-[11px]"
+          className="px-4 py-2 text-[11px]"
           style={{ borderTop: '1px solid var(--gold-border-s)', background: 'var(--gold-bg)' }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imagePreview}
-            alt="Vorschau"
-            className="w-12 h-12 rounded-lg object-cover"
-          />
-          <div className="flex-1 min-w-0">
-            <p className="text-[12px] truncate" style={{ color: 'var(--text-body)' }}>
-              {imageFile?.name}
-            </p>
-            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-              {imageFile ? `${(imageFile.size / 1024).toFixed(0)} KB` : ''}
-            </p>
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            {pendingImagePreviews.map((preview, i) => (
+              <div key={i} className="relative shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={preview}
+                  alt="Vorschau"
+                  className="w-14 h-14 rounded-lg object-cover"
+                  style={{ border: '1px solid var(--glass-border)' }}
+                />
+                <button
+                  onClick={() => handleRemovePendingImage(i)}
+                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center cursor-pointer"
+                  style={{ background: 'var(--bg-solid)', border: '1px solid var(--divider)', color: 'var(--text-muted)' }}
+                >
+                  <Icon name="x" size={8} />
+                </button>
+              </div>
+            ))}
+            {pendingImages.length < 10 && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-14 h-14 rounded-lg flex items-center justify-center cursor-pointer shrink-0 transition-colors"
+                style={{ border: '1px dashed var(--glass-border)', color: 'var(--text-muted)', background: 'transparent' }}
+                title="Weitere Bilder hinzufuegen"
+              >
+                <Icon name="plus" size={16} />
+              </button>
+            )}
           </div>
-          <button
-            onClick={handleCancelImage}
-            className="cursor-pointer p-1"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            <Icon name="x" size={14} />
-          </button>
-          <button
-            onClick={handleSendImage}
-            disabled={uploadingImage}
-            className="px-3 py-1.5 rounded-full font-label text-[0.6rem] tracking-[0.1em] uppercase cursor-pointer transition-all"
-            style={{
-              background: uploadingImage
-                ? 'var(--gold-bg)'
-                : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
-              color: uploadingImage ? 'var(--text-muted)' : 'var(--text-on-gold)',
-            }}
-          >
-            {uploadingImage ? 'Wird hochgeladen ...' : 'Senden'}
-          </button>
+          <div className="flex items-center justify-between mt-2">
+            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              {pendingImages.length} {pendingImages.length === 1 ? 'Bild' : 'Bilder'}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleCancelImage}
+                className="cursor-pointer px-2 py-1 rounded-full font-label text-[0.6rem] tracking-[0.1em] uppercase"
+                style={{ color: 'var(--text-muted)', border: '1px solid var(--divider)', background: 'transparent' }}
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={handleSendImage}
+                disabled={uploadingImage}
+                className="px-3 py-1.5 rounded-full font-label text-[0.6rem] tracking-[0.1em] uppercase cursor-pointer transition-all border-none"
+                style={{
+                  background: uploadingImage
+                    ? 'var(--gold-bg)'
+                    : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                  color: uploadingImage ? 'var(--text-muted)' : 'var(--text-on-gold)',
+                }}
+              >
+                {uploadingImage ? 'Wird hochgeladen ...' : 'Senden'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -612,6 +664,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
             ref={fileInputRef}
             type="file"
             accept="image/jpeg,image/png,image/webp,image/gif"
+            multiple
             onChange={handleImageSelect}
             className="hidden"
           />

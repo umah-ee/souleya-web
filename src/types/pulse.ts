@@ -30,6 +30,7 @@ export interface Pulse {
   id: string;
   content: string;
   image_url: string | null;
+  image_urls?: string[];
   metadata?: Record<string, unknown> | null;
   location_lat?: number | null;
   location_lng?: number | null;
@@ -53,6 +54,7 @@ export interface PulseComment {
 export interface CreatePulseData {
   content?: string;
   image_url?: string;
+  image_urls?: string[];
   metadata?: Record<string, unknown>;
   location_lat?: number;
   location_lng?: number;
