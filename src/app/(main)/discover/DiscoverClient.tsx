@@ -12,6 +12,7 @@ import { searchUsers } from '@/lib/users';
 import { sendConnectionRequest, getConnectionStatus } from '@/lib/circles';
 import { fetchEvents, fetchNearbyUsers, joinEvent, leaveEvent, geocodeLocation, bookmarkEvent, unbookmarkEvent } from '@/lib/events';
 import { fetchNearbyPlaces, savePlace, unsavePlace, PLACE_TAGS } from '@/lib/places';
+import { fetchProfile } from '@/lib/profile';
 import { Icon } from '@/components/ui/Icon';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import DiscoverOverlay from '@/components/discover/DiscoverOverlay';
@@ -86,6 +87,22 @@ export default function DiscoverClient({ userId }: Props) {
   const localBookmarks = useRef<Record<string, boolean>>({});
 
   const isSearchActive = query.trim().length >= 2;
+
+  // ── Profil-Vorlieben als initiale Tags laden ────────────────
+  const [tagsInitialized, setTagsInitialized] = useState(false);
+  useEffect(() => {
+    if (!userId || tagsInitialized) return;
+    fetchProfile()
+      .then((profile) => {
+        const interests = profile.interests ?? [];
+        const matching = interests.filter((i) => PLACE_TAGS.includes(i));
+        if (matching.length > 0) {
+          setActiveTags(matching);
+        }
+        setTagsInitialized(true);
+      })
+      .catch(() => setTagsInitialized(true));
+  }, [userId, tagsInitialized]);
 
   // ── Daten laden ─────────────────────────────────────────────
   const loadDiscoverData = useCallback(async (lat: number, lng: number) => {
@@ -560,7 +577,7 @@ export default function DiscoverClient({ userId }: Props) {
                     background: isActive
                       ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'
                       : 'var(--glass)',
-                    border: `1px solid ${isActive ? 'var(--gold)' : 'var(--glass-border)'}`,
+                    border: isActive ? '1px solid var(--gold)' : 'none',
                     color: isActive ? 'var(--text-on-gold)' : 'var(--text-sec)',
                     backdropFilter: isActive ? 'none' : 'blur(8px)',
                     WebkitBackdropFilter: isActive ? 'none' : 'blur(8px)',
@@ -678,8 +695,8 @@ export default function DiscoverClient({ userId }: Props) {
             <>
               <MapView
                 users={nearbyUsers}
-                events={events}
-                places={places}
+                events={segment === 'alle' ? events : []}
+                places={segment === 'alle' ? places : []}
                 center={mapCenter}
                 onMapMove={handleMapMove}
                 onUserClick={handleUserClick}
