@@ -10,9 +10,9 @@ import { useUnread } from '@/components/chat/UnreadContext';
 
 const navItems: { href: string; icon: IconName; label: string }[] = [
   { href: '/', icon: 'sparkles', label: 'Pulse' },
-  { href: '/discover', icon: 'compass', label: 'Discover' },
   { href: '/circles', icon: 'users', label: 'Circle' },
   { href: '/chat', icon: 'message-circle', label: 'Chat' },
+  { href: '/discover', icon: 'compass', label: 'Discover' },
 ];
 
 const moreItems: { href: string; icon: IconName; label: string }[] = [

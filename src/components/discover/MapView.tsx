@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import type { SoEvent } from '@/types/events';
+import type { Place } from '@/types/places';
 import { useTheme } from '@/components/ThemeProvider';
 
 export interface MapNearbyUser {
@@ -23,10 +24,12 @@ export interface MapNearbyUser {
 interface Props {
   users: MapNearbyUser[];
   events: SoEvent[];
+  places?: Place[];
   center: [number, number]; // [lng, lat]
   onMapMove?: (center: { lat: number; lng: number }) => void;
   onUserClick?: (user: MapNearbyUser) => void;
   onEventClick?: (event: SoEvent) => void;
+  onPlaceClick?: (place: Place) => void;
 }
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? '';
@@ -36,7 +39,7 @@ const MAP_STYLES = {
   dark: 'mapbox://styles/mapbox/dark-v11',
 } as const;
 
-export default function MapView({ users, events, center, onMapMove, onUserClick, onEventClick }: Props) {
+export default function MapView({ users, events, places = [], center, onMapMove, onUserClick, onEventClick, onPlaceClick }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -154,7 +157,32 @@ export default function MapView({ users, events, center, onMapMove, onUserClick,
 
       markersRef.current.push(marker);
     });
-  }, [users, events, mapReady, onUserClick, onEventClick]);
+
+    // Place-Marker (Gold)
+    places.forEach((place) => {
+      const el = document.createElement('div');
+      el.className = 'souleya-marker-place';
+      el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 21l18 0"/><path d="M5 21v-14l8 -4v18"/><path d="M19 21v-10l-6 -4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>';
+      el.style.cssText = `
+        width: 36px; height: 36px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold-deep), var(--gold));
+        display: flex; align-items: center; justify-content: center;
+        border: 2px solid rgba(200,169,110,0.6);
+        cursor: pointer; box-shadow: 0 2px 8px rgba(200,169,110,0.25);
+      `;
+
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onPlaceClick?.(place);
+      });
+
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat([place.location_lng, place.location_lat])
+        .addTo(map.current!);
+
+      markersRef.current.push(marker);
+    });
+  }, [users, events, places, mapReady, onUserClick, onEventClick, onPlaceClick]);
 
   if (!MAPBOX_TOKEN) {
     return (

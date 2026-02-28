@@ -7,9 +7,11 @@ import type { MapNearbyUser } from '@/components/discover/MapView';
 import type { UserSearchResult } from '@/lib/users';
 import type { ConnectionStatus } from '@/types/circles';
 import type { SoEvent } from '@/types/events';
+import type { Place } from '@/types/places';
 import { searchUsers } from '@/lib/users';
 import { sendConnectionRequest, getConnectionStatus } from '@/lib/circles';
 import { fetchEvents, fetchNearbyUsers, joinEvent, leaveEvent, geocodeLocation, bookmarkEvent, unbookmarkEvent } from '@/lib/events';
+import { fetchNearbyPlaces, savePlace, unsavePlace, PLACE_TAGS } from '@/lib/places';
 import { Icon } from '@/components/ui/Icon';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import DiscoverOverlay from '@/components/discover/DiscoverOverlay';
@@ -17,9 +19,14 @@ import ProfileModal from '@/components/discover/ProfileModal';
 import EventCardCompact from '@/components/discover/EventCardCompact';
 import CreateEventModal from '@/components/discover/CreateEventModal';
 import ShareEventModal from '@/components/discover/ShareEventModal';
+import PlaceCard from '@/components/discover/PlaceCard';
+import PlaceDetailModal from '@/components/discover/PlaceDetailModal';
+import CreatePlaceModal from '@/components/discover/CreatePlaceModal';
 
 // Mapbox dynamisch laden (nur client-side)
 const MapView = dynamic(() => import('@/components/discover/MapView'), { ssr: false });
+
+type Segment = 'alle' | 'mitglieder' | 'events' | 'orte';
 
 interface Props {
   userId: string | null;
@@ -36,8 +43,9 @@ interface GeoResult {
 const DEFAULT_CENTER: [number, number] = [11.576, 48.137];
 
 export default function DiscoverClient({ userId }: Props) {
-  // ── View Toggle ─────────────────────────────────────────────
-  const [view, setView] = useState<'map' | 'board'>('map');
+  // ── Segment ─────────────────────────────────────────────────
+  const [segment, setSegment] = useState<Segment>('alle');
+  const [activeTags, setActiveTags] = useState<string[]>([]);
 
   // ── Suche ──────────────────────────────────────────────────
   const [query, setQuery] = useState('');
@@ -52,39 +60,42 @@ export default function DiscoverClient({ userId }: Props) {
   const [mapCenter, setMapCenter] = useState<[number, number]>(DEFAULT_CENTER);
   const [nearbyUsers, setNearbyUsers] = useState<MapNearbyUser[]>([]);
   const [events, setEvents] = useState<SoEvent[]>([]);
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [savingPlace, setSavingPlace] = useState<Record<string, boolean>>({});
 
   // ── Overlay State ─────────────────────────────────────────
   const [selectedUser, setSelectedUser] = useState<MapNearbyUser | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<SoEvent | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [overlayConnectionStatus, setOverlayConnectionStatus] = useState<ConnectionStatus>('none');
   const [connecting, setConnecting] = useState(false);
   const [joiningEvent, setJoiningEvent] = useState<Record<string, boolean>>({});
   const [bookmarkingEvent, setBookmarkingEvent] = useState<Record<string, boolean>>({});
 
-  // ── Create Event Modal ──────────────────────────────────────
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  // ── Create Modals ──────────────────────────────────────────
+  const [showCreateEvent, setShowCreateEvent] = useState(false);
+  const [showCreatePlace, setShowCreatePlace] = useState(false);
 
-  // ── Share Event Modal ───────────────────────────────────────
+  // ── Share Event Modal ─────────────────────────────────────
   const [shareEvent, setShareEvent] = useState<SoEvent | null>(null);
 
   // ── Confirm Dialog (Entmerken) ────────────────────────────
   const [confirmUnbookmark, setConfirmUnbookmark] = useState<string | null>(null);
 
-  // ── Lokaler Bookmark-State (verhindert Überschreiben durch Refetch) ──
+  // ── Lokaler Bookmark-State ────────────────────────────────
   const localBookmarks = useRef<Record<string, boolean>>({});
 
-  // Aktive Suche = Query hat mind. 2 Zeichen
   const isSearchActive = query.trim().length >= 2;
 
-  // ── Nearby Users + Events laden ───────────────────────────
+  // ── Daten laden ─────────────────────────────────────────────
   const loadDiscoverData = useCallback(async (lat: number, lng: number) => {
     try {
-      const [nearbyRes, eventsRes] = await Promise.all([
+      const [nearbyRes, eventsRes, placesRes] = await Promise.all([
         fetchNearbyUsers(lat, lng),
         fetchEvents({ lat, lng, userId: userId ?? undefined }),
+        fetchNearbyPlaces(lat, lng, undefined, activeTags.length > 0 ? activeTags : undefined),
       ]);
       setNearbyUsers(nearbyRes.data);
-      // Lokale Bookmark-Overrides mergen (verhindert Flackern bei Refetch)
       const merged = eventsRes.data.map((e) => ({
         ...e,
         is_bookmarked: e.id in localBookmarks.current
@@ -92,12 +103,12 @@ export default function DiscoverClient({ userId }: Props) {
           : e.is_bookmarked,
       }));
       setEvents(merged);
+      setPlaces(placesRes);
     } catch (e) {
       console.error('Discover-Daten laden fehlgeschlagen:', e);
     }
-  }, [userId]);
+  }, [userId, activeTags]);
 
-  // Initial laden
   useEffect(() => {
     loadDiscoverData(mapCenter[1], mapCenter[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,31 +127,50 @@ export default function DiscoverClient({ userId }: Props) {
     return () => clearTimeout(timer);
   }, [mapCenter, loadDiscoverData]);
 
+  // ── Tags-Aenderung → Reload ───────────────────────────────
+  useEffect(() => {
+    loadDiscoverData(mapCenter[1], mapCenter[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTags]);
+
+  // ── Tag Toggle ────────────────────────────────────────────
+  const toggleTag = (tag: string) => {
+    setActiveTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  };
+
   // ── Marker-Klick Handler ──────────────────────────────────
   const handleUserClick = useCallback(async (user: MapNearbyUser) => {
     setSelectedEvent(null);
+    setSelectedPlace(null);
     setSelectedUser(user);
     setOverlayConnectionStatus('none');
 
-    // Verbindungsstatus laden
     if (userId && user.id !== userId) {
       try {
         const status = await getConnectionStatus(user.id);
         setOverlayConnectionStatus(status.status);
-      } catch {
-        // Fehler ignorieren
-      }
+      } catch { /* ignore */ }
     }
   }, [userId]);
 
   const handleEventClick = useCallback((event: SoEvent) => {
     setSelectedUser(null);
+    setSelectedPlace(null);
     setSelectedEvent(event);
+  }, []);
+
+  const handlePlaceClick = useCallback((place: Place) => {
+    setSelectedUser(null);
+    setSelectedEvent(null);
+    setSelectedPlace(place);
   }, []);
 
   const handleCloseOverlay = useCallback(() => {
     setSelectedUser(null);
     setSelectedEvent(null);
+    setSelectedPlace(null);
   }, []);
 
   // ── Verbinden im Overlay ──────────────────────────────────
@@ -164,9 +194,7 @@ export default function DiscoverClient({ userId }: Props) {
       const res = await joinEvent(eventId);
       setEvents((prev) =>
         prev.map((e) =>
-          e.id === eventId
-            ? { ...e, has_joined: true, participants_count: res.participants_count }
-            : e,
+          e.id === eventId ? { ...e, has_joined: true, participants_count: res.participants_count } : e,
         ),
       );
       if (selectedEvent?.id === eventId) {
@@ -187,9 +215,7 @@ export default function DiscoverClient({ userId }: Props) {
       const res = await leaveEvent(eventId);
       setEvents((prev) =>
         prev.map((e) =>
-          e.id === eventId
-            ? { ...e, has_joined: false, participants_count: res.participants_count }
-            : e,
+          e.id === eventId ? { ...e, has_joined: false, participants_count: res.participants_count } : e,
         ),
       );
       if (selectedEvent?.id === eventId) {
@@ -208,26 +234,18 @@ export default function DiscoverClient({ userId }: Props) {
   const handleBookmarkEvent = async (eventId: string) => {
     const event = events.find((e) => e.id === eventId) ?? selectedEvent;
     if (!event) return;
-
-    // Wenn bereits gemerkt → Bestaetigungsdialog zeigen
     if (event.is_bookmarked) {
       setConfirmUnbookmark(eventId);
       return;
     }
-
-    // Bookmark setzen
     await executeBookmark(eventId, false);
   };
 
   const executeBookmark = async (eventId: string, wasBookmarked: boolean) => {
     const newState = !wasBookmarked;
-
-    // Lokalen Override setzen (ueberlebt Refetch)
     localBookmarks.current[eventId] = newState;
-    // Nach 5s Override entfernen (Server hat dann den korrekten State)
     setTimeout(() => { delete localBookmarks.current[eventId]; }, 5000);
 
-    // Optimistisches Update
     setEvents((prev) =>
       prev.map((e) => (e.id === eventId ? { ...e, is_bookmarked: newState } : e)),
     );
@@ -243,7 +261,6 @@ export default function DiscoverClient({ userId }: Props) {
         await bookmarkEvent(eventId);
       }
     } catch (e) {
-      // Revert bei Fehler
       localBookmarks.current[eventId] = wasBookmarked;
       setEvents((prev) =>
         prev.map((ev) => (ev.id === eventId ? { ...ev, is_bookmarked: wasBookmarked } : ev)),
@@ -264,6 +281,36 @@ export default function DiscoverClient({ userId }: Props) {
     }
   };
 
+  // ── Place speichern/entsichern ────────────────────────────
+  const handleSavePlace = async (placeId: string) => {
+    setSavingPlace((s) => ({ ...s, [placeId]: true }));
+    try {
+      await savePlace(placeId);
+      setPlaces((prev) => prev.map((p) => p.id === placeId ? { ...p, is_saved: true } : p));
+    } catch (e) { console.error(e); }
+    finally { setSavingPlace((s) => ({ ...s, [placeId]: false })); }
+  };
+
+  const handleUnsavePlace = async (placeId: string) => {
+    setSavingPlace((s) => ({ ...s, [placeId]: true }));
+    try {
+      await unsavePlace(placeId);
+      setPlaces((prev) => prev.map((p) => p.id === placeId ? { ...p, is_saved: false } : p));
+    } catch (e) { console.error(e); }
+    finally { setSavingPlace((s) => ({ ...s, [placeId]: false })); }
+  };
+
+  const handlePlaceSaveToggle = () => {
+    if (!selectedPlace) return;
+    if (selectedPlace.is_saved) {
+      handleUnsavePlace(selectedPlace.id);
+      setSelectedPlace((p) => p ? { ...p, is_saved: false } : p);
+    } else {
+      handleSavePlace(selectedPlace.id);
+      setSelectedPlace((p) => p ? { ...p, is_saved: true } : p);
+    }
+  };
+
   // ── Suche: Users + Orte (Debounced) ────────────────────────
   const handleSearch = useCallback(async (q: string) => {
     if (q.trim().length < 2) {
@@ -275,16 +322,13 @@ export default function DiscoverClient({ userId }: Props) {
 
     setSearching(true);
     try {
-      // Parallel: Users + Geocoding
       const [usersRes, geoRes] = await Promise.allSettled([
         searchUsers(q, 1, 30),
         geocodeLocation(q, 'forward'),
       ]);
 
-      // User-Ergebnisse
       if (usersRes.status === 'fulfilled') {
         setSearchResults(usersRes.value.data);
-
         if (userId && usersRes.value.data.length > 0) {
           const statusMap: Record<string, ConnectionStatus> = {};
           await Promise.all(
@@ -292,9 +336,7 @@ export default function DiscoverClient({ userId }: Props) {
               try {
                 const s = await getConnectionStatus(user.id);
                 statusMap[user.id] = s.status;
-              } catch {
-                statusMap[user.id] = 'none';
-              }
+              } catch { statusMap[user.id] = 'none'; }
             }),
           );
           setStatuses(statusMap);
@@ -303,7 +345,6 @@ export default function DiscoverClient({ userId }: Props) {
         setSearchResults([]);
       }
 
-      // Geocoding-Ergebnisse
       if (geoRes.status === 'fulfilled' && geoRes.value.results) {
         setGeoResults(geoRes.value.results);
       } else {
@@ -331,11 +372,9 @@ export default function DiscoverClient({ userId }: Props) {
     return () => clearTimeout(timer);
   }, [query, handleSearch]);
 
-  // ── Ort-Klick: Zur Karte wechseln + Karte dorthin pannen ──
   const handleGeoClick = (geo: GeoResult) => {
     setMapCenter([geo.lng, geo.lat]);
     setQuery('');
-    setView('map');
   };
 
   // ── Verbinden-Button (Suche) ──────────────────────────────
@@ -402,13 +441,7 @@ export default function DiscoverClient({ userId }: Props) {
     );
   };
 
-  // ── Event neu laden nach Erstellung ─────────────────────────
-  const handleEventCreated = () => {
-    setShowCreateModal(false);
-    loadDiscoverData(mapCenter[1], mapCenter[0]);
-  };
-
-  // ── Geolocation: Am eigenen Standort suchen ────────────────
+  // ── Geolocation ─────────────────────────────────────────────
   const [locating, setLocating] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -420,7 +453,6 @@ export default function DiscoverClient({ userId }: Props) {
         setMapCenter([pos.coords.longitude, pos.coords.latitude]);
         loadDiscoverData(pos.coords.latitude, pos.coords.longitude);
         setQuery('');
-        setView('map');
         setLocating(false);
       },
       () => setLocating(false),
@@ -428,74 +460,109 @@ export default function DiscoverClient({ userId }: Props) {
     );
   };
 
+  // ── Event/Place Created → Reload ─────────────────────────────
+  const handleEventCreated = () => {
+    setShowCreateEvent(false);
+    loadDiscoverData(mapCenter[1], mapCenter[0]);
+  };
+
+  const handlePlaceCreated = () => {
+    setShowCreatePlace(false);
+    loadDiscoverData(mapCenter[1], mapCenter[0]);
+  };
+
+  // ── Segment Labels ────────────────────────────────────────────
+  const SEGMENTS = [
+    { key: 'alle' as Segment, label: 'Alle', icon: 'map-2' as const },
+    { key: 'mitglieder' as Segment, label: 'Mitglieder', icon: 'users' as const },
+    { key: 'events' as Segment, label: 'Events', icon: 'calendar' as const },
+    { key: 'orte' as Segment, label: 'Orte', icon: 'map-pin' as const },
+  ];
+
   return (
     <div className="fixed top-14 md:top-0 bottom-16 md:bottom-0 left-0 md:left-16 right-0 z-10">
-      {/* ─── GEMEINSAMES SUCHFELD (bleibt immer gemountet) ──── */}
+      {/* ─── SUCHFELD + SEGMENT-TOGGLE ──────────────────────── */}
       <div
-        className="absolute top-3 left-4 right-4 z-20 flex gap-2"
-        style={isSearchActive ? { position: 'relative', top: 0, left: 0, right: 0, padding: '12px 16px 8px' } : undefined}
+        className="absolute top-3 left-4 right-4 z-20"
+        style={isSearchActive ? { position: 'relative', top: 0, left: 0, right: 0, padding: '12px 16px 0' } : undefined}
       >
-        <div className="flex-1 relative">
-          <input
-            ref={searchInputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Souls oder Orte suchen ..."
-            className="w-full py-3 px-5 pr-12 backdrop-blur-xl rounded-[8px] text-sm font-body outline-none transition-colors"
-            style={{
-              background: 'var(--glass-nav)',
-              border: '1px solid var(--gold-border-s)',
-              color: 'var(--text-h)',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-            }}
-          />
-          {/* Geolocation Button rechts im Input */}
-          <button
-            onClick={handleGeolocate}
-            disabled={locating}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200"
-            style={{
-              color: locating ? 'var(--gold)' : 'var(--text-muted)',
-              background: 'transparent',
-            }}
-            title="Meinen Standort verwenden"
-          >
-            <Icon name="current-location" size={18} />
-          </button>
+        {/* Such-Input */}
+        <div className="flex gap-2 mb-2">
+          <div className="flex-1 relative">
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Souls oder Orte suchen ..."
+              className="w-full py-3 px-5 pr-12 backdrop-blur-xl rounded-[8px] text-sm font-body outline-none transition-colors"
+              style={{
+                background: 'var(--glass-nav)',
+                border: '1px solid var(--gold-border-s)',
+                color: 'var(--text-h)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+              }}
+            />
+            <button
+              onClick={handleGeolocate}
+              disabled={locating}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200"
+              style={{ color: locating ? 'var(--gold)' : 'var(--text-muted)', background: 'transparent' }}
+              title="Meinen Standort verwenden"
+            >
+              <Icon name="current-location" size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Segment Toggle (nur wenn Suche nicht aktiv) */}
         {!isSearchActive && (
-          <div
-            className="flex rounded-[8px] overflow-hidden flex-shrink-0 backdrop-blur-xl"
-            style={{
-              background: 'var(--glass-nav)',
-              border: '1px solid var(--gold-border-s)',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-            }}
-          >
-            <button
-              onClick={() => setView('map')}
-              className="px-3 py-2 flex items-center justify-center cursor-pointer transition-all duration-200"
-              style={{
-                background: view === 'map' ? 'var(--gold-bg)' : 'transparent',
-                color: view === 'map' ? 'var(--gold-text)' : 'var(--text-muted)',
-                borderRight: '1px solid var(--divider-l)',
-              }}
-            >
-              <Icon name="map-2" size={16} />
-            </button>
-            <button
-              onClick={() => setView('board')}
-              className="px-3 py-2 flex items-center justify-center cursor-pointer transition-all duration-200"
-              style={{
-                background: view === 'board' ? 'var(--gold-bg)' : 'transparent',
-                color: view === 'board' ? 'var(--gold-text)' : 'var(--text-muted)',
-              }}
-            >
-              <Icon name="layout-grid" size={16} />
-            </button>
+          <div className="flex gap-1.5 mb-2">
+            {SEGMENTS.map((seg) => (
+              <button
+                key={seg.key}
+                onClick={() => setSegment(seg.key)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-[8px] backdrop-blur-xl text-[0.65rem] tracking-[0.08em] uppercase font-label cursor-pointer transition-all duration-200"
+                style={{
+                  background: segment === seg.key ? 'var(--gold-bg)' : 'var(--glass-nav)',
+                  border: `1px solid ${segment === seg.key ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+                  color: segment === seg.key ? 'var(--gold-text)' : 'var(--text-muted)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                }}
+              >
+                <Icon name={seg.icon} size={13} />
+                {seg.label}
+                {seg.key === 'mitglieder' && nearbyUsers.length > 0 && (
+                  <span style={{ opacity: 0.7 }}>({nearbyUsers.length})</span>
+                )}
+                {seg.key === 'events' && events.length > 0 && (
+                  <span style={{ opacity: 0.7 }}>({events.length})</span>
+                )}
+                {seg.key === 'orte' && places.length > 0 && (
+                  <span style={{ opacity: 0.7 }}>({places.length})</span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Tag-Filter (nur bei Orte-Segment oder Alle) */}
+        {!isSearchActive && (segment === 'orte' || segment === 'alle') && (
+          <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+            {PLACE_TAGS.slice(0, 15).map((tag) => (
+              <button
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                className="flex-shrink-0 px-2.5 py-1.5 rounded-full text-[0.6rem] tracking-[0.08em] font-label cursor-pointer transition-all duration-200 whitespace-nowrap"
+                style={{
+                  background: activeTags.includes(tag) ? 'var(--gold-bg)' : 'transparent',
+                  border: `1px solid ${activeTags.includes(tag) ? 'var(--gold-border)' : 'var(--divider)'}`,
+                  color: activeTags.includes(tag) ? 'var(--gold-text)' : 'var(--text-muted)',
+                }}
+              >
+                {tag}
+              </button>
+            ))}
           </div>
         )}
       </div>
@@ -503,7 +570,6 @@ export default function DiscoverClient({ userId }: Props) {
       {/* ─── SUCHE AKTIV → Ergebnisliste ────────────────────── */}
       {isSearchActive ? (
         <div className="h-full flex flex-col pt-[60px]" style={{ background: 'var(--bg-solid)' }}>
-          {/* Suchergebnisse */}
           <div className="flex-1 overflow-y-auto px-4 pb-4">
             {searching && (
               <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
@@ -512,10 +578,7 @@ export default function DiscoverClient({ userId }: Props) {
             )}
 
             {!searching && searched && searchResults.length === 0 && geoResults.length === 0 && (
-              <div
-                className="text-center py-12 px-4 rounded-2xl"
-                style={{ border: '1px dashed var(--gold-border-s)' }}
-              >
+              <div className="text-center py-12 px-4 rounded-2xl" style={{ border: '1px dashed var(--gold-border-s)' }}>
                 <p className="font-heading text-xl mb-2" style={{ color: 'var(--gold)' }}>Keine Ergebnisse</p>
                 <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Versuche einen anderen Suchbegriff.</p>
               </div>
@@ -524,9 +587,7 @@ export default function DiscoverClient({ userId }: Props) {
             {/* Orte */}
             {!searching && geoResults.length > 0 && (
               <div className="mb-4">
-                <p className="font-label text-[0.7rem] tracking-[0.15em] uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
-                  Orte
-                </p>
+                <p className="font-label text-[0.7rem] tracking-[0.15em] uppercase mb-2" style={{ color: 'var(--text-muted)' }}>Orte</p>
                 <div className="space-y-2">
                   {geoResults.map((geo, i) => (
                     <button
@@ -534,16 +595,11 @@ export default function DiscoverClient({ userId }: Props) {
                       onClick={() => handleGeoClick(geo)}
                       className="w-full flex items-center gap-3 glass-card rounded-2xl p-3 transition-colors cursor-pointer text-left"
                     >
-                      <div
-                        className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center"
-                        style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}
-                      >
+                      <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}>
                         <Icon name="map-pin" size={18} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-body text-sm truncate" style={{ color: 'var(--text-h)' }}>
-                          {geo.place_name}
-                        </p>
+                        <p className="font-body text-sm truncate" style={{ color: 'var(--text-h)' }}>{geo.place_name}</p>
                         <p className="text-xs font-label" style={{ color: 'var(--text-muted)' }}>
                           {geo.feature_type === 'poi' ? 'Ort / Lokal' : geo.feature_type === 'address' ? 'Adresse' : geo.feature_type === 'place' ? 'Stadt' : geo.feature_type === 'locality' ? 'Ortsteil' : geo.feature_type === 'neighborhood' ? 'Viertel' : 'Gebiet'}
                         </p>
@@ -589,10 +645,7 @@ export default function DiscoverClient({ userId }: Props) {
                                 {user.display_name ?? user.username ?? 'Anonym'}
                               </span>
                               {user.is_first_light && (
-                                <span
-                                  className="text-[0.55rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px flex-shrink-0"
-                                  style={{ color: 'var(--gold)', border: '1px solid var(--gold-border-s)' }}
-                                >
+                                <span className="text-[0.55rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px flex-shrink-0" style={{ color: 'var(--gold)', border: '1px solid var(--gold-border-s)' }}>
                                   First Light
                                 </span>
                               )}
@@ -611,18 +664,20 @@ export default function DiscoverClient({ userId }: Props) {
           </div>
         </div>
       ) : (
-        /* ─── KARTE ODER PINNWAND ──────────────────────────────── */
+        /* ─── DISCOVER-ANSICHT ──────────────────────────────── */
         <div className="relative w-full h-full">
-          {/* Karte (sichtbar wenn view === 'map') */}
-          {view === 'map' && (
+          {/* Karte (immer sichtbar bei 'alle' und 'mitglieder', sonst auch) */}
+          {(segment === 'alle' || segment === 'mitglieder') && (
             <>
               <MapView
                 users={nearbyUsers}
                 events={events}
+                places={places}
                 center={mapCenter}
                 onMapMove={handleMapMove}
                 onUserClick={handleUserClick}
                 onEventClick={handleEventClick}
+                onPlaceClick={handlePlaceClick}
               />
 
               {/* User Profile Modal */}
@@ -655,14 +710,11 @@ export default function DiscoverClient({ userId }: Props) {
             </>
           )}
 
-          {/* Pinnwand (sichtbar wenn view === 'board') */}
-          {view === 'board' && (
-            <div className="h-full overflow-y-auto pt-16 px-4 pb-4" style={{ background: 'var(--bg-solid)' }}>
+          {/* Events Board */}
+          {segment === 'events' && (
+            <div className="h-full overflow-y-auto pt-28 px-4 pb-4" style={{ background: 'var(--bg-solid)' }}>
               {events.length === 0 ? (
-                <div
-                  className="text-center py-12 px-4 rounded-2xl mt-4"
-                  style={{ border: '1px dashed var(--gold-border-s)' }}
-                >
+                <div className="text-center py-12 px-4 rounded-2xl mt-4" style={{ border: '1px dashed var(--gold-border-s)' }}>
                   <p className="font-heading text-xl mb-2" style={{ color: 'var(--gold)' }}>Keine Events</p>
                   <p className="text-sm" style={{ color: 'var(--text-muted)' }}>In dieser Gegend gibt es noch keine Events.</p>
                 </div>
@@ -686,10 +738,36 @@ export default function DiscoverClient({ userId }: Props) {
             </div>
           )}
 
-          {/* FAB – Event erstellen */}
+          {/* Orte Board */}
+          {segment === 'orte' && (
+            <div className="h-full overflow-y-auto pt-32 px-4 pb-4" style={{ background: 'var(--bg-solid)' }}>
+              {places.length === 0 ? (
+                <div className="text-center py-12 px-4 rounded-2xl mt-4" style={{ border: '1px dashed var(--gold-border-s)' }}>
+                  <p className="font-heading text-xl mb-2" style={{ color: 'var(--gold)' }}>Keine Soul Places</p>
+                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>In dieser Gegend gibt es noch keine Orte. Schlage einen vor!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-5 max-w-[860px] mx-auto">
+                  {places.map((place) => (
+                    <PlaceCard
+                      key={place.id}
+                      place={place}
+                      userId={userId}
+                      onSave={handleSavePlace}
+                      onUnsave={handleUnsavePlace}
+                      saving={savingPlace[place.id]}
+                      onClick={handlePlaceClick}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* FAB – Erstellen (Event oder Place je nach Segment) */}
           {userId && (
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => segment === 'orte' ? setShowCreatePlace(true) : setShowCreateEvent(true)}
               className="fixed bottom-20 right-4 md:bottom-6 md:right-6 w-14 h-14 rounded-full flex items-center justify-center z-20 transition-transform duration-200 hover:scale-105 cursor-pointer"
               style={{
                 background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
@@ -697,29 +775,39 @@ export default function DiscoverClient({ userId }: Props) {
                 boxShadow: '0 4px 16px rgba(200,169,110,0.4)',
               }}
             >
-              <Icon name="calendar-plus" size={22} />
+              <Icon name={segment === 'orte' ? 'map-pin' : 'calendar-plus'} size={22} />
             </button>
           )}
 
-          {/* CreateEventModal */}
-          {showCreateModal && (
-            <CreateEventModal
-              onClose={() => setShowCreateModal(false)}
-              onCreated={handleEventCreated}
+          {/* Modals */}
+          {showCreateEvent && (
+            <CreateEventModal onClose={() => setShowCreateEvent(false)} onCreated={handleEventCreated} />
+          )}
+          {showCreatePlace && (
+            <CreatePlaceModal
+              onClose={() => setShowCreatePlace(false)}
+              onCreated={handlePlaceCreated}
+              defaultLat={mapCenter[1]}
+              defaultLng={mapCenter[0]}
             />
           )}
-
-          {/* ShareEventModal */}
           {shareEvent && (
-            <ShareEventModal
-              event={shareEvent}
-              onClose={() => setShareEvent(null)}
+            <ShareEventModal event={shareEvent} onClose={() => setShareEvent(null)} />
+          )}
+
+          {/* Place Detail Modal */}
+          {selectedPlace && (
+            <PlaceDetailModal
+              place={selectedPlace}
+              userId={userId}
+              onClose={handleCloseOverlay}
+              onSaveToggle={handlePlaceSaveToggle}
             />
           )}
         </div>
       )}
 
-      {/* Confirm Dialog: Event entmerken */}
+      {/* Confirm Dialog */}
       <ConfirmDialog
         open={confirmUnbookmark !== null}
         title="Event entmerken?"

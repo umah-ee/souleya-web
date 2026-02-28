@@ -8,13 +8,13 @@ import { useUnread } from '@/components/chat/UnreadContext';
 
 const tabs: { href: string; icon: IconName; label: string }[] = [
   { href: '/', icon: 'sparkles', label: 'Pulse' },
-  { href: '/discover', icon: 'compass', label: 'Discover' },
+  { href: '/circles', icon: 'users', label: 'Circle' },
   { href: '/chat', icon: 'message-circle', label: 'Chat' },
+  { href: '/discover', icon: 'compass', label: 'Discover' },
 ];
 
 const moreItems: { href: string; icon: IconName; label: string }[] = [
   { href: '/places', icon: 'map-pin-heart', label: 'Soul Places' },
-  { href: '/circles', icon: 'users', label: 'Circle' },
   { href: '/studio', icon: 'school', label: 'Studio' },
   { href: '/analytics', icon: 'chart-dots', label: 'Analytics' },
 ];
