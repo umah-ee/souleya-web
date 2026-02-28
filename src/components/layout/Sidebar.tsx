@@ -16,7 +16,6 @@ const navItems: { href: string; icon: IconName; label: string }[] = [
 ];
 
 const moreItems: { href: string; icon: IconName; label: string }[] = [
-  { href: '/places', icon: 'map-pin-heart', label: 'Soul Places' },
   { href: '/studio', icon: 'school', label: 'Studio' },
   { href: '/analytics', icon: 'chart-dots', label: 'Analytics' },
 ];

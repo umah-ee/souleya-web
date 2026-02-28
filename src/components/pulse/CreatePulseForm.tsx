@@ -3,10 +3,13 @@
 import { useState, useRef } from 'react';
 import { createPulse, uploadPulseImage } from '@/lib/pulse';
 import type { Pulse } from '@/types/pulse';
+import type { Challenge } from '@/types/challenges';
 import { Icon } from '@/components/ui/Icon';
+import CreateChallengeModal from '@/components/challenges/CreateChallengeModal';
 
 interface Props {
   onCreated: (pulse: Pulse) => void;
+  onChallengeCreated?: (challenge: Challenge) => void;
 }
 
 interface LocationData {
@@ -20,7 +23,7 @@ interface PollData {
   options: string[];
 }
 
-export default function CreatePulseForm({ onCreated }: Props) {
+export default function CreatePulseForm({ onCreated, onChallengeCreated }: Props) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -46,6 +49,9 @@ export default function CreatePulseForm({ onCreated }: Props) {
   const [showPollCreator, setShowPollCreator] = useState(false);
   const [pollQuestion, setPollQuestion] = useState('');
   const [pollOptions, setPollOptions] = useState(['', '']);
+
+  // ── Challenge ───────────────────────────────────────────────
+  const [showChallengeModal, setShowChallengeModal] = useState(false);
 
   const hasContent = content.trim().length > 0;
   const hasAttachment = imageFiles.length > 0 || !!location || !!poll;
@@ -507,6 +513,17 @@ export default function CreatePulseForm({ onCreated }: Props) {
             <Icon name="chart-bar" size={16} />
           </button>
 
+          {/* Challenge */}
+          <button
+            type="button"
+            onClick={() => setShowChallengeModal(true)}
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent border-none cursor-pointer transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            title="Challenge starten"
+          >
+            <Icon name="target" size={16} />
+          </button>
+
           {/* Zeichenzaehler */}
           <span
             className="text-[0.65rem] font-label ml-2"
@@ -532,6 +549,17 @@ export default function CreatePulseForm({ onCreated }: Props) {
           </button>
         </div>
       </div>
+
+      {/* Challenge Modal */}
+      {showChallengeModal && (
+        <CreateChallengeModal
+          onClose={() => setShowChallengeModal(false)}
+          onCreated={(challenge) => {
+            setShowChallengeModal(false);
+            onChallengeCreated?.(challenge);
+          }}
+        />
+      )}
     </form>
   );
 }

@@ -19,11 +19,6 @@ import {
   removeConnection,
 } from '@/lib/circles';
 import { Icon } from '@/components/ui/Icon';
-import { fetchChallenges, joinChallenge, checkinChallenge, fetchChallenge } from '@/lib/challenges';
-import type { Challenge } from '@/types/challenges';
-import ChallengeCard from '@/components/challenges/ChallengeCard';
-import ChallengeDetailModal from '@/components/challenges/ChallengeDetailModal';
-import CreateChallengeModal from '@/components/challenges/CreateChallengeModal';
 
 type Tab = 'feed' | 'connections' | 'requests' | 'mentors';
 
@@ -55,10 +50,6 @@ export default function CirclesClient({ user }: Props) {
   const [mentors, setMentors] = useState<Connection[]>([]);
   const [mentorsLoading, setMentorsLoading] = useState(false);
 
-  // Challenges State
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [showCreateChallenge, setShowCreateChallenge] = useState(false);
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
 
   // ── Feed laden (globaler Pulse-Feed) ──────────────────────
   const loadFeed = useCallback(async (pageNum: number, replace: boolean) => {
@@ -124,14 +115,6 @@ export default function CirclesClient({ user }: Props) {
     getIncomingRequests(1, 1).then((r) => setIncomingCount(r.total)).catch(() => {});
   }, [loadFeed]);
 
-  // ── Challenges laden ──────────────────────────────────────
-  useEffect(() => {
-    if (!user) return;
-    fetchChallenges({ page: 1, limit: 10 })
-      .then((res) => setChallenges(res.data))
-      .catch(console.error);
-  }, [user]);
-
   // Tab-Switch Daten laden
   useEffect(() => {
     if (activeTab === 'connections') loadConnections();
@@ -194,51 +177,6 @@ export default function CirclesClient({ user }: Props) {
     setPulses((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const handleJoinChallenge = async (challengeId: string) => {
-    try {
-      const res = await joinChallenge(challengeId);
-      setChallenges((prev) =>
-        prev.map((c) =>
-          c.id === challengeId
-            ? { ...c, has_joined: true, participants_count: res.participants_count }
-            : c,
-        ),
-      );
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleCheckinChallenge = async (challengeId: string) => {
-    const challenge = challenges.find((c) => c.id === challengeId);
-    if (!challenge) return;
-    const sDate = new Date(challenge.starts_at);
-    const td = new Date();
-    td.setHours(0, 0, 0, 0);
-    const sd = new Date(sDate);
-    sd.setHours(0, 0, 0, 0);
-    const dm = td.getTime() - sd.getTime();
-    const dayNum = Math.max(1, Math.min(challenge.duration_days, Math.floor(dm / 86400000) + 1));
-    try {
-      await checkinChallenge(challengeId, dayNum);
-      const updated = await fetchChallenge(challengeId);
-      setChallenges((prev) => prev.map((c) => (c.id === challengeId ? updated : c)));
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleChallengeCreated = (challenge: Challenge) => {
-    setChallenges((prev) => [challenge, ...prev]);
-  };
-
-  const handleChallengeUpdate = (updated: Partial<Challenge>) => {
-    if (selectedChallenge) {
-      const merged = { ...selectedChallenge, ...updated };
-      setChallenges((prev) => prev.map((c) => (c.id === merged.id ? merged : c)));
-    }
-  };
-
   const tabs: { key: Tab; label: string; badge?: number }[] = [
     { key: 'feed', label: 'Feed' },
     { key: 'connections', label: 'Verbindungen' },
@@ -286,67 +224,6 @@ export default function CirclesClient({ user }: Props) {
       {/* ── Feed Tab ──────────────────────────────────────── */}
       {activeTab === 'feed' && (
         <>
-          {/* Challenges Section */}
-          {challenges.length > 0 && (
-            <div className="mb-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Icon name="target" size={14} style={{ color: 'var(--gold)' }} />
-                  <span className="font-label text-[0.6rem] tracking-[0.15em] uppercase" style={{ color: 'var(--gold)' }}>
-                    Challenges
-                  </span>
-                </div>
-                <button
-                  onClick={() => setShowCreateChallenge(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer bg-transparent"
-                  style={{ border: '1px solid var(--glass-border)' }}
-                >
-                  <Icon name="plus" size={10} style={{ color: 'var(--text-muted)' }} />
-                  <span className="font-label text-[0.6rem] tracking-[0.1em] uppercase" style={{ color: 'var(--text-muted)' }}>
-                    Neu
-                  </span>
-                </button>
-              </div>
-              <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
-                {challenges.map((challenge) => {
-                  const sDate = new Date(challenge.starts_at);
-                  const td = new Date();
-                  td.setHours(0, 0, 0, 0);
-                  const sd = new Date(sDate);
-                  sd.setHours(0, 0, 0, 0);
-                  const dm = td.getTime() - sd.getTime();
-                  const dayNum = Math.max(1, Math.min(challenge.duration_days, Math.floor(dm / 86400000) + 1));
-                  const checkinDays = new Set((challenge.my_progress?.checkins ?? []).map((c) => c.day_number));
-                  const checkedToday = checkinDays.has(dayNum);
-                  return (
-                    <div key={challenge.id} style={{ minWidth: 260, maxWidth: 280 }}>
-                      <ChallengeCard
-                        challenge={challenge}
-                        currentDayNumber={dayNum}
-                        checkedInToday={checkedToday}
-                        onJoin={() => handleJoinChallenge(challenge.id)}
-                        onCheckin={() => handleCheckinChallenge(challenge.id)}
-                        onClick={() => setSelectedChallenge(challenge)}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-          {challenges.length === 0 && user && (
-            <button
-              onClick={() => setShowCreateChallenge(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 mb-5 rounded-xl cursor-pointer bg-transparent"
-              style={{ border: '1px dashed var(--glass-border)' }}
-            >
-              <Icon name="target" size={14} style={{ color: 'var(--text-muted)' }} />
-              <span className="font-label text-[0.6rem] tracking-[0.15em] uppercase" style={{ color: 'var(--text-muted)' }}>
-                Erste Challenge starten
-              </span>
-            </button>
-          )}
-
           {/* Pulse erstellen */}
           {user && <CreatePulseForm onCreated={handleCreated} />}
 
@@ -552,21 +429,6 @@ export default function CirclesClient({ user }: Props) {
         </>
       )}
 
-      {/* Challenge Modals */}
-      {showCreateChallenge && (
-        <CreateChallengeModal
-          onClose={() => setShowCreateChallenge(false)}
-          onCreated={handleChallengeCreated}
-        />
-      )}
-      {selectedChallenge && (
-        <ChallengeDetailModal
-          challenge={selectedChallenge}
-          currentUserId={user?.id}
-          onClose={() => setSelectedChallenge(null)}
-          onUpdate={handleChallengeUpdate}
-        />
-      )}
     </>
   );
 }
