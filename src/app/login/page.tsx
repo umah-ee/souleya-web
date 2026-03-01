@@ -4,11 +4,19 @@ import { Suspense, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
+const SOUL_LEVELS: Record<number, string> = {
+  1: 'Soul Spark',
+  2: 'Awakened Soul',
+  3: 'Harmony Keeper',
+  4: 'Zen Master',
+  5: 'Soul Mentor',
+};
+
 const DEMO_USERS = [
-  { email: 'lena@souleya-demo.com', name: 'Lena Sonnenberg', role: 'Yogalehrerin' },
-  { email: 'sophia@souleya-demo.com', name: 'Sophia Lichtweg', role: 'Reiki-Meisterin' },
-  { email: 'max@souleya-demo.com', name: 'Max Bergmann', role: 'Achtsamkeitstrainer' },
-  { email: 'david@souleya-demo.com', name: 'David Goldbach', role: 'Buddhismus-Lehrer' },
+  { email: 'lena@souleya-demo.com', name: 'Lena Sonnenberg', role: 'Yogalehrerin', soul_level: 3, is_first_light: true, is_mentor: true },
+  { email: 'sophia@souleya-demo.com', name: 'Sophia Lichtweg', role: 'Reiki-Meisterin', soul_level: 2, is_first_light: true, is_mentor: false },
+  { email: 'max@souleya-demo.com', name: 'Max Bergmann', role: 'Achtsamkeitstrainer', soul_level: 1, is_first_light: false, is_mentor: false },
+  { email: 'david@souleya-demo.com', name: 'David Goldbach', role: 'Buddhismus-Lehrer', soul_level: 5, is_first_light: false, is_mentor: true },
 ];
 
 const OTP_LENGTH = 8;
@@ -264,8 +272,36 @@ function LoginForm() {
                         cursor: demoLoading !== null ? 'wait' : 'pointer',
                       }}
                     >
-                      <span className="text-sm block" style={{ color: 'var(--text-h)' }}>{user.name}</span>
-                      <span className="text-[0.7rem]" style={{ color: 'var(--text-muted)' }}>{user.role}</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <span className="text-sm block" style={{ color: 'var(--text-h)' }}>{user.name}</span>
+                          <span className="text-[0.7rem]" style={{ color: 'var(--text-muted)' }}>{user.role}</span>
+                        </div>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          {user.is_first_light && (
+                            <span
+                              className="text-[0.55rem] font-label tracking-[0.05em] uppercase px-1.5 py-0.5 rounded-full"
+                              style={{ background: 'rgba(200,169,110,.15)', color: 'var(--gold-text)' }}
+                            >
+                              ✦ FL
+                            </span>
+                          )}
+                          {user.is_mentor && (
+                            <span
+                              className="text-[0.55rem] font-label tracking-[0.05em] uppercase px-1.5 py-0.5 rounded-full"
+                              style={{ background: 'var(--success-bg)', color: 'var(--success)' }}
+                            >
+                              Mentor
+                            </span>
+                          )}
+                          <span
+                            className="text-[0.55rem] font-label tracking-[0.05em] uppercase px-1.5 py-0.5 rounded-full"
+                            style={{ background: 'var(--glass-strong)', color: 'var(--text-sec)' }}
+                          >
+                            Lv{user.soul_level}
+                          </span>
+                        </div>
+                      </div>
                     </button>
                   ))}
                   <p className="text-[0.65rem] mt-1" style={{ color: 'var(--text-muted)' }}>
@@ -287,7 +323,7 @@ function LoginForm() {
             </p>
 
             {/* OTP-Eingabefelder */}
-            <div className="flex justify-center gap-2 mb-4">
+            <div className="grid grid-cols-8 gap-1.5 sm:gap-2 mb-4 w-full max-w-[360px] mx-auto">
               {otpDigits.map((digit, i) => (
                 <input
                   key={i}
@@ -300,7 +336,7 @@ function LoginForm() {
                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
                   onPaste={i === 0 ? handleOtpPaste : undefined}
                   disabled={verifying}
-                  className="w-11 h-14 rounded-input text-center text-xl font-heading outline-none transition-all duration-200"
+                  className="w-full aspect-[3/4] rounded-input text-center text-lg sm:text-xl font-heading outline-none transition-all duration-200"
                   style={{
                     background: 'var(--glass)',
                     border: `1px solid ${digit ? 'var(--gold-border-s)' : 'var(--glass-border)'}`,
