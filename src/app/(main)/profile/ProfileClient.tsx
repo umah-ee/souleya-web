@@ -751,6 +751,41 @@ export default function ProfileClient() {
           </button>
         )}
 
+        {/* Studio oeffnen Button (nur fuer Mentoren) */}
+        {!editing && (profile as any)?.is_mentor && (
+          <a
+            href="/studio"
+            className="w-full mt-3 flex items-center justify-center gap-3 py-3.5 rounded-[14px] font-body text-[13px] italic cursor-pointer transition-all duration-300 no-underline"
+            style={{
+              background: 'var(--gold-bg)',
+              border: '1.5px solid var(--gold-border)',
+              color: 'var(--gold-text)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--gold-bg-hover)';
+              e.currentTarget.style.boxShadow = '0 4px 20px var(--gold-glow)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--gold-bg)';
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <span
+              className="flex items-center justify-center"
+              style={{
+                width: 36, height: 36, borderRadius: 10,
+                background: 'var(--gold)',
+              }}
+            >
+              <Icon name="sparkles" size={18} style={{ color: 'var(--text-on-gold)' }} />
+            </span>
+            Coach Studio oeffnen
+            <Icon name="chevron-right" size={16} style={{ color: 'var(--gold-text)', marginLeft: 'auto' }} />
+          </a>
+        )}
+
         {/* Einladungslink */}
         <div className="glass-card rounded-[18px] p-5 mt-4">
           <p className="font-label uppercase tracking-wider text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>

@@ -59,7 +59,23 @@ export type IconName =
   | 'circle-check'
   | 'book'
   | 'run'
-  | 'droplet';
+  | 'droplet'
+  | 'layout-dashboard'
+  | 'video'
+  | 'library'
+  | 'calendar-event'
+  | 'users-group'
+  | 'wallet'
+  | 'chart-line'
+  | 'speakerphone'
+  | 'mail'
+  | 'id-badge'
+  | 'chevron-left'
+  | 'chevron-down'
+  | 'settings'
+  | 'file-text'
+  | 'link'
+  | 'player-play';
 
 const paths: Record<IconName, React.ReactNode> = {
   home: (
@@ -397,6 +413,108 @@ const paths: Record<IconName, React.ReactNode> = {
   ),
   droplet: (
     <path d="M6.8 11a6 6 0 1 0 10.396 0l-5.197 -8l-5.2 8z" />
+  ),
+  'layout-dashboard': (
+    <>
+      <path d="M4 4h6v8h-6z" />
+      <path d="M4 16h6v4h-6z" />
+      <path d="M14 12h6v8h-6z" />
+      <path d="M14 4h6v4h-6z" />
+    </>
+  ),
+  video: (
+    <>
+      <path d="M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z" />
+      <rect x="3" y="6" width="12" height="12" rx="2" />
+    </>
+  ),
+  library: (
+    <>
+      <path d="M7 3m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v14.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z" />
+      <path d="M3 7v10" />
+    </>
+  ),
+  'calendar-event': (
+    <>
+      <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+      <path d="M16 3v4" />
+      <path d="M8 3v4" />
+      <path d="M4 11h16" />
+      <path d="M8 15h2v2h-2z" />
+    </>
+  ),
+  'users-group': (
+    <>
+      <path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1" />
+      <path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M17 10h2a2 2 0 0 1 2 2v1" />
+      <path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M3 13v-1a2 2 0 0 1 2 -2h2" />
+    </>
+  ),
+  wallet: (
+    <>
+      <path d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" />
+      <path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" />
+    </>
+  ),
+  'chart-line': (
+    <>
+      <path d="M4 19l16 0" />
+      <path d="M4 15l4 -6l4 2l4 -5l4 4" />
+    </>
+  ),
+  speakerphone: (
+    <>
+      <path d="M18 8a3 3 0 0 1 0 6" />
+      <path d="M10 8v11a1 1 0 0 1 -1 1h-1a1 1 0 0 1 -1 -1v-5" />
+      <path d="M12 8h0l4.524 -3.77a.9 .9 0 0 1 1.476 .692v12.156a.9 .9 0 0 1 -1.476 .692l-4.524 -3.77h-8a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h8" />
+    </>
+  ),
+  mail: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M3 7l9 6l9 -6" />
+    </>
+  ),
+  'id-badge': (
+    <>
+      <rect x="5" y="3" width="14" height="18" rx="3" />
+      <path d="M12 13a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z" />
+      <path d="M8 17a4 4 0 0 1 8 0" />
+    </>
+  ),
+  'chevron-left': (
+    <path d="M15 6l-6 6l6 6" />
+  ),
+  'chevron-down': (
+    <path d="M6 9l6 6l6 -6" />
+  ),
+  settings: (
+    <>
+      <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" />
+      <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+    </>
+  ),
+  'file-text': (
+    <>
+      <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+      <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+      <path d="M9 9l1 0" />
+      <path d="M9 13l6 0" />
+      <path d="M9 17l6 0" />
+    </>
+  ),
+  link: (
+    <>
+      <path d="M9 15l6 -6" />
+      <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" />
+      <path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" />
+    </>
+  ),
+  'player-play': (
+    <path d="M7 4v16l13 -8z" />
   ),
 };
 

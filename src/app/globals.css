@@ -52,6 +52,18 @@
   --event-purple-bg:rgba(122,95,160, .10);
   --event-purple-border:rgba(122,95,160, .30);
   --warning:       #C07830;
+
+  /* Studio-spezifisch */
+  --sidebar-bg:      rgba(255,255,255, .30);
+  --sidebar-hover:   rgba(200,169,110, .12);
+  --sidebar-active:  rgba(200,169,110, .18);
+  --topbar-bg:       rgba(255,255,255, .35);
+  --card-bg:         rgba(255,255,255, .40);
+  --glass-strong:    rgba(255,255,255, .60);
+  --warn:            #C47A2A;
+  --warn-bg:         rgba(196,122,42, .10);
+  --danger:          #A85454;
+  --danger-bg:       rgba(168,84,84, .10);
 }
 
 /* ── DARK THEME ─────────────────────────── */
@@ -99,6 +111,18 @@
   --event-purple-bg:rgba(155,114,207, .10);
   --event-purple-border:rgba(155,114,207, .30);
   --warning:       #F4A261;
+
+  /* Studio-spezifisch */
+  --sidebar-bg:      rgba(255,255,255, .04);
+  --sidebar-hover:   rgba(200,169,110, .08);
+  --sidebar-active:  rgba(200,169,110, .14);
+  --topbar-bg:       rgba(255,255,255, .04);
+  --card-bg:         rgba(255,255,255, .05);
+  --glass-strong:    rgba(255,255,255, .10);
+  --warn:            #D49A4A;
+  --warn-bg:         rgba(212,154,74, .10);
+  --danger:          #C87070;
+  --danger-bg:       rgba(200,112,112, .10);
 }
 
 /* ── BODY ──────────────────────────────── */
