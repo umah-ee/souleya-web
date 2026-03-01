@@ -75,7 +75,8 @@ export type IconName =
   | 'settings'
   | 'file-text'
   | 'link'
-  | 'player-play';
+  | 'player-play'
+  | 'shield';
 
 const paths: Record<IconName, React.ReactNode> = {
   home: (
@@ -515,6 +516,12 @@ const paths: Record<IconName, React.ReactNode> = {
   ),
   'player-play': (
     <path d="M7 4v16l13 -8z" />
+  ),
+  shield: (
+    <>
+      <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" />
+      <path d="M9 12l2 2l4 -4" />
+    </>
   ),
 };
 

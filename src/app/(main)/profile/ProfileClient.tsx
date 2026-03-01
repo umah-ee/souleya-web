@@ -414,15 +414,31 @@ export default function ProfileClient() {
                   {profile.display_name ?? profile.email}
                 </div>
 
-                {/* Handle + Soul Level */}
+                {/* Handle + Soul Level + Badges */}
                 <div
-                  className="text-[11px] mb-[10px]"
+                  className="text-[11px] mb-[10px] flex items-center justify-center gap-1.5 flex-wrap"
                   style={{ color: 'var(--text-muted)' }}
                 >
-                  {profile.username ? `@${profile.username}` : profile.email}
-                  {' · '}
-                  {vipName}
-                  {profile.is_first_light && ' · First Light'}
+                  <span>{profile.username ? `@${profile.username}` : profile.email}</span>
+                  <span>·</span>
+                  <span>{vipName}</span>
+                  {profile.is_first_light && <><span>·</span><span>First Light</span></>}
+                  {profile.is_admin && (
+                    <span
+                      className="text-[8px] font-label tracking-[0.1em] uppercase px-[7px] py-[2px] rounded-full"
+                      style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)', border: '1px solid var(--gold-border-s)' }}
+                    >
+                      Admin
+                    </span>
+                  )}
+                  {profile.is_mentor && !profile.is_admin && (
+                    <span
+                      className="text-[8px] font-label tracking-[0.1em] uppercase px-[7px] py-[2px] rounded-full"
+                      style={{ background: 'var(--success-bg)', color: 'var(--success)', border: '1px solid var(--success-border)' }}
+                    >
+                      Mentor
+                    </span>
+                  )}
                 </div>
 
                 {/* Bio */}
@@ -504,6 +520,9 @@ export default function ProfileClient() {
                   </span>
                   {profile.is_first_light && (
                     <span className="flex items-center gap-1"><Icon name="sparkles" size={12} /> First Light</span>
+                  )}
+                  {profile.is_admin && (
+                    <span className="flex items-center gap-1"><Icon name="shield" size={12} style={{ color: 'var(--gold-text)' }} /> Admin</span>
                   )}
                 </div>
               </>
