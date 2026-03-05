@@ -6,6 +6,7 @@ import type {
   CreateCourseData, UpdateCourseData, CreateModuleData, CreateLessonData,
   CreateMediaData, UpdateMediaData, CreateF2FPricingData, CreateF2FSlotData,
   CreateCouponData, CreateAnnouncementData, FinanceOverview,
+  MentorProfile, UpdateMentorProfileData,
 } from '@/types/studio';
 
 // ── Dashboard ──────────────────────────────────────────────
@@ -214,4 +215,13 @@ export async function fetchAnnouncements(options?: { page?: number; limit?: numb
 
 export async function createAnnouncement(data: CreateAnnouncementData): Promise<Announcement> {
   return apiFetch('/studio/announcements', { method: 'POST', body: JSON.stringify(data) });
+}
+
+// ── Mentor-Profil ─────────────────────────────────────────
+export async function fetchMentorProfile(): Promise<MentorProfile> {
+  return apiFetch('/studio/profile');
+}
+
+export async function updateMentorProfile(data: UpdateMentorProfileData): Promise<MentorProfile> {
+  return apiFetch('/studio/profile', { method: 'PATCH', body: JSON.stringify(data) });
 }
