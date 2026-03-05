@@ -28,13 +28,13 @@ export default function F2FPage() {
           {/* Pricing Cards */}
           <h3 style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 12 }}>Preismodelle</h3>
           {pricings.length === 0 ? (
-            <div className="glass-card rounded-lg p-6 text-center mb-8" style={{ background: 'var(--card-bg)' }}>
+            <div className="glass-card rounded-[8px] p-6 text-center mb-8" style={{ background: 'var(--card-bg)' }}>
               <p style={{ fontSize: 13, color: 'var(--text-sec)', fontStyle: 'italic' }}>Noch keine Preismodelle erstellt.</p>
             </div>
           ) : (
             <div className="grid gap-3 mb-8" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
               {pricings.map((p) => (
-                <div key={p.id} className="glass-card rounded-lg p-5 text-center" style={{ background: 'var(--card-bg)', border: '1.5px solid var(--gold-border-s)' }}>
+                <div key={p.id} className="glass-card rounded-[8px] p-5 text-center" style={{ background: 'var(--card-bg)', border: '1.5px solid var(--gold-border-s)' }}>
                   <div style={{ fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 6 }}>
                     {p.duration_minutes} Min
                   </div>
@@ -50,13 +50,13 @@ export default function F2FPage() {
           {/* Bookings */}
           <h3 style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 12 }}>Buchungen</h3>
           {bookings.length === 0 ? (
-            <div className="glass-card rounded-lg p-6 text-center" style={{ background: 'var(--card-bg)' }}>
+            <div className="glass-card rounded-[8px] p-6 text-center" style={{ background: 'var(--card-bg)' }}>
               <p style={{ fontSize: 13, color: 'var(--text-sec)', fontStyle: 'italic' }}>Noch keine Buchungen.</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
               {bookings.map((b) => (
-                <div key={b.id} className="glass-card rounded-lg p-4 flex items-center gap-3" style={{ background: 'var(--card-bg)' }}>
+                <div key={b.id} className="glass-card rounded-[8px] p-4 flex items-center gap-3" style={{ background: 'var(--card-bg)' }}>
                   <div className="flex-shrink-0 rounded-full overflow-hidden" style={{ width: 36, height: 36, background: 'var(--avatar-bg)' }}>
                     {b.client?.avatar_url && <img src={b.client.avatar_url} alt="" className="w-full h-full object-cover" />}
                   </div>

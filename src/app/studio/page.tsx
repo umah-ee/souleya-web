@@ -64,7 +64,7 @@ export default function StudioDashboard() {
         {KPI_CARDS.map((card) => (
           <div
             key={card.key}
-            className="glass-card rounded-lg p-5 transition-transform duration-200 hover:-translate-y-0.5"
+            className="glass-card rounded-[8px] p-5 transition-transform duration-200 hover:-translate-y-0.5"
             style={{ background: 'var(--card-bg)' }}
           >
             <div className="flex items-center gap-3 mb-3">
@@ -112,7 +112,7 @@ export default function StudioDashboard() {
         ].map((item) => (
           <div
             key={item.label}
-            className="glass-card rounded-lg p-4"
+            className="glass-card rounded-[8px] p-4"
             style={{ background: 'var(--card-bg)' }}
           >
             <div className="flex items-center gap-2 mb-2">
@@ -129,7 +129,7 @@ export default function StudioDashboard() {
       </div>
 
       {/* Letzte Aktivitaeten */}
-      <div className="glass-card rounded-lg p-5" style={{ background: 'var(--card-bg)' }}>
+      <div className="glass-card rounded-[8px] p-5" style={{ background: 'var(--card-bg)' }}>
         <h3
           style={{
             fontSize: 11,

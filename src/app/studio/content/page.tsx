@@ -46,14 +46,14 @@ export default function ContentPage() {
       {loading ? (
         <p style={{ color: 'var(--text-muted)', fontSize: 14, textAlign: 'center', paddingTop: 40 }}>Lade Medien...</p>
       ) : items.length === 0 ? (
-        <div className="glass-card rounded-lg p-8 text-center" style={{ background: 'var(--card-bg)' }}>
+        <div className="glass-card rounded-[8px] p-8 text-center" style={{ background: 'var(--card-bg)' }}>
           <Icon name="library" size={48} style={{ color: 'var(--text-muted)', margin: '0 auto 16px' }} />
           <p style={{ fontSize: 14, color: 'var(--text-sec)', fontStyle: 'italic' }}>Noch keine Medien hochgeladen.</p>
         </div>
       ) : (
         <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
           {items.map((item) => (
-            <div key={item.id} className="glass-card rounded-lg p-4 transition-transform duration-200 hover:-translate-y-0.5" style={{ background: 'var(--card-bg)' }}>
+            <div key={item.id} className="glass-card rounded-[8px] p-4 transition-transform duration-200 hover:-translate-y-0.5" style={{ background: 'var(--card-bg)' }}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--gold-bg)' }}>
                   <Icon name={(TYPE_ICONS[item.content_type] ?? 'file-text') as any} size={18} style={{ color: 'var(--gold)' }} />

@@ -136,7 +136,7 @@ export default function CoursesPage() {
 
       {/* Create Form */}
       {creating && (
-        <div className="glass-card rounded-lg p-5 mb-6" style={{ background: 'var(--card-bg)', border: '1.5px solid var(--gold-border)' }}>
+        <div className="glass-card rounded-[8px] p-5 mb-6" style={{ background: 'var(--card-bg)', border: '1.5px solid var(--gold-border)' }}>
           <h3 style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 12 }}>
             Neuen Kurs erstellen
           </h3>
@@ -195,7 +195,7 @@ export default function CoursesPage() {
       {loading ? (
         <p style={{ color: 'var(--text-muted)', fontSize: 14, textAlign: 'center', paddingTop: 40 }}>Lade Kurse...</p>
       ) : courses.length === 0 ? (
-        <div className="glass-card rounded-lg p-8 text-center" style={{ background: 'var(--card-bg)' }}>
+        <div className="glass-card rounded-[8px] p-8 text-center" style={{ background: 'var(--card-bg)' }}>
           <Icon name="school" size={48} style={{ color: 'var(--text-muted)', margin: '0 auto 16px' }} />
           <p style={{ fontSize: 14, color: 'var(--text-sec)', fontStyle: 'italic' }}>
             Noch keine Kurse erstellt.
@@ -209,7 +209,7 @@ export default function CoursesPage() {
           {courses.map((course) => (
             <div
               key={course.id}
-              className="glass-card rounded-lg overflow-hidden transition-transform duration-200 hover:-translate-y-0.5"
+              className="glass-card rounded-[8px] overflow-hidden transition-transform duration-200 hover:-translate-y-0.5"
               style={{ background: 'var(--card-bg)' }}
             >
               {/* Cover */}

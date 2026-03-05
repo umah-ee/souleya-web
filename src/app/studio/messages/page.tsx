@@ -51,14 +51,14 @@ export default function MessagesPage() {
         <p style={{ color: 'var(--text-muted)', fontSize: 14, textAlign: 'center', paddingTop: 40 }}>Lade...</p>
       ) : tab === 'announcements' ? (
         announcements.length === 0 ? (
-          <div className="glass-card rounded-lg p-6 text-center" style={{ background: 'var(--card-bg)' }}>
+          <div className="glass-card rounded-[8px] p-6 text-center" style={{ background: 'var(--card-bg)' }}>
             <Icon name="speakerphone" size={40} style={{ color: 'var(--text-muted)', margin: '0 auto 12px' }} />
             <p style={{ fontSize: 13, color: 'var(--text-sec)', fontStyle: 'italic' }}>Noch keine Ankuendigungen gesendet.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
             {announcements.map((a) => (
-              <div key={a.id} className="glass-card rounded-lg p-4" style={{ background: 'var(--card-bg)' }}>
+              <div key={a.id} className="glass-card rounded-[8px] p-4" style={{ background: 'var(--card-bg)' }}>
                 <h4 style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--text-h)', marginBottom: 4 }}>{a.title}</h4>
                 <p style={{ fontSize: 12, color: 'var(--text-sec)', marginBottom: 8 }}>{a.body.slice(0, 120)}...</p>
                 <div className="flex gap-4" style={{ fontSize: 10, color: 'var(--text-muted)' }}>
@@ -71,14 +71,14 @@ export default function MessagesPage() {
         )
       ) : (
         reviews.length === 0 ? (
-          <div className="glass-card rounded-lg p-6 text-center" style={{ background: 'var(--card-bg)' }}>
+          <div className="glass-card rounded-[8px] p-6 text-center" style={{ background: 'var(--card-bg)' }}>
             <Icon name="star" size={40} style={{ color: 'var(--text-muted)', margin: '0 auto 12px' }} />
             <p style={{ fontSize: 13, color: 'var(--text-sec)', fontStyle: 'italic' }}>Keine offenen Bewertungen.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
             {reviews.map((r) => (
-              <div key={r.id} className="glass-card rounded-lg p-4" style={{ background: 'var(--card-bg)' }}>
+              <div key={r.id} className="glass-card rounded-[8px] p-4" style={{ background: 'var(--card-bg)' }}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="rounded-full overflow-hidden flex-shrink-0" style={{ width: 28, height: 28, background: 'var(--avatar-bg)' }}>
                     {r.reviewer?.avatar_url && <img src={r.reviewer.avatar_url} alt="" className="w-full h-full object-cover" />}

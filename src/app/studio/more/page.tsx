@@ -19,7 +19,7 @@ export default function MorePage() {
       <h2 style={{ fontSize: 11, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 16 }}>Mehr</h2>
       <div className="flex flex-col gap-2">
         {MORE_ITEMS.map((item) => (
-          <Link key={item.href} href={item.href} className="glass-card rounded-lg p-4 flex items-center gap-3 no-underline transition-transform duration-200 hover:-translate-y-0.5" style={{ background: 'var(--card-bg)' }}>
+          <Link key={item.href} href={item.href} className="glass-card rounded-[8px] p-4 flex items-center gap-3 no-underline transition-transform duration-200 hover:-translate-y-0.5" style={{ background: 'var(--card-bg)' }}>
             <div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 8, background: item.href === '/' ? 'var(--gold)' : 'var(--gold-bg)' }}>
               <Icon name={item.icon} size={18} style={{ color: item.href === '/' ? 'var(--text-on-gold)' : 'var(--gold)' }} />
             </div>

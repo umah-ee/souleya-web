@@ -29,7 +29,7 @@ export default function CalendarPage() {
       {loading ? (
         <p style={{ color: 'var(--text-muted)', fontSize: 14, textAlign: 'center', paddingTop: 40 }}>Lade Termine...</p>
       ) : slots.length === 0 ? (
-        <div className="glass-card rounded-lg p-8 text-center" style={{ background: 'var(--card-bg)' }}>
+        <div className="glass-card rounded-[8px] p-8 text-center" style={{ background: 'var(--card-bg)' }}>
           <Icon name="calendar-event" size={48} style={{ color: 'var(--text-muted)', margin: '0 auto 16px' }} />
           <p style={{ fontSize: 14, color: 'var(--text-sec)', fontStyle: 'italic' }}>Keine kommenden Termine.</p>
         </div>
@@ -38,7 +38,7 @@ export default function CalendarPage() {
           {slots.map((slot) => {
             const d = new Date(slot.starts_at);
             return (
-              <div key={slot.id} className="glass-card rounded-lg p-4 flex items-center gap-4" style={{ background: 'var(--card-bg)' }}>
+              <div key={slot.id} className="glass-card rounded-[8px] p-4 flex items-center gap-4" style={{ background: 'var(--card-bg)' }}>
                 <div className="text-center flex-shrink-0" style={{ width: 50 }}>
                   <div style={{ fontSize: 20, fontStyle: 'italic', color: 'var(--text-h)' }}>{d.getDate()}</div>
                   <div style={{ fontSize: 9, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>

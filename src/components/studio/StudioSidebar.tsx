@@ -79,7 +79,7 @@ export default function StudioSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 rounded-lg transition-all duration-200 relative no-underline whitespace-nowrap"
+              className="flex items-center gap-3 rounded-[8px] transition-all duration-200 relative no-underline whitespace-nowrap"
               style={{
                 padding: collapsed ? '10px 0' : '10px 12px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
@@ -141,7 +141,7 @@ export default function StudioSidebar() {
       <div className="flex-shrink-0 px-2 pt-2">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center gap-3 rounded-lg w-full transition-all duration-200 border-none cursor-pointer"
+          className="flex items-center gap-3 rounded-[8px] w-full transition-all duration-200 border-none cursor-pointer"
           style={{
             padding: collapsed ? '8px 0' : '8px 12px',
             justifyContent: collapsed ? 'center' : 'flex-start',
@@ -179,7 +179,7 @@ export default function StudioSidebar() {
       <div className="flex-shrink-0 px-2 py-2">
         <Link
           href="/"
-          className="flex items-center gap-3 rounded-lg w-full transition-all duration-200 no-underline"
+          className="flex items-center gap-3 rounded-[8px] w-full transition-all duration-200 no-underline"
           style={{
             padding: collapsed ? '10px 0' : '10px 12px',
             justifyContent: collapsed ? 'center' : 'flex-start',

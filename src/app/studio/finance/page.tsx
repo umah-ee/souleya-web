@@ -37,7 +37,7 @@ export default function FinancePage() {
               { label: 'Ausstehend', value: overview ? `${(overview.pending_payout_cents / 100).toFixed(2).replace('.', ',')} EUR` : '—' },
               { label: 'Enrollments', value: overview?.total_enrollments ?? 0 },
             ].map((item) => (
-              <div key={item.label} className="glass-card rounded-lg p-4" style={{ background: 'var(--card-bg)' }}>
+              <div key={item.label} className="glass-card rounded-[8px] p-4" style={{ background: 'var(--card-bg)' }}>
                 <div style={{ fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>{item.label}</div>
                 <div style={{ fontSize: 22, fontStyle: 'italic', color: 'var(--text-h)' }}>{item.value}</div>
               </div>
@@ -47,13 +47,13 @@ export default function FinancePage() {
           {/* Coupons */}
           <h3 style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 12 }}>Coupons</h3>
           {coupons.length === 0 ? (
-            <div className="glass-card rounded-lg p-6 text-center mb-8" style={{ background: 'var(--card-bg)' }}>
+            <div className="glass-card rounded-[8px] p-6 text-center mb-8" style={{ background: 'var(--card-bg)' }}>
               <p style={{ fontSize: 13, color: 'var(--text-sec)', fontStyle: 'italic' }}>Keine Coupons.</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2 mb-8">
               {coupons.map((c) => (
-                <div key={c.id} className="glass-card rounded-lg p-4 flex items-center gap-4" style={{ background: 'var(--card-bg)' }}>
+                <div key={c.id} className="glass-card rounded-[8px] p-4 flex items-center gap-4" style={{ background: 'var(--card-bg)' }}>
                   <span style={{ fontSize: 14, fontWeight: 500, fontFamily: 'monospace', color: 'var(--gold-text)' }}>{c.code}</span>
                   <span style={{ fontSize: 11, color: 'var(--text-sec)' }}>
                     {c.discount_percent ? `${c.discount_percent}%` : `${((c.discount_amount_cents ?? 0) / 100).toFixed(0)} EUR`}
@@ -70,13 +70,13 @@ export default function FinancePage() {
           {/* Payouts */}
           <h3 style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 12 }}>Auszahlungen</h3>
           {payouts.length === 0 ? (
-            <div className="glass-card rounded-lg p-6 text-center" style={{ background: 'var(--card-bg)' }}>
+            <div className="glass-card rounded-[8px] p-6 text-center" style={{ background: 'var(--card-bg)' }}>
               <p style={{ fontSize: 13, color: 'var(--text-sec)', fontStyle: 'italic' }}>Noch keine Auszahlungen. Stripe Connect wird spaeter eingerichtet.</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2">
               {payouts.map((p) => (
-                <div key={p.id} className="glass-card rounded-lg p-4 flex items-center gap-4" style={{ background: 'var(--card-bg)' }}>
+                <div key={p.id} className="glass-card rounded-[8px] p-4 flex items-center gap-4" style={{ background: 'var(--card-bg)' }}>
                   <div style={{ fontSize: 13, color: 'var(--text-h)' }}>{(p.amount_cents / 100).toFixed(2)} {p.currency}</div>
                   <span style={{ fontSize: 10, color: 'var(--text-sec)' }}>{p.status}</span>
                   <span className="ml-auto" style={{ fontSize: 10, color: 'var(--text-muted)' }}>

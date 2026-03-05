@@ -29,7 +29,7 @@ export default function ParticipantsPage() {
       {loading ? (
         <p style={{ color: 'var(--text-muted)', fontSize: 14, textAlign: 'center', paddingTop: 40 }}>Lade...</p>
       ) : courses.length === 0 ? (
-        <div className="glass-card rounded-lg p-8 text-center" style={{ background: 'var(--card-bg)' }}>
+        <div className="glass-card rounded-[8px] p-8 text-center" style={{ background: 'var(--card-bg)' }}>
           <p style={{ fontSize: 14, color: 'var(--text-sec)', fontStyle: 'italic' }}>Erstelle zuerst einen Kurs.</p>
         </div>
       ) : (
@@ -47,13 +47,13 @@ export default function ParticipantsPage() {
             ))}
           </div>
           {enrollments.length === 0 ? (
-            <div className="glass-card rounded-lg p-6 text-center" style={{ background: 'var(--card-bg)' }}>
+            <div className="glass-card rounded-[8px] p-6 text-center" style={{ background: 'var(--card-bg)' }}>
               <p style={{ fontSize: 13, color: 'var(--text-sec)', fontStyle: 'italic' }}>Keine Teilnehmer in diesem Kurs.</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2">
               {enrollments.map((e) => (
-                <div key={e.id} className="glass-card rounded-lg p-4 flex items-center gap-3" style={{ background: 'var(--card-bg)' }}>
+                <div key={e.id} className="glass-card rounded-[8px] p-4 flex items-center gap-3" style={{ background: 'var(--card-bg)' }}>
                   <div className="flex-shrink-0 rounded-full overflow-hidden" style={{ width: 36, height: 36, background: 'var(--avatar-bg)' }}>
                     {e.user?.avatar_url && <img src={e.user.avatar_url} alt="" className="w-full h-full object-cover" />}
                   </div>
