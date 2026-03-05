@@ -18,7 +18,7 @@ export default function F2FPage() {
   return (
     <div>
       <h2 style={{ fontSize: 11, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 16 }}>
-        Face2Face – 1:1 Sessions
+        Face2Face &ndash; 1:1 Sessions
       </h2>
 
       {loading ? (
@@ -28,13 +28,13 @@ export default function F2FPage() {
           {/* Pricing Cards */}
           <h3 style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 12 }}>Preismodelle</h3>
           {pricings.length === 0 ? (
-            <div className="glass-card rounded-xl p-6 text-center mb-8" style={{ background: 'var(--card-bg)' }}>
+            <div className="glass-card rounded-lg p-6 text-center mb-8" style={{ background: 'var(--card-bg)' }}>
               <p style={{ fontSize: 13, color: 'var(--text-sec)', fontStyle: 'italic' }}>Noch keine Preismodelle erstellt.</p>
             </div>
           ) : (
             <div className="grid gap-3 mb-8" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
               {pricings.map((p) => (
-                <div key={p.id} className="glass-card rounded-xl p-5 text-center" style={{ background: 'var(--card-bg)', border: '1.5px solid var(--gold-border-s)' }}>
+                <div key={p.id} className="glass-card rounded-lg p-5 text-center" style={{ background: 'var(--card-bg)', border: '1.5px solid var(--gold-border-s)' }}>
                   <div style={{ fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 6 }}>
                     {p.duration_minutes} Min
                   </div>
@@ -50,19 +50,19 @@ export default function F2FPage() {
           {/* Bookings */}
           <h3 style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 12 }}>Buchungen</h3>
           {bookings.length === 0 ? (
-            <div className="glass-card rounded-xl p-6 text-center" style={{ background: 'var(--card-bg)' }}>
+            <div className="glass-card rounded-lg p-6 text-center" style={{ background: 'var(--card-bg)' }}>
               <p style={{ fontSize: 13, color: 'var(--text-sec)', fontStyle: 'italic' }}>Noch keine Buchungen.</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
               {bookings.map((b) => (
-                <div key={b.id} className="glass-card rounded-xl p-4 flex items-center gap-3" style={{ background: 'var(--card-bg)' }}>
+                <div key={b.id} className="glass-card rounded-lg p-4 flex items-center gap-3" style={{ background: 'var(--card-bg)' }}>
                   <div className="flex-shrink-0 rounded-full overflow-hidden" style={{ width: 36, height: 36, background: 'var(--avatar-bg)' }}>
                     {b.client?.avatar_url && <img src={b.client.avatar_url} alt="" className="w-full h-full object-cover" />}
                   </div>
                   <div className="flex-1">
                     <div style={{ fontSize: 13, color: 'var(--text-h)' }}>{b.client?.display_name ?? 'Teilnehmer'}</div>
-                    <div style={{ fontSize: 10, color: 'var(--text-sec)' }}>{(b.amount_cents / 100).toFixed(2)} EUR · {b.status}</div>
+                    <div style={{ fontSize: 10, color: 'var(--text-sec)' }}>{(b.amount_cents / 100).toFixed(2)} EUR &middot; {b.status}</div>
                   </div>
                 </div>
               ))}

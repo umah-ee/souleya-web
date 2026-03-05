@@ -56,7 +56,7 @@ export default function StudioSidebar() {
           style={{
             width: 32, height: 32,
             background: 'var(--gold)',
-            borderRadius: 10,
+            borderRadius: 8,
           }}
         >
           <Icon name="sparkles" size={18} style={{ color: 'var(--text-on-gold)' }} />
@@ -79,7 +79,7 @@ export default function StudioSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 rounded-xl transition-all duration-200 relative no-underline whitespace-nowrap"
+              className="flex items-center gap-3 rounded-lg transition-all duration-200 relative no-underline whitespace-nowrap"
               style={{
                 padding: collapsed ? '10px 0' : '10px 12px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
@@ -125,7 +125,7 @@ export default function StudioSidebar() {
                     color: 'var(--text-on-gold)',
                     fontSize: 8,
                     padding: '2px 6px',
-                    borderRadius: 10,
+                    borderRadius: 8,
                     letterSpacing: '0.5px',
                   }}
                 >
@@ -137,38 +137,49 @@ export default function StudioSidebar() {
         })}
       </nav>
 
-      {/* Footer: Collapse Toggle + Zurueck */}
-      <div className="flex-shrink-0 px-2 py-3" style={{ borderTop: '1px solid var(--divider-l)' }}>
+      {/* Collapse Toggle – ueber dem Strich */}
+      <div className="flex-shrink-0 px-2 pt-2">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center gap-3 rounded-xl w-full transition-all duration-200 border-none cursor-pointer"
+          className="flex items-center gap-3 rounded-lg w-full transition-all duration-200 border-none cursor-pointer"
           style={{
-            padding: collapsed ? '10px 0' : '10px 12px',
+            padding: collapsed ? '8px 0' : '8px 12px',
             justifyContent: collapsed ? 'center' : 'flex-start',
             background: 'transparent',
           }}
           onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--sidebar-hover)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
         >
-          <Icon
-            name="chevron-left"
-            size={20}
+          {/* Doppel-Chevron Icon (<<) */}
+          <span
+            className="flex items-center justify-center"
             style={{
-              color: 'var(--text-muted)',
               transform: collapsed ? 'rotate(180deg)' : 'none',
               transition: 'transform 0.3s',
             }}
-          />
+          >
+            <Icon
+              name="chevrons-left"
+              size={18}
+              style={{ color: 'var(--text-muted)' }}
+            />
+          </span>
           {!collapsed && (
             <span style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
-              EINKLAPPEN
+              Einklappen
             </span>
           )}
         </button>
+      </div>
 
+      {/* Divider */}
+      <div className="mx-2" style={{ height: 1, background: 'var(--divider-l)' }} />
+
+      {/* Zurueck zur Community */}
+      <div className="flex-shrink-0 px-2 py-2">
         <Link
           href="/"
-          className="flex items-center gap-3 rounded-xl w-full transition-all duration-200 no-underline mt-0.5"
+          className="flex items-center gap-3 rounded-lg w-full transition-all duration-200 no-underline"
           style={{
             padding: collapsed ? '10px 0' : '10px 12px',
             justifyContent: collapsed ? 'center' : 'flex-start',
@@ -177,10 +188,10 @@ export default function StudioSidebar() {
           onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--sidebar-hover)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
         >
-          <Icon name="arrow-left" size={20} style={{ color: 'var(--text-muted)' }} />
+          <Icon name="arrow-left" size={18} style={{ color: 'var(--gold)' }} />
           {!collapsed && (
-            <span style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
-              ZURUECK ZUR APP
+            <span style={{ fontSize: 10, color: 'var(--gold-text)', letterSpacing: '0.5px', whiteSpace: 'nowrap', fontWeight: 500 }}>
+              Zurueck zur Community
             </span>
           )}
         </Link>

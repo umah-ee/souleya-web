@@ -15,7 +15,6 @@ const tabs: { href: string; icon: IconName; label: string }[] = [
 
 const moreItems: { href: string; icon: IconName; label: string }[] = [
   { href: '/studio', icon: 'school', label: 'Studio' },
-  { href: '/analytics', icon: 'chart-dots', label: 'Analytics' },
 ];
 
 export default function BottomTabs() {

@@ -71,6 +71,7 @@ export type IconName =
   | 'mail'
   | 'id-badge'
   | 'chevron-left'
+  | 'chevrons-left'
   | 'chevron-down'
   | 'settings'
   | 'file-text'
@@ -79,7 +80,8 @@ export type IconName =
   | 'shield'
   | 'star-filled'
   | 'info'
-  | 'world';
+  | 'world'
+  | 'bell';
 
 const paths: Record<IconName, React.ReactNode> = {
   home: (
@@ -492,6 +494,12 @@ const paths: Record<IconName, React.ReactNode> = {
   'chevron-left': (
     <path d="M15 6l-6 6l6 6" />
   ),
+  'chevrons-left': (
+    <>
+      <path d="M11 7l-5 5l5 5" />
+      <path d="M17 7l-5 5l5 5" />
+    </>
+  ),
   'chevron-down': (
     <path d="M6 9l6 6l6 -6" />
   ),
@@ -543,6 +551,12 @@ const paths: Record<IconName, React.ReactNode> = {
       <path d="M3.6 15h16.8" />
       <path d="M11.5 3a17 17 0 0 0 0 18" />
       <path d="M12.5 3a17 17 0 0 1 0 18" />
+    </>
+  ),
+  bell: (
+    <>
+      <path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" />
+      <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
     </>
   ),
 };

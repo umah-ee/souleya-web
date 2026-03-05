@@ -32,7 +32,7 @@ export default function ContentPage() {
         <div className="flex gap-2">
           {['', 'video', 'audio', 'pdf', 'image'].map((t) => (
             <button key={t} onClick={() => setTypeFilter(t)} className="border-none cursor-pointer" style={{
-              padding: '6px 14px', borderRadius: 20, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
+              padding: '6px 14px', borderRadius: 8, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
               background: typeFilter === t ? 'var(--gold-bg)' : 'var(--glass)',
               color: typeFilter === t ? 'var(--gold-text)' : 'var(--text-muted)',
               border: typeFilter === t ? '1px solid var(--gold-border-s)' : '1px solid var(--glass-border)',
@@ -46,16 +46,16 @@ export default function ContentPage() {
       {loading ? (
         <p style={{ color: 'var(--text-muted)', fontSize: 14, textAlign: 'center', paddingTop: 40 }}>Lade Medien...</p>
       ) : items.length === 0 ? (
-        <div className="glass-card rounded-2xl p-8 text-center" style={{ background: 'var(--card-bg)' }}>
+        <div className="glass-card rounded-lg p-8 text-center" style={{ background: 'var(--card-bg)' }}>
           <Icon name="library" size={48} style={{ color: 'var(--text-muted)', margin: '0 auto 16px' }} />
           <p style={{ fontSize: 14, color: 'var(--text-sec)', fontStyle: 'italic' }}>Noch keine Medien hochgeladen.</p>
         </div>
       ) : (
         <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
           {items.map((item) => (
-            <div key={item.id} className="glass-card rounded-xl p-4 transition-transform duration-200 hover:-translate-y-0.5" style={{ background: 'var(--card-bg)' }}>
+            <div key={item.id} className="glass-card rounded-lg p-4 transition-transform duration-200 hover:-translate-y-0.5" style={{ background: 'var(--card-bg)' }}>
               <div className="flex items-center gap-3 mb-3">
-                <div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--gold-bg)' }}>
+                <div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--gold-bg)' }}>
                   <Icon name={(TYPE_ICONS[item.content_type] ?? 'file-text') as any} size={18} style={{ color: 'var(--gold)' }} />
                 </div>
                 <div className="flex-1 min-w-0">

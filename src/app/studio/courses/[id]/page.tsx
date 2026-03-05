@@ -272,7 +272,7 @@ export default function CourseDetailPage() {
         <button
           onClick={() => router.push('/studio/courses')}
           className="mt-4 cursor-pointer border-none"
-          style={{ padding: '8px 20px', borderRadius: 20, background: 'var(--gold-bg)', color: 'var(--gold-text)', fontSize: 11 }}
+          style={{ padding: '8px 20px', borderRadius: 8, background: 'var(--gold-bg)', color: 'var(--gold-text)', fontSize: 11 }}
         >
           Zurueck zur Kursliste
         </button>
@@ -393,13 +393,13 @@ export default function CourseDetailPage() {
         <div className="space-y-4 max-w-2xl">
           {/* Cover */}
           {course.cover_url && (
-            <div className="rounded-2xl overflow-hidden" style={{ height: 200 }}>
+            <div className="rounded-lg overflow-hidden" style={{ height: 200 }}>
               <img src={course.cover_url} alt="" className="w-full h-full object-cover" />
             </div>
           )}
 
           {/* Beschreibung */}
-          <div className="glass-card rounded-2xl p-5" style={{ background: 'var(--card-bg)' }}>
+          <div className="glass-card rounded-lg p-5" style={{ background: 'var(--card-bg)' }}>
             <h3
               className="font-label mb-3"
               style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}
@@ -413,7 +413,7 @@ export default function CourseDetailPage() {
 
           {/* Ort + Datum */}
           {(course.location_name || course.starts_at) && (
-            <div className="glass-card rounded-2xl p-5" style={{ background: 'var(--card-bg)' }}>
+            <div className="glass-card rounded-lg p-5" style={{ background: 'var(--card-bg)' }}>
               <h3
                 className="font-label mb-3"
                 style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}
@@ -470,14 +470,14 @@ export default function CourseDetailPage() {
       {activeTab === 'curriculum' && (
         <div className="max-w-2xl space-y-3">
           {modules.length === 0 && (
-            <div className="glass-card rounded-2xl p-8 text-center" style={{ background: 'var(--card-bg)' }}>
+            <div className="glass-card rounded-lg p-8 text-center" style={{ background: 'var(--card-bg)' }}>
               <Icon name="book" size={32} style={{ color: 'var(--text-muted)', margin: '0 auto 12px' }} />
               <p style={{ fontSize: 14, color: 'var(--text-sec)' }}>Noch keine Module. Erstelle dein erstes Modul.</p>
             </div>
           )}
 
           {modules.map((mod, mi) => (
-            <div key={mod.id} className="glass-card rounded-2xl overflow-hidden" style={{ background: 'var(--card-bg)' }}>
+            <div key={mod.id} className="glass-card rounded-lg overflow-hidden" style={{ background: 'var(--card-bg)' }}>
               {/* Module Header */}
               <div
                 className="flex items-center gap-3 px-5 py-3.5 cursor-pointer"
@@ -676,7 +676,7 @@ export default function CourseDetailPage() {
               className="cursor-pointer border-none transition-all duration-200"
               style={{
                 padding: '10px 20px',
-                borderRadius: 20,
+                borderRadius: 8,
                 background: addingModuleTitle.trim() ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))' : 'var(--glass)',
                 color: addingModuleTitle.trim() ? 'var(--text-on-gold)' : 'var(--text-muted)',
                 fontSize: 11,
@@ -694,7 +694,7 @@ export default function CourseDetailPage() {
       {activeTab === 'settings' && (
         <div className="max-w-2xl space-y-4">
           {/* Status */}
-          <div className="glass-card rounded-2xl p-5" style={{ background: 'var(--card-bg)' }}>
+          <div className="glass-card rounded-lg p-5" style={{ background: 'var(--card-bg)' }}>
             <h3
               className="font-label mb-3"
               style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}
@@ -721,7 +721,7 @@ export default function CourseDetailPage() {
           </div>
 
           {/* Grunddaten */}
-          <div className="glass-card rounded-2xl p-5" style={{ background: 'var(--card-bg)' }}>
+          <div className="glass-card rounded-lg p-5" style={{ background: 'var(--card-bg)' }}>
             <h3
               className="font-label mb-4"
               style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}
@@ -778,7 +778,7 @@ export default function CourseDetailPage() {
           </div>
 
           {/* Preis */}
-          <div className="glass-card rounded-2xl p-5" style={{ background: 'var(--card-bg)' }}>
+          <div className="glass-card rounded-lg p-5" style={{ background: 'var(--card-bg)' }}>
             <h3
               className="font-label mb-4"
               style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}

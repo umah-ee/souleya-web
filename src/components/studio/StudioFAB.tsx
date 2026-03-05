@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Icon, type IconName } from '@/components/ui/Icon';
 
 interface FABItem {
@@ -13,13 +13,19 @@ interface FABItem {
 const FAB_ITEMS: FABItem[] = [
   { label: 'Neuer Kurs', icon: 'school', href: '/studio/courses?create=1' },
   { label: 'Neues Medium', icon: 'library', href: '/studio/content?create=1' },
-  { label: 'Termin erstellen', icon: 'calendar-event', href: '/studio/f2f?create=1' },
+  { label: 'Termin erstellen', icon: 'calendar-event', href: '/studio/calendar?create=1' },
   { label: 'Ankuendigung', icon: 'speakerphone', href: '/studio/messages?announce=1' },
   { label: 'Neuer Coupon', icon: 'wallet', href: '/studio/finance?coupon=1' },
 ];
 
 export default function StudioFAB() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const handleClick = (href: string) => {
+    setOpen(false);
+    router.push(href);
+  };
 
   return (
     <>
@@ -44,15 +50,16 @@ export default function StudioFAB() {
           }}
         >
           {FAB_ITEMS.map((item, i) => (
-            <Link
+            <button
               key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 whitespace-nowrap no-underline transition-all duration-250"
+              onClick={() => handleClick(item.href)}
+              className="flex items-center gap-2.5 whitespace-nowrap border-none cursor-pointer transition-all duration-250"
               style={{
                 opacity: open ? 1 : 0,
                 transform: open ? 'translateY(0)' : 'translateY(8px)',
                 transitionDelay: open ? `${i * 50}ms` : '0ms',
+                background: 'none',
+                padding: 0,
               }}
             >
               <span
@@ -61,7 +68,7 @@ export default function StudioFAB() {
                   backdropFilter: 'blur(16px)',
                   WebkitBackdropFilter: 'blur(16px)',
                   border: '1px solid var(--glass-border)',
-                  borderRadius: 10,
+                  borderRadius: 8,
                   padding: '8px 14px',
                   fontSize: 11,
                   color: 'var(--text-h)',
@@ -84,7 +91,7 @@ export default function StudioFAB() {
               >
                 <Icon name={item.icon} size={18} style={{ color: 'var(--gold)' }} />
               </span>
-            </Link>
+            </button>
           ))}
         </div>
 
