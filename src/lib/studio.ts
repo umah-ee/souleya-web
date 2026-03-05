@@ -8,14 +8,38 @@ import type {
   CreateCouponData, CreateAnnouncementData, FinanceOverview,
   MentorProfile, UpdateMentorProfileData,
 } from '@/types/studio';
+import {
+  DEMO_KPIS, DEMO_ACTIVITY, DEMO_COURSES, DEMO_ENROLLMENTS,
+  DEMO_MEDIA, DEMO_FINANCE, DEMO_COUPONS, DEMO_PAYOUTS,
+  DEMO_MENTOR_PROFILE, DEMO_REVIEWS, DEMO_F2F_PRICINGS,
+  DEMO_F2F_SLOTS, DEMO_F2F_BOOKINGS, DEMO_ANNOUNCEMENTS,
+} from './studio-demo';
+
+// ── Demo-Modus ─────────────────────────────────────────────
+// Wenn die API nicht erreichbar ist, werden Demo-Daten angezeigt.
+// So koennen alle Screens ohne laufendes Backend getestet werden.
+
+const IS_DEV = process.env.NODE_ENV === 'development';
+
+async function withDemo<T>(apiFn: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await apiFn();
+  } catch {
+    if (IS_DEV) return fallback;
+    throw new Error('API nicht erreichbar');
+  }
+}
 
 // ── Dashboard ──────────────────────────────────────────────
 export async function fetchDashboardKPIs(): Promise<StudioDashboardKPIs> {
-  return apiFetch('/studio/dashboard/kpis');
+  return withDemo(() => apiFetch('/studio/dashboard/kpis'), DEMO_KPIS);
 }
 
 export async function fetchRecentActivity(limit = 10) {
-  return apiFetch(`/studio/dashboard/activity?limit=${limit}`);
+  return withDemo(
+    () => apiFetch(`/studio/dashboard/activity?limit=${limit}`),
+    DEMO_ACTIVITY.slice(0, limit),
+  );
 }
 
 // ── Kurse ──────────────────────────────────────────────────
@@ -25,11 +49,20 @@ export async function fetchCourses(options?: { status?: string; page?: number; l
   if (options?.page) params.set('page', String(options.page));
   if (options?.limit) params.set('limit', String(options.limit));
   const qs = params.toString();
-  return apiFetch<{ data: Course[]; total: number; hasMore: boolean }>(`/studio/courses${qs ? `?${qs}` : ''}`);
+
+  const filtered = options?.status
+    ? DEMO_COURSES.filter((c) => c.status === options.status)
+    : DEMO_COURSES;
+
+  return withDemo(
+    () => apiFetch<{ data: Course[]; total: number; hasMore: boolean }>(`/studio/courses${qs ? `?${qs}` : ''}`),
+    { data: filtered, total: filtered.length, hasMore: false },
+  );
 }
 
 export async function fetchCourse(id: string): Promise<Course> {
-  return apiFetch(`/studio/courses/${id}`);
+  const demo = DEMO_COURSES.find((c) => c.id === id) ?? DEMO_COURSES[0];
+  return withDemo(() => apiFetch(`/studio/courses/${id}`), demo);
 }
 
 export async function createCourse(data: CreateCourseData): Promise<Course> {
@@ -46,7 +79,8 @@ export async function deleteCourse(id: string): Promise<void> {
 
 // ── Module ─────────────────────────────────────────────────
 export async function fetchModules(courseId: string): Promise<CourseModule[]> {
-  return apiFetch(`/studio/courses/${courseId}/modules`);
+  const demo = DEMO_COURSES.find((c) => c.id === courseId)?.modules ?? [];
+  return withDemo(() => apiFetch(`/studio/courses/${courseId}/modules`), demo);
 }
 
 export async function createModule(courseId: string, data: CreateModuleData): Promise<CourseModule> {
@@ -81,8 +115,14 @@ export async function fetchEnrollments(courseId: string, options?: { status?: st
   if (options?.page) params.set('page', String(options.page));
   if (options?.limit) params.set('limit', String(options.limit));
   const qs = params.toString();
-  return apiFetch<{ data: Enrollment[]; total: number; hasMore: boolean }>(
-    `/studio/courses/${courseId}/enrollments${qs ? `?${qs}` : ''}`,
+
+  const demo = DEMO_ENROLLMENTS[courseId] ?? [];
+
+  return withDemo(
+    () => apiFetch<{ data: Enrollment[]; total: number; hasMore: boolean }>(
+      `/studio/courses/${courseId}/enrollments${qs ? `?${qs}` : ''}`,
+    ),
+    { data: demo, total: demo.length, hasMore: false },
   );
 }
 
@@ -94,11 +134,20 @@ export async function fetchMediaItems(options?: { content_type?: string; tags?: 
   if (options?.page) params.set('page', String(options.page));
   if (options?.limit) params.set('limit', String(options.limit));
   const qs = params.toString();
-  return apiFetch<{ data: MediaItem[]; total: number; hasMore: boolean }>(`/studio/media${qs ? `?${qs}` : ''}`);
+
+  const filtered = options?.content_type
+    ? DEMO_MEDIA.filter((m) => m.content_type === options.content_type)
+    : DEMO_MEDIA;
+
+  return withDemo(
+    () => apiFetch<{ data: MediaItem[]; total: number; hasMore: boolean }>(`/studio/media${qs ? `?${qs}` : ''}`),
+    { data: filtered, total: filtered.length, hasMore: false },
+  );
 }
 
 export async function fetchMediaItem(id: string): Promise<MediaItem> {
-  return apiFetch(`/studio/media/${id}`);
+  const demo = DEMO_MEDIA.find((m) => m.id === id) ?? DEMO_MEDIA[0];
+  return withDemo(() => apiFetch(`/studio/media/${id}`), demo);
 }
 
 export async function createMediaItem(data: CreateMediaData): Promise<MediaItem> {
@@ -121,7 +170,11 @@ export async function fetchReviews(options?: { target_type?: string; pending_rep
   if (options?.page) params.set('page', String(options.page));
   if (options?.limit) params.set('limit', String(options.limit));
   const qs = params.toString();
-  return apiFetch<{ data: Review[]; total: number; hasMore: boolean }>(`/studio/reviews${qs ? `?${qs}` : ''}`);
+
+  return withDemo(
+    () => apiFetch<{ data: Review[]; total: number; hasMore: boolean }>(`/studio/reviews${qs ? `?${qs}` : ''}`),
+    { data: DEMO_REVIEWS, total: DEMO_REVIEWS.length, hasMore: false },
+  );
 }
 
 export async function replyToReview(id: string, replyText: string): Promise<Review> {
@@ -130,7 +183,7 @@ export async function replyToReview(id: string, replyText: string): Promise<Revi
 
 // ── Face2Face ──────────────────────────────────────────────
 export async function fetchF2FPricings(): Promise<F2FPricing[]> {
-  return apiFetch('/studio/f2f/pricing');
+  return withDemo(() => apiFetch('/studio/f2f/pricing'), DEMO_F2F_PRICINGS);
 }
 
 export async function createF2FPricing(data: CreateF2FPricingData): Promise<F2FPricing> {
@@ -147,7 +200,7 @@ export async function fetchF2FSlots(options?: { from_date?: string; to_date?: st
   if (options?.to_date) params.set('to_date', options.to_date);
   if (options?.status) params.set('status', options.status);
   const qs = params.toString();
-  return apiFetch(`/studio/f2f/slots${qs ? `?${qs}` : ''}`);
+  return withDemo(() => apiFetch(`/studio/f2f/slots${qs ? `?${qs}` : ''}`), DEMO_F2F_SLOTS);
 }
 
 export async function createF2FSlot(data: CreateF2FSlotData): Promise<F2FSlot> {
@@ -168,7 +221,10 @@ export async function fetchF2FBookings(options?: { status?: string; page?: numbe
   if (options?.page) params.set('page', String(options.page));
   if (options?.limit) params.set('limit', String(options.limit));
   const qs = params.toString();
-  return apiFetch<{ data: F2FBooking[]; total: number; hasMore: boolean }>(`/studio/f2f/bookings${qs ? `?${qs}` : ''}`);
+  return withDemo(
+    () => apiFetch<{ data: F2FBooking[]; total: number; hasMore: boolean }>(`/studio/f2f/bookings${qs ? `?${qs}` : ''}`),
+    { data: DEMO_F2F_BOOKINGS, total: DEMO_F2F_BOOKINGS.length, hasMore: false },
+  );
 }
 
 export async function updateBookingStatus(id: string, status: string): Promise<F2FBooking> {
@@ -177,7 +233,7 @@ export async function updateBookingStatus(id: string, status: string): Promise<F
 
 // ── Finanzen ───────────────────────────────────────────────
 export async function fetchFinanceOverview(): Promise<FinanceOverview> {
-  return apiFetch('/studio/finance/overview');
+  return withDemo(() => apiFetch('/studio/finance/overview'), DEMO_FINANCE);
 }
 
 export async function fetchPayouts(options?: { page?: number; limit?: number }) {
@@ -185,11 +241,14 @@ export async function fetchPayouts(options?: { page?: number; limit?: number }) 
   if (options?.page) params.set('page', String(options.page));
   if (options?.limit) params.set('limit', String(options.limit));
   const qs = params.toString();
-  return apiFetch<{ data: MentorPayout[]; total: number; hasMore: boolean }>(`/studio/finance/payouts${qs ? `?${qs}` : ''}`);
+  return withDemo(
+    () => apiFetch<{ data: MentorPayout[]; total: number; hasMore: boolean }>(`/studio/finance/payouts${qs ? `?${qs}` : ''}`),
+    { data: DEMO_PAYOUTS, total: DEMO_PAYOUTS.length, hasMore: false },
+  );
 }
 
 export async function fetchCoupons(): Promise<Coupon[]> {
-  return apiFetch('/studio/finance/coupons');
+  return withDemo(() => apiFetch('/studio/finance/coupons'), DEMO_COUPONS);
 }
 
 export async function createCoupon(data: CreateCouponData): Promise<Coupon> {
@@ -210,7 +269,10 @@ export async function fetchAnnouncements(options?: { page?: number; limit?: numb
   if (options?.page) params.set('page', String(options.page));
   if (options?.limit) params.set('limit', String(options.limit));
   const qs = params.toString();
-  return apiFetch<{ data: Announcement[]; total: number; hasMore: boolean }>(`/studio/announcements${qs ? `?${qs}` : ''}`);
+  return withDemo(
+    () => apiFetch<{ data: Announcement[]; total: number; hasMore: boolean }>(`/studio/announcements${qs ? `?${qs}` : ''}`),
+    { data: DEMO_ANNOUNCEMENTS, total: DEMO_ANNOUNCEMENTS.length, hasMore: false },
+  );
 }
 
 export async function createAnnouncement(data: CreateAnnouncementData): Promise<Announcement> {
@@ -219,7 +281,7 @@ export async function createAnnouncement(data: CreateAnnouncementData): Promise<
 
 // ── Mentor-Profil ─────────────────────────────────────────
 export async function fetchMentorProfile(): Promise<MentorProfile> {
-  return apiFetch('/studio/profile');
+  return withDemo(() => apiFetch('/studio/profile'), DEMO_MENTOR_PROFILE);
 }
 
 export async function updateMentorProfile(data: UpdateMentorProfileData): Promise<MentorProfile> {
