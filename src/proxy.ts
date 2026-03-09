@@ -52,13 +52,22 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // ── Pre-Launch: nur bestimmte Routen zugänglich ──
+  // ── Pre-Launch: nur bestimmte Routen zugänglich (Admins ausgenommen) ──
   if (PRE_LAUNCH) {
     const isAllowed = PRE_LAUNCH_ALLOWED.some(
       (prefix) => pathname === prefix || pathname.startsWith(prefix + '/'),
     );
     if (!isAllowed) {
-      return NextResponse.redirect(new URL('/profile', request.url));
+      // Admin-Check: Admins haben Vollzugriff auch im Pre-Launch
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile?.is_admin) {
+        return NextResponse.redirect(new URL('/profile', request.url));
+      }
     }
   }
 

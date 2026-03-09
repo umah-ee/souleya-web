@@ -3,14 +3,36 @@ import BottomTabs from '@/components/layout/BottomTabs';
 import MobileHeader from '@/components/layout/MobileHeader';
 import AuthGuard from '@/components/auth/AuthGuard';
 import { UnreadProvider } from '@/components/chat/UnreadContext';
+import { createClient } from '@/lib/supabase/server';
 
 const isPreLaunch = process.env.NEXT_PUBLIC_PRE_LAUNCH === 'true';
 
-export default function MainLayout({
+export default async function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Admin-Check: Admins sehen keine Pre-Launch-Einschraenkungen
+  let showPreLaunch = isPreLaunch;
+  if (isPreLaunch) {
+    try {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', user.id)
+          .single();
+        if (profile?.is_admin) {
+          showPreLaunch = false;
+        }
+      }
+    } catch {
+      // Fallback: Pre-Launch bleibt aktiv
+    }
+  }
+
   return (
     <AuthGuard>
       <UnreadProvider>
@@ -32,7 +54,7 @@ export default function MainLayout({
           <BottomTabs />
 
           {/* Pre-Launch: Nav-Overlays (blockieren Klicks + visuelles Blur) */}
-          {isPreLaunch && (
+          {showPreLaunch && (
             <>
               {/* Sidebar-Overlay (Desktop) */}
               <div
