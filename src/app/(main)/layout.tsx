@@ -4,6 +4,8 @@ import MobileHeader from '@/components/layout/MobileHeader';
 import AuthGuard from '@/components/auth/AuthGuard';
 import { UnreadProvider } from '@/components/chat/UnreadContext';
 
+const isPreLaunch = process.env.NEXT_PUBLIC_PRE_LAUNCH === 'true';
+
 export default function MainLayout({
   children,
 }: {
@@ -28,6 +30,75 @@ export default function MainLayout({
 
           {/* Mobile Bottom Tabs */}
           <BottomTabs />
+
+          {/* Pre-Launch: Nav-Overlays (blockieren Klicks + visuelles Blur) */}
+          {isPreLaunch && (
+            <>
+              {/* Sidebar-Overlay (Desktop) */}
+              <div
+                className="hidden md:block"
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  width: 64,
+                  bottom: 0,
+                  zIndex: 50,
+                  backdropFilter: 'blur(3px)',
+                  background: 'rgba(0,0,0,0.18)',
+                  cursor: 'not-allowed',
+                }}
+              />
+              {/* Mobile Header Overlay */}
+              <div
+                className="md:hidden"
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 56,
+                  zIndex: 50,
+                  backdropFilter: 'blur(3px)',
+                  background: 'rgba(0,0,0,0.18)',
+                  cursor: 'not-allowed',
+                }}
+              />
+              {/* Bottom Tabs Overlay (Mobile) */}
+              <div
+                className="md:hidden"
+                style={{
+                  position: 'fixed',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: 80,
+                  zIndex: 50,
+                  backdropFilter: 'blur(3px)',
+                  background: 'rgba(0,0,0,0.18)',
+                  cursor: 'not-allowed',
+                }}
+              />
+              {/* Launch-Banner */}
+              <div
+                style={{
+                  position: 'fixed',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  zIndex: 60,
+                  textAlign: 'center',
+                  padding: '8px 16px',
+                  fontSize: '0.8rem',
+                  background: 'var(--gold-bg)',
+                  color: 'var(--gold-text)',
+                  borderTop: '1px solid var(--gold-border)',
+                }}
+              >
+                Souleya öffnet am 01.07.2026 – dein Profil ist schon bereit 🌿
+              </div>
+            </>
+          )}
         </div>
       </UnreadProvider>
     </AuthGuard>
