@@ -42,9 +42,10 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Ort-Eingabe: Debounced Geocoding
+  // Kein erneutes Geocoding wenn bereits Koordinaten gesetzt (= Ort ausgewählt)
   useEffect(() => {
     if (geoTimer.current) clearTimeout(geoTimer.current);
-    if (locationName.trim().length < 3) {
+    if (locationName.trim().length < 3 || locationLat != null) {
       setGeoSuggestions([]);
       setShowGeoDropdown(false);
       return;
@@ -73,7 +74,7 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
     return () => {
       if (geoTimer.current) clearTimeout(geoTimer.current);
     };
-  }, [locationName]);
+  }, [locationName, locationLat]);
 
   const handleGeoSelect = (geo: GeoSuggestion) => {
     // Bei POI/Adresse: Kurzname als location_name, volle Adresse als location_address

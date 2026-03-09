@@ -43,9 +43,10 @@ export default function CreatePlaceModal({ onClose, onCreated, defaultLat, defau
   const hasDefaultLocation = defaultLat != null && defaultLng != null;
 
   // Ort-Eingabe: Debounced Geocoding
+  // Kein erneutes Geocoding wenn bereits Koordinaten gesetzt (= Ort ausgewählt)
   useEffect(() => {
     if (geoTimer.current) clearTimeout(geoTimer.current);
-    if (locationQuery.trim().length < 3) {
+    if (locationQuery.trim().length < 3 || locationLat != null) {
       setGeoSuggestions([]);
       setShowGeoDropdown(false);
       return;
@@ -74,7 +75,7 @@ export default function CreatePlaceModal({ onClose, onCreated, defaultLat, defau
     return () => {
       if (geoTimer.current) clearTimeout(geoTimer.current);
     };
-  }, [locationQuery]);
+  }, [locationQuery, locationLat]);
 
   const handleGeoSelect = (geo: GeoSuggestion) => {
     if (geo.feature_type === 'poi' || geo.feature_type === 'address') {
