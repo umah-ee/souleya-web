@@ -87,12 +87,30 @@ lib/
 
 ---
 
+## Wichtig: Next.js 16 nutzt `proxy.ts`, KEINE `middleware.ts`!
+
+Next.js 16 hat `middleware.ts` durch `proxy.ts` ersetzt. **NIEMALS eine `middleware.ts` erstellen** – das verursacht einen Build-Fehler auf Vercel. Alle Route-Guards, Auth-Checks und Pre-Launch-Logik gehören in `src/proxy.ts`.
+
+---
+
 ## Auth-Flow
 
+**Registrierung (Landing Page → souleya-web):**
 ```
-Login → supabase.auth.signInWithOtp() → Magic Link E-Mail
-→ /auth/callback → session.user → AuthGuard → (main)/...
+souleya.com: E-Mail eingeben → signInWithOtp()
+→ OTP-Code per E-Mail
+→ User gibt 8-stelligen Code ein
+→ Redirect zu circle.souleya.com/api/auth/verify?email=...&otp=...
+→ Server-seitige verifyOtp() → Session-Cookies gesetzt → /profile
 ```
+
+**Login (souleya-web intern):**
+```
+/login → signInWithOtp() → 8-stelliger Code per E-Mail
+→ verifyOtp() client-seitig → AuthGuard → (main)/...
+```
+
+**Supabase OTP-Codes sind 8-stellig** (nicht 6).
 
 API-Calls: JWT Bearer Token aus Supabase Session → `lib/api.ts`
 
