@@ -19,14 +19,21 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const supabase = createClient();
+    const supabase = createClient();
 
+    const checkAuth = async () => {
       // getUser() prueft den Token serverseitig und refresht wenn noetig
       const { data: { user }, error } = await supabase.auth.getUser();
 
       if (user && !error) {
         setAuthenticated(true);
+
+        // Heartbeat: last_seen_at aktualisieren
+        supabase
+          .from('profiles')
+          .update({ last_seen_at: new Date().toISOString() })
+          .eq('id', user.id)
+          .then();
       } else {
         console.warn('[AuthGuard] Keine gueltige Session – Redirect zu /login');
         router.replace(`/login?next=${encodeURIComponent(pathname)}`);
@@ -38,8 +45,19 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     checkAuth();
 
+    // Heartbeat alle 2 Minuten wiederholen
+    const heartbeatInterval = setInterval(async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        supabase
+          .from('profiles')
+          .update({ last_seen_at: new Date().toISOString() })
+          .eq('id', user.id)
+          .then();
+      }
+    }, 2 * 60 * 1000);
+
     // Auth-State-Changes lauschen (Login/Logout)
-    const supabase = createClient();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event) => {
         if (event === 'SIGNED_OUT') {
@@ -48,7 +66,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       },
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(heartbeatInterval);
+    };
   }, [router, pathname]);
 
   // Ladebildschirm waehrend Auth-Check
