@@ -41,12 +41,6 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
   // Hero-Bild: cover_url oder Demo-Fallback
   const heroUrl = getEventCover(event.cover_url, event.id);
 
-  // Statische Karten-URL (Mapbox Static Images API)
-  const mapToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-  const staticMapUrl = mapToken
-    ? `https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/${event.location_lng},${event.location_lat},12,0/400x300@2x?access_token=${mapToken}`
-    : null;
-
   return (
     <div
       className="rounded-[18px] overflow-hidden transition-all duration-300 hover:-translate-y-[3px]"
@@ -139,46 +133,12 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
         </div>
       </div>
 
-      {/* ── Body mit Map-Hintergrund ─────────────── */}
+      {/* ── Body ────────────────────────────────── */}
       <div style={{ padding: '0 16px 16px' }}>
-        {/* Content Area (Info links, Map rechts) */}
-        <div className="relative overflow-hidden" style={{ padding: '16px 0 14px', minHeight: '100px' }}>
+        <div style={{ padding: '16px 0 14px' }}>
 
-          {/* Statischer Map-Hintergrund (rechte Seite) */}
-          {staticMapUrl && (
-            <div
-              className="absolute top-0 bottom-0"
-              style={{ right: '-16px', width: '45%', zIndex: 0, overflow: 'hidden' }}
-            >
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage: `url(${staticMapUrl})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  filter: 'saturate(.3) brightness(.9)',
-                }}
-              />
-              {/* Fade-Overlay von links */}
-              <div
-                className="absolute inset-0 z-[1] pointer-events-none ev-map-fade"
-              />
-              {/* Gold Pin */}
-              <div
-                className="absolute z-[2] pointer-events-none"
-                style={{ top: '38%', right: '22%' }}
-              >
-                <svg width="18" height="24" viewBox="0 0 28 36" fill="none">
-                  <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.268 21.732 0 14 0z" fill="#C8A96E"/>
-                  <circle cx="14" cy="13" r="5" fill="#fff" opacity=".9"/>
-                  <circle cx="14" cy="13" r="2.5" fill="#C8A96E"/>
-                </svg>
-              </div>
-            </div>
-          )}
-
-          {/* Info (links, ueber der Map) */}
-          <div className="relative z-[2]" style={{ maxWidth: '62%' }}>
+          {/* Info */}
+          <div>
             {/* Creator */}
             <div className="flex items-center gap-2 mb-2.5">
               <div
@@ -257,7 +217,13 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
               </button>
             )
           ) : (
-            <div className="flex-1" />
+            <span
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 uppercase"
+              style={{ fontSize: '10px', letterSpacing: '2px', color: 'var(--gold-text)' }}
+            >
+              <Icon name="calendar-event" size={14} />
+              Dein Event
+            </span>
           )}
 
           {/* Share Button (Kreis) */}

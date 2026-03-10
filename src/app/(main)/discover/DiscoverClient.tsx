@@ -10,7 +10,7 @@ import type { SoEvent } from '@/types/events';
 import type { Place } from '@/types/places';
 import { searchUsers } from '@/lib/users';
 import { sendConnectionRequest, getConnectionStatus } from '@/lib/circles';
-import { fetchEvents, fetchNearbyUsers, joinEvent, leaveEvent, geocodeLocation, bookmarkEvent, unbookmarkEvent } from '@/lib/events';
+import { fetchEvents, fetchNearbyUsers, joinEvent, leaveEvent, geocodeLocation, bookmarkEvent, unbookmarkEvent, joinEventChat } from '@/lib/events';
 import { fetchNearbyPlaces, savePlace, unsavePlace, PLACE_TAGS } from '@/lib/places';
 import { fetchProfile } from '@/lib/profile';
 import { Icon } from '@/components/ui/Icon';
@@ -102,8 +102,9 @@ export default function DiscoverClient({ userId }: Props) {
   // ── Share Event Modal ─────────────────────────────────────
   const [shareEvent, setShareEvent] = useState<SoEvent | null>(null);
 
-  // ── Confirm Dialog (Entmerken) ────────────────────────────
+  // ── Confirm Dialogs ──────────────────────────────────────
   const [confirmUnbookmark, setConfirmUnbookmark] = useState<string | null>(null);
+  const [chatInviteEventId, setChatInviteEventId] = useState<string | null>(null);
 
   // ── Lokaler Bookmark-State ────────────────────────────────
   const localBookmarks = useRef<Record<string, boolean>>({});
@@ -319,6 +320,8 @@ export default function DiscoverClient({ userId }: Props) {
         await unbookmarkEvent(eventId);
       } else {
         await bookmarkEvent(eventId);
+        // Nach Bookmark: Chat-Invite anbieten
+        setChatInviteEventId(eventId);
       }
     } catch (e) {
       localBookmarks.current[eventId] = wasBookmarked;
@@ -338,6 +341,19 @@ export default function DiscoverClient({ userId }: Props) {
     if (confirmUnbookmark) {
       executeBookmark(confirmUnbookmark, true);
       setConfirmUnbookmark(null);
+    }
+  };
+
+  const handleJoinEventChat = async () => {
+    if (!chatInviteEventId) return;
+    try {
+      const result = await joinEventChat(chatInviteEventId);
+      setChatInviteEventId(null);
+      // Zum Chat navigieren
+      window.location.href = `/chat/${result.channel_id}`;
+    } catch (e) {
+      console.error('Event-Chat beitreten fehlgeschlagen:', e);
+      setChatInviteEventId(null);
     }
   };
 
@@ -802,14 +818,14 @@ export default function DiscoverClient({ userId }: Props) {
 
           {/* Events Board */}
           {segment === 'events' && (
-            <div className="h-full overflow-y-auto pt-28 px-4 pb-4" style={{ background: 'var(--bg-solid)' }}>
+            <div className="h-full overflow-y-auto pt-36 px-4 pb-4" style={{ background: 'var(--bg-solid)' }}>
               {events.length === 0 ? (
                 <div className="text-center py-12 px-4 rounded-2xl mt-4" style={{ border: '1px dashed var(--gold-border-s)' }}>
                   <p className="font-heading text-xl mb-2" style={{ color: 'var(--gold)' }}>Keine Events</p>
                   <p className="text-sm" style={{ color: 'var(--text-muted)' }}>In dieser Gegend gibt es noch keine Events.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-5 max-w-[860px] mx-auto">
+                <div className="grid grid-cols-1 gap-5 max-w-[600px] mx-auto">
                   {events.map((event) => (
                     <EventCardCompact
                       key={event.id}
@@ -830,7 +846,7 @@ export default function DiscoverClient({ userId }: Props) {
 
           {/* Orte Board */}
           {segment === 'orte' && (
-            <div className="h-full overflow-y-auto pt-32 px-4 pb-4" style={{ background: 'var(--bg-solid)' }}>
+            <div className="h-full overflow-y-auto pt-36 px-4 pb-4" style={{ background: 'var(--bg-solid)' }}>
               {places.length === 0 ? (
                 <div className="text-center py-12 px-4 rounded-2xl mt-4" style={{ border: '1px dashed var(--gold-border-s)' }}>
                   <p className="font-heading text-xl mb-2" style={{ color: 'var(--gold)' }}>Keine Soul Places</p>
@@ -897,7 +913,7 @@ export default function DiscoverClient({ userId }: Props) {
         </div>
       )}
 
-      {/* Confirm Dialog */}
+      {/* Confirm Dialog: Unbookmark */}
       <ConfirmDialog
         open={confirmUnbookmark !== null}
         title="Event entmerken?"
@@ -905,6 +921,16 @@ export default function DiscoverClient({ userId }: Props) {
         confirmLabel="Entmerken"
         onConfirm={handleConfirmUnbookmark}
         onCancel={() => setConfirmUnbookmark(null)}
+      />
+
+      {/* Confirm Dialog: Event-Chat beitreten */}
+      <ConfirmDialog
+        open={chatInviteEventId !== null}
+        title="Event-Chat beitreten?"
+        message="Moechtest du dem Chat fuer dieses Event beitreten? Du kannst dich dort mit anderen Teilnehmern austauschen."
+        confirmLabel="Beitreten"
+        onConfirm={handleJoinEventChat}
+        onCancel={() => setChatInviteEventId(null)}
       />
     </div>
     </>

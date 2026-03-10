@@ -73,6 +73,14 @@ export async function unbookmarkEvent(eventId: string) {
   );
 }
 
+// ── Event-Chat beitreten ────────────────────────────────────
+export async function joinEventChat(eventId: string) {
+  return apiFetch<{ channel_id: string }>(
+    `/chat/channels/event/${eventId}/join`,
+    { method: 'POST' },
+  );
+}
+
 // ── Nearby Users ────────────────────────────────────────────
 export async function fetchNearbyUsers(lat: number, lng: number, radius = 25) {
   return apiFetch<{
