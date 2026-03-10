@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -26,8 +26,6 @@ export default function Sidebar() {
   const { theme, toggleTheme } = useTheme();
   const { totalUnread, refreshUnread } = useUnread();
   const { collapsed, toggle } = useSidebar();
-  const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
 
   // Unread-Count beim Mount laden
   useEffect(() => {
@@ -35,25 +33,11 @@ export default function Sidebar() {
     return () => clearTimeout(t);
   }, [refreshUnread]);
 
-  // Click outside schliesst Flyout
-  useEffect(() => {
-    if (!moreOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
-        setMoreOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [moreOpen]);
-
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push('/login');
   };
-
-  const isMoreActive = moreItems.some((item) => pathname.startsWith(item.href));
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
@@ -166,108 +150,44 @@ export default function Sidebar() {
           );
         })}
 
-        {/* Mehr-Menü Items */}
-        {collapsed ? (
-          /* Collapsed: Flyout wie bisher */
-          <div ref={moreRef} className="relative">
-            <button
-              onClick={() => setMoreOpen(!moreOpen)}
-              className="flex items-center justify-center w-full rounded-[8px] transition-all duration-200 cursor-pointer relative"
+        {/* Weitere Nav-Items (Studio etc.) — direkt als regulaere Items */}
+        {moreItems.map((item) => {
+          const active = pathname.startsWith(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex items-center gap-3 rounded-[8px] transition-all duration-200 relative no-underline whitespace-nowrap"
               style={{
-                padding: '10px 0',
-                color: isMoreActive || moreOpen ? 'var(--gold)' : 'var(--text-sec)',
-                background: isMoreActive || moreOpen ? 'var(--sidebar-active)' : 'transparent',
-                border: 'none',
+                padding: collapsed ? '10px 0' : '10px 12px',
+                justifyContent: collapsed ? 'center' : 'flex-start',
+                background: active ? 'var(--sidebar-active)' : 'transparent',
               }}
-              title="Mehr"
+              title={collapsed ? item.label : undefined}
               onMouseEnter={(e) => {
-                if (!isMoreActive && !moreOpen) e.currentTarget.style.background = 'var(--sidebar-hover)';
+                if (!active) e.currentTarget.style.background = 'var(--sidebar-hover)';
               }}
               onMouseLeave={(e) => {
-                if (!isMoreActive && !moreOpen) e.currentTarget.style.background = 'transparent';
+                if (!active) e.currentTarget.style.background = 'transparent';
               }}
             >
-              {(isMoreActive || moreOpen) && (
+              {active && (
                 <span
                   className="absolute left-0 top-1/2 -translate-y-1/2"
                   style={{ width: 3, height: 20, background: 'var(--gold)', borderRadius: '0 3px 3px 0' }}
                 />
               )}
-              <Icon name="plus" size={20} style={{ transition: 'transform 200ms', transform: moreOpen ? 'rotate(45deg)' : 'none' }} />
-            </button>
-
-            {/* Flyout */}
-            {moreOpen && (
-              <div
-                className="absolute left-full top-0 ml-2 rounded-[8px] overflow-hidden"
-                style={{
-                  background: 'var(--bg-solid)',
-                  border: '1px solid var(--glass-border)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-                  minWidth: '160px',
-                  zIndex: 50,
-                }}
-              >
-                <div className="h-[2px]" style={{ background: 'linear-gradient(to right, transparent, var(--gold-glow), transparent)' }} />
-                {moreItems.map((item, i) => {
-                  const active = pathname.startsWith(item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setMoreOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 transition-colors duration-200 no-underline"
-                      style={{
-                        color: active ? 'var(--gold-text)' : 'var(--text-h)',
-                        background: active ? 'var(--gold-bg)' : 'transparent',
-                        borderBottom: i < moreItems.length - 1 ? '1px solid var(--divider-l)' : undefined,
-                      }}
-                    >
-                      <Icon name={item.icon} size={18} style={{ color: active ? 'var(--gold)' : 'var(--text-muted)' }} />
-                      <span className="text-sm font-body">{item.label}</span>
-                      <Icon name="chevron-right" size={12} style={{ marginLeft: 'auto', color: 'var(--text-muted)', opacity: 0.5 }} />
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        ) : (
-          /* Expanded: Inline-Rows */
-          moreItems.map((item) => {
-            const active = pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 rounded-[8px] transition-all duration-200 relative no-underline whitespace-nowrap"
-                style={{
-                  padding: '10px 12px',
-                  background: active ? 'var(--sidebar-active)' : 'transparent',
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) e.currentTarget.style.background = 'var(--sidebar-hover)';
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                {active && (
-                  <span
-                    className="absolute left-0 top-1/2 -translate-y-1/2"
-                    style={{ width: 3, height: 20, background: 'var(--gold)', borderRadius: '0 3px 3px 0' }}
-                  />
-                )}
-                <span className="flex-shrink-0 flex items-center justify-center" style={{ width: 20, height: 20 }}>
-                  <Icon name={item.icon} size={20} style={{ color: active ? 'var(--gold)' : 'var(--text-sec)' }} />
-                </span>
+              <span className="flex-shrink-0 flex items-center justify-center" style={{ width: 20, height: 20 }}>
+                <Icon name={item.icon} size={20} style={{ color: active ? 'var(--gold)' : 'var(--text-sec)' }} />
+              </span>
+              {!collapsed && (
                 <span className="text-xs transition-colors whitespace-nowrap" style={{ color: active ? 'var(--gold-text)' : 'var(--text-sec)' }}>
                   {item.label}
                 </span>
-              </Link>
-            );
-          })
-        )}
+              )}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* Collapse Toggle */}

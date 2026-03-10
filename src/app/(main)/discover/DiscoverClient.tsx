@@ -23,6 +23,7 @@ import ShareEventModal from '@/components/discover/ShareEventModal';
 import PlaceCard from '@/components/discover/PlaceCard';
 import PlaceDetailModal from '@/components/discover/PlaceDetailModal';
 import CreatePlaceModal from '@/components/discover/CreatePlaceModal';
+import { useSidebar } from '@/components/layout/SidebarContext';
 
 // Mapbox dynamisch laden (nur client-side)
 const MapView = dynamic(() => import('@/components/discover/MapView'), { ssr: false });
@@ -44,6 +45,7 @@ interface GeoResult {
 const DEFAULT_CENTER: [number, number] = [11.576, 48.137];
 
 export default function DiscoverClient({ userId }: Props) {
+  const { collapsed } = useSidebar();
   // ── Segment ─────────────────────────────────────────────────
   const [segment, setSegment] = useState<Segment>('alle');
   const [activeTags, setActiveTags] = useState<string[]>([]);
@@ -497,7 +499,9 @@ export default function DiscoverClient({ userId }: Props) {
   ];
 
   return (
-    <div className="fixed top-14 md:top-0 bottom-16 md:bottom-0 left-0 md:left-16 right-0 z-10">
+    <>
+    <style>{`@media(min-width:768px){.discover-wrap{left:${collapsed ? 64 : 240}px !important}}`}</style>
+    <div className="discover-wrap fixed top-14 md:top-0 bottom-16 md:bottom-0 left-0 right-0 z-10">
       {/* ─── SUCHFELD + SEGMENT-TOGGLE ──────────────────────── */}
       <div
         className="absolute top-3 left-4 right-4 z-20"
@@ -841,5 +845,6 @@ export default function DiscoverClient({ userId }: Props) {
         onCancel={() => setConfirmUnbookmark(null)}
       />
     </div>
+    </>
   );
 }
