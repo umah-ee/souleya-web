@@ -95,7 +95,12 @@ export async function fetchNearbyUsers(lat: number, lng: number, radius = 25) {
 }
 
 // ── Geocoding (via API Proxy) ───────────────────────────────
-export async function geocodeLocation(query: string, type: 'forward' | 'reverse' = 'forward') {
+export async function geocodeLocation(
+  query: string,
+  type: 'forward' | 'reverse' = 'forward',
+  proximity?: string,
+  country?: string,
+) {
   return apiFetch<{
     results: Array<{
       place_name: string;
@@ -106,6 +111,6 @@ export async function geocodeLocation(query: string, type: 'forward' | 'reverse'
     }>;
   }>('/users/geocode', {
     method: 'POST',
-    body: JSON.stringify({ query, type }),
+    body: JSON.stringify({ query, type, proximity, country }),
   });
 }

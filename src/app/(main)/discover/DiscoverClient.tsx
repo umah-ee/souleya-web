@@ -44,6 +44,25 @@ interface GeoResult {
 // Muenchen als Standard-Zentrum
 const DEFAULT_CENTER: [number, number] = [11.576, 48.137];
 
+function getInitialCenter(): [number, number] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('discover_location');
+      if (stored) return JSON.parse(stored);
+    } catch { /* ignore */ }
+  }
+  return DEFAULT_CENTER;
+}
+
+function getInitialLabel(): string {
+  if (typeof window !== 'undefined') {
+    try {
+      return localStorage.getItem('discover_location_label') ?? '';
+    } catch { /* ignore */ }
+  }
+  return '';
+}
+
 export default function DiscoverClient({ userId }: Props) {
   const { collapsed } = useSidebar();
   // ── Segment ─────────────────────────────────────────────────
@@ -60,7 +79,8 @@ export default function DiscoverClient({ userId }: Props) {
   const [sending, setSending] = useState<Record<string, boolean>>({});
 
   // ── Karte + Discover ──────────────────────────────────────
-  const [mapCenter, setMapCenter] = useState<[number, number]>(DEFAULT_CENTER);
+  const [mapCenter, setMapCenter] = useState<[number, number]>(getInitialCenter);
+  const [locationLabel, setLocationLabel] = useState(getInitialLabel);
   const [nearbyUsers, setNearbyUsers] = useState<MapNearbyUser[]>([]);
   const [events, setEvents] = useState<SoEvent[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
@@ -90,7 +110,7 @@ export default function DiscoverClient({ userId }: Props) {
 
   const isSearchActive = query.trim().length >= 2;
 
-  // ── Profil-Vorlieben als initiale Tags laden ────────────────
+  // ── Profil-Vorlieben + Standort laden ────────────────────────
   const [tagsInitialized, setTagsInitialized] = useState(false);
   useEffect(() => {
     if (!userId || tagsInitialized) return;
@@ -100,6 +120,14 @@ export default function DiscoverClient({ userId }: Props) {
         const matching = interests.filter((i) => PLACE_TAGS.includes(i));
         if (matching.length > 0) {
           setActiveTags(matching);
+        }
+        // Standort aus Profil uebernehmen wenn kein localStorage-Wert vorhanden
+        const hasStored = !!localStorage.getItem('discover_location');
+        if (!hasStored && profile.location_lat && profile.location_lng) {
+          setMapCenter([profile.location_lng, profile.location_lat]);
+          if (profile.location) {
+            setLocationLabel(profile.location);
+          }
         }
         setTagsInitialized(true);
       })
@@ -137,6 +165,19 @@ export default function DiscoverClient({ userId }: Props) {
   const handleMapMove = useCallback((center: { lat: number; lng: number }) => {
     setMapCenter([center.lng, center.lat]);
   }, []);
+
+  // Standort in localStorage persistieren
+  useEffect(() => {
+    try {
+      localStorage.setItem('discover_location', JSON.stringify(mapCenter));
+    } catch { /* ignore */ }
+  }, [mapCenter]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('discover_location_label', locationLabel);
+    } catch { /* ignore */ }
+  }, [locationLabel]);
 
   // Debounced Reload nach Map-Move
   useEffect(() => {
@@ -341,9 +382,10 @@ export default function DiscoverClient({ userId }: Props) {
 
     setSearching(true);
     try {
+      const proximity = `${mapCenter[0]},${mapCenter[1]}`;
       const [usersRes, geoRes] = await Promise.allSettled([
         searchUsers(q, 1, 30),
-        geocodeLocation(q, 'forward'),
+        geocodeLocation(q, 'forward', proximity),
       ]);
 
       if (usersRes.status === 'fulfilled') {
@@ -376,7 +418,7 @@ export default function DiscoverClient({ userId }: Props) {
     } finally {
       setSearching(false);
     }
-  }, [userId]);
+  }, [userId, mapCenter]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -393,6 +435,7 @@ export default function DiscoverClient({ userId }: Props) {
 
   const handleGeoClick = (geo: GeoResult) => {
     setMapCenter([geo.lng, geo.lat]);
+    setLocationLabel(geo.place_name);
     setQuery('');
   };
 
@@ -468,10 +511,18 @@ export default function DiscoverClient({ userId }: Props) {
     if (!navigator.geolocation) return;
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setMapCenter([pos.coords.longitude, pos.coords.latitude]);
-        loadDiscoverData(pos.coords.latitude, pos.coords.longitude);
+      async (pos) => {
+        const { longitude, latitude } = pos.coords;
+        setMapCenter([longitude, latitude]);
+        loadDiscoverData(latitude, longitude);
         setQuery('');
+        // Reverse Geocode fuer Location-Label
+        try {
+          const res = await geocodeLocation(`${longitude},${latitude}`, 'reverse');
+          if (res.results?.[0]) {
+            setLocationLabel(res.results[0].place_name);
+          }
+        } catch { /* ignore */ }
         setLocating(false);
       },
       () => setLocating(false),
@@ -535,6 +586,17 @@ export default function DiscoverClient({ userId }: Props) {
             </button>
           </div>
         </div>
+
+        {/* Location Label */}
+        {!isSearchActive && locationLabel && (
+          <div
+            className="flex items-center gap-1.5 mb-2 px-1"
+            style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}
+          >
+            <Icon name="map-pin" size={12} style={{ color: 'var(--gold)' }} />
+            <span className="truncate">{locationLabel}</span>
+          </div>
+        )}
 
         {/* Segment Toggle (nur wenn Suche nicht aktiv) */}
         {!isSearchActive && (
