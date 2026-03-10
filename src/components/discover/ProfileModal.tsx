@@ -7,6 +7,7 @@ import type { PublicProfile } from '@/lib/users';
 import type { ConnectionStatus } from '@/types/circles';
 import { SOUL_LEVEL_NAMES } from '@/types/profile';
 import { fetchPublicProfile } from '@/lib/users';
+import { useTheme } from '@/components/ThemeProvider';
 import { Icon } from '@/components/ui/Icon';
 
 interface Props {
@@ -34,8 +35,16 @@ export default function ProfileModal({
   onClose,
 }: Props) {
   const backdropRef = useRef<HTMLDivElement>(null);
+  const { colorScheme } = useTheme();
   const [fullProfile, setFullProfile] = useState<PublicProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
+  const isDusk = colorScheme === 'dusk';
+  const primaryBtnBg = isDusk
+    ? 'linear-gradient(135deg, #A78BFA, #F472B6)'
+    : 'var(--gold)';
+  const primaryBtnShadow = isDusk
+    ? '0 4px 16px rgba(167,139,250,.22)'
+    : '0 4px 16px var(--gold-glow)';
 
   // Vollstaendiges Profil nachladen
   useEffect(() => {
@@ -161,8 +170,10 @@ export default function ProfileModal({
           fontWeight: 500,
           letterSpacing: '1.2px',
           textTransform: 'uppercase',
+          background: primaryBtnBg,
           color: 'var(--text-on-gold)',
           border: 'none',
+          boxShadow: primaryBtnShadow,
           opacity: connecting ? 0.6 : 1,
         }}
       >
@@ -399,8 +410,10 @@ export default function ProfileModal({
                   fontWeight: 500,
                   letterSpacing: '1.2px',
                   textTransform: 'uppercase',
+                  background: primaryBtnBg,
                   color: 'var(--text-on-gold)',
                   border: 'none',
+                  boxShadow: primaryBtnShadow,
                 }}
               >
                 Teilen

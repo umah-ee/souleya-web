@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { MapNearbyUser } from './MapView';
 import type { SoEvent } from '@/types/events';
 import { SOUL_LEVEL_NAMES } from '@/types/profile';
+import { useTheme } from '@/components/ThemeProvider';
 import { Icon } from '@/components/ui/Icon';
 import { getEventCover } from '@/lib/demo-covers';
 
@@ -96,6 +97,14 @@ function UserOverlay({
   const displayName = user.display_name ?? user.username ?? 'Anonym';
   const initials = displayName.slice(0, 1).toUpperCase();
   const vipName = SOUL_LEVEL_NAMES[user.soul_level] ?? `Level ${user.soul_level}`;
+  const { colorScheme } = useTheme();
+  const isDusk = colorScheme === 'dusk';
+  const primaryBtnBg = isDusk
+    ? 'linear-gradient(135deg, #A78BFA, #F472B6)'
+    : 'var(--gold)';
+  const primaryBtnShadow = isDusk
+    ? '0 4px 16px rgba(167,139,250,.22)'
+    : '0 4px 16px var(--gold-glow)';
 
   return (
     <div
@@ -282,8 +291,10 @@ function UserOverlay({
                   fontWeight: 500,
                   letterSpacing: '1.2px',
                   textTransform: 'uppercase',
+                  background: primaryBtnBg,
                   color: 'var(--text-on-gold)',
                   border: 'none',
+                  boxShadow: primaryBtnShadow,
                   opacity: connecting ? 0.6 : 1,
                 }}
               >
