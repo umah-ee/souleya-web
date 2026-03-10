@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback, useRef } from 'react';
 import { Icon } from '@/components/ui/Icon';
+import { useSidebar } from '@/components/layout/SidebarContext';
 
 interface PanelProps {
   isOpen: boolean;
@@ -17,6 +18,8 @@ interface PanelProps {
  */
 export default function Panel({ isOpen, onClose, title, children }: PanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const { collapsed } = useSidebar();
+  const panelPaddingLeft = collapsed ? 80 : 256; // sidebar + 16px
 
   // ESC-Taste schliesst Panel
   const handleKeyDown = useCallback(
@@ -40,7 +43,9 @@ export default function Panel({ isOpen, onClose, title, children }: PanelProps) 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 md:pl-20">
+    <>
+    <style>{`@media(min-width:768px){.panel-overlay{padding-left:${panelPaddingLeft}px}}`}</style>
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 panel-overlay">
       {/* ─── Backdrop ─── */}
       <div
         className="absolute inset-0 transition-opacity duration-300"
@@ -111,5 +116,6 @@ export default function Panel({ isOpen, onClose, title, children }: PanelProps) 
         </div>
       </div>
     </div>
+    </>
   );
 }

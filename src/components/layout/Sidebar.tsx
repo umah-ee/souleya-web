@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useTheme } from '@/components/ThemeProvider';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { useUnread } from '@/components/chat/UnreadContext';
+import { useSidebar } from './SidebarContext';
 
 const navItems: { href: string; icon: IconName; label: string }[] = [
   { href: '/', icon: 'sparkles', label: 'Pulse' },
@@ -24,17 +25,17 @@ export default function Sidebar() {
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const { totalUnread, refreshUnread } = useUnread();
+  const { collapsed, toggle } = useSidebar();
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
-  // Unread-Count beim Mount laden – kurzer Delay damit parallel ladende
-  // Seiten (z.B. ChatListClient) zuerst updateFromChannels() aufrufen können
+  // Unread-Count beim Mount laden
   useEffect(() => {
     const t = setTimeout(refreshUnread, 400);
     return () => clearTimeout(t);
   }, [refreshUnread]);
 
-  // Click outside schliesst
+  // Click outside schliesst Flyout
   useEffect(() => {
     if (!moreOpen) return;
     const handler = (e: MouseEvent) => {
@@ -54,11 +55,31 @@ export default function Sidebar() {
 
   const isMoreActive = moreItems.some((item) => pathname.startsWith(item.href));
 
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  };
+
   return (
-    <aside className="hidden md:flex flex-col items-center w-16 h-screen fixed left-0 top-0 z-20 glass-nav" style={{ borderRight: '1px solid var(--glass-nav-b)' }}>
+    <aside
+      className="hidden md:flex flex-col flex-shrink-0 h-screen fixed left-0 top-0 z-20 overflow-hidden glass-nav transition-all duration-300"
+      style={{
+        width: collapsed ? 64 : 240,
+        borderRight: '1px solid var(--glass-nav-b)',
+      }}
+    >
       {/* Enso Logo */}
-      <div className="py-5">
-        <svg width="28" height="28" viewBox="0 0 100 100">
+      <Link
+        href="/"
+        className="flex items-center gap-[10px] flex-shrink-0 no-underline"
+        style={{
+          height: 56,
+          padding: collapsed ? '0' : '0 16px',
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          borderBottom: '1px solid var(--divider-l)',
+        }}
+      >
+        <svg width="28" height="28" viewBox="0 0 100 100" className="flex-shrink-0">
           <defs>
             <linearGradient id="sidebar-enso" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="var(--gold-deep)" />
@@ -70,142 +91,305 @@ export default function Sidebar() {
             strokeWidth="9" strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15"
           />
         </svg>
-      </div>
+        {!collapsed && (
+          <span
+            className="text-sm italic whitespace-nowrap overflow-hidden font-heading"
+            style={{ color: 'var(--text-h)' }}
+          >
+            Souleya
+          </span>
+        )}
+      </Link>
 
       {/* Nav Items */}
-      <nav className="flex flex-col items-center gap-1 flex-1 pt-4">
+      <nav className="flex-1 py-3 px-2 flex flex-col gap-0.5 overflow-y-auto overflow-x-hidden">
         {navItems.map((item) => {
-          const isActive = item.href === '/'
-            ? pathname === '/'
-            : pathname.startsWith(item.href);
-
+          const active = isActive(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className="relative flex flex-col items-center justify-center w-12 h-12 rounded-sm transition-colors duration-200"
+              className="flex items-center gap-3 rounded-[8px] transition-all duration-200 relative no-underline whitespace-nowrap"
               style={{
-                color: isActive ? 'var(--gold-text)' : 'var(--text-muted)',
-                background: isActive ? 'var(--gold-bg)' : 'transparent',
+                padding: collapsed ? '10px 0' : '10px 12px',
+                justifyContent: collapsed ? 'center' : 'flex-start',
+                background: active ? 'var(--sidebar-active)' : 'transparent',
               }}
-              title={item.label}
+              title={collapsed ? item.label : undefined}
+              onMouseEnter={(e) => {
+                if (!active) e.currentTarget.style.background = 'var(--sidebar-hover)';
+              }}
+              onMouseLeave={(e) => {
+                if (!active) e.currentTarget.style.background = 'transparent';
+              }}
             >
-              <Icon name={item.icon} size={20} />
-              <span className="text-[8px] font-label uppercase tracking-[0.15em] mt-0.5">
-                {item.label}
-              </span>
-              {/* Unread Badge */}
-              {item.href === '/chat' && totalUnread > 0 && (
+              {/* Active Indicator — vertikaler Gold-Strich */}
+              {active && (
                 <span
-                  className="absolute top-0.5 right-0.5 min-w-[16px] h-[16px] flex items-center justify-center rounded-full text-[9px] font-label px-1"
+                  className="absolute left-0 top-1/2 -translate-y-1/2"
                   style={{
+                    width: 3,
+                    height: 20,
                     background: 'var(--gold)',
-                    color: 'var(--text-on-gold)',
+                    borderRadius: '0 3px 3px 0',
                   }}
+                />
+              )}
+              <span className="flex-shrink-0 flex items-center justify-center relative" style={{ width: 20, height: 20 }}>
+                <Icon
+                  name={item.icon}
+                  size={20}
+                  style={{ color: active ? 'var(--gold)' : 'var(--text-sec)' }}
+                />
+                {/* Unread Badge */}
+                {item.href === '/chat' && totalUnread > 0 && (
+                  <span
+                    className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] flex items-center justify-center rounded-full text-[9px] font-label px-1"
+                    style={{
+                      background: 'var(--gold)',
+                      color: 'var(--text-on-gold)',
+                    }}
+                  >
+                    {totalUnread > 99 ? '99+' : totalUnread}
+                  </span>
+                )}
+              </span>
+              {!collapsed && (
+                <span
+                  className="text-xs transition-colors whitespace-nowrap"
+                  style={{ color: active ? 'var(--gold-text)' : 'var(--text-sec)' }}
                 >
-                  {totalUnread > 99 ? '99+' : totalUnread}
+                  {item.label}
                 </span>
               )}
             </Link>
           );
         })}
 
-        {/* (+) Mehr-Menue */}
-        <div ref={moreRef} className="relative">
-          <button
-            onClick={() => setMoreOpen(!moreOpen)}
-            className="flex flex-col items-center justify-center w-12 h-12 rounded-sm transition-all duration-200 cursor-pointer"
-            style={{
-              color: isMoreActive || moreOpen ? 'var(--gold-text)' : 'var(--text-muted)',
-              background: isMoreActive || moreOpen ? 'var(--gold-bg)' : 'transparent',
-            }}
-            title="Mehr"
-          >
-            <Icon name="plus" size={20} style={{ transition: 'transform 200ms', transform: moreOpen ? 'rotate(45deg)' : 'none' }} />
-            <span className="text-[8px] font-label uppercase tracking-[0.15em] mt-0.5">
-              Mehr
-            </span>
-          </button>
-
-          {/* Flyout-Menue */}
-          {moreOpen && (
-            <div
-              className="absolute left-full top-0 ml-2 rounded-[8px] overflow-hidden"
+        {/* Mehr-Menü Items */}
+        {collapsed ? (
+          /* Collapsed: Flyout wie bisher */
+          <div ref={moreRef} className="relative">
+            <button
+              onClick={() => setMoreOpen(!moreOpen)}
+              className="flex items-center justify-center w-full rounded-[8px] transition-all duration-200 cursor-pointer relative"
               style={{
-                background: 'var(--bg-solid)',
-                border: '1px solid var(--glass-border)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-                minWidth: '160px',
-                zIndex: 50,
+                padding: '10px 0',
+                color: isMoreActive || moreOpen ? 'var(--gold)' : 'var(--text-sec)',
+                background: isMoreActive || moreOpen ? 'var(--sidebar-active)' : 'transparent',
+                border: 'none',
+              }}
+              title="Mehr"
+              onMouseEnter={(e) => {
+                if (!isMoreActive && !moreOpen) e.currentTarget.style.background = 'var(--sidebar-hover)';
+              }}
+              onMouseLeave={(e) => {
+                if (!isMoreActive && !moreOpen) e.currentTarget.style.background = 'transparent';
               }}
             >
-              {/* Gold-Leiste */}
-              <div
-                className="h-[2px]"
-                style={{ background: 'linear-gradient(to right, transparent, var(--gold-glow), transparent)' }}
-              />
+              {(isMoreActive || moreOpen) && (
+                <span
+                  className="absolute left-0 top-1/2 -translate-y-1/2"
+                  style={{ width: 3, height: 20, background: 'var(--gold)', borderRadius: '0 3px 3px 0' }}
+                />
+              )}
+              <Icon name="plus" size={20} style={{ transition: 'transform 200ms', transform: moreOpen ? 'rotate(45deg)' : 'none' }} />
+            </button>
 
-              {moreItems.map((item, i) => {
-                const isActive = pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMoreOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 transition-colors duration-200"
-                    style={{
-                      color: isActive ? 'var(--gold-text)' : 'var(--text-h)',
-                      background: isActive ? 'var(--gold-bg)' : 'transparent',
-                      borderBottom: i < moreItems.length - 1 ? '1px solid var(--divider-l)' : undefined,
-                    }}
-                  >
-                    <Icon name={item.icon} size={18} style={{ color: isActive ? 'var(--gold)' : 'var(--text-muted)' }} />
-                    <span className="text-sm font-body">{item.label}</span>
-                    <Icon name="chevron-right" size={12} style={{ marginLeft: 'auto', color: 'var(--text-muted)', opacity: 0.5 }} />
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
+            {/* Flyout */}
+            {moreOpen && (
+              <div
+                className="absolute left-full top-0 ml-2 rounded-[8px] overflow-hidden"
+                style={{
+                  background: 'var(--bg-solid)',
+                  border: '1px solid var(--glass-border)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                  minWidth: '160px',
+                  zIndex: 50,
+                }}
+              >
+                <div className="h-[2px]" style={{ background: 'linear-gradient(to right, transparent, var(--gold-glow), transparent)' }} />
+                {moreItems.map((item, i) => {
+                  const active = pathname.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMoreOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 transition-colors duration-200 no-underline"
+                      style={{
+                        color: active ? 'var(--gold-text)' : 'var(--text-h)',
+                        background: active ? 'var(--gold-bg)' : 'transparent',
+                        borderBottom: i < moreItems.length - 1 ? '1px solid var(--divider-l)' : undefined,
+                      }}
+                    >
+                      <Icon name={item.icon} size={18} style={{ color: active ? 'var(--gold)' : 'var(--text-muted)' }} />
+                      <span className="text-sm font-body">{item.label}</span>
+                      <Icon name="chevron-right" size={12} style={{ marginLeft: 'auto', color: 'var(--text-muted)', opacity: 0.5 }} />
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Expanded: Inline-Rows */
+          moreItems.map((item) => {
+            const active = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-3 rounded-[8px] transition-all duration-200 relative no-underline whitespace-nowrap"
+                style={{
+                  padding: '10px 12px',
+                  background: active ? 'var(--sidebar-active)' : 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) e.currentTarget.style.background = 'var(--sidebar-hover)';
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                {active && (
+                  <span
+                    className="absolute left-0 top-1/2 -translate-y-1/2"
+                    style={{ width: 3, height: 20, background: 'var(--gold)', borderRadius: '0 3px 3px 0' }}
+                  />
+                )}
+                <span className="flex-shrink-0 flex items-center justify-center" style={{ width: 20, height: 20 }}>
+                  <Icon name={item.icon} size={20} style={{ color: active ? 'var(--gold)' : 'var(--text-sec)' }} />
+                </span>
+                <span className="text-xs transition-colors whitespace-nowrap" style={{ color: active ? 'var(--gold-text)' : 'var(--text-sec)' }}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })
+        )}
       </nav>
 
-      {/* Theme Toggle */}
-      <button
-        onClick={toggleTheme}
-        className="w-9 h-9 rounded-full flex items-center justify-center mb-2 cursor-pointer transition-colors duration-200"
-        style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
-        title={theme === 'dark' ? 'Hell' : 'Dunkel'}
-      >
-        <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={14} />
-      </button>
+      {/* Collapse Toggle */}
+      <div className="flex-shrink-0 px-2 pt-2">
+        <button
+          onClick={toggle}
+          className="flex items-center gap-3 rounded-[8px] w-full transition-all duration-200 border-none cursor-pointer"
+          style={{
+            padding: collapsed ? '8px 0' : '8px 12px',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            background: 'transparent',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--sidebar-hover)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+          title={collapsed ? 'Ausklappen' : 'Einklappen'}
+        >
+          <span
+            className="flex items-center justify-center"
+            style={{
+              transform: collapsed ? 'rotate(180deg)' : 'none',
+              transition: 'transform 0.3s',
+            }}
+          >
+            <Icon name="chevrons-left" size={18} style={{ color: 'var(--text-muted)' }} />
+          </span>
+          {!collapsed && (
+            <span style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+              Einklappen
+            </span>
+          )}
+        </button>
+      </div>
 
-      {/* Avatar -> Profil */}
-      <Link
-        href="/profile"
-        className="w-9 h-9 rounded-full flex items-center justify-center mb-2 transition-colors duration-200"
-        style={{
-          background: pathname.startsWith('/profile') ? 'var(--gold-bg-hover)' : 'var(--avatar-bg)',
-          border: `1.5px solid ${pathname.startsWith('/profile') ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
-          color: 'var(--gold-text)',
-        }}
-        title="Profil"
-      >
-        <Icon name="user" size={16} />
-      </Link>
+      {/* Divider */}
+      <div className="mx-2" style={{ height: 1, background: 'var(--divider-l)' }} />
 
-      {/* Logout */}
-      <button
-        onClick={handleLogout}
-        className="flex flex-col items-center justify-center w-12 h-12 mb-6 rounded-sm transition-colors duration-200 cursor-pointer"
-        style={{ color: 'var(--text-muted)' }}
-        title="Abmelden"
-      >
-        <Icon name="logout" size={16} />
-        <span className="text-[7px] font-label uppercase tracking-[0.1em] mt-0.5">
-          Aus
-        </span>
-      </button>
+      {/* Bottom: Theme + Profile + Logout */}
+      <div className="flex-shrink-0 px-2 py-2 flex flex-col gap-1">
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-3 rounded-[8px] w-full transition-colors duration-200 cursor-pointer"
+          style={{
+            padding: collapsed ? '8px 0' : '8px 12px',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-sec)',
+          }}
+          title={theme === 'dark' ? 'Hell' : 'Dunkel'}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--sidebar-hover)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+        >
+          <span className="flex-shrink-0 flex items-center justify-center" style={{ width: 20, height: 20 }}>
+            <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
+          </span>
+          {!collapsed && (
+            <span style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+              {theme === 'dark' ? 'Hell' : 'Dunkel'}
+            </span>
+          )}
+        </button>
+
+        {/* Profil */}
+        <Link
+          href="/profile"
+          className="flex items-center gap-3 rounded-[8px] w-full transition-colors duration-200 no-underline relative"
+          style={{
+            padding: collapsed ? '8px 0' : '8px 12px',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            background: pathname.startsWith('/profile') ? 'var(--sidebar-active)' : 'transparent',
+            color: pathname.startsWith('/profile') ? 'var(--gold)' : 'var(--text-sec)',
+          }}
+          title="Profil"
+          onMouseEnter={(e) => {
+            if (!pathname.startsWith('/profile')) e.currentTarget.style.background = 'var(--sidebar-hover)';
+          }}
+          onMouseLeave={(e) => {
+            if (!pathname.startsWith('/profile')) e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          {pathname.startsWith('/profile') && (
+            <span
+              className="absolute left-0 top-1/2 -translate-y-1/2"
+              style={{ width: 3, height: 20, background: 'var(--gold)', borderRadius: '0 3px 3px 0' }}
+            />
+          )}
+          <span className="flex-shrink-0 flex items-center justify-center" style={{ width: 20, height: 20 }}>
+            <Icon name="user" size={16} />
+          </span>
+          {!collapsed && (
+            <span style={{ fontSize: 10, color: pathname.startsWith('/profile') ? 'var(--gold-text)' : 'var(--text-muted)', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+              Profil
+            </span>
+          )}
+        </Link>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 rounded-[8px] w-full transition-colors duration-200 cursor-pointer mb-2"
+          style={{
+            padding: collapsed ? '8px 0' : '8px 12px',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-muted)',
+          }}
+          title="Abmelden"
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--sidebar-hover)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+        >
+          <span className="flex-shrink-0 flex items-center justify-center" style={{ width: 20, height: 20 }}>
+            <Icon name="logout" size={16} />
+          </span>
+          {!collapsed && (
+            <span style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+              Abmelden
+            </span>
+          )}
+        </button>
+      </div>
     </aside>
   );
 }
