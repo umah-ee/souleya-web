@@ -151,7 +151,7 @@ export default function PublicProfileClient({ username }: Props) {
         disabled={sending}
         className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
         style={{
-          background: sending ? 'var(--gold-bg)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+          background: sending ? 'var(--gold-bg)' : 'var(--gold)',
           color: sending ? 'var(--text-muted)' : 'var(--text-on-gold)',
           cursor: sending ? 'not-allowed' : 'pointer',
         }}
@@ -163,7 +163,7 @@ export default function PublicProfileClient({ username }: Props) {
 
   return (
     <div className="-mx-4 -mt-6 flex justify-center">
-      <div className="w-full max-w-[480px]">
+      <div className="w-full max-w-[700px]">
 
         {/* ═══════════════════════════════════════════════════
             PROFIL-CARD (Style Guide Section 06)

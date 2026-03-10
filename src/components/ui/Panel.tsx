@@ -11,8 +11,9 @@ interface PanelProps {
 }
 
 /**
- * Generisches Slide-Up Panel mit opakem Hintergrund.
+ * Generisches zentriertes Overlay-Panel mit opakem Hintergrund.
  * Style Guide v2.1: KEIN Glasmorphism, opaker --bg-elevated Hintergrund.
+ * Mockup: var(--bg-elevated), border-radius 32px, max-height 88vh.
  */
 export default function Panel({ isOpen, onClose, title, children }: PanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -39,26 +40,27 @@ export default function Panel({ isOpen, onClose, title, children }: PanelProps) 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       {/* ─── Backdrop ─── */}
       <div
         className="absolute inset-0 transition-opacity duration-300"
-        style={{ background: 'rgba(0,0,0,.55)' }}
+        style={{ background: 'rgba(0,0,0,.50)' }}
         onClick={onClose}
       />
 
       {/* ─── Panel ─── */}
       <div
         ref={panelRef}
-        className="relative w-full max-w-[480px] max-h-[88vh] overflow-y-auto animate-slide-up"
+        className="relative w-full max-w-[600px] max-h-[88vh] overflow-y-auto animate-scale-in"
         style={{
-          background: 'var(--bg-solid)',
-          borderRadius: '32px 32px 0 0',
-          boxShadow: '0 -8px 40px rgba(0,0,0,.25)',
+          background: 'var(--bg-elevated)',
+          borderRadius: '32px',
+          border: '1px solid var(--divider-l)',
+          boxShadow: '0 20px 60px rgba(0,0,0,.35)',
         }}
       >
         {/* ─── Handle + Header ─── */}
-        <div className="sticky top-0 z-10 pt-3 pb-2 px-6" style={{ background: 'var(--bg-solid)', borderRadius: '32px 32px 0 0' }}>
+        <div className="sticky top-0 z-10 pt-3 pb-2 px-6" style={{ background: 'var(--bg-elevated)', borderRadius: '32px 32px 0 0' }}>
           {/* Drag Handle */}
           <div
             className="mx-auto mb-4 rounded-full"
@@ -68,8 +70,8 @@ export default function Panel({ isOpen, onClose, title, children }: PanelProps) 
           {/* Title + Close */}
           <div className="flex items-center justify-between mb-2">
             <h2
-              className="text-[18px] font-heading italic"
-              style={{ color: 'var(--text-h)' }}
+              className="text-[24px] font-heading italic"
+              style={{ color: 'var(--text-h)', fontWeight: 500 }}
             >
               {title}
             </h2>
@@ -79,10 +81,10 @@ export default function Panel({ isOpen, onClose, title, children }: PanelProps) 
               style={{
                 background: 'var(--glass)',
                 color: 'var(--text-sec)',
-                border: 'none',
+                border: '1px solid var(--divider-l)',
               }}
             >
-              <Icon name="x" size={16} />
+              <Icon name="x" size={14} />
             </button>
           </div>
 

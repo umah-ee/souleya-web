@@ -11,6 +11,7 @@
 :root, [data-theme="light"] {
   --bg-gradient: linear-gradient(145deg, #F5EFE6 0%, #EDE4D3 35%, #D8CFBE 70%, #C9C2B2 100%);
   --bg-solid: #EDE4D3;
+  --bg-elevated: #FFFFFF;
 
   --gold:          #C8A96E;
   --gold-text:     #9A7218;
@@ -70,6 +71,7 @@
 [data-theme="dark"] {
   --bg-gradient: linear-gradient(160deg, #282828 0%, #1E1E1E 50%, #161616 100%);
   --bg-solid: #1E1E1E;
+  --bg-elevated: #242424;
 
   --gold:          #C8A96E;
   --gold-text:     #C8A96E;
@@ -134,6 +136,7 @@
 [data-color="dusk"][data-theme="dark"] {
   --bg-gradient: linear-gradient(180deg, #19191F 0%, #1F1F26 40%, #19191F 100%);
   --bg-solid: #19191F;
+  --bg-elevated: #232329;
 
   --gold:          #A78BFA;
   --gold-text:     #A78BFA;
@@ -195,6 +198,7 @@
 [data-color="dusk"][data-theme="light"] {
   --bg-gradient: linear-gradient(145deg, #FAF5FF 0%, #F3E8FF 35%, #EDE9FE 70%, #E5E0FA 100%);
   --bg-solid: #FAF5FF;
+  --bg-elevated: #FFFFFF;
 
   --gold:          #7C3AED;
   --gold-text:     #6D28D9;
@@ -285,7 +289,7 @@ body {
   transition-timing-function: ease;
 }
 /* Exclude map and animations from transition */
-.mapboxgl-map *, .animate-slide-up, .first-light-glow, .ritter-glow {
+.mapboxgl-map *, .animate-slide-up, .animate-scale-in, .first-light-glow, .ritter-glow {
   transition: none !important;
 }
 

@@ -208,7 +208,7 @@ function UserOverlay({
                 disabled={connecting}
                 className="flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase transition-all duration-200"
                 style={{
-                  background: connecting ? 'var(--gold-bg)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                  background: connecting ? 'var(--gold-bg)' : 'var(--gold)',
                   color: connecting ? 'var(--text-muted)' : 'var(--text-on-gold)',
                   cursor: connecting ? 'not-allowed' : 'pointer',
                 }}
@@ -399,7 +399,7 @@ function EventOverlay({
                   style={{
                     background: isFull || joining
                       ? 'var(--gold-bg)'
-                      : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                      : 'var(--gold)',
                     color: isFull || joining ? 'var(--text-muted)' : 'var(--text-on-gold)',
                     cursor: isFull || joining ? 'not-allowed' : 'pointer',
                   }}
@@ -439,7 +439,7 @@ function EventOverlay({
                 width: '38px',
                 height: '38px',
                 background: event.is_bookmarked
-                  ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'
+                  ? 'var(--gold)'
                   : 'var(--glass-strong, var(--glass))',
                 border: `1px solid ${event.is_bookmarked ? 'var(--gold)' : 'var(--glass-border)'}`,
                 color: event.is_bookmarked ? 'var(--text-on-gold)' : 'var(--text-muted)',

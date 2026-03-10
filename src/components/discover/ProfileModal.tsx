@@ -121,7 +121,7 @@ export default function ProfileModal({
         disabled={connecting}
         className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
         style={{
-          background: connecting ? 'var(--gold-bg)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+          background: connecting ? 'var(--gold-bg)' : 'var(--gold)',
           color: connecting ? 'var(--text-muted)' : 'var(--text-on-gold)',
           cursor: connecting ? 'not-allowed' : 'pointer',
         }}
@@ -139,15 +139,15 @@ export default function ProfileModal({
       style={{ background: 'rgba(0,0,0,.5)' }}
     >
       <div
-        className="relative mx-4 w-full max-w-[420px] animate-slide-up"
+        className="relative mx-4 w-full max-w-[420px] animate-scale-in"
         style={{ maxHeight: 'calc(100% - 32px)' }}
       >
         <div
           className="rounded-[18px] overflow-hidden"
           style={{
-            background: 'var(--bg-solid)',
-            border: '1px solid var(--glass-border)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.35)',
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--divider-l)',
+            boxShadow: '0 20px 60px rgba(0,0,0,.35)',
           }}
         >
           {/* ─── BANNER (140px) ─────────────────────────── */}

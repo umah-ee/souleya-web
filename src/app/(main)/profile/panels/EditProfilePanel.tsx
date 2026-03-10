@@ -393,7 +393,7 @@ export default function EditProfilePanel({
         disabled={saving}
         className="w-full py-3 rounded-full font-label text-[11px] tracking-[1px] uppercase transition-all duration-200"
         style={{
-          background: saving ? 'var(--gold-bg-hover)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+          background: saving ? 'var(--gold-bg-hover)' : 'var(--gold)',
           color: saving ? 'var(--text-muted)' : 'var(--text-on-gold)',
           cursor: saving ? 'not-allowed' : 'pointer',
           border: 'none',

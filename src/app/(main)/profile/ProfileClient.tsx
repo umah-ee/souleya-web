@@ -73,7 +73,7 @@ export default function ProfileClient() {
 
   return (
     <div className="-mx-4 -mt-6 flex justify-center">
-      <div className="w-full max-w-[480px]">
+      <div className="w-full max-w-[700px]">
 
         {/* ═══════════════════════════════════════════
             PROFIL-REDESIGN v2 (Style Guide v2.1)

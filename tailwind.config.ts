@@ -71,12 +71,17 @@ const config: Config = {
       },
       keyframes: {
         'slide-up': {
-          '0%': { transform: 'translateY(100%)', opacity: '0' },
+          '0%': { transform: 'translateY(40px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        'scale-in': {
+          '0%': { transform: 'scale(0.92) translateY(20px)', opacity: '0' },
+          '100%': { transform: 'scale(1) translateY(0)', opacity: '1' },
         },
       },
       animation: {
-        'slide-up': 'slide-up 0.3s ease-out',
+        'slide-up': 'slide-up 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+        'scale-in': 'scale-in 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
       },
     },
   },
