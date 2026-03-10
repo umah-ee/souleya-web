@@ -13,7 +13,7 @@ const cormorant = Cormorant_Garamond({
 const josefin = Josefin_Sans({
   variable: '--font-josefin',
   subsets: ['latin'],
-  weight: ['500', '600'],
+  weight: ['200', '300', '400', '500', '600'],
 });
 
 const quicksand = Quicksand({

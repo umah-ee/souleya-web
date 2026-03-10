@@ -23,10 +23,13 @@ export default function ProfileIdentity({ profile }: ProfileIdentityProps) {
         size="profile-large"
       >
         <div
-          className="w-full h-full rounded-full flex items-center justify-center font-heading text-[28px] overflow-hidden"
+          className="w-full h-full rounded-full flex items-center justify-center font-heading overflow-hidden"
           style={{
+            fontSize: '24px',
+            fontWeight: 400,
             background: 'var(--avatar-bg)',
-            color: 'var(--gold-text)',
+            color: 'var(--gold)',
+            border: '2px solid var(--bg-card)',
           }}
         >
           {profile.avatar_url ? (
@@ -41,26 +44,27 @@ export default function ProfileIdentity({ profile }: ProfileIdentityProps) {
       {/* ─── Name (32px Serif italic) ─── */}
       <h1
         className="mt-3 text-[32px] font-heading italic leading-tight"
-        style={{ color: 'var(--text-h)' }}
+        style={{ color: 'var(--text-h)', letterSpacing: '0.5px' }}
       >
         {profile.display_name ?? profile.email}
       </h1>
 
       {/* ─── Handle ─── */}
       <p
-        className="text-[13px] mt-0.5"
-        style={{ color: 'var(--text-sec)' }}
+        className="font-label"
+        style={{ fontSize: '12px', letterSpacing: '1.5px', marginTop: '4px', color: 'var(--text-sec)' }}
       >
         {profile.username ? `@${profile.username}` : profile.email}
       </p>
 
       {/* ─── Level + Badges ─── */}
       <div
-        className="flex items-center gap-2 mt-1.5"
+        className="flex items-center gap-2"
+        style={{ marginTop: '2px' }}
       >
         <span
-          className="text-[10px] font-label tracking-[1.2px] uppercase"
-          style={{ color: 'var(--text-muted)' }}
+          className="font-label uppercase"
+          style={{ fontSize: '10px', fontWeight: 400, letterSpacing: '1.2px', color: 'var(--text-muted)' }}
         >
           {vipName}
         </span>

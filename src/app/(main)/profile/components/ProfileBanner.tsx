@@ -5,16 +5,21 @@ import { Icon } from '@/components/ui/Icon';
 
 interface ProfileBannerProps {
   profile: Profile;
-  /** Drei Action-Buttons oben rechts */
+  /** Mockup: nur Edit + Settings (kein Share) */
   onSettingsClick: () => void;
-  onShareClick: () => void;
   onEditClick: () => void;
 }
 
+/**
+ * Profile Banner — exakt nach Mockup
+ *
+ * Buttons: 36px circle, blur(12px), bg rgba(0,0,0,.3), color rgba(255,255,255,.75)
+ * Hover: scale(1.05) + bg rgba(0,0,0,.5)
+ * Overlay: 3-Stop Gradient (bg-card 0%, rgba 40%, rgba 100%)
+ */
 export default function ProfileBanner({
   profile,
   onSettingsClick,
-  onShareClick,
   onEditClick,
 }: ProfileBannerProps) {
   return (
@@ -30,49 +35,65 @@ export default function ProfileBanner({
         />
       )}
 
-      {/* Gradient Overlay (fade to bg) */}
+      {/* Gradient Overlay — Mockup: 3-Stop (bg-card 0%, rgba 40%, rgba 100%) */}
       <div
-        className="absolute inset-0"
-        style={{ background: 'linear-gradient(to top, var(--bg-solid) 0%, transparent 60%)' }}
+        className="absolute inset-0 banner-overlay"
+        style={{
+          background: 'linear-gradient(to top, var(--bg-card) 0%, rgba(0,0,0,.15) 40%, rgba(0,0,0,.02) 100%)',
+        }}
       />
 
-      {/* Action Buttons (oben rechts) */}
+      {/* Action Buttons — Mockup: nur Edit + Settings, 36px, blur(12px) */}
       <div className="absolute top-4 right-4 flex items-center gap-2">
         <button
-          onClick={onShareClick}
-          className="w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-opacity hover:opacity-80"
-          style={{
-            background: 'rgba(0,0,0,.35)',
-            border: '1px solid rgba(255,255,255,.12)',
-            color: '#fff',
-          }}
-          title="Teilen"
-        >
-          <Icon name="share" size={14} />
-        </button>
-        <button
           onClick={onEditClick}
-          className="w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-opacity hover:opacity-80"
+          className="flex items-center justify-center cursor-pointer transition-all duration-200"
           style={{
-            background: 'rgba(0,0,0,.35)',
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            background: 'rgba(0,0,0,.3)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
             border: '1px solid rgba(255,255,255,.12)',
-            color: '#fff',
+            color: 'rgba(255,255,255,.75)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.05)';
+            e.currentTarget.style.background = 'rgba(0,0,0,.5)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.background = 'rgba(0,0,0,.3)';
           }}
           title="Profil bearbeiten"
         >
-          <Icon name="edit" size={14} />
+          <Icon name="edit" size={16} />
         </button>
         <button
           onClick={onSettingsClick}
-          className="w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-opacity hover:opacity-80"
+          className="flex items-center justify-center cursor-pointer transition-all duration-200"
           style={{
-            background: 'rgba(0,0,0,.35)',
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            background: 'rgba(0,0,0,.3)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
             border: '1px solid rgba(255,255,255,.12)',
-            color: '#fff',
+            color: 'rgba(255,255,255,.75)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.05)';
+            e.currentTarget.style.background = 'rgba(0,0,0,.5)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.background = 'rgba(0,0,0,.3)';
           }}
           title="Einstellungen"
         >
-          <Icon name="settings" size={14} />
+          <Icon name="settings" size={16} />
         </button>
       </div>
     </div>

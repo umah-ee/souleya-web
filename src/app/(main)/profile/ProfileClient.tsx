@@ -85,7 +85,6 @@ export default function ProfileClient() {
         <ProfileBanner
           profile={profile}
           onSettingsClick={() => openPanel('settings')}
-          onShareClick={() => openPanel('visitenkarte')}
           onEditClick={() => openPanel('edit')}
         />
 

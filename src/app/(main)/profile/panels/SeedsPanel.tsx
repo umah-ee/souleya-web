@@ -38,16 +38,16 @@ export default function SeedsPanel({ isOpen, onClose, profile }: SeedsPanelProps
       {/* ─── Hero: Balance — Mockup: seeds-panel-hero ─── */}
       <div
         className="flex flex-col items-center"
-        style={{ padding: '8px 32px 28px', gap: '6px' }}
+        style={{ padding: '8px 0 28px', gap: '6px' }}
       >
         {/* Seed Icon — Mockup: 48px, radius 14px, gold-softer bg, gold border */}
         <div
-          className="flex items-center justify-center"
+          className="seeds-panel-icon flex items-center justify-center"
           style={{
             width: '48px',
             height: '48px',
             borderRadius: '14px',
-            background: 'var(--gold-bg)',
+            background: 'var(--gold-softer)',
             border: '1px solid var(--gold-border)',
             marginBottom: '8px',
           }}
@@ -105,7 +105,7 @@ export default function SeedsPanel({ isOpen, onClose, profile }: SeedsPanelProps
           letterSpacing: '1.2px',
           textTransform: 'uppercase' as const,
           color: 'var(--text-sec)',
-          padding: '24px 4px 12px',
+          padding: '24px 0 12px',
         }}
       >
         Verlauf
@@ -118,7 +118,7 @@ export default function SeedsPanel({ isOpen, onClose, profile }: SeedsPanelProps
             key={tx.id}
             className="flex items-center transition-colors"
             style={{
-              padding: '14px 4px',
+              padding: '14px 0',
               borderTop: i > 0 ? '1px solid var(--divider-l)' : undefined,
             }}
           >

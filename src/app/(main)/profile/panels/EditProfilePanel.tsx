@@ -209,10 +209,11 @@ export default function EditProfilePanel({
     }
   };
 
-  const inputStyle = {
-    background: 'var(--glass)',
-    border: '1px solid var(--gold-border-s)',
+  const inputStyle: React.CSSProperties = {
+    background: 'var(--input-bg)',
+    border: '1px solid var(--divider-l)',
     color: 'var(--text-h)',
+    borderRadius: '10px',
   };
 
   return (
@@ -229,40 +230,61 @@ export default function EditProfilePanel({
         </div>
       )}
 
-      {/* ── Avatar + Banner Upload ── */}
-      <div className="flex gap-3 mb-5">
+      {/* ── Avatar + Banner Upload — Mockup: dashed-border cards ── */}
+      <div className="flex gap-3 mb-6">
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex-1 flex items-center gap-2 justify-center py-2.5 rounded-[12px] text-[12px] font-body cursor-pointer transition-colors"
-          style={{ ...inputStyle }}
+          className="flex-1 flex flex-col items-center justify-center cursor-pointer transition-colors"
+          style={{
+            padding: '16px 12px',
+            borderRadius: '10px',
+            border: '1.5px dashed var(--divider-l)',
+            background: 'transparent',
+            color: 'var(--text-sec)',
+          }}
         >
-          <Icon name="camera" size={14} style={{ color: 'var(--gold-text)' }} />
-          {uploading ? '...' : 'Avatar'}
+          <Icon name="camera" size={18} style={{ color: 'var(--gold)', marginBottom: '6px' }} />
+          <span className="font-label uppercase" style={{ fontSize: '9px', letterSpacing: '1px' }}>
+            {uploading ? '...' : 'Avatar'}
+          </span>
         </button>
         <button
           onClick={() => bannerInputRef.current?.click()}
-          className="flex-1 flex items-center gap-2 justify-center py-2.5 rounded-[12px] text-[12px] font-body cursor-pointer transition-colors"
-          style={{ ...inputStyle }}
+          className="flex-1 flex flex-col items-center justify-center cursor-pointer transition-colors"
+          style={{
+            padding: '16px 12px',
+            borderRadius: '10px',
+            border: '1.5px dashed var(--divider-l)',
+            background: 'transparent',
+            color: 'var(--text-sec)',
+          }}
         >
-          <Icon name="image" size={14} style={{ color: 'var(--gold-text)' }} />
-          {uploadingBanner ? '...' : 'Banner'}
+          <Icon name="image" size={18} style={{ color: 'var(--gold)', marginBottom: '6px' }} />
+          <span className="font-label uppercase" style={{ fontSize: '9px', letterSpacing: '1px' }}>
+            {uploadingBanner ? '...' : 'Banner'}
+          </span>
         </button>
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
         <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
       </div>
 
-      {/* ── Name ── */}
-      <div className="space-y-3 mb-4">
+      {/* ── Name — Mockup: 10px Josefin label above ── */}
+      <div style={{ marginBottom: '16px' }}>
+        <FieldLabel>Name</FieldLabel>
         <input
           type="text"
           value={form.display_name}
           onChange={(e) => setForm((f) => ({ ...f, display_name: e.target.value }))}
           placeholder="Anzeigename"
           maxLength={60}
-          className="w-full rounded-input px-3 py-2.5 text-[14px] font-body outline-none"
+          className="w-full px-3 py-2.5 text-[14px] font-body outline-none"
           style={inputStyle}
         />
-        <div className="flex items-center gap-2 w-full rounded-input px-3 py-2.5" style={inputStyle}>
+      </div>
+
+      <div style={{ marginBottom: '16px' }}>
+        <FieldLabel>Benutzername</FieldLabel>
+        <div className="flex items-center gap-2 w-full px-3 py-2.5" style={inputStyle}>
           <span className="text-[14px] shrink-0" style={{ color: 'var(--text-muted)' }}>@</span>
           <input
             type="text"
@@ -277,15 +299,18 @@ export default function EditProfilePanel({
       </div>
 
       {/* ── Bio ── */}
-      <textarea
-        value={form.bio}
-        onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
-        placeholder="Ueber dich ..."
-        maxLength={300}
-        rows={3}
-        className="w-full rounded-input px-3 py-2.5 text-[14px] font-body outline-none resize-none mb-4"
-        style={inputStyle}
-      />
+      <div style={{ marginBottom: '16px' }}>
+        <FieldLabel>Ueber dich</FieldLabel>
+        <textarea
+          value={form.bio}
+          onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
+          placeholder="Ueber dich ..."
+          maxLength={300}
+          rows={3}
+          className="w-full px-3 py-2.5 text-[14px] font-body outline-none resize-none"
+          style={inputStyle}
+        />
+      </div>
 
       {/* ── Location ── */}
       <div className="relative mb-4">
@@ -387,20 +412,44 @@ export default function EditProfilePanel({
         </div>
       </div>
 
-      {/* ── Save Button ── */}
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full py-3 rounded-full font-label text-[11px] tracking-[1px] uppercase transition-all duration-200"
-        style={{
-          background: saving ? 'var(--gold-bg-hover)' : 'var(--gold)',
-          color: saving ? 'var(--text-muted)' : 'var(--text-on-gold)',
-          cursor: saving ? 'not-allowed' : 'pointer',
-          border: 'none',
-        }}
-      >
-        {saving ? '...' : 'Speichern'}
-      </button>
+      {/* ── Save Button — Mockup: gradient, letter-spacing 2px ── */}
+      <div style={{ padding: '8px 0' }}>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="w-full py-3 rounded-full font-label uppercase transition-all duration-200"
+          style={{
+            fontSize: '11px',
+            fontWeight: 600,
+            letterSpacing: '2px',
+            background: saving ? 'var(--gold-bg-hover)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+            color: saving ? 'var(--text-muted)' : 'var(--text-on-gold)',
+            cursor: saving ? 'not-allowed' : 'pointer',
+            border: 'none',
+            boxShadow: saving ? 'none' : '0 4px 16px var(--gold-glow)',
+          }}
+        >
+          {saving ? '...' : 'Speichern'}
+        </button>
+      </div>
     </Panel>
+  );
+}
+
+/** Field Label — Mockup: 10px Josefin Sans uppercase */
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="font-label uppercase"
+      style={{
+        fontSize: '10px',
+        fontWeight: 500,
+        letterSpacing: '1.2px',
+        color: 'var(--text-muted)',
+        marginBottom: '8px',
+      }}
+    >
+      {children}
+    </div>
   );
 }

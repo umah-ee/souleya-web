@@ -60,14 +60,26 @@ export default function Panel({ isOpen, onClose, title, children }: PanelProps) 
         }}
       >
         {/* ─── Header ─── */}
-        <div className="sticky top-0 z-10 px-6" style={{ background: 'var(--bg-elevated)', borderRadius: '32px 32px 0 0' }}>
+        <div className="sticky top-0 z-10" style={{ background: 'var(--bg-elevated)', borderRadius: '32px 32px 0 0' }}>
+          {/* Drag Handle — Mockup: 36×4px, radius 2px, centered, top 10px */}
+          <div className="flex justify-center" style={{ paddingTop: '10px' }}>
+            <div
+              style={{
+                width: '36px',
+                height: '4px',
+                borderRadius: '2px',
+                background: 'var(--divider-l)',
+              }}
+            />
+          </div>
+
           {/* Close Button — Mockup: absolute right 16px top 10px, 32px circle */}
           <button
             onClick={onClose}
             className="absolute flex items-center justify-center cursor-pointer transition-colors"
             style={{
               right: '16px',
-              top: '12px',
+              top: '10px',
               width: '32px',
               height: '32px',
               borderRadius: '50%',
@@ -79,22 +91,22 @@ export default function Panel({ isOpen, onClose, title, children }: PanelProps) 
             <Icon name="x" size={14} />
           </button>
 
-          {/* Title — Mockup: 24px, serif italic, centered, padding 20px 32px 20px */}
+          {/* Title — Mockup: 24px, serif italic, centered, padding 8px 32px 20px */}
           <div
             className="font-heading italic text-center"
             style={{
               fontSize: '24px',
               fontWeight: 500,
               color: 'var(--text-h)',
-              padding: '20px 32px 20px',
+              padding: '8px 32px 20px',
             }}
           >
             {title}
           </div>
         </div>
 
-        {/* ─── Content ─── */}
-        <div className="px-6 pb-8 pt-4">
+        {/* ─── Content — kein generisches Padding, jedes Panel steuert selbst ─── */}
+        <div className="px-7 pb-8">
           {children}
         </div>
       </div>

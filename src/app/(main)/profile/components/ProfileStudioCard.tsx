@@ -8,43 +8,78 @@ interface ProfileStudioCardProps {
   profile: Profile;
 }
 
+/**
+ * Studio Card — exakt nach Mockup
+ *
+ * Padding 20px 24px, radius 24px, gap 16px
+ * Background: 3-Stop gold gradient (dusk: lavender/rose via CSS override)
+ * ::before Orb (radial-gradient)
+ * Icon: 44px, radius 14px, gradient BG + box-shadow
+ * Title: 19px Cormorant Garamond italic 600
+ * Subtitle: "Kurse, Sessions & Inhalte verwalten"
+ * Hover: translateY(-2px) + shadow
+ */
 export default function ProfileStudioCard({ profile }: ProfileStudioCardProps) {
   if (!profile.is_mentor) return null;
 
   return (
-    <div className="px-6 mt-10">
+    <div className="px-6" style={{ marginTop: '40px' }}>
       <Link
         href="/studio"
-        className="flex items-center gap-3 py-3.5 px-4 rounded-[14px] font-body text-[14px] italic cursor-pointer no-underline group transition-all duration-300"
+        className="studio-card relative flex items-center no-underline cursor-pointer overflow-hidden transition-all duration-300"
         style={{
-          background: 'var(--gold-bg)',
-          border: '1.5px solid var(--gold-border)',
-          color: 'var(--gold-text)',
+          padding: '20px 24px',
+          gap: '16px',
+          borderRadius: '24px',
+          background: 'linear-gradient(135deg, var(--gold-soft) 0%, var(--gold-softer) 50%, var(--gold-soft) 100%)',
+          border: '1px solid var(--gold-border)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          boxShadow: 'inset 0 0 0 1px rgba(200,169,110,.06), 0 4px 24px rgba(0,0,0,.08)',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'var(--gold-bg-hover)';
-          e.currentTarget.style.boxShadow = '0 6px 24px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,0.08)';
           e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.borderColor = 'var(--gold)';
+          e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(200,169,110,.10), 0 8px 32px var(--gold-glow)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'var(--gold-bg)';
-          e.currentTarget.style.boxShadow = 'none';
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.borderColor = 'var(--gold-border)';
+          e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(200,169,110,.06), 0 4px 24px rgba(0,0,0,.08)';
         }}
       >
+        {/* Icon — Mockup: 44px, radius 14px, gold gradient bg */}
         <span
-          className="flex items-center justify-center flex-shrink-0"
-          style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--gold)' }}
+          className="studio-icon flex items-center justify-center flex-shrink-0"
+          style={{
+            width: '44px',
+            height: '44px',
+            borderRadius: '14px',
+            background: 'var(--gold)',
+            boxShadow: '0 4px 16px var(--gold-glow)',
+          }}
         >
-          <Icon name="sparkles" size={18} style={{ color: 'var(--text-on-gold)' }} />
+          <Icon name="sparkles" size={20} style={{ color: 'var(--text-on-gold)' }} />
         </span>
-        <span className="flex-1">Coach Studio oeffnen</span>
+
+        {/* Text — Mockup: Title 19px serif italic 600 + Subtitle 12px */}
+        <div className="flex-1 min-w-0">
+          <div
+            className="font-heading italic"
+            style={{ fontSize: '19px', fontWeight: 600, color: 'var(--text-h)' }}
+          >
+            Coach Studio
+          </div>
+          <div
+            style={{ fontSize: '12px', color: 'var(--text-sec)', marginTop: '2px' }}
+          >
+            Kurse, Sessions &amp; Inhalte verwalten
+          </div>
+        </div>
+
+        {/* Chevron */}
         <Icon
           name="chevron-right"
           size={16}
-          style={{ color: 'var(--gold-text)', transition: 'transform 0.3s', flexShrink: 0 }}
+          style={{ color: 'var(--text-muted)', flexShrink: 0 }}
         />
       </Link>
     </div>

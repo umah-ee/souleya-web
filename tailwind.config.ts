@@ -65,9 +65,9 @@ const config: Config = {
         input: '8px',     // Alle Inputs, Textareas, Selects
         xs: '10px',       // Overlay-Badge
         sm: '12px',       // Badge, Tooltip
-        md: '18px',       // Card
+        md: '16px',       // Card
         lg: '24px',       // Button CTA
-        xl: '36px',       // Grosses Element
+        xl: '32px',       // Grosses Element
       },
       keyframes: {
         'slide-up': {

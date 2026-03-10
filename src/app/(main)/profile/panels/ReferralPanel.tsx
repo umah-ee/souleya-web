@@ -40,7 +40,7 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
       {/* ─── Stats — Mockup: ref-stats, gap 40px, padding 20px 28px 8px ─── */}
       <div
         className="flex justify-center"
-        style={{ gap: '40px', padding: '20px 4px 8px' }}
+        style={{ gap: '40px', padding: '20px 0 8px' }}
       >
         <div className="text-center">
           <div
@@ -169,7 +169,7 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
               key={user.name}
               className="flex items-center transition-colors"
               style={{
-                padding: '14px 4px',
+                padding: '14px 0',
                 borderTop: i > 0 ? '1px solid var(--divider-l)' : undefined,
               }}
             >

@@ -3,7 +3,6 @@
 import { useEffect, useCallback } from 'react';
 import type { Profile } from '@/types/profile';
 import { SOUL_LEVEL_NAMES } from '@/types/profile';
-import EnsoRing from '@/components/ui/EnsoRing';
 import { Icon } from '@/components/ui/Icon';
 
 interface VisitenkarteOverlayProps {
@@ -101,23 +100,26 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
           </button>
         </div>
 
-        {/* ─── Avatar (72px, -36px overlap) ─── */}
+        {/* ─── Avatar — Mockup: 72px circle, 3px solid bg-card border, NO EnsoRing ─── */}
         <div className="flex justify-center -mt-[36px] relative z-10">
-          <EnsoRing soulLevel={profile.soul_level} isFirstLight={profile.is_first_light} size="feed">
-            <div
-              className="w-full h-full rounded-full flex items-center justify-center font-heading text-[24px] overflow-hidden"
-              style={{
-                background: 'var(--avatar-bg)',
-                color: 'var(--text-body)',
-                boxShadow: '0 4px 16px rgba(0,0,0,.15)',
-              }}
-            >
-              {profile.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-              ) : initials}
-            </div>
-          </EnsoRing>
+          <div
+            className="avatar-circle rounded-full flex items-center justify-center font-heading overflow-hidden"
+            style={{
+              width: '72px',
+              height: '72px',
+              fontSize: '24px',
+              fontWeight: 400,
+              background: 'var(--avatar-bg)',
+              color: 'var(--gold)',
+              border: '3px solid var(--bg-card)',
+              boxShadow: '0 4px 16px rgba(0,0,0,.15)',
+            }}
+          >
+            {profile.avatar_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : initials}
+          </div>
         </div>
 
         {/* ─── Body — Mockup: padding 12px 24px 24px ─── */}
@@ -130,9 +132,12 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
             {profile.display_name ?? profile.email}
           </div>
 
-          {/* Handle — Mockup: 12px, weight 400, text-s */}
+          {/* Handle — Mockup: 12px, Josefin Sans, weight 400, text-s */}
           {profile.username && (
-            <div style={{ fontSize: '12px', fontWeight: 400, color: 'var(--text-sec)', marginTop: '2px' }}>
+            <div
+              className="font-label"
+              style={{ fontSize: '12px', fontWeight: 400, letterSpacing: '1px', color: 'var(--text-sec)', marginTop: '2px' }}
+            >
               @{profile.username}
             </div>
           )}
@@ -251,10 +256,10 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
 
           {/* Actions — Mockup: flex, gap 10px, margin-top 18px */}
           <div className="flex" style={{ gap: '10px', marginTop: '18px' }}>
-            {/* Primary: Teilen — Mockup: solid gold, radius 14px */}
+            {/* Primary: Teilen — Mockup: solid gold, radius 14px, class vcard-btn-primary */}
             <button
               onClick={handleShare}
-              className="flex-1 font-label cursor-pointer"
+              className="vcard-btn-primary flex-1 font-label cursor-pointer"
               style={{
                 padding: '10px 0',
                 borderRadius: '14px',
