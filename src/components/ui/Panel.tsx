@@ -59,40 +59,38 @@ export default function Panel({ isOpen, onClose, title, children }: PanelProps) 
           boxShadow: '0 20px 60px rgba(0,0,0,.35)',
         }}
       >
-        {/* ─── Handle + Header ─── */}
-        <div className="sticky top-0 z-10 pt-3 pb-2 px-6" style={{ background: 'var(--bg-elevated)', borderRadius: '32px 32px 0 0' }}>
-          {/* Drag Handle */}
-          <div
-            className="mx-auto mb-4 rounded-full"
-            style={{ width: 36, height: 4, background: 'var(--divider)' }}
-          />
+        {/* ─── Header ─── */}
+        <div className="sticky top-0 z-10 px-6" style={{ background: 'var(--bg-elevated)', borderRadius: '32px 32px 0 0' }}>
+          {/* Close Button — Mockup: absolute right 16px top 10px, 32px circle */}
+          <button
+            onClick={onClose}
+            className="absolute flex items-center justify-center cursor-pointer transition-colors"
+            style={{
+              right: '16px',
+              top: '12px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'var(--glass)',
+              color: 'var(--text-sec)',
+              border: '1px solid var(--divider-l)',
+            }}
+          >
+            <Icon name="x" size={14} />
+          </button>
 
-          {/* Title + Close */}
-          <div className="flex items-center justify-between mb-2">
-            <h2
-              className="text-[24px] font-heading italic"
-              style={{ color: 'var(--text-h)', fontWeight: 500 }}
-            >
-              {title}
-            </h2>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
-              style={{
-                background: 'var(--glass)',
-                color: 'var(--text-sec)',
-                border: '1px solid var(--divider-l)',
-              }}
-            >
-              <Icon name="x" size={14} />
-            </button>
+          {/* Title — Mockup: 24px, serif italic, centered, padding 20px 32px 20px */}
+          <div
+            className="font-heading italic text-center"
+            style={{
+              fontSize: '24px',
+              fontWeight: 500,
+              color: 'var(--text-h)',
+              padding: '20px 32px 20px',
+            }}
+          >
+            {title}
           </div>
-
-          {/* Divider */}
-          <div
-            className="h-px"
-            style={{ background: 'var(--divider-l)' }}
-          />
         </div>
 
         {/* ─── Content ─── */}

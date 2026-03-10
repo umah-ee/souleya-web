@@ -10,79 +10,179 @@ interface SeedsPanelProps {
   profile: Profile;
 }
 
+/**
+ * Seeds Panel — exakt nach Mockup: Souleya_Profile_Redesign_Mockup.html
+ *
+ * Hero: Icon(48px, radius-14, gold-softer) → Amount(44px serif) → "Seeds"(10px) → EUR(12px)
+ * Topup: Hint-Text auf Web (kein Button)
+ * Verlauf: Rows (icon 30px radius-9, title 14px, date 11px, amount 18px serif)
+ */
 export default function SeedsPanel({ isOpen, onClose, profile }: SeedsPanelProps) {
   // Placeholder-Transaktionen (spaeter durch API ersetzen)
-  const transactions: { id: number; icon: IconName; title: string; date: string; amount: number }[] = [
-    { id: 1, icon: 'gift', title: 'Willkommensbonus', date: 'Maerz 2026', amount: +50 },
-    { id: 2, icon: 'users', title: 'Einladung angenommen', date: 'Maerz 2026', amount: +25 },
+  const transactions: {
+    id: number;
+    icon: IconName;
+    title: string;
+    date: string;
+    amount: number;
+    type: 'incoming' | 'outgoing' | 'topup';
+  }[] = [
+    { id: 1, icon: 'chevron-down', title: 'Referral · @markus', date: 'Heute, 14:22', amount: +100, type: 'incoming' },
+    { id: 2, icon: 'chevron-down', title: 'Kurs: Breathwork Basics', date: 'Gestern, 19:05', amount: -350, type: 'outgoing' },
+    { id: 3, icon: 'gift', title: 'Willkommensbonus', date: '1. Maerz 2026', amount: +50, type: 'incoming' },
+    { id: 4, icon: 'users', title: 'Einladung angenommen', date: '28. Feb 2026', amount: +25, type: 'incoming' },
   ];
 
   return (
     <Panel isOpen={isOpen} onClose={onClose} title="Seeds">
-      {/* ─── Balance ─── */}
-      <div className="text-center mb-8">
-        <span
-          className="text-[48px] font-heading leading-none"
-          style={{ color: 'var(--text-h)' }}
+      {/* ─── Hero: Balance — Mockup: seeds-panel-hero ─── */}
+      <div
+        className="flex flex-col items-center"
+        style={{ padding: '8px 32px 28px', gap: '6px' }}
+      >
+        {/* Seed Icon — Mockup: 48px, radius 14px, gold-softer bg, gold border */}
+        <div
+          className="flex items-center justify-center"
+          style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '14px',
+            background: 'var(--gold-bg)',
+            border: '1px solid var(--gold-border)',
+            marginBottom: '8px',
+          }}
         >
-          {profile.seeds_balance}
-        </span>
-        <p
-          className="text-[13px] mt-1"
-          style={{ color: 'var(--text-sec)' }}
+          <Icon name="seed" size={24} style={{ color: 'var(--gold)' }} />
+        </div>
+
+        {/* Amount — Mockup: 44px, serif, weight 400, line-height 1 */}
+        <div
+          className="font-heading"
+          style={{
+            fontSize: '44px',
+            fontWeight: 400,
+            lineHeight: 1,
+            color: 'var(--text-h)',
+          }}
+        >
+          {profile.seeds_balance.toLocaleString('de-DE')}
+        </div>
+
+        {/* Label — Mockup: 10px, Josefin Sans, weight 500, letter-spacing 1.5px, uppercase */}
+        <div
+          className="font-label"
+          style={{
+            fontSize: '10px',
+            fontWeight: 500,
+            letterSpacing: '1.5px',
+            textTransform: 'uppercase' as const,
+            color: 'var(--text-sec)',
+          }}
         >
           Seeds
-        </p>
-        <p
-          className="text-[11px] mt-0.5"
-          style={{ color: 'var(--text-muted)' }}
+        </div>
+
+        {/* EUR Value — Mockup: 12px, Quicksand, weight 500 */}
+        <div
+          className="font-body"
+          style={{
+            fontSize: '12px',
+            fontWeight: 500,
+            color: 'var(--text-sec)',
+            marginTop: '2px',
+          }}
         >
-          ≈ {(profile.seeds_balance * 0.10).toFixed(2)} EUR
-        </p>
+          ≈ {(profile.seeds_balance * 0.01).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+        </div>
       </div>
 
-      {/* ─── Divider ─── */}
+      {/* ─── Transaction Header — Mockup: 10px, uppercase, padding 24px 28px 12px ─── */}
       <div
-        className="h-px mx-auto max-w-[200px] mb-6"
+        className="font-label"
         style={{
-          background: 'linear-gradient(90deg, transparent, var(--gold-border-s), transparent)',
+          fontSize: '10px',
+          fontWeight: 500,
+          letterSpacing: '1.2px',
+          textTransform: 'uppercase' as const,
+          color: 'var(--text-sec)',
+          padding: '24px 4px 12px',
         }}
-      />
-
-      {/* ─── Transaktionsverlauf ─── */}
-      <p
-        className="text-[10px] font-label tracking-[1.2px] uppercase mb-3"
-        style={{ color: 'var(--text-muted)' }}
       >
         Verlauf
-      </p>
+      </div>
 
-      <div className="space-y-2">
-        {transactions.map((tx) => (
+      {/* ─── Transaction List — Mockup: seeds-txns ─── */}
+      <div>
+        {transactions.map((tx, i) => (
           <div
             key={tx.id}
-            className="flex items-center gap-3 px-3 py-3 rounded-[12px]"
-            style={{ background: 'var(--glass)' }}
+            className="flex items-center transition-colors"
+            style={{
+              padding: '14px 4px',
+              borderTop: i > 0 ? '1px solid var(--divider-l)' : undefined,
+            }}
           >
+            {/* Icon — Mockup: 30px, radius 9px */}
             <div
-              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ background: 'var(--gold-bg)' }}
+              className="flex items-center justify-center flex-shrink-0"
+              style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '9px',
+                marginRight: '14px',
+                ...(tx.type === 'incoming'
+                  ? {
+                      background: 'rgba(82,183,136,.10)',
+                      color: '#52B788',
+                      border: '1px solid rgba(82,183,136,.15)',
+                    }
+                  : tx.type === 'topup'
+                  ? {
+                      background: 'var(--gold-bg)',
+                      color: 'var(--gold)',
+                      border: '1px solid var(--gold-border)',
+                    }
+                  : {
+                      background: 'var(--glass)',
+                      color: 'var(--text-sec)',
+                      border: '1px solid var(--divider-l)',
+                    }),
+              }}
             >
-              <Icon name={tx.icon} size={14} style={{ color: 'var(--gold-text)' }} />
+              <Icon name={tx.icon} size={14} />
             </div>
+
+            {/* Text — Mockup: title 14px/500, date 11px */}
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] truncate" style={{ color: 'var(--text-h)' }}>{tx.title}</p>
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{tx.date}</p>
+              <div
+                className="truncate"
+                style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-body)' }}
+              >
+                {tx.title}
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-sec)', marginTop: '2px' }}>
+                {tx.date}
+              </div>
             </div>
-            <span
-              className="text-[14px] font-heading flex-shrink-0"
-              style={{ color: tx.amount > 0 ? 'var(--success)' : 'var(--error)' }}
+
+            {/* Amount — Mockup: 18px, serif, weight 500 */}
+            <div
+              className="font-heading flex-shrink-0"
+              style={{
+                fontSize: '18px',
+                fontWeight: 500,
+                marginLeft: '14px',
+                color: tx.amount > 0 ? '#52B788' : 'var(--text-sec)',
+              }}
             >
-              {tx.amount > 0 ? '+' : ''}{tx.amount}
-            </span>
+              {tx.amount > 0 ? '+' : '−'}{Math.abs(tx.amount)}
+            </div>
           </div>
         ))}
       </div>
+
+      {/* Spacer — Mockup: 32px */}
+      <div style={{ height: '32px' }} />
     </Panel>
   );
 }

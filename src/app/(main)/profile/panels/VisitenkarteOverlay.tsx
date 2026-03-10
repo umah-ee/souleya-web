@@ -13,9 +13,11 @@ interface VisitenkarteOverlayProps {
 }
 
 /**
- * Business-Card Overlay (zentriert, scale-Animation).
- * Mockup: 420px Breite, var(--bg-elevated), border 1px solid var(--divider-l),
- * border-radius 32px, scale(.92)→scale(1) Animation.
+ * Visitenkarte — Business-Card Overlay (zentriert, scale-Animation).
+ * Exakt nach Mockup: Souleya_Profile_Redesign_Mockup.html
+ *
+ * Layout: Banner(90px) → Avatar(72px, -36px) → Body(Name 24px, Handle 12px,
+ * Level 10px text, Bio 14px, Meta 12px, Interests, Mutual, Actions 14px-radius)
  */
 export default function VisitenkarteOverlay({ isOpen, onClose, profile }: VisitenkarteOverlayProps) {
   const handleKeyDown = useCallback(
@@ -40,16 +42,25 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
   const vipName = SOUL_LEVEL_NAMES[profile.soul_level] ?? `Level ${profile.soul_level}`;
   const interests = (profile.interests ?? []).slice(0, 4);
 
+  const handleShare = async () => {
+    const url = `https://souleya.com/@${profile.username ?? profile.referral_code}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Fallback
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-5">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ padding: '20px' }}>
+      {/* Backdrop — Mockup: rgba(0,0,0,.55) */}
       <div
         className="absolute inset-0"
         style={{ background: 'rgba(0,0,0,.55)' }}
         onClick={onClose}
       />
 
-      {/* Card — Mockup: 420px, bg-elevated, border, rounded-[32px], scale animation */}
+      {/* Card — Mockup: 340px (420px web), bg-elevated, border, radius-xl(32px) */}
       <div
         className="relative w-full max-w-[420px] overflow-hidden animate-scale-in"
         style={{
@@ -59,23 +70,26 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
           boxShadow: '0 20px 60px rgba(0,0,0,.35)',
         }}
       >
-        {/* ─── Banner (90px, Mockup) ─── */}
-        <div className="relative w-full h-[90px] overflow-hidden">
-          {profile.banner_url ? (
+        {/* ─── Banner (90px) ─── */}
+        <div
+          className="relative w-full h-[90px] overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, var(--gold-bg) 0%, var(--bg-elevated) 100%)' }}
+        >
+          {profile.banner_url && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={profile.banner_url} alt="" className="w-full h-full object-cover" style={{ opacity: 0.5 }} />
-          ) : (
-            <div
-              className="w-full h-full"
-              style={{ background: 'linear-gradient(135deg, var(--gold-bg) 0%, var(--bg-elevated) 100%)' }}
-            />
           )}
 
-          {/* Close Button */}
+          {/* Close — Mockup: right 10px, top 10px, 28px, rgba(0,0,0,.35) */}
           <button
             onClick={onClose}
-            className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+            className="absolute flex items-center justify-center cursor-pointer"
             style={{
+              right: '10px',
+              top: '10px',
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
               background: 'rgba(0,0,0,.35)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
@@ -87,14 +101,14 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
           </button>
         </div>
 
-        {/* ─── Avatar (72px, zentriert, -36px overlap) ─── */}
+        {/* ─── Avatar (72px, -36px overlap) ─── */}
         <div className="flex justify-center -mt-[36px] relative z-10">
           <EnsoRing soulLevel={profile.soul_level} isFirstLight={profile.is_first_light} size="feed">
             <div
-              className="w-full h-full rounded-full flex items-center justify-center text-[12px] font-heading overflow-hidden"
+              className="w-full h-full rounded-full flex items-center justify-center font-heading text-[24px] overflow-hidden"
               style={{
                 background: 'var(--avatar-bg)',
-                color: 'var(--gold-text)',
+                color: 'var(--text-body)',
                 boxShadow: '0 4px 16px rgba(0,0,0,.15)',
               }}
             >
@@ -106,73 +120,90 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
           </EnsoRing>
         </div>
 
-        {/* ─── Body ─── */}
-        <div className="px-6 pb-6 pt-3 text-center">
-          {/* Name — Mockup: 24px, weight 500, italic */}
-          <h3
-            className="text-[24px] font-heading italic leading-[1.2]"
-            style={{ color: 'var(--text-h)', fontWeight: 500 }}
+        {/* ─── Body — Mockup: padding 12px 24px 24px ─── */}
+        <div style={{ padding: '12px 24px 24px', textAlign: 'center' }}>
+          {/* Name — Mockup: 24px, serif italic, weight 500 */}
+          <div
+            className="font-heading italic leading-[1.2]"
+            style={{ fontSize: '24px', fontWeight: 500, color: 'var(--text-h)' }}
           >
             {profile.display_name ?? profile.email}
-          </h3>
-
-          {/* Handle — Mockup: 12px */}
-          <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-sec)' }}>
-            {profile.username ? `@${profile.username}` : profile.email}
-          </p>
-
-          {/* Level Badge */}
-          <div className="mt-2">
-            <span
-              className="inline-block text-[10px] font-label tracking-[1.2px] uppercase px-3 py-[3px] rounded-[12px]"
-              style={{
-                color: 'var(--gold-text)',
-                background: 'var(--gold-bg)',
-                border: '1px solid var(--gold-border)',
-              }}
-            >
-              {vipName}
-            </span>
           </div>
 
-          {/* Bio — Mockup: 14px, weight 500, line-clamp-2 */}
-          {profile.bio && (
-            <p
-              className="text-[14px] leading-[1.6] mt-3.5 mx-auto max-w-[320px] line-clamp-2"
-              style={{ color: 'var(--text-body)', fontWeight: 500 }}
-            >
-              {profile.bio}
-            </p>
+          {/* Handle — Mockup: 12px, weight 400, text-s */}
+          {profile.username && (
+            <div style={{ fontSize: '12px', fontWeight: 400, color: 'var(--text-sec)', marginTop: '2px' }}>
+              @{profile.username}
+            </div>
           )}
 
-          {/* Meta — Location + Member Since */}
+          {/* Level — Mockup: 10px, weight 500, uppercase, letter-spacing 1.2px, plain text (NO badge!) */}
           <div
-            className="flex items-center justify-center gap-3.5 mt-3 text-[12px]"
-            style={{ color: 'var(--text-sec)', fontWeight: 500 }}
+            className="font-label"
+            style={{
+              fontSize: '10px',
+              fontWeight: 500,
+              letterSpacing: '1.2px',
+              textTransform: 'uppercase' as const,
+              color: 'var(--text-sec)',
+              marginTop: '6px',
+            }}
+          >
+            {vipName} · Level {profile.soul_level}
+          </div>
+
+          {/* Bio — Mockup: 14px, weight 500, line-height 1.6, line-clamp-2, margin-top 14px */}
+          {profile.bio && (
+            <div
+              className="line-clamp-2"
+              style={{
+                fontSize: '14px',
+                fontWeight: 500,
+                lineHeight: 1.6,
+                color: 'var(--text-body)',
+                marginTop: '14px',
+                maxHeight: '3.2em',
+                overflow: 'hidden',
+              }}
+            >
+              {profile.bio}
+            </div>
+          )}
+
+          {/* Meta — Mockup: 12px, weight 500, gap 14px, margin-top 12px */}
+          <div
+            className="flex items-center justify-center"
+            style={{ gap: '14px', marginTop: '12px', fontSize: '12px', fontWeight: 500, color: 'var(--text-sec)' }}
           >
             {profile.location && (
               <span className="flex items-center gap-1">
-                <Icon name="map-pin" size={12} /> {profile.location}
+                <Icon name="map-pin" size={12} />
+                {profile.location}
               </span>
             )}
-            {profile.created_at && (
-              <span className="flex items-center gap-1">
-                <Icon name="heart" size={12} /> Seit {new Date(profile.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
-              </span>
-            )}
+            <span className="flex items-center gap-1">
+              <Icon name="users" size={12} />
+              {profile.connections_count} Kontakte
+            </span>
           </div>
 
-          {/* Tags (max 4) — Mockup: bg-glass, border, 10px uppercase */}
+          {/* Interests — Mockup: 10px, bg-glass, border, radius 12px, gap 6px */}
           {interests.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-[6px] mt-3.5">
+            <div className="flex flex-wrap justify-center" style={{ gap: '6px', marginTop: '14px' }}>
               {interests.map((tag) => (
                 <span
                   key={tag}
-                  className="text-[10px] font-label tracking-[0.8px] uppercase px-[10px] py-[4px] rounded-[12px]"
+                  className="font-label"
                   style={{
-                    color: 'var(--text-sec)',
-                    border: '1px solid var(--divider-l)',
+                    fontSize: '10px',
+                    fontWeight: 500,
+                    letterSpacing: '0.8px',
+                    textTransform: 'uppercase' as const,
+                    padding: '4px 10px',
+                    borderRadius: '12px',
                     background: 'var(--glass)',
+                    border: '1px solid var(--divider-l)',
+                    color: 'var(--text-sec)',
                   }}
                 >
                   {tag}
@@ -181,42 +212,81 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
             </div>
           )}
 
-          {/* Mutual Connections (Placeholder) */}
+          {/* Mutual Connections — Mockup: border-top, 12px, weight 500, avatar circles */}
           <div
-            className="flex items-center justify-center gap-1.5 mt-4 pt-3.5 text-[12px]"
+            className="flex items-center justify-center"
             style={{
-              color: 'var(--text-sec)',
-              fontWeight: 500,
+              gap: '6px',
+              marginTop: '16px',
+              paddingTop: '14px',
               borderTop: '1px solid var(--divider-l)',
+              fontSize: '12px',
+              fontWeight: 500,
+              color: 'var(--text-sec)',
             }}
           >
-            <span>3 gemeinsame Kontakte</span>
+            {/* Avatar circles (placeholder) */}
+            <div className="flex" style={{ marginRight: '2px' }}>
+              {['LW', 'JR'].map((initials, i) => (
+                <div
+                  key={initials}
+                  className="flex items-center justify-center font-label"
+                  style={{
+                    width: '22px',
+                    height: '22px',
+                    borderRadius: '50%',
+                    background: 'var(--glass)',
+                    border: '2px solid var(--bg-elevated)',
+                    fontSize: '8px',
+                    color: 'var(--text-sec)',
+                    marginLeft: i > 0 ? '-6px' : 0,
+                  }}
+                >
+                  {initials}
+                </div>
+              ))}
+            </div>
+            2 gemeinsame Kontakte
           </div>
 
-          {/* Action Buttons — Mockup: gap 10px, border-radius 14px, solid gold */}
-          <div className="flex gap-[10px] mt-[18px]">
+          {/* Actions — Mockup: flex, gap 10px, margin-top 18px */}
+          <div className="flex" style={{ gap: '10px', marginTop: '18px' }}>
+            {/* Primary: Teilen — Mockup: solid gold, radius 14px */}
             <button
-              className="flex-1 py-[10px] font-label text-[10px] tracking-[1.2px] uppercase cursor-pointer transition-all duration-200"
+              onClick={handleShare}
+              className="flex-1 font-label cursor-pointer"
               style={{
+                padding: '10px 0',
+                borderRadius: '14px',
+                fontSize: '10px',
+                fontWeight: 500,
+                letterSpacing: '1.2px',
+                textTransform: 'uppercase' as const,
                 background: 'var(--gold)',
                 color: 'var(--text-on-gold)',
                 border: 'none',
-                borderRadius: '14px',
                 boxShadow: '0 4px 16px var(--gold-glow)',
               }}
             >
-              Verbinden
+              Teilen
             </button>
+            {/* Secondary: Schliessen — Mockup: glass bg, border */}
             <button
-              className="flex-1 py-[10px] font-label text-[10px] tracking-[1.2px] uppercase cursor-pointer transition-all duration-200"
+              onClick={onClose}
+              className="flex-1 font-label cursor-pointer"
               style={{
+                padding: '10px 0',
+                borderRadius: '14px',
+                fontSize: '10px',
+                fontWeight: 500,
+                letterSpacing: '1.2px',
+                textTransform: 'uppercase' as const,
                 background: 'var(--glass)',
                 color: 'var(--text-body)',
                 border: '1px solid var(--divider-l)',
-                borderRadius: '14px',
               }}
             >
-              Nachricht
+              Schliessen
             </button>
           </div>
         </div>

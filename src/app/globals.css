@@ -196,7 +196,7 @@
 
 /* ── DUSK LIGHT ─────────────────────────── */
 [data-color="dusk"][data-theme="light"] {
-  --bg-gradient: linear-gradient(145deg, #FAF5FF 0%, #F3E8FF 35%, #EDE9FE 70%, #E5E0FA 100%);
+  --bg-gradient: linear-gradient(180deg, #FAF5FF 0%, #F5EFFC 50%, #FAF5FF 100%);
   --bg-solid: #FAF5FF;
   --bg-elevated: #FFFFFF;
 
@@ -264,6 +264,23 @@ body {
   color: var(--text-body);
   min-height: 100vh;
   transition: background .4s, color .3s;
+}
+
+/* ── DUSK BODY OVERRIDES (subtile Farb-Orbs) ── */
+[data-color="dusk"][data-theme="dark"] body {
+  background:
+    radial-gradient(ellipse at 60% 0%, rgba(167,139,250,.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 40%, rgba(244,114,182,.03) 0%, transparent 45%),
+    radial-gradient(ellipse at 80% 80%, rgba(251,191,120,.02) 0%, transparent 40%),
+    linear-gradient(180deg, #19191F 0%, #1F1F26 40%, #19191F 100%);
+  background-attachment: fixed;
+}
+[data-color="dusk"][data-theme="light"] body {
+  background:
+    radial-gradient(ellipse at 40% 0%, rgba(167,139,250,.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 50%, rgba(244,114,182,.03) 0%, transparent 45%),
+    linear-gradient(180deg, #FAF5FF 0%, #F5EFFC 50%, #FAF5FF 100%);
+  background-attachment: fixed;
 }
 
 /* ── GLASMORPHISM UTILITIES ────────────── */
