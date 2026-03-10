@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import type { Profile } from '@/types/profile';
+import type { PublicProfile } from '@/lib/users';
 import { Icon } from '@/components/ui/Icon';
 
 interface ProfileInterestsProps {
-  profile: Profile;
+  profile: Profile | PublicProfile;
 }
 
 /** Anzahl sichtbarer Tags vor dem Expand */

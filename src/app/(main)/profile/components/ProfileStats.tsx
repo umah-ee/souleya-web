@@ -1,9 +1,10 @@
 'use client';
 
 import type { Profile } from '@/types/profile';
+import type { PublicProfile } from '@/lib/users';
 
 interface ProfileStatsProps {
-  profile: Profile;
+  profile: Profile | PublicProfile;
 }
 
 /**

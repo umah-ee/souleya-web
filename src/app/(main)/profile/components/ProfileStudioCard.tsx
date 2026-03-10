@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import type { Profile } from '@/types/profile';
+import type { PublicProfile } from '@/lib/users';
 import { Icon } from '@/components/ui/Icon';
 
 interface ProfileStudioCardProps {
-  profile: Profile;
+  profile: Profile | PublicProfile;
 }
 
 /**

@@ -4,12 +4,17 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { PublicProfile } from '@/lib/users';
 import type { ConnectionStatus } from '@/types/circles';
-import { SOUL_LEVEL_NAMES } from '@/types/profile';
 import { fetchPublicProfile } from '@/lib/users';
 import { getConnectionStatus, sendConnectionRequest } from '@/lib/circles';
 import { createClient } from '@/lib/supabase/client';
-import EnsoRing from '@/components/ui/EnsoRing';
-import { Icon } from '@/components/ui/Icon';
+
+// ── Neue Profil-Komponenten (wiederverwendet) ──
+import ProfileBanner from '../../profile/components/ProfileBanner';
+import ProfileIdentity from '../../profile/components/ProfileIdentity';
+import ProfileBio from '../../profile/components/ProfileBio';
+import ProfileStudioCard from '../../profile/components/ProfileStudioCard';
+import ProfileInterests from '../../profile/components/ProfileInterests';
+import ProfileStats from '../../profile/components/ProfileStats';
 
 interface Props {
   username: string;
@@ -71,10 +76,6 @@ export default function PublicProfileClient({ username }: Props) {
     }
   };
 
-  const handleGoToOwnProfile = () => {
-    router.push('/profile');
-  };
-
   if (loading) {
     return (
       <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
@@ -92,16 +93,12 @@ export default function PublicProfileClient({ username }: Props) {
     );
   }
 
-  const initials = (profile.display_name ?? profile.username ?? '?').slice(0, 1).toUpperCase();
-  const vipName = SOUL_LEVEL_NAMES[profile.soul_level] ?? `Level ${profile.soul_level}`;
-  const interests = profile.interests ?? [];
-
   // ── Action Button ─────────────────────────────────────────
   const renderActionButton = () => {
     if (isOwnProfile) {
       return (
         <button
-          onClick={handleGoToOwnProfile}
+          onClick={() => router.push('/profile')}
           className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
           style={{ border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
         >
@@ -151,9 +148,10 @@ export default function PublicProfileClient({ username }: Props) {
         disabled={sending}
         className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
         style={{
-          background: sending ? 'var(--gold-bg)' : 'var(--gold)',
+          background: sending ? 'var(--gold-bg)' : 'var(--primary-gradient)',
           color: sending ? 'var(--text-muted)' : 'var(--text-on-gold)',
           cursor: sending ? 'not-allowed' : 'pointer',
+          boxShadow: sending ? 'none' : 'var(--primary-glow)',
         }}
       >
         {sending ? '...' : 'Verbinden'}
@@ -165,152 +163,35 @@ export default function PublicProfileClient({ username }: Props) {
     <div className="-mx-4 -mt-6 flex justify-center">
       <div className="w-full max-w-[700px]">
 
-        {/* ═══════════════════════════════════════════════════
-            PROFIL-CARD (Style Guide Section 06)
-        ═══════════════════════════════════════════════════ */}
-        <div className="glass-card rounded-[18px] overflow-hidden">
+        {/* ═══════════════════════════════════════════
+            OEFFENTLICHES PROFIL (Redesign v2)
+            Gleiche Komponenten wie eigenes Profil,
+            ohne Edit/Settings Buttons
+        ═══════════════════════════════════════════ */}
 
-          {/* ─── BANNER (140px) ─────────────────────────── */}
-          <div className="relative w-full h-[140px] overflow-hidden">
-            {profile.banner_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.banner_url} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <div
-                className="w-full h-full"
-                style={{ background: 'linear-gradient(135deg, #D8CFBE 0%, var(--gold) 50%, #B08840 100%)' }}
-              />
-            )}
-            {/* Gradient Overlay */}
-            <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(to top, var(--bg-solid) 0%, transparent 60%)' }}
-            />
-          </div>
+        {/* ─── Banner (200px, ohne Buttons) ─── */}
+        <ProfileBanner profile={profile} />
 
-          {/* ─── AVATAR im Enso Ring (88px, zentriert) ── */}
-          <div className="flex justify-center -mt-[44px] relative z-10">
-            <EnsoRing
-              soulLevel={profile.soul_level}
-              isFirstLight={profile.is_first_light}
-              size="profile"
-            >
-              <div
-                className="w-full h-full rounded-full flex items-center justify-center font-heading text-[22px] overflow-hidden"
-                style={{
-                  background: 'var(--avatar-bg)',
-                  color: 'var(--gold-text)',
-                }}
-              >
-                {profile.avatar_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : initials}
-              </div>
-            </EnsoRing>
-          </div>
+        {/* ─── Identity (EnsoRing 112px + Name 32px) ─── */}
+        <ProfileIdentity profile={profile} />
 
-          {/* ─── BODY (zentriert) ──────────────────────── */}
-          <div className="px-5 pb-5 pt-3 text-center">
+        {/* ─── Bio + Location + Member-Since ─── */}
+        <ProfileBio profile={profile} />
 
-            {/* Name */}
-            <div
-              className="text-[18px] font-heading italic mb-[2px]"
-              style={{ color: 'var(--text-h)' }}
-            >
-              {profile.display_name ?? profile.username ?? 'Anonym'}
-            </div>
+        {/* ─── Coach Studio Card (nur Mentoren) ─── */}
+        <ProfileStudioCard profile={profile} />
 
-            {/* Handle + Soul Level */}
-            <div
-              className="text-[11px] mb-[10px]"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              {profile.username ? `@${profile.username}` : ''}
-              {profile.username && ' · '}
-              {vipName}
-              {profile.is_first_light && ' · First Light'}
-            </div>
+        {/* ─── Interest Tags ─── */}
+        <ProfileInterests profile={profile} />
 
-            {/* Bio */}
-            {profile.bio && (
-              <div
-                className="text-[12px] leading-[1.65] mx-auto max-w-[320px] mb-[14px]"
-                style={{ color: 'var(--text-body)' }}
-              >
-                {profile.bio}
-              </div>
-            )}
+        {/* ─── Stats (Beitraege/Kontakte/Circles) ─── */}
+        <ProfileStats profile={profile} />
 
-            {/* Stats */}
-            <div className="flex justify-center gap-6 mb-[14px]">
-              <div>
-                <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
-                  {profile.pulses_count ?? 0}
-                </span>
-                <span className="text-[9px] tracking-[1.5px] uppercase" style={{ color: 'var(--text-muted)' }}>
-                  Beiträge
-                </span>
-              </div>
-              <div>
-                <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
-                  {profile.connections_count}
-                </span>
-                <span className="text-[9px] tracking-[1.5px] uppercase" style={{ color: 'var(--text-muted)' }}>
-                  Kontakte
-                </span>
-              </div>
-              <div>
-                <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
-                  0
-                </span>
-                <span className="text-[9px] tracking-[1.5px] uppercase" style={{ color: 'var(--text-muted)' }}>
-                  Circles
-                </span>
-              </div>
-            </div>
-
-            {/* Interest Tags */}
-            {interests.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-[6px] mb-[14px]">
-                {interests.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[8px] tracking-[1.5px] uppercase px-[10px] py-[4px] rounded-[12px] inline-block"
-                    style={{
-                      color: 'var(--gold-text)',
-                      border: '1px solid var(--gold-border)',
-                      background: 'var(--gold-bg)',
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Action Button */}
-            <div className="mb-[14px]">
-              {renderActionButton()}
-            </div>
-
-            {/* Meta Row */}
-            <div
-              className="flex flex-wrap justify-center gap-4 pt-3 text-[10px]"
-              style={{ color: 'var(--text-sec)', borderTop: '1px solid var(--divider-l)' }}
-            >
-              {profile.location && (
-                <span className="flex items-center gap-1"><Icon name="map-pin" size={12} /> {profile.location}</span>
-              )}
-              <span className="flex items-center gap-1">
-                <Icon name="heart" size={12} /> Seit {new Date(profile.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
-              </span>
-              {profile.is_first_light && (
-                <span className="flex items-center gap-1"><Icon name="sparkles" size={12} /> First Light</span>
-              )}
-            </div>
-          </div>
+        {/* ─── Action Button (Verbinden / Bearbeiten) ─── */}
+        <div className="text-center px-6" style={{ marginTop: '32px', marginBottom: '40px' }}>
+          {renderActionButton()}
         </div>
+
       </div>
     </div>
   );

@@ -4,10 +4,10 @@ import type { Profile } from '@/types/profile';
 import { Icon } from '@/components/ui/Icon';
 
 interface ProfileBannerProps {
-  profile: Profile;
-  /** Mockup: nur Edit + Settings (kein Share) */
-  onSettingsClick: () => void;
-  onEditClick: () => void;
+  profile: Pick<Profile, 'banner_url'>;
+  /** Optional: Zeigt Edit-Button nur wenn gesetzt */
+  onSettingsClick?: () => void;
+  onEditClick?: () => void;
 }
 
 /**
@@ -44,8 +44,9 @@ export default function ProfileBanner({
       />
 
       {/* Action Buttons — Mockup: nur Edit + Settings, 36px, blur(12px) */}
+      {(onEditClick || onSettingsClick) && (
       <div className="absolute top-4 right-4 flex items-center gap-2">
-        <button
+        {onEditClick && <button
           onClick={onEditClick}
           className="flex items-center justify-center cursor-pointer transition-all duration-200"
           style={{
@@ -69,8 +70,8 @@ export default function ProfileBanner({
           title="Profil bearbeiten"
         >
           <Icon name="edit" size={16} />
-        </button>
-        <button
+        </button>}
+        {onSettingsClick && <button
           onClick={onSettingsClick}
           className="flex items-center justify-center cursor-pointer transition-all duration-200"
           style={{
@@ -94,8 +95,9 @@ export default function ProfileBanner({
           title="Einstellungen"
         >
           <Icon name="settings" size={16} />
-        </button>
+        </button>}
       </div>
+      )}
     </div>
   );
 }

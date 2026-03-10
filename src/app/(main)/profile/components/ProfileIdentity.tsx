@@ -1,15 +1,16 @@
 'use client';
 
 import type { Profile } from '@/types/profile';
+import type { PublicProfile } from '@/lib/users';
 import { SOUL_LEVEL_NAMES } from '@/types/profile';
 import EnsoRing from '@/components/ui/EnsoRing';
 
 interface ProfileIdentityProps {
-  profile: Profile;
+  profile: Profile | PublicProfile;
 }
 
 export default function ProfileIdentity({ profile }: ProfileIdentityProps) {
-  const initials = (profile.display_name ?? profile.username ?? profile.email ?? '?')
+  const initials = (profile.display_name ?? profile.username ?? '?')
     .slice(0, 1)
     .toUpperCase();
   const vipName = SOUL_LEVEL_NAMES[profile.soul_level] ?? `Level ${profile.soul_level}`;
@@ -46,7 +47,7 @@ export default function ProfileIdentity({ profile }: ProfileIdentityProps) {
         className="mt-3 text-[32px] font-heading italic leading-tight"
         style={{ color: 'var(--text-h)', letterSpacing: '0.5px' }}
       >
-        {profile.display_name ?? profile.email}
+        {profile.display_name ?? ('email' in profile ? profile.email : profile.username) ?? 'Anonym'}
       </h1>
 
       {/* ─── Handle ─── */}
@@ -54,7 +55,7 @@ export default function ProfileIdentity({ profile }: ProfileIdentityProps) {
         className="font-label"
         style={{ fontSize: '12px', letterSpacing: '1.5px', marginTop: '4px', color: 'var(--text-sec)' }}
       >
-        {profile.username ? `@${profile.username}` : profile.email}
+        {profile.username ? `@${profile.username}` : ('email' in profile ? profile.email : '')}
       </p>
 
       {/* ─── Level + Badges ─── */}

@@ -1,10 +1,11 @@
 'use client';
 
 import type { Profile } from '@/types/profile';
+import type { PublicProfile } from '@/lib/users';
 import { Icon } from '@/components/ui/Icon';
 
 interface ProfileBioProps {
-  profile: Profile;
+  profile: Profile | PublicProfile;
 }
 
 export default function ProfileBio({ profile }: ProfileBioProps) {
