@@ -1,11 +1,13 @@
 'use client';
 
 import { useId } from 'react';
+import { useTheme } from '@/components/ThemeProvider';
 
 // ══════════════════════════════════════════════════════════════
 // SOULEYA ENSO RING – VIP-Stufen-Konzept v2
 // Level 1–5 mit progressiv schliessendem Kreis
 // First Light (Origin Soul) + Ritterschlag Sonderstatus
+// Farbschema-aware: Gold + Dusk
 // ══════════════════════════════════════════════════════════════
 
 // ── VIP Level Ring Konfiguration ─────────────────────────────
@@ -17,11 +19,28 @@ const LEVEL_CONFIG: Record<number, { dasharray: string; strokeWidth: number; opa
   5: { dasharray: '216 10.5', strokeWidth: 7.5, opacity: 1 },     // Soul Mentor
 };
 
+// ── Farbschema-Konfiguration ─────────────────────────────────
+const COLOR_CONFIG = {
+  gold: {
+    gradientStart: '#A8894E',
+    gradientEnd: '#D4BC8B',
+    glowColor: '#D4BC8B',
+    dotColor: '#D4BC8B',
+  },
+  dusk: {
+    gradientStart: '#8B5CF6',
+    gradientEnd: '#F472B6',
+    glowColor: '#A78BFA',
+    dotColor: '#A78BFA',
+  },
+} as const;
+
 // ── Groessen-Varianten ───────────────────────────────────────
 const SIZE_CONFIG = {
-  profile: { svgSize: 88, avatarSize: 56, avatarOffset: 16 },
-  feed: { svgSize: 44, avatarSize: 28, avatarOffset: 8 },
-  standalone: { svgSize: 48, avatarSize: 0, avatarOffset: 0 },
+  'profile': { svgSize: 88, avatarSize: 56, avatarOffset: 16 },
+  'profile-large': { svgSize: 112, avatarSize: 72, avatarOffset: 20 },
+  'feed': { svgSize: 44, avatarSize: 28, avatarOffset: 8 },
+  'standalone': { svgSize: 48, avatarSize: 0, avatarOffset: 0 },
 } as const;
 
 interface EnsoRingProps {
@@ -31,8 +50,8 @@ interface EnsoRingProps {
   isFirstLight?: boolean;
   /** Ritterschlag – Leuchtpunkt an der Oeffnung */
   hasRitterschlag?: boolean;
-  /** Groesse: profile (88px), feed (44px), standalone (48px) */
-  size?: 'profile' | 'feed' | 'standalone';
+  /** Groesse: profile (88px), profile-large (112px), feed (44px), standalone (48px) */
+  size?: 'profile' | 'profile-large' | 'feed' | 'standalone';
   /** Avatar oder anderer Inhalt, zentriert im Ring */
   children?: React.ReactNode;
   /** Zusaetzliche CSS-Klassen */
@@ -48,9 +67,11 @@ export default function EnsoRing({
   className = '',
 }: EnsoRingProps) {
   const uid = useId();
+  const { colorScheme } = useTheme();
   const level = Math.max(1, Math.min(5, soulLevel));
   const config = LEVEL_CONFIG[level] ?? LEVEL_CONFIG[1];
   const { svgSize, avatarSize, avatarOffset } = SIZE_CONFIG[size];
+  const colors = COLOR_CONFIG[colorScheme] ?? COLOR_CONFIG.gold;
   const gradientId = `enso-g${uid}`;
 
   return (
@@ -68,8 +89,8 @@ export default function EnsoRing({
       >
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#A8894E" />
-            <stop offset="100%" stopColor="#D4BC8B" />
+            <stop offset="0%" stopColor={colors.gradientStart} />
+            <stop offset="100%" stopColor={colors.gradientEnd} />
           </linearGradient>
         </defs>
 
@@ -77,7 +98,7 @@ export default function EnsoRing({
         {level === 5 && (
           <circle
             cx="50" cy="50" r="36" fill="none"
-            stroke="#D4BC8B"
+            stroke={colors.glowColor}
             strokeWidth="7"
             strokeLinecap="round"
             strokeDasharray="216 10.5"
@@ -103,12 +124,12 @@ export default function EnsoRing({
         {isFirstLight && (
           <>
             <circle
-              cx="83" cy="35" r="4" fill="#D4BC8B"
+              cx="83" cy="35" r="4" fill={colors.dotColor}
               opacity=".12" className="first-light-glow"
               style={{ filter: 'blur(3px)' }}
             />
             <circle
-              cx="83" cy="35" r="2" fill="#D4BC8B"
+              cx="83" cy="35" r="2" fill={colors.dotColor}
               opacity=".6" className="first-light-glow"
             />
             <circle cx="83" cy="35" r=".8" fill="#fff" opacity=".9" />
@@ -120,12 +141,12 @@ export default function EnsoRing({
         {hasRitterschlag && (
           <>
             <circle
-              cx="18.5" cy="35" r="4" fill="#D4BC8B"
+              cx="18.5" cy="35" r="4" fill={colors.dotColor}
               opacity=".15" className="ritter-glow"
               style={{ filter: 'blur(3px)' }}
             />
             <circle
-              cx="18.5" cy="35" r="2" fill="#D4BC8B"
+              cx="18.5" cy="35" r="2" fill={colors.dotColor}
               opacity=".7" className="ritter-glow"
             />
             <circle cx="18.5" cy="35" r=".8" fill="#fff" opacity=".9" />

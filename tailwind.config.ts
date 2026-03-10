@@ -15,6 +15,9 @@ const config: Config = {
           text: 'var(--gold-text)',
           deep: 'var(--gold-deep)',
         },
+        // Dusk Accent-Farben (fallen in Gold auf --gold zurueck)
+        accent2: 'var(--accent-2, var(--gold))',
+        accent3: 'var(--accent-3, var(--warning))',
         th: {
           bg: 'var(--bg-solid)',
           glass: 'var(--glass)',
@@ -54,7 +57,7 @@ const config: Config = {
         'purple-b': 'var(--event-purple-border)',
       },
       fontFamily: {
-        heading: ['Georgia', 'Times New Roman', 'serif'],
+        heading: ['var(--font-cormorant)', 'Georgia', 'Times New Roman', 'serif'],
         label: ['var(--font-josefin)', 'sans-serif'],
         body: ['var(--font-quicksand)', 'sans-serif'],
       },

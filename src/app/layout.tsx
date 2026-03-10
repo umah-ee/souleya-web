@@ -1,18 +1,25 @@
 import type { Metadata } from 'next';
-import { Josefin_Sans, Quicksand } from 'next/font/google';
+import { Cormorant_Garamond, Josefin_Sans, Quicksand } from 'next/font/google';
 import ThemeProvider from '@/components/ThemeProvider';
 import './globals.css';
+
+const cormorant = Cormorant_Garamond({
+  variable: '--font-cormorant',
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
+});
 
 const josefin = Josefin_Sans({
   variable: '--font-josefin',
   subsets: ['latin'],
-  weight: ['400'],
+  weight: ['500', '600'],
 });
 
 const quicksand = Quicksand({
   variable: '--font-quicksand',
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  weight: ['500', '600'],
 });
 
 export const metadata: Metadata = {
@@ -27,9 +34,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de" data-theme="dark" suppressHydrationWarning>
+    <html lang="de" data-theme="dark" data-color="gold" suppressHydrationWarning>
       <body
-        className={`${josefin.variable} ${quicksand.variable} antialiased font-body`}
+        className={`${cormorant.variable} ${josefin.variable} ${quicksand.variable} antialiased font-body`}
       >
         <ThemeProvider>
           {children}

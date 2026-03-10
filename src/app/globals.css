@@ -4,7 +4,7 @@
 
 /* ═══════════════════════════════════════════
    SOULEYA THEME SYSTEM
-   Aus Style Guide v2.0 – Light + Dark
+   Aus Style Guide v2.1 – Gold + Dusk × Light + Dark
 ═══════════════════════════════════════════ */
 
 /* ── LIGHT THEME (Default) ──────────────── */
@@ -125,9 +125,136 @@
   --danger-bg:       rgba(200,112,112, .10);
 }
 
+/* ═══════════════════════════════════════════
+   DUSK FARBSCHEMA (Lavender / Rose)
+   Aus Style Guide v2.1
+═══════════════════════════════════════════ */
+
+/* ── DUSK DARK ──────────────────────────── */
+[data-color="dusk"][data-theme="dark"] {
+  --bg-gradient: linear-gradient(180deg, #19191F 0%, #1F1F26 40%, #19191F 100%);
+  --bg-solid: #19191F;
+
+  --gold:          #A78BFA;
+  --gold-text:     #A78BFA;
+  --gold-deep:     #8B5CF6;
+  --gold-bg:       rgba(167,139,250, .10);
+  --gold-bg-hover: rgba(167,139,250, .18);
+  --gold-border:   rgba(167,139,250, .30);
+  --gold-border-s: rgba(167,139,250, .14);
+  --gold-glow:     rgba(167,139,250, .25);
+
+  --accent-2:      #F472B6;
+  --accent-3:      #FBBF78;
+
+  --text-h:        #F0EDF5;
+  --text-body:     #C5C0CE;
+  --text-sec:      #9E98AA;
+  --text-muted:    #807A8A;
+  --text-on-gold:  #19191F;
+
+  --glass:         rgba(255,255,255, .03);
+  --glass-border:  rgba(255,255,255, .06);
+  --glass-shadow:  none;
+  --glass-inset:   inset 0 1px 0 rgba(255,255,255,.04);
+
+  --glass-nav:     rgba(25,25,31, .88);
+  --glass-nav-b:   rgba(255,255,255, .06);
+
+  --divider:       rgba(255,255,255, .06);
+  --divider-l:     rgba(255,255,255, .04);
+
+  --img-overlay:   rgba(0,0,0,.65);
+  --avatar-bg:     rgba(167,139,250, .12);
+
+  --success:       #52B788;
+  --success-bg:    rgba(82,183,136, .10);
+  --success-border:rgba(82,183,136, .30);
+  --error:         #E63946;
+  --error-bg:      rgba(230,57,70, .10);
+  --error-border:  rgba(230,57,70, .30);
+  --event-purple:  #A78BFA;
+  --event-purple-bg:rgba(167,139,250, .10);
+  --event-purple-border:rgba(167,139,250, .30);
+  --warning:       #FBBF78;
+
+  /* Studio-spezifisch */
+  --sidebar-bg:      rgba(255,255,255, .03);
+  --sidebar-hover:   rgba(167,139,250, .08);
+  --sidebar-active:  rgba(167,139,250, .14);
+  --topbar-bg:       rgba(255,255,255, .03);
+  --card-bg:         rgba(255,255,255, .04);
+  --glass-strong:    rgba(255,255,255, .08);
+  --warn:            #FBBF78;
+  --warn-bg:         rgba(251,191,120, .10);
+  --danger:          #F87171;
+  --danger-bg:       rgba(248,113,113, .10);
+}
+
+/* ── DUSK LIGHT ─────────────────────────── */
+[data-color="dusk"][data-theme="light"] {
+  --bg-gradient: linear-gradient(145deg, #FAF5FF 0%, #F3E8FF 35%, #EDE9FE 70%, #E5E0FA 100%);
+  --bg-solid: #FAF5FF;
+
+  --gold:          #7C3AED;
+  --gold-text:     #6D28D9;
+  --gold-deep:     #5B21B6;
+  --gold-bg:       rgba(124,58,237, .10);
+  --gold-bg-hover: rgba(124,58,237, .18);
+  --gold-border:   rgba(124,58,237, .35);
+  --gold-border-s: rgba(124,58,237, .20);
+  --gold-glow:     rgba(124,58,237, .30);
+
+  --accent-2:      #DB2777;
+  --accent-3:      #D97706;
+
+  --text-h:        #120828;
+  --text-body:     #382850;
+  --text-sec:      #6B5B8A;
+  --text-muted:    #9489A8;
+  --text-on-gold:  #FFFFFF;
+
+  --glass:         rgba(255,255,255, .55);
+  --glass-border:  rgba(255,255,255, .80);
+  --glass-shadow:  0 4px 20px rgba(124,58,237,.07);
+  --glass-inset:   inset 0 1px 0 rgba(255,255,255,.9);
+
+  --glass-nav:     rgba(255,255,255, .45);
+  --glass-nav-b:   rgba(255,255,255, .60);
+
+  --divider:       rgba(124,58,237, .12);
+  --divider-l:     rgba(124,58,237, .06);
+
+  --img-overlay:   rgba(0,0,0,.55);
+  --avatar-bg:     rgba(124,58,237, .12);
+
+  --success:       #2D8A56;
+  --success-bg:    rgba(45,138,86, .10);
+  --success-border:rgba(45,138,86, .30);
+  --error:         #B43C32;
+  --error-bg:      rgba(180,60,50, .07);
+  --error-border:  rgba(180,60,50, .30);
+  --event-purple:  #7C3AED;
+  --event-purple-bg:rgba(124,58,237, .10);
+  --event-purple-border:rgba(124,58,237, .30);
+  --warning:       #D97706;
+
+  /* Studio-spezifisch */
+  --sidebar-bg:      rgba(255,255,255, .35);
+  --sidebar-hover:   rgba(124,58,237, .10);
+  --sidebar-active:  rgba(124,58,237, .15);
+  --topbar-bg:       rgba(255,255,255, .40);
+  --card-bg:         rgba(255,255,255, .45);
+  --glass-strong:    rgba(255,255,255, .65);
+  --warn:            #D97706;
+  --warn-bg:         rgba(217,119,6, .10);
+  --danger:          #DC2626;
+  --danger-bg:       rgba(220,38,38, .10);
+}
+
 /* ── BODY ──────────────────────────────── */
 body {
-  font-weight: 400;
+  font-weight: 500;
   background: var(--bg-gradient);
   background-attachment: fixed;
   color: var(--text-body);
@@ -196,6 +323,26 @@ body {
     transparent 100%
   );
 }
+[data-color="dusk"][data-theme="dark"] .ev-map-fade {
+  background: linear-gradient(to right,
+    rgba(25,25,31, 1) 0%,
+    rgba(25,25,31, .97) 8%,
+    rgba(25,25,31, .78) 30%,
+    rgba(25,25,31, .30) 60%,
+    rgba(25,25,31, .06) 82%,
+    transparent 100%
+  );
+}
+[data-color="dusk"][data-theme="light"] .ev-map-fade {
+  background: linear-gradient(to right,
+    rgba(250,245,255, 1) 0%,
+    rgba(250,245,255, .97) 8%,
+    rgba(250,245,255, .78) 30%,
+    rgba(250,245,255, .30) 60%,
+    rgba(250,245,255, .06) 82%,
+    transparent 100%
+  );
+}
 
 /* ── GLASS STRONG TOKEN ────────────── */
 :root, [data-theme="light"] {
@@ -203,6 +350,12 @@ body {
 }
 [data-theme="dark"] {
   --glass-strong: rgba(255,255,255, .10);
+}
+[data-color="dusk"][data-theme="dark"] {
+  --glass-strong: rgba(255,255,255, .08);
+}
+[data-color="dusk"][data-theme="light"] {
+  --glass-strong: rgba(255,255,255, .65);
 }
 
 /* ── DATE / TIME INPUT STYLING ────────── */
@@ -225,6 +378,10 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 :root, [data-theme="light"] {
   --picker-icon-filter: sepia(1) saturate(2) hue-rotate(10deg) brightness(0.7);
 }
+/* Dusk: Lavender-Ton fuer Picker Icons */
+[data-color="dusk"][data-theme="light"] {
+  --picker-icon-filter: sepia(1) saturate(3) hue-rotate(220deg) brightness(0.6);
+}
 [data-theme="light"] input[type="date"],
 [data-theme="light"] input[type="time"],
 [data-theme="light"] input[type="datetime-local"] {
@@ -234,6 +391,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 /* Dark Theme: Helles Picker-Popup + Gold-Icon */
 [data-theme="dark"] {
   --picker-icon-filter: sepia(1) saturate(3) hue-rotate(10deg) brightness(1.2);
+}
+[data-color="dusk"][data-theme="dark"] {
+  --picker-icon-filter: sepia(1) saturate(3) hue-rotate(220deg) brightness(1.4);
 }
 [data-theme="dark"] input[type="date"],
 [data-theme="dark"] input[type="time"],

@@ -1,74 +1,41 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Profile } from '@/types/profile';
-import { SOUL_LEVEL_NAMES } from '@/types/profile';
-import { fetchProfile, updateProfile, uploadAvatar, uploadBanner } from '@/lib/profile';
-import { geocodeLocation } from '@/lib/events';
-import { createClient } from '@/lib/supabase/client';
-import EnsoRing from '@/components/ui/EnsoRing';
-import { Icon } from '@/components/ui/Icon';
+import { fetchProfile } from '@/lib/profile';
 
-// ── Vorschlaege fuer Interest Tags ───────────────────────────
-const INTEREST_SUGGESTIONS = [
-  'Achtsamkeit', 'Yoga', 'Meditation', 'Atemarbeit', 'Heilung',
-  'Buddhismus', 'Schamanismus', 'Ayurveda', 'Reiki', 'Tantra',
-  'Naturheilkunde', 'Psychologie', 'Coaching', 'Tanz', 'Musik',
-  'Kunst', 'Journaling', 'Fasten', 'Qigong', 'Tai Chi',
-];
+// ── Profile Components ──
+import ProfileBanner from './components/ProfileBanner';
+import ProfileIdentity from './components/ProfileIdentity';
+import ProfileBio from './components/ProfileBio';
+import ProfileStudioCard from './components/ProfileStudioCard';
+import ProfileInterests from './components/ProfileInterests';
+import ProfileStats from './components/ProfileStats';
+import ProfilePrivateRow from './components/ProfilePrivateRow';
+
+// ── Panels ──
+import SettingsPanel from './panels/SettingsPanel';
+import SeedsPanel from './panels/SeedsPanel';
+import ReferralPanel from './panels/ReferralPanel';
+import EditProfilePanel from './panels/EditProfilePanel';
+import VisitenkarteOverlay from './panels/VisitenkarteOverlay';
+
+type PanelType = 'settings' | 'seeds' | 'referral' | 'edit' | 'visitenkarte' | null;
 
 export default function ProfileClient() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const [uploadingBanner, setUploadingBanner] = useState(false);
-  const [detectingLocation, setDetectingLocation] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const [activePanel, setActivePanel] = useState<PanelType>(null);
 
-  // Edit-Form State
-  const [form, setForm] = useState({
-    display_name: '',
-    username: '',
-    bio: '',
-    location: '',
-    location_lat: null as number | null,
-    location_lng: null as number | null,
-    interests: [] as string[],
-  });
-
-  // Tag-Input State
-  const [tagInput, setTagInput] = useState('');
-
-  // Location Autocomplete State
-  const [locationSuggestions, setLocationSuggestions] = useState<Array<{ place_name: string; lat: number; lng: number }>>([]);
-  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
-  const locationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
+  // ── Profil laden ──
   useEffect(() => {
     fetchProfile()
-      .then((p) => {
-        setProfile(p);
-        setForm({
-          display_name: p.display_name ?? '',
-          username: p.username ?? '',
-          bio: p.bio ?? '',
-          location: p.location ?? '',
-          location_lat: p.location_lat,
-          location_lng: p.location_lng,
-          interests: p.interests ?? [],
-        });
-      })
+      .then((p) => setProfile(p))
       .catch((err) => {
         console.error('[ProfileClient]', err);
-        // Wenn nicht angemeldet → Login
         if (err.message === 'Nicht angemeldet') {
           router.push('/login?next=/profile');
           return;
@@ -78,237 +45,19 @@ export default function ProfileClient() {
       .finally(() => setLoading(false));
   }, [router]);
 
-  const handleEdit = () => {
-    if (!profile) return;
-    setForm({
-      display_name: profile.display_name ?? '',
-      username: profile.username ?? '',
-      bio: profile.bio ?? '',
-      location: profile.location ?? '',
-      location_lat: profile.location_lat,
-      location_lng: profile.location_lng,
-      interests: profile.interests ?? [],
-    });
-    setEditing(true);
-    setError('');
-    setSuccess('');
+  // ── Panel Handlers ──
+  const openPanel = (panel: PanelType) => setActivePanel(panel);
+  const closePanel = () => setActivePanel(null);
+
+  const handleProfileUpdated = (updated: Profile) => {
+    setProfile(updated);
   };
 
-  const handleCancel = () => {
-    setEditing(false);
-    setError('');
-  };
-
-  // GPS-Standort erkennen
-  const handleDetectLocation = async () => {
-    if (!navigator.geolocation) {
-      setError('Standorterkennung wird von deinem Browser nicht unterstuetzt');
-      return;
-    }
-
-    setDetectingLocation(true);
-    setError('');
-
-    try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: false,
-          timeout: 10000,
-        });
-      });
-
-      const { latitude, longitude } = position.coords;
-
-      const res = await geocodeLocation(`${longitude},${latitude}`, 'reverse');
-      if (res.results.length > 0) {
-        const place = res.results[0];
-        setForm((f) => ({
-          ...f,
-          location: place.place_name.split(',').slice(0, 2).join(',').trim(),
-          location_lat: place.lat,
-          location_lng: place.lng,
-        }));
-        setSuccess('Standort erkannt');
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        setError('Standort konnte nicht aufgeloest werden');
-      }
-    } catch {
-      setError('Standorterkennung fehlgeschlagen. Bitte erlaube den Zugriff.');
-    } finally {
-      setDetectingLocation(false);
-    }
-  };
-
-  // Live-Autocomplete: Debounced Forward Geocoding beim Tippen
-  const handleLocationChange = (value: string) => {
-    setForm((f) => ({ ...f, location: value, location_lat: null, location_lng: null }));
-
-    if (locationTimer.current) clearTimeout(locationTimer.current);
-    if (value.trim().length < 3) {
-      setLocationSuggestions([]);
-      setShowLocationDropdown(false);
-      return;
-    }
-
-    locationTimer.current = setTimeout(async () => {
-      try {
-        const res = await geocodeLocation(value, 'forward');
-        if (res.results && res.results.length > 0) {
-          setLocationSuggestions(res.results.map((r) => ({
-            place_name: r.place_name,
-            lat: r.lat,
-            lng: r.lng,
-          })));
-          setShowLocationDropdown(true);
-        } else {
-          setLocationSuggestions([]);
-          setShowLocationDropdown(false);
-        }
-      } catch {
-        setLocationSuggestions([]);
-        setShowLocationDropdown(false);
-      }
-    }, 400);
-  };
-
-  const handleLocationSelect = (geo: { place_name: string; lat: number; lng: number }) => {
-    setForm((f) => ({
-      ...f,
-      location: geo.place_name.split(',').slice(0, 2).join(',').trim(),
-      location_lat: geo.lat,
-      location_lng: geo.lng,
-    }));
-    setShowLocationDropdown(false);
-    setLocationSuggestions([]);
-  };
-
-  const handleSave = async () => {
-    if (!profile) return;
-    setSaving(true);
-    setError('');
-
-    try {
-      const updated = await updateProfile({
-        display_name: form.display_name || undefined,
-        username: form.username || undefined,
-        bio: form.bio || undefined,
-        location: form.location || undefined,
-        location_lat: form.location_lat ?? undefined,
-        location_lng: form.location_lng ?? undefined,
-        interests: form.interests,
-      });
-      setProfile(updated);
-      setEditing(false);
-      setSuccess('Profil gespeichert');
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Fehler beim Speichern');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleAvatarClick = () => {
-    if (editing) fileInputRef.current?.click();
-  };
-
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !profile) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Bild darf maximal 5 MB gross sein');
-      return;
-    }
-
-    setUploading(true);
-    setError('');
-
-    try {
-      const avatarUrl = await uploadAvatar(file);
-      const updated = await updateProfile({ avatar_url: avatarUrl });
-      setProfile(updated);
-      setSuccess('Avatar aktualisiert');
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Upload fehlgeschlagen');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleBannerClick = () => {
-    if (editing) bannerInputRef.current?.click();
-  };
-
-  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !profile) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-      setError('Banner darf maximal 10 MB gross sein');
-      return;
-    }
-
-    setUploadingBanner(true);
-    setError('');
-
-    try {
-      const bannerUrl = await uploadBanner(file);
-      const updated = await updateProfile({ banner_url: bannerUrl });
-      setProfile(updated);
-      setSuccess('Banner aktualisiert');
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Upload fehlgeschlagen');
-    } finally {
-      setUploadingBanner(false);
-    }
-  };
-
-  const handleCopyReferral = async () => {
-    if (!profile) return;
-    try {
-      await navigator.clipboard.writeText(`https://souleya.com?ref=${profile.referral_code}`);
-      setSuccess('Referral-Link kopiert!');
-      setTimeout(() => setSuccess(''), 3000);
-    } catch {
-      setError('Kopieren fehlgeschlagen');
-    }
-  };
-
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push('/login');
-  };
-
-  // ── Tag Handlers ──────────────────────────────────────────
-  const addTag = (tag: string) => {
-    const trimmed = tag.trim();
-    if (!trimmed || form.interests.length >= 10) return;
-    if (form.interests.includes(trimmed)) return;
-    setForm((f) => ({ ...f, interests: [...f.interests, trimmed] }));
-    setTagInput('');
-  };
-
-  const removeTag = (tag: string) => {
-    setForm((f) => ({ ...f, interests: f.interests.filter((t) => t !== tag) }));
-  };
-
-  const handleTagKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      addTag(tagInput);
-    }
-  };
-
-  // ── Loading / Error States ────────────────────────────────
+  // ── Loading State ──
   if (loading) {
     return (
       <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
-        <p className="font-label text-[0.7rem] tracking-[0.2em]">WIRD GELADEN ...</p>
+        <p className="font-label text-[10px] tracking-[1.2px] uppercase">Wird geladen ...</p>
       </div>
     );
   }
@@ -316,537 +65,85 @@ export default function ProfileClient() {
   if (!profile) {
     return (
       <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
-        <p className="text-sm">Profil konnte nicht geladen werden.</p>
+        <p className="text-[14px]">Profil konnte nicht geladen werden.</p>
+        {error && <p className="text-[13px] mt-2" style={{ color: 'var(--error)' }}>{error}</p>}
       </div>
     );
   }
-
-  const initials = (profile.display_name ?? profile.username ?? profile.email ?? '?').slice(0, 1).toUpperCase();
-  const vipName = SOUL_LEVEL_NAMES[profile.soul_level] ?? `Level ${profile.soul_level}`;
-  const interests = profile.interests ?? [];
 
   return (
     <div className="-mx-4 -mt-6 flex justify-center">
       <div className="w-full max-w-[480px]">
 
-        {/* ═══════════════════════════════════════════════════
-            PROFIL-CARD (Style Guide Section 06)
-        ═══════════════════════════════════════════════════ */}
-        <div className="glass-card rounded-[18px] overflow-hidden">
+        {/* ═══════════════════════════════════════════
+            PROFIL-REDESIGN v2 (Style Guide v2.1)
+            Banner → Identity → Bio → Studio →
+            Interests → Stats → Private Row
+        ═══════════════════════════════════════════ */}
 
-          {/* ─── BANNER (140px) ─────────────────────────── */}
-          <div
-            className={`relative w-full h-[140px] overflow-hidden ${editing ? 'cursor-pointer' : ''}`}
-            onClick={handleBannerClick}
-          >
-            {profile.banner_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.banner_url} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <div
-                className="w-full h-full"
-                style={{ background: 'linear-gradient(135deg, #D8CFBE 0%, var(--gold) 50%, #B08840 100%)' }}
-              />
-            )}
-            {/* Gradient Overlay */}
-            <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(to top, var(--bg-solid) 0%, transparent 60%)' }}
-            />
-            {/* Banner-Upload Indicator */}
-            {editing && (
-              <div
-                className="absolute top-3 right-3 w-8 h-8 backdrop-blur-sm rounded-full flex items-center justify-center text-sm"
-                style={{ background: 'var(--glass-nav)', color: 'var(--gold-text)', border: '1px solid var(--gold-border-s)' }}
-              >
-                {uploadingBanner ? '...' : <Icon name="camera" size={14} />}
-              </div>
-            )}
-            <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
-          </div>
+        {/* ─── Banner (200px) ─── */}
+        <ProfileBanner
+          profile={profile}
+          onSettingsClick={() => openPanel('settings')}
+          onShareClick={() => openPanel('visitenkarte')}
+          onEditClick={() => openPanel('edit')}
+        />
 
-          {/* ─── AVATAR im Enso Ring (88px, zentriert) ── */}
-          <div className="flex justify-center -mt-[44px] relative z-10">
-            <EnsoRing
-              soulLevel={profile.soul_level}
-              isFirstLight={profile.is_first_light}
-              size="profile"
-            >
-              <div
-                onClick={handleAvatarClick}
-                className={`
-                  w-full h-full rounded-full flex items-center justify-center
-                  font-heading text-[22px] overflow-hidden relative
-                  ${editing ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}
-                `}
-                style={{
-                  background: 'var(--avatar-bg)',
-                  color: 'var(--gold-text)',
-                }}
-              >
-                {profile.avatar_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : initials}
-                {uploading && (
-                  <div
-                    className="absolute inset-0 rounded-full flex items-center justify-center"
-                    style={{ background: 'var(--img-overlay)' }}
-                  >
-                    <span className="font-label text-[0.6rem] tracking-[0.1em]" style={{ color: 'var(--gold-text)' }}>...</span>
-                  </div>
-                )}
-              </div>
-            </EnsoRing>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-          </div>
+        {/* ─── Identity (EnsoRing 112px + Name 32px) ─── */}
+        <ProfileIdentity profile={profile} />
 
-          {/* ─── BODY (zentriert) ──────────────────────── */}
-          <div className="px-5 pb-5 pt-3 text-center">
+        {/* ─── Bio + Location + Member-Since ─── */}
+        <ProfileBio profile={profile} />
 
-            {/* ── Anzeige-Modus ─────────────────────────── */}
-            {!editing ? (
-              <>
-                {/* Name */}
-                <div
-                  className="text-[18px] font-heading italic mb-[2px]"
-                  style={{ color: 'var(--text-h)' }}
-                >
-                  {profile.display_name ?? profile.email}
-                </div>
+        {/* ─── Coach Studio Card (nur Mentoren) ─── */}
+        <ProfileStudioCard profile={profile} />
 
-                {/* Handle + Soul Level + Badges */}
-                <div
-                  className="text-[11px] mb-[10px] flex items-center justify-center gap-1.5 flex-wrap"
-                  style={{ color: 'var(--text-muted)' }}
-                >
-                  <span>{profile.username ? `@${profile.username}` : profile.email}</span>
-                  <span>·</span>
-                  <span>{vipName}</span>
-                  {profile.is_first_light && <><span>·</span><span>First Light</span></>}
-                  {profile.is_admin && (
-                    <span
-                      className="text-[8px] font-label tracking-[0.1em] uppercase px-[7px] py-[2px] rounded-full"
-                      style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)', border: '1px solid var(--gold-border-s)' }}
-                    >
-                      Admin
-                    </span>
-                  )}
-                  {profile.is_mentor && !profile.is_admin && (
-                    <span
-                      className="text-[8px] font-label tracking-[0.1em] uppercase px-[7px] py-[2px] rounded-full"
-                      style={{ background: 'var(--success-bg)', color: 'var(--success)', border: '1px solid var(--success-border)' }}
-                    >
-                      Mentor
-                    </span>
-                  )}
-                </div>
+        {/* ─── Interest Tags ─── */}
+        <ProfileInterests profile={profile} />
 
-                {/* Bio */}
-                {profile.bio && (
-                  <div
-                    className="text-[12px] leading-[1.65] mx-auto max-w-[320px] mb-[14px]"
-                    style={{ color: 'var(--text-body)' }}
-                  >
-                    {profile.bio}
-                  </div>
-                )}
+        {/* ─── Stats (Beitraege/Kontakte/Circles) ─── */}
+        <ProfileStats profile={profile} />
 
-                {/* Stats */}
-                <div className="flex justify-center gap-6 mb-[14px]">
-                  <div>
-                    <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
-                      {profile.pulses_count ?? 0}
-                    </span>
-                    <span
-                      className="text-[9px] tracking-[1.5px] uppercase"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      Beiträge
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
-                      {profile.connections_count}
-                    </span>
-                    <span
-                      className="text-[9px] tracking-[1.5px] uppercase"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      Kontakte
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
-                      0
-                    </span>
-                    <span
-                      className="text-[9px] tracking-[1.5px] uppercase"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      Circles
-                    </span>
-                  </div>
-                </div>
+        {/* ─── Seeds + Einladungen Chips ─── */}
+        <ProfilePrivateRow
+          profile={profile}
+          onSeedsClick={() => openPanel('seeds')}
+          onReferralClick={() => openPanel('referral')}
+        />
 
-                {/* Interest Tags */}
-                {interests.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-[6px] mb-[14px]">
-                    {interests.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[8px] tracking-[1.5px] uppercase px-[10px] py-[4px] rounded-[12px] inline-block"
-                        style={{
-                          color: 'var(--gold-text)',
-                          border: '1px solid var(--gold-border)',
-                          background: 'var(--gold-bg)',
-                        }}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
+        {/* ═══════════════════════════════════════════
+            PANELS
+        ═══════════════════════════════════════════ */}
 
-                {/* Meta Row */}
-                <div
-                  className="flex flex-wrap justify-center gap-4 pt-3 text-[10px]"
-                  style={{ color: 'var(--text-sec)', borderTop: '1px solid var(--divider-l)' }}
-                >
-                  {profile.location && (
-                    <span className="flex items-center gap-1"><Icon name="map-pin" size={12} /> {profile.location}</span>
-                  )}
-                  <span className="flex items-center gap-1">
-                    <Icon name="heart" size={12} /> Seit {new Date(profile.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
-                  </span>
-                  {profile.is_first_light && (
-                    <span className="flex items-center gap-1"><Icon name="sparkles" size={12} /> First Light</span>
-                  )}
-                  {profile.is_admin && (
-                    <span className="flex items-center gap-1"><Icon name="shield" size={12} style={{ color: 'var(--gold-text)' }} /> Admin</span>
-                  )}
-                </div>
-              </>
-            ) : (
-              /* ── Edit-Modus ───────────────────────────── */
-              <div className="text-left">
-                {/* Name + Username */}
-                <div className="space-y-2 mb-4">
-                  <input
-                    type="text"
-                    value={form.display_name}
-                    onChange={(e) => setForm((f) => ({ ...f, display_name: e.target.value }))}
-                    placeholder="Anzeigename"
-                    maxLength={60}
-                    className="w-full rounded-input px-3 py-2 text-sm font-body outline-none transition-colors"
-                    style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
-                  />
-                  <div
-                    className="flex items-center gap-2 w-full rounded-input px-3 py-2"
-                    style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)' }}
-                  >
-                    <span className="text-sm shrink-0" style={{ color: 'var(--text-muted)' }}>@</span>
-                    <input
-                      type="text"
-                      value={form.username}
-                      onChange={(e) => setForm((f) => ({ ...f, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
-                      placeholder="username"
-                      maxLength={30}
-                      className="flex-1 text-sm font-body outline-none bg-transparent min-w-0"
-                      style={{ color: 'var(--text-h)' }}
-                    />
-                  </div>
-                </div>
+        <SettingsPanel
+          isOpen={activePanel === 'settings'}
+          onClose={closePanel}
+        />
 
-                {/* Bio */}
-                <textarea
-                  value={form.bio}
-                  onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
-                  placeholder="Ueber dich ..."
-                  maxLength={300}
-                  rows={3}
-                  className="w-full rounded-input px-3 py-2 text-sm font-body outline-none transition-colors resize-none mb-3"
-                  style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
-                />
+        <SeedsPanel
+          isOpen={activePanel === 'seeds'}
+          onClose={closePanel}
+          profile={profile}
+        />
 
-                {/* Location mit Autocomplete */}
-                <div className="relative mb-1">
-                  <div
-                    className="flex items-center gap-2 w-full rounded-input px-3 py-2"
-                    style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)' }}
-                  >
-                    <span className="shrink-0" style={{ color: 'var(--text-muted)' }}><Icon name="map-pin" size={14} /></span>
-                    <input
-                      type="text"
-                      value={form.location}
-                      onChange={(e) => handleLocationChange(e.target.value)}
-                      onBlur={() => setTimeout(() => setShowLocationDropdown(false), 200)}
-                      onFocus={() => { if (locationSuggestions.length > 0) setShowLocationDropdown(true); }}
-                      placeholder="Ort (z.B. München – Schwabing)"
-                      maxLength={80}
-                      className="flex-1 text-sm font-body outline-none bg-transparent min-w-0"
-                      style={{ color: 'var(--text-h)' }}
-                    />
-                    {form.location_lat != null && (
-                      <span className="shrink-0" style={{ color: 'var(--success)' }}>
-                        <Icon name="map-pin" size={12} />
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={handleDetectLocation}
-                      disabled={detectingLocation}
-                      className="shrink-0 flex items-center justify-center transition-all duration-200"
-                      style={{
-                        color: detectingLocation ? 'var(--text-muted)' : 'var(--gold-text)',
-                        cursor: detectingLocation ? 'not-allowed' : 'pointer',
-                        background: 'none',
-                        border: 'none',
-                        padding: 0,
-                      }}
-                    >
-                      {detectingLocation ? '...' : <Icon name="current-location" size={16} />}
-                    </button>
-                  </div>
+        <ReferralPanel
+          isOpen={activePanel === 'referral'}
+          onClose={closePanel}
+          profile={profile}
+        />
 
-                  {/* Autocomplete Dropdown */}
-                  {showLocationDropdown && locationSuggestions.length > 0 && (
-                    <div
-                      className="absolute left-0 right-0 top-full mt-1 z-50 rounded-lg overflow-hidden"
-                      style={{
-                        background: 'var(--bg-solid)',
-                        border: '1px solid var(--glass-border)',
-                        boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-                      }}
-                    >
-                      {locationSuggestions.map((geo, i) => (
-                        <button
-                          key={i}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => handleLocationSelect(geo)}
-                          className="w-full text-left px-3 py-2.5 text-sm font-body flex items-center gap-2 cursor-pointer transition-colors"
-                          style={{
-                            color: 'var(--text-h)',
-                            borderBottom: i < locationSuggestions.length - 1 ? '1px solid var(--divider-l)' : undefined,
-                          }}
-                        >
-                          <Icon name="map-pin" size={12} style={{ color: 'var(--gold)', flexShrink: 0 }} />
-                          <span className="truncate">{geo.place_name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {form.location_lat && (
-                  <p className="text-[0.65rem] font-body ml-6 mb-3" style={{ color: 'var(--text-muted)' }}>
-                    Standort gesetzt
-                  </p>
-                )}
+        <EditProfilePanel
+          isOpen={activePanel === 'edit'}
+          onClose={closePanel}
+          profile={profile}
+          onProfileUpdated={handleProfileUpdated}
+        />
 
-                {/* Interest Tags Edit */}
-                <div className="mb-4">
-                  <p className="font-label text-[9px] tracking-[1.5px] uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
-                    Vorlieben ({form.interests.length}/10)
-                  </p>
-
-                  {/* Aktuelle Tags */}
-                  {form.interests.length > 0 && (
-                    <div className="flex flex-wrap gap-[6px] mb-2">
-                      {form.interests.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[8px] tracking-[1.5px] uppercase px-[10px] py-[4px] rounded-[12px] inline-flex items-center gap-1"
-                          style={{
-                            color: 'var(--gold-text)',
-                            border: '1px solid var(--gold-border)',
-                            background: 'var(--gold-bg)',
-                          }}
-                        >
-                          {tag}
-                          <button
-                            onClick={() => removeTag(tag)}
-                            className="ml-1 cursor-pointer bg-transparent border-none flex items-center"
-                            style={{ color: 'var(--text-muted)' }}
-                          >
-                            <Icon name="x" size={10} />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Tag Input */}
-                  {form.interests.length < 10 && (
-                    <input
-                      type="text"
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={handleTagKeyDown}
-                      placeholder="Tag eingeben + Enter"
-                      maxLength={30}
-                      className="w-full rounded-input px-3 py-2 text-xs font-body outline-none transition-colors mb-2"
-                      style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--text-h)' }}
-                    />
-                  )}
-
-                  {/* Vorschlaege */}
-                  <div className="flex flex-wrap gap-1">
-                    {INTEREST_SUGGESTIONS
-                      .filter((s) => !form.interests.includes(s))
-                      .slice(0, 8)
-                      .map((suggestion) => (
-                        <button
-                          key={suggestion}
-                          onClick={() => addTag(suggestion)}
-                          className="text-[7px] tracking-[1px] uppercase px-2 py-[3px] rounded-[10px] cursor-pointer transition-colors"
-                          style={{
-                            color: 'var(--text-muted)',
-                            border: '1px solid var(--divider)',
-                            background: 'transparent',
-                          }}
-                        >
-                          <Icon name="plus" size={8} /> {suggestion}
-                        </button>
-                      ))}
-                  </div>
-                </div>
-
-                {/* Save/Cancel */}
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="flex-1 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
-                    style={{
-                      background: saving ? 'var(--gold-bg-hover)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
-                      color: saving ? 'var(--text-muted)' : 'var(--text-on-gold)',
-                      cursor: saving ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    {saving ? '...' : 'Speichern'}
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="px-6 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
-                    style={{ border: '1px solid var(--divider)', color: 'var(--text-muted)' }}
-                  >
-                    Abbrechen
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ═══════════════════════════════════════════════════
-            UNTER DER PROFIL-CARD
-        ═══════════════════════════════════════════════════ */}
-
-        {/* Success/Error Messages */}
-        {success && (
-          <div
-            className="mt-4 py-2 px-4 rounded-xl text-sm font-body text-center"
-            style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)', color: 'var(--success)' }}
-          >
-            {success}
-          </div>
-        )}
-        {error && (
-          <div
-            className="mt-4 py-2 px-4 rounded-xl text-sm font-body text-center"
-            style={{ background: 'var(--error-bg)', border: '1px solid var(--error-border)', color: 'var(--error)' }}
-          >
-            {error}
-          </div>
-        )}
-
-        {/* Profil bearbeiten Button */}
-        {!editing && (
-          <button
-            onClick={handleEdit}
-            className="w-full mt-4 py-2.5 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
-            style={{ border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
-          >
-            Profil bearbeiten
-          </button>
-        )}
-
-        {/* Studio oeffnen Button (nur fuer Mentoren) */}
-        {!editing && (profile as any)?.is_mentor && (
-          <Link
-            href="/studio"
-            className="w-full mt-3 flex items-center gap-3 py-3 px-4 rounded-[8px] font-body text-[13px] italic cursor-pointer no-underline group"
-            style={{
-              background: 'var(--gold-bg)',
-              border: '1.5px solid var(--gold-border)',
-              color: 'var(--gold-text)',
-              transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--gold-bg-hover)';
-              e.currentTarget.style.boxShadow = '0 6px 24px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,0.08)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.borderColor = 'var(--gold)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--gold-bg)';
-              e.currentTarget.style.boxShadow = 'none';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'var(--gold-border)';
-            }}
-          >
-            <span
-              className="flex items-center justify-center flex-shrink-0"
-              style={{
-                width: 36, height: 36, borderRadius: 8,
-                background: 'var(--gold)',
-              }}
-            >
-              <Icon name="sparkles" size={18} style={{ color: 'var(--text-on-gold)' }} />
-            </span>
-            <span className="flex-1">Coach Studio oeffnen</span>
-            <Icon name="chevron-right" size={16} style={{ color: 'var(--gold-text)', transition: 'transform 0.3s', flexShrink: 0 }} />
-          </Link>
-        )}
-
-        {/* Einladungslink */}
-        <div className="glass-card rounded-[18px] p-5 mt-4">
-          <p className="font-label uppercase tracking-wider text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
-            Dein Einladungslink
-          </p>
-          <div className="flex items-center gap-3">
-            <code
-              className="flex-1 font-body text-sm rounded-xl px-3 py-2 truncate"
-              style={{ color: 'var(--gold-text)', background: 'var(--glass)' }}
-            >
-              souleya.com?ref={profile.referral_code}
-            </code>
-            <button
-              onClick={handleCopyReferral}
-              className="px-3 py-2 rounded-xl font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200 flex-shrink-0"
-              style={{ border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
-            >
-              Kopieren
-            </button>
-          </div>
-        </div>
-
-        {/* Einstellungen */}
-        <div className="glass-card rounded-[18px] mt-4 mb-8">
-          <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--divider-l)' }}>
-            <p className="font-label uppercase tracking-wider text-[10px]" style={{ color: 'var(--text-muted)' }}>
-              Einstellungen
-            </p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-5 py-4 text-sm font-body cursor-pointer transition-colors rounded-b-[18px]"
-            style={{ color: 'var(--error)' }}
-          >
-            <Icon name="logout" size={16} />
-            Abmelden
-          </button>
-        </div>
+        <VisitenkarteOverlay
+          isOpen={activePanel === 'visitenkarte'}
+          onClose={closePanel}
+          profile={profile}
+        />
       </div>
     </div>
   );
