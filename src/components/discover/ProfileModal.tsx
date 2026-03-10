@@ -7,7 +7,6 @@ import type { PublicProfile } from '@/lib/users';
 import type { ConnectionStatus } from '@/types/circles';
 import { SOUL_LEVEL_NAMES } from '@/types/profile';
 import { fetchPublicProfile } from '@/lib/users';
-import EnsoRing from '@/components/ui/EnsoRing';
 import { Icon } from '@/components/ui/Icon';
 
 interface Props {
@@ -19,6 +18,13 @@ interface Props {
   onClose: () => void;
 }
 
+/**
+ * ProfileModal — Visitenkarte-Style Overlay fuer Discover-Map
+ * Exakt nach Mockup: Souleya_Profile_Redesign_Mockup.html (.vcard)
+ *
+ * Layout: Banner(90px) → Avatar(72px, -36px) → Body(Name 24px, Handle 12px,
+ * Level 10px, Bio 14px, Meta 12px, Interests, Mutual, Actions 14px-radius)
+ */
 export default function ProfileModal({
   user,
   userId,
@@ -46,9 +52,7 @@ export default function ProfileModal({
   // Klick auf Backdrop schliesst Modal
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent) => {
-      if (e.target === backdropRef.current) {
-        onClose();
-      }
+      if (e.target === backdropRef.current) onClose();
     },
     [onClose],
   );
@@ -70,48 +74,78 @@ export default function ProfileModal({
   const bio = fullProfile?.bio ?? user.bio;
   const location = fullProfile?.location ?? user.location;
   const soulLevel = fullProfile?.soul_level ?? user.soul_level;
-  const isFirstLight = fullProfile?.is_first_light ?? user.is_first_light;
   const connectionsCount = fullProfile?.connections_count ?? user.connections_count;
-  const pulsesCount = fullProfile?.pulses_count ?? 0;
-  const interests = fullProfile?.interests ?? [];
-  const createdAt = fullProfile?.created_at ?? null;
+  const interests = (fullProfile?.interests ?? []).slice(0, 4);
   const username = fullProfile?.username ?? user.username;
   const vipName = SOUL_LEVEL_NAMES[soulLevel] ?? `Level ${soulLevel}`;
 
-  // ── Action Button ─────────────────────────────────────────
-  const renderActionButton = () => {
-    if (!userId || user.id === userId) return null;
+  // ── Connection Button ───────────────────────────────────
+  const renderConnectionButton = () => {
+    if (!userId || user.id === userId) {
+      // Eigenes Profil: kein Vernetzen-Button, nur Profil ansehen
+      return null;
+    }
 
     if (connectionStatus === 'connected') {
       return (
-        <span
-          className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase"
-          style={{ border: '1px solid var(--success-border)', color: 'var(--success)' }}
+        <button
+          className="flex-1 font-label cursor-default"
+          style={{
+            padding: '10px 0',
+            borderRadius: '14px',
+            fontSize: '10px',
+            fontWeight: 500,
+            letterSpacing: '1.2px',
+            textTransform: 'uppercase',
+            background: 'var(--success-bg)',
+            color: 'var(--success)',
+            border: '1px solid var(--success-border)',
+          }}
         >
           Verbunden
-        </span>
+        </button>
       );
     }
 
     if (connectionStatus === 'pending_outgoing') {
       return (
-        <span
-          className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase"
-          style={{ border: '1px solid var(--gold-border-s)', color: 'var(--text-muted)' }}
+        <button
+          className="flex-1 font-label cursor-default"
+          style={{
+            padding: '10px 0',
+            borderRadius: '14px',
+            fontSize: '10px',
+            fontWeight: 500,
+            letterSpacing: '1.2px',
+            textTransform: 'uppercase',
+            background: 'var(--glass)',
+            color: 'var(--text-muted)',
+            border: '1px solid var(--divider-l)',
+          }}
         >
           Angefragt
-        </span>
+        </button>
       );
     }
 
     if (connectionStatus === 'pending_incoming') {
       return (
-        <span
-          className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase"
-          style={{ border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
+        <button
+          className="flex-1 font-label cursor-default"
+          style={{
+            padding: '10px 0',
+            borderRadius: '14px',
+            fontSize: '10px',
+            fontWeight: 500,
+            letterSpacing: '1.2px',
+            textTransform: 'uppercase',
+            background: 'var(--gold-bg)',
+            color: 'var(--gold-text)',
+            border: '1px solid var(--gold-border)',
+          }}
         >
           Anfrage erhalten
-        </span>
+        </button>
       );
     }
 
@@ -119,14 +153,22 @@ export default function ProfileModal({
       <button
         onClick={onConnect}
         disabled={connecting}
-        className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
+        className="vcard-btn-primary flex-1 font-label cursor-pointer"
         style={{
-          background: connecting ? 'var(--gold-bg)' : 'var(--gold)',
-          color: connecting ? 'var(--text-muted)' : 'var(--text-on-gold)',
-          cursor: connecting ? 'not-allowed' : 'pointer',
+          padding: '10px 0',
+          borderRadius: '14px',
+          fontSize: '10px',
+          fontWeight: 500,
+          letterSpacing: '1.2px',
+          textTransform: 'uppercase',
+          background: 'var(--gold)',
+          color: 'var(--text-on-gold)',
+          border: 'none',
+          boxShadow: '0 4px 16px var(--gold-glow)',
+          opacity: connecting ? 0.6 : 1,
         }}
       >
-        {connecting ? '...' : 'Verbinden'}
+        {connecting ? '...' : 'Vernetzen'}
       </button>
     );
   };
@@ -135,205 +177,260 @@ export default function ProfileModal({
     <div
       ref={backdropRef}
       onClick={handleBackdropClick}
-      className="absolute inset-0 z-30 flex items-center justify-center overflow-y-auto py-4"
-      style={{ background: 'rgba(0,0,0,.5)' }}
+      className="absolute inset-0 z-30 flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,.55)', padding: '20px' }}
     >
+      {/* Card — Mockup: 420px web, bg-elevated, radius 32px */}
       <div
-        className="relative mx-4 w-full max-w-[420px] animate-scale-in"
-        style={{ maxHeight: 'calc(100% - 32px)' }}
+        className="relative w-full max-w-[420px] overflow-hidden animate-scale-in"
+        style={{
+          background: 'var(--bg-elevated)',
+          borderRadius: '32px',
+          border: '1px solid var(--divider-l)',
+          boxShadow: '0 20px 60px rgba(0,0,0,.35)',
+        }}
       >
+        {/* ─── Banner (90px) — Mockup: gold-softer → bg-elevated gradient ─── */}
         <div
-          className="rounded-[18px] overflow-hidden"
-          style={{
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--divider-l)',
-            boxShadow: '0 20px 60px rgba(0,0,0,.35)',
-          }}
+          className="relative w-full h-[90px] overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, var(--gold-softer, var(--gold-bg)) 0%, var(--bg-elevated) 100%)' }}
         >
-          {/* ─── BANNER (140px) ─────────────────────────── */}
-          <div className="relative w-full h-[140px] overflow-hidden">
-            {bannerUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={bannerUrl} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <div
-                className="w-full h-full"
-                style={{ background: 'linear-gradient(135deg, #D8CFBE 0%, var(--gold) 50%, #B08840 100%)' }}
-              />
-            )}
-            {/* Gradient Overlay */}
-            <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(to top, var(--bg-solid) 0%, transparent 60%)' }}
-            />
+          {bannerUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={bannerUrl} alt="" className="w-full h-full object-cover" style={{ opacity: 0.5 }} />
+          )}
 
-            {/* Schliessen-Button */}
-            <button
-              onClick={onClose}
-              className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer z-10 transition-colors"
+          {/* Close — Mockup: 28px, right 10px, top 10px */}
+          <button
+            onClick={onClose}
+            className="absolute flex items-center justify-center cursor-pointer"
+            style={{
+              right: '10px',
+              top: '10px',
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              background: 'rgba(0,0,0,.35)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              color: '#fff',
+              border: 'none',
+            }}
+          >
+            <Icon name="x" size={12} />
+          </button>
+        </div>
+
+        {/* ─── Avatar — Mockup: 72px circle, 3px solid bg-card border, NO EnsoRing ─── */}
+        <div className="flex justify-center -mt-[36px] relative z-10">
+          <div
+            className="avatar-circle rounded-full flex items-center justify-center font-heading overflow-hidden"
+            style={{
+              width: '72px',
+              height: '72px',
+              fontSize: '24px',
+              fontWeight: 400,
+              background: 'var(--avatar-bg)',
+              color: 'var(--gold)',
+              border: '3px solid var(--bg-card)',
+              boxShadow: '0 4px 16px rgba(0,0,0,.15)',
+            }}
+          >
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+            ) : initials}
+          </div>
+        </div>
+
+        {/* ─── Body — Mockup: padding 12px 24px 24px ─── */}
+        <div style={{ padding: '12px 24px 24px', textAlign: 'center' }}>
+          {/* Name — Mockup: 24px, serif italic, weight 500 */}
+          <div
+            className="font-heading italic leading-[1.2]"
+            style={{ fontSize: '24px', fontWeight: 500, color: 'var(--text-h)' }}
+          >
+            {displayName}
+          </div>
+
+          {/* Handle — Mockup: 12px, Josefin Sans, weight 400 */}
+          {username && (
+            <div
+              className="font-label"
+              style={{ fontSize: '12px', fontWeight: 400, letterSpacing: '1px', color: 'var(--text-sec)', marginTop: '2px' }}
+            >
+              @{username}
+            </div>
+          )}
+
+          {/* Level — Mockup: 10px, weight 500, uppercase, letter-spacing 1.2px */}
+          <div
+            className="font-label"
+            style={{
+              fontSize: '10px',
+              fontWeight: 500,
+              letterSpacing: '1.2px',
+              textTransform: 'uppercase',
+              color: 'var(--text-sec)',
+              marginTop: '6px',
+            }}
+          >
+            {vipName} · Level {soulLevel}
+          </div>
+
+          {/* Bio — Mockup: 14px, weight 500, line-height 1.6, line-clamp-2 */}
+          {bio && (
+            <div
+              className="line-clamp-2"
               style={{
-                background: 'rgba(0,0,0,.35)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                color: '#fff',
-                border: '1px solid rgba(255,255,255,.2)',
+                fontSize: '14px',
+                fontWeight: 500,
+                lineHeight: 1.6,
+                color: 'var(--text-body)',
+                marginTop: '14px',
+                maxHeight: '3.2em',
+                overflow: 'hidden',
               }}
             >
-              <Icon name="x" size={14} />
-            </button>
+              {bio}
+            </div>
+          )}
+
+          {/* Meta — Mockup: 12px, weight 500, gap 14px */}
+          <div
+            className="flex items-center justify-center"
+            style={{ gap: '14px', marginTop: '12px', fontSize: '12px', fontWeight: 500, color: 'var(--text-sec)' }}
+          >
+            {location && (
+              <span className="flex items-center gap-1">
+                <Icon name="map-pin" size={12} />
+                {location}
+              </span>
+            )}
+            <span className="flex items-center gap-1">
+              <Icon name="users" size={12} />
+              {connectionsCount} Kontakte
+            </span>
           </div>
 
-          {/* ─── AVATAR im Enso Ring (88px, zentriert) ── */}
-          <div className="flex justify-center -mt-[44px] relative z-10">
-            <EnsoRing
-              soulLevel={soulLevel}
-              isFirstLight={isFirstLight}
-              size="profile"
-            >
-              <div
-                className="w-full h-full rounded-full flex items-center justify-center font-heading text-[22px] overflow-hidden"
-                style={{
-                  background: 'var(--avatar-bg)',
-                  color: 'var(--gold-text)',
-                }}
-              >
-                {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                ) : initials}
-              </div>
-            </EnsoRing>
-          </div>
-
-          {/* ─── BODY (zentriert) ──────────────────────── */}
-          <div className="px-5 pb-5 pt-3 text-center">
-            {/* Name */}
-            <div
-              className="text-[18px] font-heading italic mb-[2px]"
-              style={{ color: 'var(--text-h)' }}
-            >
-              {displayName}
-            </div>
-
-            {/* Handle + Soul Level */}
-            <div
-              className="text-[11px] mb-[10px]"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              {username ? `@${username}` : ''}
-              {username && ' · '}
-              {vipName}
-              {isFirstLight && ' · First Light'}
-            </div>
-
-            {/* Bio */}
-            {bio && (
-              <div
-                className="text-[12px] leading-[1.65] mx-auto max-w-[320px] mb-[14px]"
-                style={{ color: 'var(--text-body)' }}
-              >
-                {bio}
-              </div>
-            )}
-
-            {/* Stats */}
-            <div className="flex justify-center gap-6 mb-[14px]">
-              <div>
-                <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
-                  {pulsesCount}
-                </span>
-                <span className="text-[9px] tracking-[1.5px] uppercase" style={{ color: 'var(--text-muted)' }}>
-                  Beitraege
-                </span>
-              </div>
-              <div>
-                <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
-                  {connectionsCount}
-                </span>
-                <span className="text-[9px] tracking-[1.5px] uppercase" style={{ color: 'var(--text-muted)' }}>
-                  Kontakte
-                </span>
-              </div>
-              <div>
-                <span className="block text-[16px]" style={{ color: 'var(--text-h)' }}>
-                  0
-                </span>
-                <span className="text-[9px] tracking-[1.5px] uppercase" style={{ color: 'var(--text-muted)' }}>
-                  Circles
-                </span>
-              </div>
-            </div>
-
-            {/* Interest Tags (nur wenn vollstaendiges Profil geladen) */}
-            {interests.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-[6px] mb-[14px]">
-                {interests.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[8px] tracking-[1.5px] uppercase px-[10px] py-[4px] rounded-[12px] inline-block"
-                    style={{
-                      color: 'var(--gold-text)',
-                      border: '1px solid var(--gold-border)',
-                      background: 'var(--gold-bg)',
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Loading Shimmer fuer Profildaten */}
-            {loadingProfile && interests.length === 0 && (
-              <div className="flex justify-center gap-[6px] mb-[14px]">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-[18px] w-16 rounded-[12px] animate-pulse"
-                    style={{ background: 'var(--glass)' }}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Action Button */}
-            <div className="mb-[14px]">
-              {renderActionButton()}
-            </div>
-
-            {/* Meta Row */}
-            <div
-              className="flex flex-wrap justify-center gap-4 pt-3 text-[10px]"
-              style={{ color: 'var(--text-sec)', borderTop: '1px solid var(--divider-l)' }}
-            >
-              {location && (
-                <span className="flex items-center gap-1"><Icon name="map-pin" size={12} /> {location}</span>
-              )}
-              {createdAt && (
-                <span className="flex items-center gap-1">
-                  <Icon name="heart" size={12} /> Seit {new Date(createdAt).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
-                </span>
-              )}
-              {isFirstLight && (
-                <span className="flex items-center gap-1"><Icon name="sparkles" size={12} /> First Light</span>
-              )}
-            </div>
-
-            {/* Profil ansehen Link */}
-            {username && (
-              <div className="mt-4">
-                <Link
-                  href={`/u/${username}`}
-                  className="inline-flex items-center gap-1.5 py-2 px-6 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase transition-colors duration-200"
+          {/* Interests — Mockup: 10px, bg-glass, border, radius 12px, gap 6px */}
+          {interests.length > 0 && (
+            <div className="flex flex-wrap justify-center" style={{ gap: '6px', marginTop: '14px' }}>
+              {interests.map((tag) => (
+                <span
+                  key={tag}
+                  className="font-label"
                   style={{
-                    border: '1px solid var(--gold-border-s)',
-                    color: 'var(--gold-text)',
+                    fontSize: '10px',
+                    fontWeight: 500,
+                    letterSpacing: '0.8px',
+                    textTransform: 'uppercase',
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                    background: 'var(--glass)',
+                    border: '1px solid var(--divider-l)',
+                    color: 'var(--text-sec)',
                   }}
                 >
-                  <Icon name="user" size={12} />
-                  Profil ansehen
-                </Link>
-              </div>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Loading Shimmer */}
+          {loadingProfile && interests.length === 0 && (
+            <div className="flex justify-center" style={{ gap: '6px', marginTop: '14px' }}>
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="animate-pulse"
+                  style={{ height: '20px', width: '64px', borderRadius: '12px', background: 'var(--glass)' }}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Mutual Connections — Mockup: border-top, 12px, avatar circles */}
+          <div
+            className="flex items-center justify-center"
+            style={{
+              gap: '6px',
+              marginTop: '16px',
+              paddingTop: '14px',
+              borderTop: '1px solid var(--divider-l)',
+              fontSize: '12px',
+              fontWeight: 500,
+              color: 'var(--text-sec)',
+            }}
+          >
+            <div className="flex" style={{ marginRight: '2px' }}>
+              {['LW', 'JR'].map((init, i) => (
+                <div
+                  key={init}
+                  className="flex items-center justify-center font-label"
+                  style={{
+                    width: '22px',
+                    height: '22px',
+                    borderRadius: '50%',
+                    background: 'var(--glass)',
+                    border: '2px solid var(--bg-elevated)',
+                    fontSize: '8px',
+                    color: 'var(--text-sec)',
+                    marginLeft: i > 0 ? '-6px' : 0,
+                  }}
+                >
+                  {init}
+                </div>
+              ))}
+            </div>
+            2 gemeinsame Kontakte
+          </div>
+
+          {/* Actions — Mockup: flex, gap 10px, margin-top 18px */}
+          <div className="flex" style={{ gap: '10px', marginTop: '18px' }}>
+            {/* Primary: Vernetzen (or connection status) */}
+            {renderConnectionButton() ?? (
+              /* Eigenes Profil — kein Vernetzen, nur Teilen */
+              <button
+                className="vcard-btn-primary flex-1 font-label cursor-pointer"
+                style={{
+                  padding: '10px 0',
+                  borderRadius: '14px',
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  letterSpacing: '1.2px',
+                  textTransform: 'uppercase',
+                  background: 'var(--gold)',
+                  color: 'var(--text-on-gold)',
+                  border: 'none',
+                  boxShadow: '0 4px 16px var(--gold-glow)',
+                }}
+              >
+                Teilen
+              </button>
+            )}
+
+            {/* Secondary: Profil ansehen — Mockup: glass bg, border */}
+            {username && (
+              <Link
+                href={`/u/${username}`}
+                className="flex-1 font-label flex items-center justify-center"
+                style={{
+                  padding: '10px 0',
+                  borderRadius: '14px',
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  letterSpacing: '1.2px',
+                  textTransform: 'uppercase',
+                  background: 'var(--glass)',
+                  color: 'var(--text-body)',
+                  border: '1px solid var(--divider-l)',
+                  textDecoration: 'none',
+                }}
+              >
+                Profil ansehen
+              </Link>
             )}
           </div>
         </div>

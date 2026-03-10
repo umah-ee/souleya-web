@@ -5,7 +5,6 @@ import Link from 'next/link';
 import type { MapNearbyUser } from './MapView';
 import type { SoEvent } from '@/types/events';
 import { SOUL_LEVEL_NAMES } from '@/types/profile';
-import EnsoRing from '@/components/ui/EnsoRing';
 import { Icon } from '@/components/ui/Icon';
 import { getEventCover } from '@/lib/demo-covers';
 
@@ -83,7 +82,7 @@ export default function DiscoverOverlay(props: Props) {
   return <EventOverlay {...props} overlayRef={overlayRef} />;
 }
 
-// ── User Overlay ──────────────────────────────────────────────
+// ── User Overlay — Visitenkarte-Style (nach Mockup) ────────────
 
 function UserOverlay({
   user,
@@ -94,143 +93,262 @@ function UserOverlay({
   onClose,
   overlayRef,
 }: UserOverlayProps & { overlayRef: React.RefObject<HTMLDivElement | null> }) {
-  const initials = (user.display_name ?? user.username ?? '?').slice(0, 1).toUpperCase();
+  const displayName = user.display_name ?? user.username ?? 'Anonym';
+  const initials = displayName.slice(0, 1).toUpperCase();
   const vipName = SOUL_LEVEL_NAMES[user.soul_level] ?? `Level ${user.soul_level}`;
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-30 animate-slide-up">
+    <div
+      className="absolute inset-0 z-30 flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,.55)', padding: '20px' }}
+    >
+      {/* Card — Mockup: 420px web, bg-elevated, radius 32px */}
       <div
         ref={overlayRef}
-        className="mx-3 mb-3 glass-card rounded-2xl overflow-hidden"
-        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.1)' }}
+        className="w-full max-w-[420px] overflow-hidden animate-scale-in"
+        style={{
+          background: 'var(--bg-elevated)',
+          borderRadius: '32px',
+          border: '1px solid var(--divider-l)',
+          boxShadow: '0 20px 60px rgba(0,0,0,.35)',
+        }}
       >
-        {/* Gold-Leiste oben */}
+        {/* ─── Banner (90px) — Mockup: gold-softer → bg-elevated gradient ─── */}
         <div
-          className="h-[2px]"
-          style={{ background: 'linear-gradient(to right, transparent, var(--gold-glow), transparent)' }}
-        />
-
-        <div className="p-5">
-          {/* Schliessen */}
+          className="relative w-full h-[90px] overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, var(--gold-softer, var(--gold-bg)) 0%, var(--bg-elevated) 100%)' }}
+        >
+          {/* Close — Mockup: 28px, right 10px, top 10px */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer z-10"
-            style={{ background: 'var(--glass)', color: 'var(--text-muted)' }}
+            className="absolute flex items-center justify-center cursor-pointer"
+            style={{
+              right: '10px',
+              top: '10px',
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              background: 'rgba(0,0,0,.35)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              color: '#fff',
+              border: 'none',
+            }}
           >
-            <Icon name="x" size={14} />
+            <Icon name="x" size={12} />
           </button>
+        </div>
 
-          {/* Avatar im Enso Ring + Info */}
-          <div className="flex items-start gap-4 mb-4">
-            <EnsoRing
-              soulLevel={user.soul_level}
-              isFirstLight={user.is_first_light}
-              size="feed"
-              className="flex-shrink-0"
-            >
-              <div
-                className="w-full h-full rounded-full flex items-center justify-center font-heading text-[0.7rem] overflow-hidden"
-                style={{
-                  background: 'var(--avatar-bg)',
-                  color: 'var(--gold-text)',
-                }}
-              >
-                {user.avatar_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : initials}
-              </div>
-            </EnsoRing>
+        {/* ─── Avatar — Mockup: 72px circle, 3px solid bg-card border ─── */}
+        <div className="flex justify-center -mt-[36px] relative z-10">
+          <div
+            className="avatar-circle rounded-full flex items-center justify-center font-heading overflow-hidden"
+            style={{
+              width: '72px',
+              height: '72px',
+              fontSize: '24px',
+              fontWeight: 400,
+              background: 'var(--avatar-bg)',
+              color: 'var(--gold)',
+              border: '3px solid var(--bg-card)',
+              boxShadow: '0 4px 16px rgba(0,0,0,.15)',
+            }}
+          >
+            {user.avatar_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : initials}
+          </div>
+        </div>
 
-            <div className="flex-1 min-w-0 pr-6">
-              <h3 className="font-body font-medium text-base truncate" style={{ color: 'var(--text-h)' }}>
-                {user.display_name ?? user.username ?? 'Anonym'}
-              </h3>
-              {user.username && (
-                <p className="text-sm font-body" style={{ color: 'var(--text-muted)' }}>@{user.username}</p>
-              )}
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                <span
-                  className="text-[0.55rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px"
-                  style={{ color: 'var(--gold)', border: '1px solid var(--gold-border-s)' }}
-                >
-                  {vipName}
-                </span>
-                {user.is_first_light && (
-                  <span
-                    className="text-[0.55rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px"
-                    style={{
-                      color: 'var(--gold-text)',
-                      border: '1px solid var(--gold-border)',
-                      background: 'var(--gold-bg)',
-                    }}
-                  >
-                    First Light
-                  </span>
-                )}
-              </div>
-            </div>
+        {/* ─── Body — Mockup: padding 12px 24px 24px ─── */}
+        <div style={{ padding: '12px 24px 24px', textAlign: 'center' }}>
+          {/* Name — Mockup: 24px, serif italic, weight 500 */}
+          <div
+            className="font-heading italic leading-[1.2]"
+            style={{ fontSize: '24px', fontWeight: 500, color: 'var(--text-h)' }}
+          >
+            {displayName}
           </div>
 
-          {/* Bio */}
-          {user.bio && (
-            <p className="text-sm font-body leading-relaxed line-clamp-2 mb-3" style={{ color: 'var(--text-sec)' }}>
-              {user.bio}
-            </p>
+          {/* Handle — Mockup: 12px, Josefin Sans, weight 400 */}
+          {user.username && (
+            <div
+              className="font-label"
+              style={{ fontSize: '12px', fontWeight: 400, letterSpacing: '1px', color: 'var(--text-sec)', marginTop: '2px' }}
+            >
+              @{user.username}
+            </div>
           )}
 
-          {/* Location + Connections */}
-          <div className="flex items-center gap-4 text-xs font-body mb-4" style={{ color: 'var(--text-muted)' }}>
-            {user.location && (
-              <span className="flex items-center gap-1"><Icon name="map-pin" size={12} /> {user.location}</span>
-            )}
-            <span>{user.connections_count} Verbindungen</span>
+          {/* Level — Mockup: 10px, weight 500, uppercase */}
+          <div
+            className="font-label"
+            style={{
+              fontSize: '10px',
+              fontWeight: 500,
+              letterSpacing: '1.2px',
+              textTransform: 'uppercase',
+              color: 'var(--text-sec)',
+              marginTop: '6px',
+            }}
+          >
+            {vipName} · Level {user.soul_level}
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            {user.username && (
-              <Link
-                href={`/u/${user.username}`}
-                className="flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase text-center transition-colors"
-                style={{
-                  border: '1px solid var(--gold-border-s)',
-                  color: 'var(--gold-text)',
-                }}
-              >
-                Profil ansehen
-              </Link>
-            )}
+          {/* Bio — Mockup: 14px, weight 500, line-height 1.6, line-clamp-2 */}
+          {user.bio && (
+            <div
+              className="line-clamp-2"
+              style={{
+                fontSize: '14px',
+                fontWeight: 500,
+                lineHeight: 1.6,
+                color: 'var(--text-body)',
+                marginTop: '14px',
+                maxHeight: '3.2em',
+                overflow: 'hidden',
+              }}
+            >
+              {user.bio}
+            </div>
+          )}
 
+          {/* Meta — Mockup: 12px, weight 500, gap 14px */}
+          <div
+            className="flex items-center justify-center"
+            style={{ gap: '14px', marginTop: '12px', fontSize: '12px', fontWeight: 500, color: 'var(--text-sec)' }}
+          >
+            {user.location && (
+              <span className="flex items-center gap-1">
+                <Icon name="map-pin" size={12} />
+                {user.location}
+              </span>
+            )}
+            <span className="flex items-center gap-1">
+              <Icon name="users" size={12} />
+              {user.connections_count} Kontakte
+            </span>
+          </div>
+
+          {/* Mutual Connections — Mockup: border-top, 12px, avatar circles */}
+          <div
+            className="flex items-center justify-center"
+            style={{
+              gap: '6px',
+              marginTop: '16px',
+              paddingTop: '14px',
+              borderTop: '1px solid var(--divider-l)',
+              fontSize: '12px',
+              fontWeight: 500,
+              color: 'var(--text-sec)',
+            }}
+          >
+            <div className="flex" style={{ marginRight: '2px' }}>
+              {['LW', 'JR'].map((init, i) => (
+                <div
+                  key={init}
+                  className="flex items-center justify-center font-label"
+                  style={{
+                    width: '22px',
+                    height: '22px',
+                    borderRadius: '50%',
+                    background: 'var(--glass)',
+                    border: '2px solid var(--bg-elevated)',
+                    fontSize: '8px',
+                    color: 'var(--text-sec)',
+                    marginLeft: i > 0 ? '-6px' : 0,
+                  }}
+                >
+                  {init}
+                </div>
+              ))}
+            </div>
+            2 gemeinsame Kontakte
+          </div>
+
+          {/* Actions — Mockup: flex, gap 10px, margin-top 18px */}
+          <div className="flex" style={{ gap: '10px', marginTop: '18px' }}>
+            {/* Primary: Vernetzen */}
             {userId && connectionStatus === 'none' && (
               <button
                 onClick={onConnect}
                 disabled={connecting}
-                className="flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase transition-all duration-200"
+                className="vcard-btn-primary flex-1 font-label cursor-pointer"
                 style={{
-                  background: connecting ? 'var(--gold-bg)' : 'var(--gold)',
-                  color: connecting ? 'var(--text-muted)' : 'var(--text-on-gold)',
-                  cursor: connecting ? 'not-allowed' : 'pointer',
+                  padding: '10px 0',
+                  borderRadius: '14px',
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  letterSpacing: '1.2px',
+                  textTransform: 'uppercase',
+                  background: 'var(--gold)',
+                  color: 'var(--text-on-gold)',
+                  border: 'none',
+                  boxShadow: '0 4px 16px var(--gold-glow)',
+                  opacity: connecting ? 0.6 : 1,
                 }}
               >
-                {connecting ? '...' : 'Verbinden'}
+                {connecting ? '...' : 'Vernetzen'}
               </button>
             )}
             {connectionStatus === 'connected' && (
               <span
-                className="flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase text-center"
-                style={{ border: '1px solid var(--success-border)', color: 'var(--success)' }}
+                className="flex-1 font-label flex items-center justify-center"
+                style={{
+                  padding: '10px 0',
+                  borderRadius: '14px',
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  letterSpacing: '1.2px',
+                  textTransform: 'uppercase',
+                  background: 'var(--success-bg)',
+                  color: 'var(--success)',
+                  border: '1px solid var(--success-border)',
+                }}
               >
                 Verbunden
               </span>
             )}
             {connectionStatus === 'pending_outgoing' && (
               <span
-                className="flex-1 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase text-center"
-                style={{ border: '1px solid var(--gold-border-s)', color: 'var(--text-muted)' }}
+                className="flex-1 font-label flex items-center justify-center"
+                style={{
+                  padding: '10px 0',
+                  borderRadius: '14px',
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  letterSpacing: '1.2px',
+                  textTransform: 'uppercase',
+                  background: 'var(--glass)',
+                  color: 'var(--text-muted)',
+                  border: '1px solid var(--divider-l)',
+                }}
               >
                 Angefragt
               </span>
+            )}
+
+            {/* Secondary: Profil ansehen — Mockup: glass bg, border */}
+            {user.username && (
+              <Link
+                href={`/u/${user.username}`}
+                className="flex-1 font-label flex items-center justify-center"
+                style={{
+                  padding: '10px 0',
+                  borderRadius: '14px',
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  letterSpacing: '1.2px',
+                  textTransform: 'uppercase',
+                  background: 'var(--glass)',
+                  color: 'var(--text-body)',
+                  border: '1px solid var(--divider-l)',
+                  textDecoration: 'none',
+                }}
+              >
+                Profil ansehen
+              </Link>
             )}
           </div>
         </div>

@@ -72,7 +72,7 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
         {/* ─── Banner (90px) ─── */}
         <div
           className="relative w-full h-[90px] overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, var(--gold-bg) 0%, var(--bg-elevated) 100%)' }}
+          style={{ background: 'linear-gradient(135deg, var(--gold-softer, var(--gold-bg)) 0%, var(--bg-elevated) 100%)' }}
         >
           {profile.banner_url && (
             // eslint-disable-next-line @next/next/no-img-element
