@@ -10,6 +10,7 @@ interface Props {
   onLeave?: (id: string) => void;
   onShare?: (event: SoEvent) => void;
   onBookmark?: (id: string) => void;
+  onEdit?: (event: SoEvent) => void;
   joining?: boolean;
   bookmarking?: boolean;
   userId?: string | null;
@@ -32,7 +33,7 @@ function formatTime(dateString: string): string {
   return new Date(dateString).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 }
 
-export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBookmark, joining, bookmarking, userId }: Props) {
+export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBookmark, onEdit, joining, bookmarking, userId }: Props) {
   const isCreator = userId === event.creator_id;
   const isFull = event.max_participants != null && event.participants_count >= event.max_participants;
   const creatorName = event.creator?.display_name ?? event.creator?.username ?? 'Anonym';
@@ -43,13 +44,14 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
 
   return (
     <div
-      className="rounded-[18px] overflow-hidden transition-all duration-300 hover:-translate-y-[3px]"
+      className="rounded-[18px] overflow-hidden transition-transform duration-300 hover:-translate-y-[3px]"
       style={{
         background: 'var(--glass)',
         backdropFilter: 'blur(var(--glass-blur))',
         WebkitBackdropFilter: 'blur(var(--glass-blur))',
         border: '1px solid var(--glass-border)',
         boxShadow: 'var(--glass-shadow), var(--glass-inset)',
+        willChange: 'transform',
       }}
     >
       {/* ── Hero Image (160px Compact) ────────────── */}
@@ -173,6 +175,13 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
                 {event.participants_count}{event.max_participants ? ` von ${event.max_participants}` : ''} Teilnehmer
               </span>
             </div>
+
+            {/* Beschreibung (max 2 Zeilen) */}
+            {event.description && (
+              <p className="text-xs line-clamp-2 mt-2.5" style={{ color: 'var(--text-sec)', lineHeight: 1.5 }}>
+                {event.description}
+              </p>
+            )}
           </div>
         </div>
 
@@ -187,7 +196,7 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
               <button
                 onClick={(e) => { e.stopPropagation(); onLeave?.(event.id); }}
                 disabled={joining}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[24px] uppercase cursor-pointer transition-all duration-200"
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[24px] uppercase cursor-pointer transition-colors duration-200"
                 style={{
                   background: 'transparent',
                   border: '1px solid var(--divider)',
@@ -202,7 +211,7 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
               <button
                 onClick={(e) => { e.stopPropagation(); onJoin?.(event.id); }}
                 disabled={joining || isFull}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[24px] uppercase transition-all duration-200"
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[24px] uppercase transition-colors duration-200"
                 style={{
                   background: isFull || joining ? 'var(--gold-bg)' : 'var(--gold)',
                   color: isFull || joining ? 'var(--text-muted)' : 'var(--text-on-gold)',
@@ -217,20 +226,29 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
               </button>
             )
           ) : (
-            <span
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 uppercase"
-              style={{ fontSize: '10px', letterSpacing: '2px', color: 'var(--gold-text)' }}
+            <button
+              onClick={(e) => { e.stopPropagation(); onEdit?.(event); }}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[24px] uppercase cursor-pointer transition-colors duration-200"
+              style={{
+                fontSize: '10px',
+                letterSpacing: '2px',
+                color: 'var(--gold-text)',
+                background: 'transparent',
+                border: '1px solid var(--gold-border-s)',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--gold-bg)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
             >
-              <Icon name="calendar-event" size={14} />
-              Dein Event
-            </span>
+              <Icon name="edit" size={13} />
+              Bearbeiten
+            </button>
           )}
 
           {/* Share Button (Kreis) */}
           {onShare && (
             <button
               onClick={(e) => { e.stopPropagation(); onShare(event); }}
-              className="group flex items-center justify-center rounded-full cursor-pointer transition-all duration-200 hover:scale-110"
+              className="group flex items-center justify-center rounded-full cursor-pointer transition-[transform,color,background,border-color] duration-200 hover:scale-110"
               style={{
                 width: '38px',
                 height: '38px',
@@ -258,7 +276,7 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
           <button
             onClick={(e) => { e.stopPropagation(); onBookmark?.(event.id); }}
             disabled={bookmarking}
-            className="flex items-center justify-center rounded-full cursor-pointer transition-all duration-300 hover:scale-110"
+            className="flex items-center justify-center rounded-full cursor-pointer transition-[transform,color,background,border-color,box-shadow] duration-300 hover:scale-110"
             style={{
               width: '38px',
               height: '38px',

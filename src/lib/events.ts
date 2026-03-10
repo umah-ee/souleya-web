@@ -34,6 +34,14 @@ export async function createEvent(data: CreateEventData): Promise<SoEvent> {
   });
 }
 
+// ── Event bearbeiten ────────────────────────────────────────
+export async function updateEvent(eventId: string, data: Partial<CreateEventData>) {
+  return apiFetch<SoEvent>(`/events/${eventId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
 // ── Event beitreten ─────────────────────────────────────────
 export async function joinEvent(eventId: string) {
   return apiFetch<{ joined: boolean; participants_count: number }>(

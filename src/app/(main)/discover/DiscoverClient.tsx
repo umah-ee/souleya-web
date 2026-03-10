@@ -19,6 +19,7 @@ import DiscoverOverlay from '@/components/discover/DiscoverOverlay';
 import ProfileModal from '@/components/discover/ProfileModal';
 import EventCardCompact from '@/components/discover/EventCardCompact';
 import CreateEventModal from '@/components/discover/CreateEventModal';
+import EditEventModal from '@/components/discover/EditEventModal';
 import ShareEventModal from '@/components/discover/ShareEventModal';
 import PlaceCard from '@/components/discover/PlaceCard';
 import PlaceDetailModal from '@/components/discover/PlaceDetailModal';
@@ -99,8 +100,9 @@ export default function DiscoverClient({ userId }: Props) {
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [showCreatePlace, setShowCreatePlace] = useState(false);
 
-  // ── Share Event Modal ─────────────────────────────────────
+  // ── Share + Edit Event Modal ──────────────────────────────
   const [shareEvent, setShareEvent] = useState<SoEvent | null>(null);
+  const [editEvent, setEditEvent] = useState<SoEvent | null>(null);
 
   // ── Confirm Dialogs ──────────────────────────────────────
   const [confirmUnbookmark, setConfirmUnbookmark] = useState<string | null>(null);
@@ -108,6 +110,9 @@ export default function DiscoverClient({ userId }: Props) {
 
   // ── Lokaler Bookmark-State ────────────────────────────────
   const localBookmarks = useRef<Record<string, boolean>>({});
+
+  // ── Tags expand/collapse ────────────────────────────────
+  const [tagsExpanded, setTagsExpanded] = useState(false);
 
   const isSearchActive = query.trim().length >= 2;
 
@@ -354,6 +359,21 @@ export default function DiscoverClient({ userId }: Props) {
     } catch (e) {
       console.error('Event-Chat beitreten fehlgeschlagen:', e);
       setChatInviteEventId(null);
+    }
+  };
+
+  // ── Event bearbeiten ─────────────────────────────────────
+  const handleEditEvent = (event: SoEvent) => {
+    setEditEvent(event);
+  };
+
+  const handleEventUpdated = () => {
+    setEditEvent(null);
+    // Events neu laden
+    if (mapCenter) {
+      fetchEvents({ lat: mapCenter[1], lng: mapCenter[0], userId: userId ?? undefined })
+        .then((res) => setEvents(res.data))
+        .catch(console.error);
     }
   };
 
@@ -645,32 +665,69 @@ export default function DiscoverClient({ userId }: Props) {
           </div>
         )}
 
-        {/* Tag-Filter (nur bei Orte-Segment oder Alle) */}
-        {!isSearchActive && (segment === 'orte' || segment === 'alle') && (
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {PLACE_TAGS.slice(0, 15).map((tag) => {
-              const isActive = activeTags.includes(tag);
-              return (
+        {/* Tag-Filter — Calm & Curated (nur bei Orte/Alle) */}
+        {!isSearchActive && (segment === 'orte' || segment === 'alle') && (() => {
+          const VISIBLE_COUNT = 6;
+          const visibleTags = tagsExpanded
+            ? PLACE_TAGS
+            : [...new Set([...activeTags, ...PLACE_TAGS.slice(0, VISIBLE_COUNT)])].slice(0, Math.max(VISIBLE_COUNT, activeTags.length));
+          const hiddenCount = PLACE_TAGS.length - visibleTags.length;
+          return (
+            <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
+              {visibleTags.map((tag) => {
+                const isActive = activeTags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className="font-label cursor-pointer transition-colors duration-200"
+                    style={{
+                      fontSize: '0.6rem',
+                      letterSpacing: '0.06em',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      background: isActive ? 'var(--gold-bg)' : 'transparent',
+                      color: isActive ? 'var(--gold-text)' : 'var(--text-muted)',
+                      borderBottom: isActive ? '1.5px solid var(--gold)' : '1.5px solid transparent',
+                    }}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+              {hiddenCount > 0 && !tagsExpanded && (
                 <button
-                  key={tag}
-                  onClick={() => toggleTag(tag)}
-                  className="flex-shrink-0 px-3 py-1.5 rounded-full text-[0.65rem] tracking-[0.06em] font-label cursor-pointer transition-all duration-200 whitespace-nowrap"
+                  onClick={() => setTagsExpanded(true)}
+                  className="font-label cursor-pointer transition-colors duration-200"
                   style={{
-                    background: isActive
-                      ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'
-                      : 'var(--glass)',
-                    border: isActive ? '1px solid var(--gold)' : 'none',
-                    color: isActive ? 'var(--text-on-gold)' : 'var(--text-sec)',
-                    backdropFilter: isActive ? 'none' : 'blur(8px)',
-                    WebkitBackdropFilter: isActive ? 'none' : 'blur(8px)',
+                    fontSize: '0.6rem',
+                    letterSpacing: '0.06em',
+                    padding: '4px 8px',
+                    color: 'var(--text-muted)',
+                    opacity: 0.7,
                   }}
                 >
-                  {tag}
+                  +{hiddenCount}
                 </button>
-              );
-            })}
-          </div>
-        )}
+              )}
+              {tagsExpanded && (
+                <button
+                  onClick={() => setTagsExpanded(false)}
+                  className="font-label cursor-pointer transition-colors duration-200"
+                  style={{
+                    fontSize: '0.6rem',
+                    letterSpacing: '0.06em',
+                    padding: '4px 8px',
+                    color: 'var(--text-muted)',
+                    opacity: 0.7,
+                  }}
+                >
+                  weniger
+                </button>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       {/* ─── SUCHE AKTIV → Ergebnisliste ────────────────────── */}
@@ -835,6 +892,7 @@ export default function DiscoverClient({ userId }: Props) {
                       onLeave={handleLeaveEvent}
                       onShare={setShareEvent}
                       onBookmark={handleBookmarkEvent}
+                      onEdit={handleEditEvent}
                       joining={joiningEvent[event.id]}
                       bookmarking={bookmarkingEvent[event.id]}
                     />
@@ -899,6 +957,9 @@ export default function DiscoverClient({ userId }: Props) {
           )}
           {shareEvent && (
             <ShareEventModal event={shareEvent} onClose={() => setShareEvent(null)} />
+          )}
+          {editEvent && (
+            <EditEventModal event={editEvent} onClose={() => setEditEvent(null)} onUpdated={handleEventUpdated} />
           )}
 
           {/* Place Detail Modal */}
