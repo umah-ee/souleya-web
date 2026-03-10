@@ -40,7 +40,7 @@ export default function Panel({ isOpen, onClose, title, children }: PanelProps) 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 md:pl-20">
       {/* ─── Backdrop ─── */}
       <div
         className="absolute inset-0 transition-opacity duration-300"

@@ -60,6 +60,10 @@
   --event-purple-border:rgba(122,95,160, .30);
   --warning:       #C07830;
 
+  /* Primary-Gradient (Buttons, Studio-Icon) */
+  --primary-gradient: var(--gold);
+  --primary-glow:    0 4px 16px var(--gold-glow);
+
   /* Studio-spezifisch */
   --sidebar-bg:      rgba(255,255,255, .30);
   --sidebar-hover:   rgba(180,150,80, .10);
@@ -125,6 +129,10 @@
   --event-purple-bg:rgba(155,114,207, .10);
   --event-purple-border:rgba(155,114,207, .30);
   --warning:       #F4A261;
+
+  /* Primary-Gradient (Buttons, Studio-Icon) */
+  --primary-gradient: var(--gold);
+  --primary-glow:    0 4px 16px var(--gold-glow);
 
   /* Studio-spezifisch */
   --sidebar-bg:      rgba(255,255,255, .04);
@@ -201,6 +209,10 @@
   --event-purple-border:rgba(167,139,250, .30);
   --warning:       #FBBF78;
 
+  /* Primary-Gradient (Buttons, Studio-Icon) — Dusk: Lavender → Pink */
+  --primary-gradient: linear-gradient(135deg, #A78BFA, #F472B6);
+  --primary-glow:    0 4px 16px rgba(167,139,250,.22);
+
   /* Studio-spezifisch */
   --sidebar-bg:      rgba(255,255,255, .03);
   --sidebar-hover:   rgba(167,139,250, .08);
@@ -270,6 +282,10 @@
   --event-purple-bg:rgba(124,58,237, .10);
   --event-purple-border:rgba(124,58,237, .30);
   --warning:       #D97706;
+
+  /* Primary-Gradient (Buttons, Studio-Icon) — Dusk Light: Purple → Pink */
+  --primary-gradient: linear-gradient(135deg, #7C3AED, #DB2777);
+  --primary-glow:    0 4px 16px rgba(124,58,237,.15);
 
   /* Studio-spezifisch */
   --sidebar-bg:      rgba(255,255,255, .35);
@@ -498,14 +514,10 @@ select:focus {
   box-shadow: 0 4px 16px rgba(167,139,250,.25), 0 0 24px rgba(244,114,182,.12);
 }
 
-/* ── Visitenkarte Primary Button — Base + Dusk gradient ── */
+/* ── Primary Button — nutzt --primary-gradient aus dem Farbschema ── */
 .vcard-btn-primary {
-  background: var(--gold) !important;
-  box-shadow: 0 4px 16px var(--gold-glow);
-}
-[data-color="dusk"] .vcard-btn-primary {
-  background: linear-gradient(135deg, #A78BFA, #F472B6) !important;
-  box-shadow: 0 4px 16px rgba(167,139,250,.22);
+  background: var(--primary-gradient) !important;
+  box-shadow: var(--primary-glow);
 }
 
 /* ── Seeds Panel Icon — Dusk gradient ── */

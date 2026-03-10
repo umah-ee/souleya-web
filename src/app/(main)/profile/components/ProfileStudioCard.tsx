@@ -35,15 +35,15 @@ export default function ProfileStudioCard({ profile }: ProfileStudioCardProps) {
           border: '1px solid var(--gold-border)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
-          boxShadow: 'inset 0 0 0 1px rgba(200,169,110,.06), 0 4px 24px rgba(0,0,0,.08)',
+          boxShadow: 'inset 0 0 0 1px var(--gold-border-s), 0 4px 24px rgba(0,0,0,.08)',
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(200,169,110,.10), 0 8px 32px var(--gold-glow)';
+          e.currentTarget.style.boxShadow = 'inset 0 0 0 1px var(--gold-border), 0 8px 32px var(--gold-glow)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(200,169,110,.06), 0 4px 24px rgba(0,0,0,.08)';
+          e.currentTarget.style.boxShadow = 'inset 0 0 0 1px var(--gold-border-s), 0 4px 24px rgba(0,0,0,.08)';
         }}
       >
         {/* Icon — Mockup: 44px, radius 14px, gold gradient bg */}
@@ -53,8 +53,8 @@ export default function ProfileStudioCard({ profile }: ProfileStudioCardProps) {
             width: '44px',
             height: '44px',
             borderRadius: '14px',
-            background: 'var(--gold)',
-            boxShadow: '0 4px 16px var(--gold-glow)',
+            background: 'var(--primary-gradient)',
+            boxShadow: 'var(--primary-glow)',
           }}
         >
           <Icon name="sparkles" size={20} style={{ color: 'var(--text-on-gold)' }} />

@@ -3,7 +3,6 @@
 import { useEffect, useCallback } from 'react';
 import type { Profile } from '@/types/profile';
 import { SOUL_LEVEL_NAMES } from '@/types/profile';
-import { useTheme } from '@/components/ThemeProvider';
 import { Icon } from '@/components/ui/Icon';
 
 interface VisitenkarteOverlayProps {
@@ -20,7 +19,6 @@ interface VisitenkarteOverlayProps {
  * Level 10px text, Bio 14px, Meta 12px, Interests, Mutual, Actions 14px-radius)
  */
 export default function VisitenkarteOverlay({ isOpen, onClose, profile }: VisitenkarteOverlayProps) {
-  const { colorScheme } = useTheme();
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); },
     [onClose],
@@ -39,13 +37,6 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
 
   if (!isOpen) return null;
 
-  const isDusk = colorScheme === 'dusk';
-  const primaryBtnBg = isDusk
-    ? 'linear-gradient(135deg, #A78BFA, #F472B6)'
-    : 'var(--gold)';
-  const primaryBtnShadow = isDusk
-    ? '0 4px 16px rgba(167,139,250,.22)'
-    : '0 4px 16px var(--gold-glow)';
   const initials = (profile.display_name ?? profile.username ?? '?').slice(0, 1).toUpperCase();
   const vipName = SOUL_LEVEL_NAMES[profile.soul_level] ?? `Level ${profile.soul_level}`;
   const interests = (profile.interests ?? []).slice(0, 4);
@@ -276,10 +267,10 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
                 fontWeight: 500,
                 letterSpacing: '1.2px',
                 textTransform: 'uppercase' as const,
-                background: primaryBtnBg,
+                background: 'var(--primary-gradient)',
                 color: 'var(--text-on-gold)',
                 border: 'none',
-                boxShadow: primaryBtnShadow,
+                boxShadow: 'var(--primary-glow)',
               }}
             >
               Teilen
