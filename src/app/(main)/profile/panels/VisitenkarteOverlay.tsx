@@ -267,10 +267,8 @@ export default function VisitenkarteOverlay({ isOpen, onClose, profile }: Visite
                 fontWeight: 500,
                 letterSpacing: '1.2px',
                 textTransform: 'uppercase' as const,
-                background: 'var(--gold)',
                 color: 'var(--text-on-gold)',
                 border: 'none',
-                boxShadow: '0 4px 16px var(--gold-glow)',
               }}
             >
               Teilen

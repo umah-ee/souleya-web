@@ -161,10 +161,8 @@ export default function ProfileModal({
           fontWeight: 500,
           letterSpacing: '1.2px',
           textTransform: 'uppercase',
-          background: 'var(--gold)',
           color: 'var(--text-on-gold)',
           border: 'none',
-          boxShadow: '0 4px 16px var(--gold-glow)',
           opacity: connecting ? 0.6 : 1,
         }}
       >
@@ -401,10 +399,8 @@ export default function ProfileModal({
                   fontWeight: 500,
                   letterSpacing: '1.2px',
                   textTransform: 'uppercase',
-                  background: 'var(--gold)',
                   color: 'var(--text-on-gold)',
                   border: 'none',
-                  boxShadow: '0 4px 16px var(--gold-glow)',
                 }}
               >
                 Teilen

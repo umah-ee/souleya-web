@@ -216,9 +216,9 @@
 
 /* ── DUSK LIGHT — Mockup: [data-color="dusk"][data-theme="light"] ── */
 [data-color="dusk"][data-theme="light"] {
-  --bg-gradient: linear-gradient(180deg, #FAF5FF 0%, #F5EFFC 50%, #FAF5FF 100%);
-  --bg-solid:    #FAF5FF;
-  --bg-card:     rgba(255,255,255, .80);
+  --bg-gradient: linear-gradient(180deg, #FEFCFF 0%, #FAF8FE 50%, #FEFCFF 100%);
+  --bg-solid:    #FEFCFF;
+  --bg-card:     rgba(255,255,255, .85);
   --bg-elevated: #FFFFFF;
 
   --gold:          #7C3AED;
@@ -249,7 +249,7 @@
   --glass-shadow:  0 2px 20px rgba(124,58,237,.06);
   --glass-inset:   inset 0 1px 0 rgba(255,255,255,.9);
 
-  --glass-nav:     rgba(250,245,255, .92);
+  --glass-nav:     rgba(254,252,255, .92);
   --glass-nav-b:   rgba(124,58,237, .10);
 
   --divider:       rgba(124,58,237, .07);
@@ -305,9 +305,9 @@ body {
 }
 [data-color="dusk"][data-theme="light"] body {
   background:
-    radial-gradient(ellipse at 40% 0%, rgba(167,139,250,.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 50%, rgba(244,114,182,.03) 0%, transparent 45%),
-    linear-gradient(180deg, #FAF5FF 0%, #F5EFFC 50%, #FAF5FF 100%);
+    radial-gradient(ellipse at 40% 0%, rgba(167,139,250,.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 50%, rgba(244,114,182,.02) 0%, transparent 45%),
+    linear-gradient(180deg, #FEFCFF 0%, #FBF9FE 50%, #FEFCFF 100%);
   background-attachment: fixed;
 }
 
@@ -384,11 +384,11 @@ body {
 }
 [data-color="dusk"][data-theme="light"] .ev-map-fade {
   background: linear-gradient(to right,
-    rgba(250,245,255, 1) 0%,
-    rgba(250,245,255, .97) 8%,
-    rgba(250,245,255, .78) 30%,
-    rgba(250,245,255, .30) 60%,
-    rgba(250,245,255, .06) 82%,
+    rgba(254,252,255, 1) 0%,
+    rgba(254,252,255, .97) 8%,
+    rgba(254,252,255, .78) 30%,
+    rgba(254,252,255, .30) 60%,
+    rgba(254,252,255, .06) 82%,
     transparent 100%
   );
 }
@@ -498,9 +498,13 @@ select:focus {
   box-shadow: 0 4px 16px rgba(167,139,250,.25), 0 0 24px rgba(244,114,182,.12);
 }
 
-/* ── Visitenkarte Primary Button — Dusk gradient ── */
+/* ── Visitenkarte Primary Button — Base + Dusk gradient ── */
+.vcard-btn-primary {
+  background: var(--gold) !important;
+  box-shadow: 0 4px 16px var(--gold-glow);
+}
 [data-color="dusk"] .vcard-btn-primary {
-  background: linear-gradient(135deg, #A78BFA, #F472B6);
+  background: linear-gradient(135deg, #A78BFA, #F472B6) !important;
   box-shadow: 0 4px 16px rgba(167,139,250,.22);
 }
 
