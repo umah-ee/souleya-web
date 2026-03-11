@@ -6,7 +6,7 @@ const PUBLIC_ROUTES = ['/login', '/auth/', '/api/'];
 
 // Pre-Launch: nur diese Routen sind für eingeloggte User zugänglich
 const PRE_LAUNCH = process.env.NEXT_PUBLIC_PRE_LAUNCH === 'true';
-const PRE_LAUNCH_ALLOWED = ['/profile', '/u/'];
+const PRE_LAUNCH_ALLOWED = ['/', '/profile', '/u/'];
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
