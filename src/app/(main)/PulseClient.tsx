@@ -10,10 +10,10 @@ import type { Pulse } from '@/types/pulse';
 import { fetchMyEvents, fetchEvents, joinEvent } from '@/lib/events';
 import { getIncomingRequests, respondToRequest } from '@/lib/circles';
 import { fetchMyChallenges, checkinChallenge } from '@/lib/challenges';
-import { fetchMyPulses } from '@/lib/pulse';
+import { fetchMyPulses, createPulse } from '@/lib/pulse';
+import { getDailyQuote } from '@/lib/wisdomQuotes';
 import { Icon } from '@/components/ui/Icon';
 import EnsoRing from '@/components/ui/EnsoRing';
-import DashboardCalendar from '@/components/pulse/DashboardCalendar';
 
 // ── Props ─────────────────────────────────────────────────────
 interface Props {
@@ -21,6 +21,7 @@ interface Props {
   displayName: string | null;
   locationLat: number | null;
   locationLng: number | null;
+  interests: string[];
 }
 
 // ── Hilfsfunktionen ───────────────────────────────────────────
@@ -63,56 +64,11 @@ function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): num
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// ── Kachel-Wrapper ────────────────────────────────────────────
-
-function DashboardCard({
-  icon,
-  title,
-  badge,
-  children,
-  className = '',
-}: {
-  icon: string;
-  title: string;
-  badge?: number;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`rounded-2xl p-5 ${className}`}
-      style={{
-        background: 'var(--glass)',
-        border: '1px solid var(--glass-border)',
-      }}
-    >
-      <div className="flex items-center gap-2 mb-3">
-        <Icon name={icon as never} size={16} style={{ color: 'var(--gold)' }} />
-        <span
-          className="font-label text-[0.6rem] tracking-[0.15em] uppercase"
-          style={{ color: 'var(--text-muted)' }}
-        >
-          {title}
-        </span>
-        {badge != null && badge > 0 && (
-          <span
-            className="ml-auto min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[9px] font-label px-1"
-            style={{ background: 'var(--gold)', color: 'var(--text-on-gold)' }}
-          >
-            {badge}
-          </span>
-        )}
-      </div>
-      {children}
-    </div>
-  );
-}
-
 // ══════════════════════════════════════════════════════════════
-// PULSE DASHBOARD
+// PULSE DASHBOARD — Ive Style
 // ══════════════════════════════════════════════════════════════
 
-export default function PulseClient({ user, displayName, locationLat, locationLng }: Props) {
+export default function PulseClient({ user, displayName, locationLat, locationLng, interests }: Props) {
   // State
   const [requests, setRequests] = useState<Connection[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<SoEvent[]>([]);
@@ -125,6 +81,13 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
   const [respondingRequest, setRespondingRequest] = useState<Record<string, boolean>>({});
   const [joiningEvent, setJoiningEvent] = useState<Record<string, boolean>>({});
   const [checkingIn, setCheckingIn] = useState<Record<string, boolean>>({});
+
+  // Wisdom quote sharing states
+  const [quoteShareState, setQuoteShareState] = useState<'idle' | 'sharing' | 'shared'>('idle');
+  const [quoteCopied, setQuoteCopied] = useState(false);
+
+  // Daily quote
+  const quote = useMemo(() => getDailyQuote(), []);
 
   // ── Daten laden ─────────────────────────────────────────────
   const loadData = useCallback(async () => {
@@ -145,13 +108,11 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
 
       setRequests(requestsRes.data);
 
-      // Nur zukuenftige Events, sortiert nach Datum
       const future = eventsRes.data
         .filter((e) => e.starts_at >= now)
         .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
       setUpcomingEvents(future);
 
-      // Nur aktive Challenges
       const activeChallenges = Array.isArray(challengesRes)
         ? challengesRes.filter((c) => c.status === 'active')
         : [];
@@ -159,7 +120,6 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
 
       setRecentPulses(pulsesRes.data);
 
-      // Empfehlungen: Events die der User noch nicht joined hat
       const recs = recsRes.data
         .filter((e) => !e.has_joined && e.starts_at >= now)
         .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
@@ -173,6 +133,16 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
   }, [user, locationLat, locationLng]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // ── Interest-based event suggestion ─────────────────────────
+  const matchedSuggestion = useMemo(() => {
+    if (upcomingEvents.length > 0 || recommendations.length === 0 || interests.length === 0) return null;
+    const lowerInterests = interests.map((i) => i.toLowerCase());
+    return recommendations.find((ev) => {
+      const haystack = `${ev.title} ${ev.description ?? ''}`.toLowerCase();
+      return lowerInterests.some((interest) => haystack.includes(interest));
+    }) ?? recommendations[0] ?? null;
+  }, [upcomingEvents, recommendations, interests]);
 
   // ── Actions ─────────────────────────────────────────────────
 
@@ -192,7 +162,6 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
     setJoiningEvent((s) => ({ ...s, [eventId]: true }));
     try {
       await joinEvent(eventId);
-      // Zum Upcoming hinzufuegen, aus Empfehlungen entfernen
       const ev = recommendations.find((e) => e.id === eventId);
       if (ev) {
         setRecommendations((prev) => prev.filter((e) => e.id !== eventId));
@@ -237,11 +206,36 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
     }
   };
 
-  // ── Event-Dates fuer Kalender ──────────────────────────────
-  const eventDates = useMemo(
-    () => upcomingEvents.map((e) => e.starts_at),
-    [upcomingEvents],
-  );
+  const handleShareQuoteToFeed = async () => {
+    setQuoteShareState('sharing');
+    try {
+      await createPulse({
+        content: `\u201E${quote.text}\u201C\n\u2014 ${quote.author} \u00B7 ${quote.tradition}`,
+      });
+      setQuoteShareState('shared');
+      setTimeout(() => setQuoteShareState('idle'), 3000);
+    } catch (e) {
+      console.error(e);
+      setQuoteShareState('idle');
+    }
+  };
+
+  const handleCopyQuote = async () => {
+    const text = `\u201E${quote.text}\u201C \u2014 ${quote.author}\n\nvia Souleya`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ text });
+      } else {
+        await navigator.clipboard.writeText(text);
+        setQuoteCopied(true);
+        setTimeout(() => setQuoteCopied(false), 2500);
+      }
+    } catch {
+      await navigator.clipboard.writeText(text);
+      setQuoteCopied(true);
+      setTimeout(() => setQuoteCopied(false), 2500);
+    }
+  };
 
   // ── Render ─────────────────────────────────────────────────
 
@@ -256,94 +250,147 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
   const firstName = displayName?.split(' ')[0] ?? '';
 
   return (
-    <div className="space-y-4">
-      {/* ── Begruessungs-Header ──────────────────────────────── */}
-      <div className="flex items-end justify-between mb-2">
-        <div>
-          <h1 className="font-heading text-xl md:text-2xl" style={{ color: 'var(--text-h)' }}>
-            {getGreeting()}{firstName ? `, ${firstName}` : ''}
-          </h1>
-          <p
-            className="text-xs font-body mt-0.5"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            Dein Souleya Dashboard
-          </p>
-        </div>
-        <span
-          className="font-label text-[0.55rem] tracking-[0.12em] uppercase"
+    <div className="space-y-8">
+      {/* ── Gruß ──────────────────────────────────────────────── */}
+      <div className="pt-2">
+        <h1
+          className="font-heading text-2xl md:text-3xl"
+          style={{ color: 'var(--text-h)' }}
+        >
+          {getGreeting()}{firstName ? `, ${firstName}` : ''}
+        </h1>
+        <p
+          className="text-sm font-body mt-1"
           style={{ color: 'var(--text-muted)' }}
         >
           {formatDateLong(new Date())}
-        </span>
+        </p>
       </div>
 
-      {/* ── Grid: Anfragen + Kalender ────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Verbindungsanfragen */}
-        <DashboardCard icon="user-plus" title="Verbindungsanfragen" badge={requests.length}>
-          {requests.length === 0 ? (
-            <p className="text-xs font-body py-3" style={{ color: 'var(--text-muted)' }}>
-              Keine offenen Anfragen
-            </p>
-          ) : (
-            <div className="space-y-2.5">
-              {requests.slice(0, 3).map((req) => {
-                const { profile } = req;
-                const initials = (profile.display_name ?? profile.username ?? '?').slice(0, 1).toUpperCase();
-                const isLoading = respondingRequest[req.id];
+      {/* ── Täglicher Weisheitsspruch ─────────────────────────── */}
+      <div
+        className="rounded-2xl px-6 py-7 md:px-8 md:py-9"
+        style={{
+          background: 'var(--gold-bg)',
+          border: '1px solid var(--gold-border-s)',
+        }}
+      >
+        <p
+          className="font-heading italic text-lg md:text-xl leading-relaxed"
+          style={{ color: 'var(--text-h)' }}
+        >
+          &bdquo;{quote.text}&ldquo;
+        </p>
+        <p
+          className="font-label text-[0.6rem] tracking-[0.15em] uppercase mt-3"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          {quote.author} &middot; {quote.tradition}
+        </p>
 
-                return (
-                  <div key={req.id} className="flex items-center gap-2.5">
-                    <Link href={profile.username ? `/u/${profile.username}` : '#'} className="flex-shrink-0">
-                      <EnsoRing soulLevel={profile.soul_level} isFirstLight={profile.is_first_light} size="feed">
-                        <div
-                          className="w-full h-full rounded-full flex items-center justify-center font-heading text-[0.6rem] overflow-hidden"
-                          style={{ background: 'var(--avatar-bg)', color: 'var(--gold-text)' }}
-                        >
-                          {profile.avatar_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                          ) : initials}
-                        </div>
-                      </EnsoRing>
-                    </Link>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm font-body font-medium truncate block" style={{ color: 'var(--text-h)' }}>
-                        {profile.display_name ?? profile.username ?? 'Anonym'}
-                      </span>
-                    </div>
-                    <div className="flex gap-1.5 flex-shrink-0">
-                      <button
-                        onClick={() => handleRespondRequest(req.id, 'accepted')}
-                        disabled={isLoading}
-                        className="px-2.5 py-1 border-none rounded-full font-label text-[0.55rem] tracking-[0.08em] uppercase cursor-pointer"
-                        style={{
-                          background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
-                          color: 'var(--text-on-gold)',
-                          opacity: isLoading ? 0.5 : 1,
-                        }}
+        <div className="flex items-center gap-2 mt-5">
+          <button
+            onClick={handleShareQuoteToFeed}
+            disabled={quoteShareState !== 'idle'}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 border-none rounded-full font-label text-[0.55rem] tracking-[0.08em] uppercase cursor-pointer transition-opacity duration-200"
+            style={{
+              background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+              color: 'var(--text-on-gold)',
+              opacity: quoteShareState === 'sharing' ? 0.5 : 1,
+            }}
+          >
+            <Icon name="edit" size={12} />
+            {quoteShareState === 'shared' ? 'Geteilt' : 'Im Feed teilen'}
+          </button>
+          <button
+            onClick={handleCopyQuote}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-transparent rounded-full font-label text-[0.55rem] tracking-[0.08em] uppercase cursor-pointer transition-opacity duration-200"
+            style={{
+              border: '1px solid var(--gold-border-s)',
+              color: 'var(--gold-text)',
+            }}
+          >
+            <Icon name={quoteCopied ? 'check' : 'share'} size={12} />
+            {quoteCopied ? 'Kopiert' : 'Teilen'}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Verbindungsanfragen (nur wenn > 0) ────────────────── */}
+      {requests.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span
+              className="min-w-[20px] h-[20px] flex items-center justify-center rounded-full text-[9px] font-label px-1.5"
+              style={{ background: 'var(--gold)', color: 'var(--text-on-gold)' }}
+            >
+              {requests.length}
+            </span>
+            <span
+              className="text-sm font-body"
+              style={{ color: 'var(--text-h)' }}
+            >
+              {requests.length === 1 ? 'Neue Verbindungsanfrage' : 'Neue Verbindungsanfragen'}
+            </span>
+          </div>
+
+          <div className="space-y-2.5">
+            {requests.slice(0, 3).map((req) => {
+              const { profile } = req;
+              const initials = (profile.display_name ?? profile.username ?? '?').slice(0, 1).toUpperCase();
+              const isLoading = respondingRequest[req.id];
+
+              return (
+                <div key={req.id} className="flex items-center gap-2.5">
+                  <Link href={profile.username ? `/u/${profile.username}` : '#'} className="flex-shrink-0">
+                    <EnsoRing soulLevel={profile.soul_level} isFirstLight={profile.is_first_light} size="feed">
+                      <div
+                        className="w-full h-full rounded-full flex items-center justify-center font-heading text-[0.6rem] overflow-hidden"
+                        style={{ background: 'var(--avatar-bg)', color: 'var(--gold-text)' }}
                       >
-                        Annehmen
-                      </button>
-                      <button
-                        onClick={() => handleRespondRequest(req.id, 'declined')}
-                        disabled={isLoading}
-                        className="px-2.5 py-1 bg-transparent rounded-full font-label text-[0.55rem] tracking-[0.08em] uppercase cursor-pointer"
-                        style={{
-                          border: '1px solid var(--divider)',
-                          color: 'var(--text-muted)',
-                          opacity: isLoading ? 0.5 : 1,
-                        }}
-                      >
-                        ×
-                      </button>
-                    </div>
+                        {profile.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                        ) : initials}
+                      </div>
+                    </EnsoRing>
+                  </Link>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-body font-medium truncate block" style={{ color: 'var(--text-h)' }}>
+                      {profile.display_name ?? profile.username ?? 'Anonym'}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          )}
+                  <div className="flex gap-1.5 flex-shrink-0">
+                    <button
+                      onClick={() => handleRespondRequest(req.id, 'accepted')}
+                      disabled={isLoading}
+                      className="px-2.5 py-1 border-none rounded-full font-label text-[0.55rem] tracking-[0.08em] uppercase cursor-pointer"
+                      style={{
+                        background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                        color: 'var(--text-on-gold)',
+                        opacity: isLoading ? 0.5 : 1,
+                      }}
+                    >
+                      Annehmen
+                    </button>
+                    <button
+                      onClick={() => handleRespondRequest(req.id, 'declined')}
+                      disabled={isLoading}
+                      className="px-2.5 py-1 bg-transparent rounded-full font-label text-[0.55rem] tracking-[0.08em] uppercase cursor-pointer"
+                      style={{
+                        border: '1px solid var(--divider)',
+                        color: 'var(--text-muted)',
+                        opacity: isLoading ? 0.5 : 1,
+                      }}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
           {requests.length > 3 && (
             <Link
               href="/circles"
@@ -354,32 +401,18 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
               <Icon name="chevron-right" size={12} />
             </Link>
           )}
-        </DashboardCard>
+        </div>
+      )}
 
-        {/* Mini-Kalender */}
-        <DashboardCard icon="calendar" title="Kalender">
-          <DashboardCalendar eventDates={eventDates} />
-        </DashboardCard>
-      </div>
-
-      {/* ── Naechste Events (volle Breite, horizontal scroll) ── */}
-      <DashboardCard icon="calendar-event" title="Deine nächsten Events" badge={upcomingEvents.length}>
-        {upcomingEvents.length === 0 ? (
-          <div className="text-center py-4">
-            <Icon name="calendar-plus" size={24} style={{ color: 'var(--text-muted)', opacity: 0.4 }} />
-            <p className="text-xs font-body mt-2" style={{ color: 'var(--text-muted)' }}>
-              Du hast noch keine Events
-            </p>
-            <Link
-              href="/discover"
-              className="inline-flex items-center gap-1 mt-2 text-xs font-label"
-              style={{ color: 'var(--gold-text)' }}
-            >
-              Events entdecken
-              <Icon name="chevron-right" size={12} />
-            </Link>
-          </div>
-        ) : (
+      {/* ── Deine Events ──────────────────────────────────────── */}
+      {upcomingEvents.length > 0 && (
+        <div>
+          <h2
+            className="font-heading text-base mb-3"
+            style={{ color: 'var(--text-h)' }}
+          >
+            Deine Events
+          </h2>
           <div
             className="flex gap-3 overflow-x-auto pb-1"
             style={{ scrollbarWidth: 'none' }}
@@ -397,7 +430,6 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
                     willChange: 'transform',
                   }}
                 >
-                  {/* Datum gross */}
                   <div className="flex items-center gap-2 mb-2">
                     <div>
                       <div className="font-heading text-lg leading-none" style={{ color: 'var(--gold-text)' }}>
@@ -410,22 +442,17 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
                         {formatEventWeekday(event.starts_at)}
                       </div>
                     </div>
-                    {/* Kategorie-Dot */}
                     <span
                       className="ml-auto w-2 h-2 rounded-full flex-shrink-0"
                       style={{ background: isCourse ? 'var(--event-purple)' : 'var(--gold)' }}
                     />
                   </div>
-
-                  {/* Titel */}
                   <p
                     className="text-xs font-body font-medium truncate mb-1"
                     style={{ color: 'var(--text-h)' }}
                   >
                     {event.title}
                   </p>
-
-                  {/* Uhrzeit + Ort */}
                   <div className="flex items-center gap-1 mb-1">
                     <Icon name="clock" size={11} style={{ color: 'var(--text-muted)' }} />
                     <span className="text-[0.6rem] font-body" style={{ color: 'var(--text-muted)' }}>
@@ -442,145 +469,193 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
               );
             })}
           </div>
-        )}
-      </DashboardCard>
+        </div>
+      )}
 
-      {/* ── Grid: Challenges + Empfehlungen ───────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Aktive Challenges */}
-        <DashboardCard icon="flame" title="Aktive Challenges" badge={challenges.length}>
-          {challenges.length === 0 ? (
-            <p className="text-xs font-body py-3" style={{ color: 'var(--text-muted)' }}>
-              Keine aktiven Challenges
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {challenges.slice(0, 3).map((ch) => {
-                const progress = ch.my_progress;
-                const totalDays = ch.duration_days;
-                const checkins = progress?.total_checkins ?? 0;
-                const pct = totalDays > 0 ? Math.min(100, Math.round((checkins / totalDays) * 100)) : 0;
-                const streak = progress?.current_streak ?? 0;
-                const todayNumber = checkins + 1;
-                const isChecking = checkingIn[ch.id];
+      {/* ── Interessen-basierter Vorschlag (wenn keine Events) ── */}
+      {upcomingEvents.length === 0 && matchedSuggestion && (
+        <div>
+          <h2
+            className="font-heading text-base mb-3"
+            style={{ color: 'var(--text-h)' }}
+          >
+            Basierend auf deinen Interessen
+          </h2>
+          <div
+            className="rounded-xl p-4"
+            style={{
+              background: 'var(--glass)',
+              border: '1px solid var(--glass-border)',
+            }}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-body font-medium truncate" style={{ color: 'var(--text-h)' }}>
+                  {matchedSuggestion.title}
+                </p>
+                <p className="text-xs font-body mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                  {formatEventDate(matchedSuggestion.starts_at)} &middot; {formatEventTime(matchedSuggestion.starts_at)}
+                  {matchedSuggestion.location_name && ` \u00B7 ${matchedSuggestion.location_name}`}
+                </p>
+              </div>
+              <button
+                onClick={() => handleJoinRecommendation(matchedSuggestion.id)}
+                disabled={joiningEvent[matchedSuggestion.id]}
+                className="flex-shrink-0 px-3 py-1.5 border-none rounded-full font-label text-[0.55rem] tracking-[0.08em] uppercase cursor-pointer"
+                style={{
+                  background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                  color: 'var(--text-on-gold)',
+                  opacity: joiningEvent[matchedSuggestion.id] ? 0.5 : 1,
+                }}
+              >
+                Teilnehmen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-                return (
-                  <div key={ch.id}>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-base">{ch.emoji}</span>
-                      <span className="text-sm font-body font-medium flex-1 truncate" style={{ color: 'var(--text-h)' }}>
-                        {ch.title}
+      {/* ── Fallback: keine Events und kein Vorschlag ──────────── */}
+      {upcomingEvents.length === 0 && !matchedSuggestion && (
+        <p className="text-sm font-body" style={{ color: 'var(--text-muted)' }}>
+          Noch keine Events geplant.{' '}
+          <Link
+            href="/discover"
+            className="inline-flex items-center gap-0.5 font-label"
+            style={{ color: 'var(--gold-text)' }}
+          >
+            Entdecken
+            <Icon name="chevron-right" size={12} />
+          </Link>
+        </p>
+      )}
+
+      {/* ── Aktive Challenges (nur wenn vorhanden) ─────────────── */}
+      {challenges.length > 0 && (
+        <div>
+          <h2
+            className="font-heading text-base mb-3"
+            style={{ color: 'var(--text-h)' }}
+          >
+            Aktive Challenges
+          </h2>
+          <div className="space-y-4">
+            {challenges.slice(0, 3).map((ch) => {
+              const progress = ch.my_progress;
+              const totalDays = ch.duration_days;
+              const checkins = progress?.total_checkins ?? 0;
+              const pct = totalDays > 0 ? Math.min(100, Math.round((checkins / totalDays) * 100)) : 0;
+              const streak = progress?.current_streak ?? 0;
+              const todayNumber = checkins + 1;
+              const isChecking = checkingIn[ch.id];
+
+              return (
+                <div key={ch.id}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-base">{ch.emoji}</span>
+                    <span className="text-sm font-body font-medium flex-1 truncate" style={{ color: 'var(--text-h)' }}>
+                      {ch.title}
+                    </span>
+                    {streak > 0 && (
+                      <span className="text-xs font-label" style={{ color: 'var(--gold-text)' }}>
+                        {streak}d Streak
                       </span>
-                      {streak > 0 && (
-                        <span className="text-xs font-label" style={{ color: 'var(--gold-text)' }}>
-                          {streak}d Streak
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Fortschrittsbalken */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--divider)' }}>
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${pct}%`,
-                            background: 'linear-gradient(90deg, var(--gold-deep), var(--gold))',
-                          }}
-                        />
-                      </div>
-                      <span className="text-[0.55rem] font-label flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
-                        {checkins}/{totalDays}
-                      </span>
-                    </div>
-
-                    {/* Check-in Button */}
-                    {!progress?.completed && todayNumber <= totalDays && (
-                      <button
-                        onClick={() => handleCheckin(ch.id, todayNumber)}
-                        disabled={isChecking}
-                        className="mt-2 px-3 py-1 bg-transparent rounded-full font-label text-[0.55rem] tracking-[0.08em] uppercase cursor-pointer transition-colors duration-200"
-                        style={{
-                          border: '1px solid var(--gold-border-s)',
-                          color: 'var(--gold-text)',
-                          opacity: isChecking ? 0.5 : 1,
-                        }}
-                      >
-                        Tag {todayNumber} einchecken
-                      </button>
                     )}
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </DashboardCard>
 
-        {/* Empfehlungen */}
-        <DashboardCard icon="sparkles" title="Für dich entdecken">
-          {locationLat == null || locationLng == null ? (
-            <p className="text-xs font-body py-3" style={{ color: 'var(--text-muted)' }}>
-              Aktiviere deinen Standort in deinem Profil, um Empfehlungen zu erhalten.
-            </p>
-          ) : recommendations.length === 0 ? (
-            <div className="text-center py-3">
-              <p className="text-xs font-body" style={{ color: 'var(--text-muted)' }}>
-                Keine neuen Events in der Nähe
-              </p>
-              <Link
-                href="/discover"
-                className="inline-flex items-center gap-1 mt-2 text-xs font-label"
-                style={{ color: 'var(--gold-text)' }}
-              >
-                Entdecken
-                <Icon name="chevron-right" size={12} />
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {recommendations.map((event) => {
-                const dist = distanceKm(locationLat, locationLng, event.location_lat, event.location_lng);
-                const isCourse = event.category === 'course';
-                const isJoining = joiningEvent[event.id];
-
-                return (
-                  <div key={event.id} className="flex items-center gap-2.5">
-                    {/* Kategorie-Dot */}
-                    <span
-                      className="w-2 h-2 rounded-full flex-shrink-0"
-                      style={{ background: isCourse ? 'var(--event-purple)' : 'var(--gold)' }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm font-body font-medium truncate block" style={{ color: 'var(--text-h)' }}>
-                        {event.title}
-                      </span>
-                      <span className="text-[0.6rem] font-body" style={{ color: 'var(--text-muted)' }}>
-                        {formatEventDate(event.starts_at)} · {dist < 1 ? `${Math.round(dist * 1000)}m` : `${dist.toFixed(1)}km`}
-                      </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--divider)' }}>
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${pct}%`,
+                          background: 'linear-gradient(90deg, var(--gold-deep), var(--gold))',
+                        }}
+                      />
                     </div>
+                    <span className="text-[0.55rem] font-label flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
+                      {checkins}/{totalDays}
+                    </span>
+                  </div>
+
+                  {!progress?.completed && todayNumber <= totalDays && (
                     <button
-                      onClick={() => handleJoinRecommendation(event.id)}
-                      disabled={isJoining}
-                      className="px-2.5 py-1 border-none rounded-full font-label text-[0.55rem] tracking-[0.08em] uppercase cursor-pointer flex-shrink-0"
+                      onClick={() => handleCheckin(ch.id, todayNumber)}
+                      disabled={isChecking}
+                      className="mt-2 px-3 py-1 bg-transparent rounded-full font-label text-[0.55rem] tracking-[0.08em] uppercase cursor-pointer transition-colors duration-200"
                       style={{
-                        background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
-                        color: 'var(--text-on-gold)',
-                        opacity: isJoining ? 0.5 : 1,
+                        border: '1px solid var(--gold-border-s)',
+                        color: 'var(--gold-text)',
+                        opacity: isChecking ? 0.5 : 1,
                       }}
                     >
-                      Teilnehmen
+                      Tag {todayNumber} einchecken
                     </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </DashboardCard>
-      </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
-      {/* ── Letzte Impulse (Timeline-Vorschau) ─────────────────── */}
+      {/* ── Empfehlungen in deiner Nähe (nur wenn vorhanden) ──── */}
+      {recommendations.length > 0 && upcomingEvents.length > 0 && locationLat != null && locationLng != null && (
+        <div>
+          <h2
+            className="font-heading text-base mb-3"
+            style={{ color: 'var(--text-h)' }}
+          >
+            In deiner Nähe
+          </h2>
+          <div className="space-y-2.5">
+            {recommendations.map((event) => {
+              const dist = distanceKm(locationLat, locationLng, event.location_lat, event.location_lng);
+              const isCourse = event.category === 'course';
+              const isJoining = joiningEvent[event.id];
+
+              return (
+                <div key={event.id} className="flex items-center gap-2.5">
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ background: isCourse ? 'var(--event-purple)' : 'var(--gold)' }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-body font-medium truncate block" style={{ color: 'var(--text-h)' }}>
+                      {event.title}
+                    </span>
+                    <span className="text-[0.6rem] font-body" style={{ color: 'var(--text-muted)' }}>
+                      {formatEventDate(event.starts_at)} &middot; {dist < 1 ? `${Math.round(dist * 1000)}m` : `${dist.toFixed(1)}km`}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleJoinRecommendation(event.id)}
+                    disabled={isJoining}
+                    className="px-2.5 py-1 border-none rounded-full font-label text-[0.55rem] tracking-[0.08em] uppercase cursor-pointer flex-shrink-0"
+                    style={{
+                      background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                      color: 'var(--text-on-gold)',
+                      opacity: isJoining ? 0.5 : 1,
+                    }}
+                  >
+                    Teilnehmen
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Letzte Impulse (nur wenn vorhanden) ────────────────── */}
       {recentPulses.length > 0 && (
-        <DashboardCard icon="activity" title="Letzte Impulse">
+        <div>
+          <h2
+            className="font-heading text-base mb-3"
+            style={{ color: 'var(--text-h)' }}
+          >
+            Letzte Impulse
+          </h2>
           <div className="space-y-2.5">
             {recentPulses.slice(0, 3).map((pulse) => {
               const date = new Date(pulse.created_at);
@@ -624,7 +699,7 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
             Alle Impulse anzeigen
             <Icon name="chevron-right" size={12} />
           </Link>
-        </DashboardCard>
+        </div>
       )}
     </div>
   );

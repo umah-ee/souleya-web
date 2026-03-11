@@ -9,11 +9,12 @@ export default async function HomePage() {
   let displayName: string | null = null;
   let locationLat: number | null = null;
   let locationLng: number | null = null;
+  let interests: string[] = [];
 
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('display_name, location_lat, location_lng')
+      .select('display_name, location_lat, location_lng, interests')
       .eq('id', user.id)
       .single();
 
@@ -21,6 +22,7 @@ export default async function HomePage() {
       displayName = profile.display_name;
       locationLat = profile.location_lat;
       locationLng = profile.location_lng;
+      interests = profile.interests ?? [];
     }
   }
 
@@ -30,6 +32,7 @@ export default async function HomePage() {
       displayName={displayName}
       locationLat={locationLat}
       locationLng={locationLng}
+      interests={interests}
     />
   );
 }
