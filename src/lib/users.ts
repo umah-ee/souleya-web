@@ -9,6 +9,8 @@ export interface UserSearchResult {
   location: string | null;
   soul_level: number;
   is_first_light: boolean;
+  is_admin: boolean;
+  is_mentor: boolean;
   connections_count: number;
 }
 

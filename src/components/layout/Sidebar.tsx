@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -8,6 +8,7 @@ import { useTheme } from '@/components/ThemeProvider';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { useUnread } from '@/components/chat/UnreadContext';
 import { useSidebar } from './SidebarContext';
+import { fetchProfile } from '@/lib/profile';
 
 const navItems: { href: string; icon: IconName; label: string }[] = [
   { href: '/', icon: 'sparkles', label: 'Pulse' },
@@ -26,12 +27,20 @@ export default function Sidebar() {
   const { theme, toggleTheme } = useTheme();
   const { totalUnread, refreshUnread } = useUnread();
   const { collapsed, toggle } = useSidebar();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Unread-Count beim Mount laden
   useEffect(() => {
     const t = setTimeout(refreshUnread, 400);
     return () => clearTimeout(t);
   }, [refreshUnread]);
+
+  // Admin-Status laden
+  useEffect(() => {
+    fetchProfile()
+      .then((p) => setIsAdmin(p.is_admin === true))
+      .catch(() => setIsAdmin(false));
+  }, []);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -188,6 +197,49 @@ export default function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Admin-Bereich (nur fuer Admins) */}
+        {isAdmin && (
+          <>
+            <div className="mx-2 my-1" style={{ height: 1, background: 'var(--divider-l)' }} />
+            {(() => {
+              const active = pathname.startsWith('/admin');
+              return (
+                <Link
+                  href="/admin/users"
+                  className="flex items-center gap-3 rounded-[8px] transition-all duration-200 relative no-underline whitespace-nowrap"
+                  style={{
+                    padding: collapsed ? '10px 0' : '10px 12px',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    background: active ? 'var(--sidebar-active)' : 'transparent',
+                  }}
+                  title={collapsed ? 'Admin' : undefined}
+                  onMouseEnter={(e) => {
+                    if (!active) e.currentTarget.style.background = 'var(--sidebar-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  {active && (
+                    <span
+                      className="absolute left-0 top-1/2 -translate-y-1/2"
+                      style={{ width: 3, height: 20, background: 'var(--gold)', borderRadius: '0 3px 3px 0' }}
+                    />
+                  )}
+                  <span className="flex-shrink-0 flex items-center justify-center" style={{ width: 20, height: 20 }}>
+                    <Icon name="shield" size={20} style={{ color: active ? 'var(--gold)' : 'var(--text-sec)' }} />
+                  </span>
+                  {!collapsed && (
+                    <span className="text-xs transition-colors whitespace-nowrap" style={{ color: active ? 'var(--gold-text)' : 'var(--text-sec)' }}>
+                      Admin
+                    </span>
+                  )}
+                </Link>
+              );
+            })()}
+          </>
+        )}
       </nav>
 
       {/* Collapse Toggle */}
