@@ -533,7 +533,6 @@ function InterestsSection({
                     background: isOpen ? 'var(--gold-bg)' : 'transparent',
                   }}
                 >
-                  <span className="text-sm">{cat.icon}</span>
                   <span className="flex-1 text-[12px] font-body font-medium" style={{ color: 'var(--text-h)' }}>
                     {cat.label}
                   </span>

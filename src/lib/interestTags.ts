@@ -5,14 +5,13 @@
 
 export interface InterestCategory {
   label: string;
-  icon: string; // Emoji als visueller Anker
   tags: string[];
 }
 
 export const INTEREST_CATEGORIES: InterestCategory[] = [
   {
     label: 'Meditation & Achtsamkeit',
-    icon: '🧘',
+
     tags: [
       'Achtsamkeit', 'Achtsames Essen', 'Achtsamkeit am Arbeitsplatz',
       'Meditation', 'Geführte Meditation', 'Transzendentale Meditation',
@@ -21,7 +20,7 @@ export const INTEREST_CATEGORIES: InterestCategory[] = [
   },
   {
     label: 'Yoga & Bewegung',
-    icon: '🙏',
+
     tags: [
       'Yoga', 'Hormon-Yoga', 'Yoga Nidra', 'Qigong', 'Tai Chi',
       'Tiefenentspannung', 'Progressive Muskelentspannung',
@@ -29,7 +28,7 @@ export const INTEREST_CATEGORIES: InterestCategory[] = [
   },
   {
     label: 'Atemarbeit',
-    icon: '🌬️',
+
     tags: [
       'Atemarbeit', 'Pranayama', 'Holotropes Atmen',
       'Box Breathing', 'Nervensystem Regulation',
@@ -37,7 +36,7 @@ export const INTEREST_CATEGORIES: InterestCategory[] = [
   },
   {
     label: 'Energiearbeit & Heilung',
-    icon: '✨',
+
     tags: [
       'Energiearbeit', 'Reiki', 'Reiki Fernheilung', 'Prana-Heilung',
       'Chakren', 'Herzchakra', 'Wurzelchakra', 'Aura',
@@ -47,7 +46,7 @@ export const INTEREST_CATEGORIES: InterestCategory[] = [
   },
   {
     label: 'Spiritualität & Bewusstsein',
-    icon: '🔮',
+
     tags: [
       'Spirituelles Erwachen', 'Bewusstsein', 'Höheres Selbst',
       'Lichtarbeit', 'Channeling', 'Schamanismus',
@@ -57,7 +56,7 @@ export const INTEREST_CATEGORIES: InterestCategory[] = [
   },
   {
     label: 'Persönlichkeitsentwicklung',
-    icon: '🌱',
+
     tags: [
       'Selbstliebe', 'Selbstakzeptanz', 'Grenzen setzen',
       'Transformation', 'Loslass-Prozesse', 'Schattenarbeit',
@@ -67,7 +66,7 @@ export const INTEREST_CATEGORIES: InterestCategory[] = [
   },
   {
     label: 'Manifestation & Fülle',
-    icon: '🎯',
+
     tags: [
       'Manifestation', 'Law of Attraction', 'Vision Board',
       'Fülle-Bewusstsein', 'Bewusstes Erschaffen',
@@ -76,7 +75,7 @@ export const INTEREST_CATEGORIES: InterestCategory[] = [
   },
   {
     label: 'Gesundheit & Körper',
-    icon: '💚',
+
     tags: [
       'Ayurveda', 'Ernährung', 'Superfoods', 'Fasten',
       'Detox', 'Biohacking', 'Longevity', 'Zellgesundheit',
@@ -87,7 +86,7 @@ export const INTEREST_CATEGORIES: InterestCategory[] = [
   },
   {
     label: 'Herzöffnung & Beziehungen',
-    icon: '💛',
+
     tags: [
       'Herzöffnung', 'Vergebungsarbeit', 'Mitgefühl',
       'Beziehungsmuster', 'Emotionale Intelligenz',
@@ -96,7 +95,7 @@ export const INTEREST_CATEGORIES: InterestCategory[] = [
   },
   {
     label: 'Natur & Erdung',
-    icon: '🌿',
+
     tags: [
       'Naturverbundenheit', 'Waldbaden', 'Erdung',
       'Barfuß laufen', 'Elemente-Lehre',
@@ -104,7 +103,7 @@ export const INTEREST_CATEGORIES: InterestCategory[] = [
   },
   {
     label: 'Kreativität & Ausdruck',
-    icon: '🎨',
+
     tags: [
       'Journaling', 'Morgenseiten', 'Intuitives Schreiben',
       'Musik', 'Tanz', 'Kunst', 'Mantren',
@@ -112,7 +111,7 @@ export const INTEREST_CATEGORIES: InterestCategory[] = [
   },
   {
     label: 'Bewusstes Leben',
-    icon: '☯️',
+
     tags: [
       'Slow Living', 'Nachhaltigkeit', 'Bewusster Konsum',
       'Selbstfürsorge', 'Work-Life-Balance',
