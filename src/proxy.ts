@@ -58,14 +58,14 @@ export async function proxy(request: NextRequest) {
       (prefix) => pathname === prefix || pathname.startsWith(prefix + '/'),
     );
     if (!isAllowed) {
-      // Admin-Check: Admins haben Vollzugriff auch im Pre-Launch
+      // Admin + Beta-Tester Check: haben Vollzugriff auch im Pre-Launch
       const { data: profile } = await supabase
         .from('profiles')
-        .select('is_admin')
+        .select('is_admin, is_beta_tester')
         .eq('id', user.id)
         .single();
 
-      if (!profile?.is_admin) {
+      if (!profile?.is_admin && !profile?.is_beta_tester) {
         return NextResponse.redirect(new URL('/profile', request.url));
       }
     }
