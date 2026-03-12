@@ -27,6 +27,7 @@ export interface PublicProfile {
   connections_count: number;
   pulses_count: number;
   interests: string[];
+  birthday: string | null;
   created_at: string;
 }
 

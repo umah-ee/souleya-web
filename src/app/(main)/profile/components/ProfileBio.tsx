@@ -3,6 +3,7 @@
 import type { Profile } from '@/types/profile';
 import type { PublicProfile } from '@/lib/users';
 import { Icon } from '@/components/ui/Icon';
+import { getZodiacSign } from '@/lib/zodiac';
 
 interface ProfileBioProps {
   profile: Profile | PublicProfile;
@@ -11,6 +12,8 @@ interface ProfileBioProps {
 export default function ProfileBio({ profile }: ProfileBioProps) {
   const hasContent = profile.bio || profile.location || profile.created_at;
   if (!hasContent) return null;
+
+  const zodiac = profile.birthday ? getZodiacSign(profile.birthday) : null;
 
   return (
     <div className="text-center px-6" style={{ marginTop: '40px' }}>
@@ -24,7 +27,7 @@ export default function ProfileBio({ profile }: ProfileBioProps) {
         </p>
       )}
 
-      {/* ─── Location + Member-Since — Mockup: 12px, gap 20px, icon opacity .65 ─── */}
+      {/* ─── Location + Sternzeichen + Member-Since — Mockup: 12px, gap 20px, icon opacity .65 ─── */}
       <div
         className="flex flex-wrap justify-center"
         style={{ gap: '20px', marginTop: '16px', fontSize: '12px', color: 'var(--text-sec)' }}
@@ -33,6 +36,12 @@ export default function ProfileBio({ profile }: ProfileBioProps) {
           <span className="flex items-center gap-1.5">
             <Icon name="map-pin" size={13} style={{ opacity: 0.65 }} />
             {profile.location}
+          </span>
+        )}
+        {zodiac && (
+          <span className="flex items-center gap-1.5">
+            <span style={{ opacity: 0.65, fontSize: '13px' }}>{zodiac.symbol}</span>
+            {zodiac.name}
           </span>
         )}
         <span className="flex items-center gap-1.5">

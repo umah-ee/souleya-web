@@ -17,6 +17,7 @@ export interface Profile {
   connections_count: number;
   pulses_count: number;
   interests: string[];
+  birthday: string | null;
   referral_code: string;
   created_at: string;
   updated_at: string;
@@ -32,6 +33,7 @@ export interface UpdateProfileData {
   location_lat?: number;
   location_lng?: number;
   interests?: string[];
+  birthday?: string;
 }
 
 export const SOUL_LEVEL_NAMES: Record<number, string> = {

@@ -27,6 +27,7 @@ export default function EditProfilePanel({
     display_name: profile.display_name ?? '',
     username: profile.username ?? '',
     bio: profile.bio ?? '',
+    birthday: profile.birthday ?? '',
     location: profile.location ?? '',
     location_lat: profile.location_lat,
     location_lng: profile.location_lng,
@@ -187,6 +188,7 @@ export default function EditProfilePanel({
         display_name: form.display_name || undefined,
         username: form.username || undefined,
         bio: form.bio || undefined,
+        birthday: form.birthday || undefined,
         location: form.location || undefined,
         location_lat: form.location_lat ?? undefined,
         location_lng: form.location_lng ?? undefined,
@@ -305,6 +307,19 @@ export default function EditProfilePanel({
           maxLength={300}
           rows={3}
           className="w-full px-3 py-2.5 text-[14px] font-body outline-none resize-none"
+          style={inputStyle}
+        />
+      </div>
+
+      {/* ── Geburtstag ── */}
+      <div style={{ marginBottom: '16px' }}>
+        <FieldLabel>Geburtstag</FieldLabel>
+        <input
+          type="date"
+          value={form.birthday}
+          onChange={(e) => setForm((f) => ({ ...f, birthday: e.target.value }))}
+          max={new Date().toISOString().split('T')[0]}
+          className="w-full px-3 py-2.5 text-[14px] font-body outline-none"
           style={inputStyle}
         />
       </div>
