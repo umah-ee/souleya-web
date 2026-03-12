@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Profile } from '@/types/profile';
+import { fetchReferrals, type ReferralData } from '@/lib/profile';
 import Panel from '@/components/ui/Panel';
 import { Icon } from '@/components/ui/Icon';
 
@@ -9,6 +10,16 @@ interface ReferralPanelProps {
   isOpen: boolean;
   onClose: () => void;
   profile: Profile;
+}
+
+function getInitials(name: string | null): string {
+  if (!name) return '?';
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 }
 
 /**
@@ -20,7 +31,14 @@ interface ReferralPanelProps {
  */
 export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPanelProps) {
   const [copied, setCopied] = useState(false);
+  const [data, setData] = useState<ReferralData | null>(null);
   const referralUrl = `souleya.com?ref=${profile.referral_code}`;
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchReferrals().then(setData).catch(() => {});
+    }
+  }, [isOpen]);
 
   const handleCopy = async () => {
     try {
@@ -31,9 +49,6 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
       // Fallback
     }
   };
-
-  // Placeholder — spaeter durch API ersetzen
-  const invitedUsers: { initials: string; name: string; date: string; seeds: number }[] = [];
 
   return (
     <Panel isOpen={isOpen} onClose={onClose} title="Einladungen">
@@ -47,7 +62,7 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
             className="font-heading"
             style={{ fontSize: '30px', fontWeight: 500, lineHeight: 1, color: 'var(--text-h)' }}
           >
-            {invitedUsers.length}
+            {data?.count ?? 0}
           </div>
           <div
             className="font-label"
@@ -68,7 +83,7 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
             className="font-heading"
             style={{ fontSize: '30px', fontWeight: 500, lineHeight: 1, color: 'var(--text-h)' }}
           >
-            0
+            {data?.seeds_earned ?? 0}
           </div>
           <div
             className="font-label"
@@ -88,7 +103,6 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
 
       {/* ─── Referral Link — Mockup: ref-link-section ─── */}
       <div style={{ padding: '24px 0', textAlign: 'center' }}>
-        {/* Label — Mockup: 10px, uppercase */}
         <div
           className="font-label"
           style={{
@@ -103,7 +117,6 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
           Dein Einladungslink
         </div>
 
-        {/* Link Box — Mockup: ref-link-box, radius 14px, glass bg, border */}
         <div
           className="flex items-center"
           style={{
@@ -125,7 +138,6 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
           >
             {referralUrl}
           </span>
-          {/* Kopieren — Mockup: 10px, uppercase, radius 20px, gold-softer bg */}
           <button
             onClick={handleCopy}
             className="font-label flex-shrink-0 cursor-pointer transition-all duration-200"
@@ -146,7 +158,7 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
         </div>
       </div>
 
-      {/* ─── Invited Users Header — Mockup: ref-users-header ─── */}
+      {/* ─── Invited Users Header ─── */}
       <div
         className="font-label"
         style={{
@@ -161,51 +173,63 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
         Deine Einladungen
       </div>
 
-      {/* ─── Invited Users List — Mockup: ref-users ─── */}
-      {invitedUsers.length > 0 ? (
+      {/* ─── Invited Users List ─── */}
+      {data && data.invited.length > 0 ? (
         <div>
-          {invitedUsers.map((user, i) => (
+          {data.invited.map((user, i) => (
             <div
-              key={user.name}
+              key={i}
               className="flex items-center transition-colors"
               style={{
                 padding: '14px 0',
                 borderTop: i > 0 ? '1px solid var(--divider-l)' : undefined,
               }}
             >
-              {/* Avatar — Mockup: 34px, circle, glass bg, border */}
-              <div
-                className="font-label flex items-center justify-center flex-shrink-0"
-                style={{
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '50%',
-                  background: 'var(--glass)',
-                  border: '1px solid var(--divider-l)',
-                  marginRight: '14px',
-                  fontSize: '11px',
-                  fontWeight: 500,
-                  letterSpacing: '0.5px',
-                  color: 'var(--text-sec)',
-                }}
-              >
-                {user.initials}
-              </div>
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt=""
+                  style={{
+                    width: '34px',
+                    height: '34px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    marginRight: '14px',
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <div
+                  className="font-label flex items-center justify-center flex-shrink-0"
+                  style={{
+                    width: '34px',
+                    height: '34px',
+                    borderRadius: '50%',
+                    background: 'var(--glass)',
+                    border: '1px solid var(--divider-l)',
+                    marginRight: '14px',
+                    fontSize: '11px',
+                    fontWeight: 500,
+                    letterSpacing: '0.5px',
+                    color: 'var(--text-sec)',
+                  }}
+                >
+                  {getInitials(user.display_name)}
+                </div>
+              )}
 
-              {/* Text — Mockup: name 14px/500, date 11px */}
               <div className="flex-1 min-w-0">
                 <div
                   className="truncate"
                   style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-body)' }}
                 >
-                  {user.name}
+                  {user.display_name || 'Neues Mitglied'}
                 </div>
                 <div style={{ fontSize: '11px', color: 'var(--text-sec)', marginTop: '2px' }}>
-                  {user.date}
+                  {new Date(user.created_at).toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </div>
               </div>
 
-              {/* Seeds — Mockup: 10px, Josefin Sans, weight 500, green */}
               <div
                 className="font-label flex-shrink-0"
                 style={{
@@ -216,7 +240,7 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
                   marginLeft: '14px',
                 }}
               >
-                +{user.seeds}
+                +100
               </div>
             </div>
           ))}
@@ -233,7 +257,6 @@ export default function ReferralPanel({ isOpen, onClose, profile }: ReferralPane
         </div>
       )}
 
-      {/* Spacer — Mockup: 32px */}
       <div style={{ height: '32px' }} />
     </Panel>
   );
