@@ -1,19 +1,14 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import type { Profile, UpdateProfileData } from '@/types/profile';
 import { updateProfile, uploadAvatar, uploadBanner } from '@/lib/profile';
 import { geocodeLocation } from '@/lib/events';
+import { INTEREST_CATEGORIES, searchInterestTags } from '@/lib/interestTags';
 import Panel from '@/components/ui/Panel';
 import { Icon } from '@/components/ui/Icon';
 
-// ── Vorschlaege fuer Interest Tags ─────────────────────────
-const INTEREST_SUGGESTIONS = [
-  'Achtsamkeit', 'Yoga', 'Meditation', 'Atemarbeit', 'Heilung',
-  'Buddhismus', 'Schamanismus', 'Ayurveda', 'Reiki', 'Tantra',
-  'Naturheilkunde', 'Psychologie', 'Coaching', 'Tanz', 'Musik',
-  'Kunst', 'Journaling', 'Fasten', 'Qigong', 'Tai Chi',
-];
+const MAX_INTERESTS = 15;
 
 interface EditProfilePanelProps {
   isOpen: boolean;
@@ -38,6 +33,8 @@ export default function EditProfilePanel({
     interests: profile.interests ?? [],
   });
   const [tagInput, setTagInput] = useState('');
+  const [tagSearch, setTagSearch] = useState('');
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
@@ -125,7 +122,7 @@ export default function EditProfilePanel({
   // ── Tags ──
   const addTag = (tag: string) => {
     const trimmed = tag.trim();
-    if (!trimmed || form.interests.length >= 10 || form.interests.includes(trimmed)) return;
+    if (!trimmed || form.interests.length >= MAX_INTERESTS || form.interests.includes(trimmed)) return;
     setForm((f) => ({ ...f, interests: [...f.interests, trimmed] }));
     setTagInput('');
   };
@@ -362,55 +359,19 @@ export default function EditProfilePanel({
       </div>
 
       {/* ── Interests ── */}
-      <div className="mb-6">
-        <p className="text-[10px] font-label tracking-[1.2px] uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
-          Interessen ({form.interests.length}/10)
-        </p>
-        {form.interests.length > 0 && (
-          <div className="flex flex-wrap gap-[6px] mb-2">
-            {form.interests.map((tag) => (
-              <span
-                key={tag}
-                className="text-[10px] font-label tracking-[0.8px] uppercase px-[10px] py-[4px] rounded-full inline-flex items-center gap-1"
-                style={{ color: 'var(--gold-text)', border: '1px solid var(--gold-border)', background: 'var(--gold-bg)' }}
-              >
-                {tag}
-                <button
-                  onClick={() => removeTag(tag)}
-                  className="ml-0.5 cursor-pointer bg-transparent border-none"
-                  style={{ color: 'var(--text-muted)' }}
-                >
-                  <Icon name="x" size={10} />
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
-        {form.interests.length < 10 && (
-          <input
-            type="text"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleTagKeyDown}
-            placeholder="Tag eingeben + Enter"
-            maxLength={30}
-            className="w-full rounded-input px-3 py-2 text-[13px] font-body outline-none mb-2"
-            style={inputStyle}
-          />
-        )}
-        <div className="flex flex-wrap gap-1">
-          {INTEREST_SUGGESTIONS.filter((s) => !form.interests.includes(s)).slice(0, 8).map((s) => (
-            <button
-              key={s}
-              onClick={() => addTag(s)}
-              className="text-[9px] tracking-[0.8px] uppercase px-2 py-[3px] rounded-full cursor-pointer"
-              style={{ color: 'var(--text-muted)', border: '1px solid var(--divider)', background: 'transparent' }}
-            >
-              + {s}
-            </button>
-          ))}
-        </div>
-      </div>
+      <InterestsSection
+        selected={form.interests}
+        onAdd={addTag}
+        onRemove={removeTag}
+        tagInput={tagInput}
+        setTagInput={setTagInput}
+        onTagKeyDown={handleTagKeyDown}
+        tagSearch={tagSearch}
+        setTagSearch={setTagSearch}
+        expandedCategory={expandedCategory}
+        setExpandedCategory={setExpandedCategory}
+        inputStyle={inputStyle}
+      />
 
       {/* ── Save Button — Mockup: gradient, letter-spacing 2px ── */}
       <div style={{ padding: '8px 0' }}>
@@ -433,6 +394,183 @@ export default function EditProfilePanel({
         </button>
       </div>
     </Panel>
+  );
+}
+
+// ── Interests Section ─────────────────────────────────────────
+function InterestsSection({
+  selected,
+  onAdd,
+  onRemove,
+  tagInput,
+  setTagInput,
+  onTagKeyDown,
+  tagSearch,
+  setTagSearch,
+  expandedCategory,
+  setExpandedCategory,
+  inputStyle,
+}: {
+  selected: string[];
+  onAdd: (tag: string) => void;
+  onRemove: (tag: string) => void;
+  tagInput: string;
+  setTagInput: (v: string) => void;
+  onTagKeyDown: (e: React.KeyboardEvent) => void;
+  tagSearch: string;
+  setTagSearch: (v: string) => void;
+  expandedCategory: string | null;
+  setExpandedCategory: (v: string | null) => void;
+  inputStyle: React.CSSProperties;
+}) {
+  const isFull = selected.length >= MAX_INTERESTS;
+
+  // Search results
+  const searchResults = useMemo(() => {
+    if (!tagSearch.trim()) return [];
+    return searchInterestTags(tagSearch).filter((t) => !selected.includes(t));
+  }, [tagSearch, selected]);
+
+  return (
+    <div className="mb-6">
+      <p className="text-[10px] font-label tracking-[1.2px] uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
+        Interessen ({selected.length}/{MAX_INTERESTS})
+      </p>
+
+      {/* Ausgewählte Tags */}
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-[6px] mb-3">
+          {selected.map((tag) => (
+            <span
+              key={tag}
+              className="text-[10px] font-label tracking-[0.8px] uppercase px-[10px] py-[4px] rounded-full inline-flex items-center gap-1"
+              style={{ color: 'var(--gold-text)', border: '1px solid var(--gold-border)', background: 'var(--gold-bg)' }}
+            >
+              {tag}
+              <button
+                onClick={() => onRemove(tag)}
+                className="ml-0.5 cursor-pointer bg-transparent border-none"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                <Icon name="x" size={10} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Eigenen Tag eingeben */}
+      {!isFull && (
+        <input
+          type="text"
+          value={tagInput}
+          onChange={(e) => setTagInput(e.target.value)}
+          onKeyDown={onTagKeyDown}
+          placeholder="Eigenen Tag eingeben + Enter"
+          maxLength={30}
+          className="w-full rounded-input px-3 py-2 text-[13px] font-body outline-none mb-3"
+          style={inputStyle}
+        />
+      )}
+
+      {/* Suchfeld für Vorschläge */}
+      {!isFull && (
+        <div className="relative mb-3">
+          <div className="flex items-center gap-2 w-full rounded-input px-3 py-2" style={inputStyle}>
+            <Icon name="search" size={14} style={{ color: 'var(--text-muted)' }} />
+            <input
+              type="text"
+              value={tagSearch}
+              onChange={(e) => setTagSearch(e.target.value)}
+              placeholder="Vorschläge durchsuchen …"
+              maxLength={40}
+              className="flex-1 text-[13px] font-body outline-none bg-transparent min-w-0"
+              style={{ color: 'var(--text-h)' }}
+            />
+            {tagSearch && (
+              <button
+                onClick={() => setTagSearch('')}
+                className="cursor-pointer bg-transparent border-none"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                <Icon name="x" size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Suchergebnisse */}
+          {searchResults.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {searchResults.slice(0, 12).map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => { onAdd(tag); setTagSearch(''); }}
+                  className="text-[9px] tracking-[0.8px] uppercase px-2 py-[3px] rounded-full cursor-pointer transition-colors duration-150"
+                  style={{ color: 'var(--gold-text)', border: '1px solid var(--gold-border-s)', background: 'transparent' }}
+                >
+                  + {tag}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Kategorien (aufklappbar) */}
+      {!isFull && !tagSearch && (
+        <div className="space-y-1">
+          {INTEREST_CATEGORIES.map((cat) => {
+            const availableTags = cat.tags.filter((t) => !selected.includes(t));
+            if (availableTags.length === 0) return null;
+            const isOpen = expandedCategory === cat.label;
+
+            return (
+              <div key={cat.label}>
+                <button
+                  onClick={() => setExpandedCategory(isOpen ? null : cat.label)}
+                  className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer transition-colors duration-150 bg-transparent border-none text-left"
+                  style={{
+                    background: isOpen ? 'var(--gold-bg)' : 'transparent',
+                  }}
+                >
+                  <span className="text-sm">{cat.icon}</span>
+                  <span className="flex-1 text-[12px] font-body font-medium" style={{ color: 'var(--text-h)' }}>
+                    {cat.label}
+                  </span>
+                  <span className="text-[10px] font-label" style={{ color: 'var(--text-muted)' }}>
+                    {availableTags.length}
+                  </span>
+                  <Icon
+                    name="chevron-right"
+                    size={12}
+                    style={{
+                      color: 'var(--text-muted)',
+                      transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.15s ease',
+                    }}
+                  />
+                </button>
+
+                {isOpen && (
+                  <div className="flex flex-wrap gap-1 px-2.5 py-2">
+                    {availableTags.map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => onAdd(tag)}
+                        className="text-[9px] tracking-[0.8px] uppercase px-2 py-[3px] rounded-full cursor-pointer transition-colors duration-150"
+                        style={{ color: 'var(--text-muted)', border: '1px solid var(--divider)', background: 'transparent' }}
+                      >
+                        + {tag}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 
