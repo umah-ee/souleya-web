@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { logActivity } from '@/lib/activity';
 
 /**
  * Auth Callback – verarbeitet drei Flows:
@@ -29,9 +30,13 @@ function CallbackHandler() {
     const otp = searchParams.get('otp');
     let done = false;
 
-    function go(path: string) {
+    function go(path: string, method?: string) {
       if (done) return;
       done = true;
+      // Activity loggen (fire-and-forget)
+      logActivity('auth.login', `Login via ${method || 'Callback'}`, undefined, {
+        method: method || 'callback',
+      });
       router.replace(path);
     }
 
@@ -45,7 +50,7 @@ function CallbackHandler() {
           type: 'email',
         });
         if (!error) {
-          go(next);
+          go(next, 'otp_landing');
           return;
         }
         console.error('OTP verification error:', error);
@@ -61,7 +66,7 @@ function CallbackHandler() {
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error) {
-          go(next);
+          go(next, 'pkce');
           return;
         }
         console.error('PKCE exchange error:', error);
@@ -80,7 +85,7 @@ function CallbackHandler() {
             refresh_token: refreshToken,
           });
           if (!error) {
-            go(next);
+            go(next, 'magic_link');
             return;
           }
           console.error('Implicit flow setSession error:', error);
@@ -92,7 +97,7 @@ function CallbackHandler() {
         (_event, session) => {
           if (session) {
             subscription.unsubscribe();
-            go(next);
+            go(next, 'auth_state_change');
           }
         },
       );

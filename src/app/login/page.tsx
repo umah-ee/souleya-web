@@ -4,6 +4,7 @@ import { Suspense, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PasswordInput } from '@/components/auth/PasswordInput';
+import { logActivity } from '@/lib/activity';
 
 const SOUL_LEVELS: Record<number, string> = {
   1: 'Soul Spark',
@@ -100,6 +101,7 @@ function LoginForm() {
     } else {
       // Erfolg → zur App weiterleiten
       router.push(nextUrl);
+      logActivity('auth.login', 'Login via OTP', 'Magic Link Code verifiziert', { method: 'otp' });
     }
   };
 
@@ -171,6 +173,7 @@ function LoginForm() {
       setLoading(false);
     } else {
       router.push(nextUrl);
+      logActivity('auth.login', 'Login via Passwort', 'Passwort-Anmeldung', { method: 'password' });
     }
   };
 
@@ -195,6 +198,7 @@ function LoginForm() {
       setError('Fehler beim Senden der Reset-E-Mail.');
     } else {
       setForgotSent(true);
+      logActivity('auth.password_reset_requested', 'Passwort-Reset angefordert', undefined, { email: email.trim().toLowerCase() });
     }
   };
 

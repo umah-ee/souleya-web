@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PasswordStrengthBar } from '@/components/auth/PasswordStrengthBar';
+import { logActivity } from '@/lib/activity';
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -56,6 +57,7 @@ function ResetPasswordForm() {
     }
 
     setSuccess(true);
+    logActivity('auth.password_changed', 'Passwort geaendert');
     setTimeout(() => router.replace('/profile'), 2000);
   };
 

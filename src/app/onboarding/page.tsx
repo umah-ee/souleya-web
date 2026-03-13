@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PasswordStrengthBar } from '@/components/auth/PasswordStrengthBar';
+import { logActivity } from '@/lib/activity';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -69,7 +70,10 @@ export default function OnboardingPage() {
         return;
       }
 
-      // 5. Weiter zum Profil
+      // 5. Activity loggen
+      logActivity('onboarding.completed', 'Onboarding abgeschlossen');
+
+      // 6. Weiter zum Profil
       router.replace('/profile');
     } catch {
       setError('Ein unerwarteter Fehler ist aufgetreten.');
