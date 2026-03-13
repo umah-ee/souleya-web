@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const email = searchParams.get('email');
   const otp = searchParams.get('otp');
-  const next = searchParams.get('next') ?? '/profile';
+  const next = searchParams.get('next') ?? '/onboarding';
 
   if (!email || !otp) {
     return NextResponse.redirect(`${origin}/login?error=missing_params`);

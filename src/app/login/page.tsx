@@ -3,6 +3,7 @@
 import { Suspense, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { PasswordInput } from '@/components/auth/PasswordInput';
 
 const SOUL_LEVELS: Record<number, string> = {
   1: 'Soul Spark',
@@ -38,6 +39,9 @@ function LoginForm() {
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [verifying, setVerifying] = useState(false);
+  const [loginMode, setLoginMode] = useState<'otp' | 'password'>('otp');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -148,6 +152,52 @@ function LoginForm() {
     }
   };
 
+  // ── Passwort-Login ─────────────────────────────────────
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !loginPassword) return;
+
+    setLoading(true);
+    setError('');
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password: loginPassword,
+    });
+
+    if (error) {
+      setError('E-Mail oder Passwort falsch.');
+      setLoading(false);
+    } else {
+      router.push(nextUrl);
+    }
+  };
+
+  // ── Passwort vergessen ────────────────────────────────
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setError('Bitte gib zuerst deine E-Mail-Adresse ein.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      email.trim().toLowerCase(),
+      { redirectTo: `${window.location.origin}/auth/reset-password` },
+    );
+
+    setLoading(false);
+    if (error) {
+      setError('Fehler beim Senden der Reset-E-Mail.');
+    } else {
+      setForgotSent(true);
+    }
+  };
+
   // ── Demo-Login (Passwort-basiert, unveraendert) ────────
   const handleDemoLogin = async (demoEmail: string) => {
     setDemoLoading(demoEmail);
@@ -200,11 +250,39 @@ function LoginForm() {
 
         {step === 'email' ? (
           <>
-            <p className="font-label text-xs tracking-[0.2em] uppercase mb-8" style={{ color: 'var(--text-sec)' }}>
+            <p className="font-label text-xs tracking-[0.2em] uppercase mb-6" style={{ color: 'var(--text-sec)' }}>
               Dein Zugang
             </p>
 
-            <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
+            {/* Mode Toggle */}
+            <div className="flex gap-2 mb-6 justify-center">
+              <button
+                type="button"
+                onClick={() => { setLoginMode('otp'); setError(''); setForgotSent(false); }}
+                className="px-4 py-1.5 rounded-full font-label text-[0.65rem] tracking-[0.08em] uppercase border-none cursor-pointer transition-all duration-200"
+                style={{
+                  background: loginMode === 'otp' ? 'var(--gold-bg)' : 'transparent',
+                  color: loginMode === 'otp' ? 'var(--gold-text)' : 'var(--text-muted)',
+                  border: loginMode === 'otp' ? '1px solid var(--gold-border-s)' : '1px solid var(--glass-border)',
+                }}
+              >
+                OTP-Code
+              </button>
+              <button
+                type="button"
+                onClick={() => { setLoginMode('password'); setError(''); setForgotSent(false); }}
+                className="px-4 py-1.5 rounded-full font-label text-[0.65rem] tracking-[0.08em] uppercase border-none cursor-pointer transition-all duration-200"
+                style={{
+                  background: loginMode === 'password' ? 'var(--gold-bg)' : 'transparent',
+                  color: loginMode === 'password' ? 'var(--gold-text)' : 'var(--text-muted)',
+                  border: loginMode === 'password' ? '1px solid var(--gold-border-s)' : '1px solid var(--glass-border)',
+                }}
+              >
+                Passwort
+              </button>
+            </div>
+
+            <form onSubmit={loginMode === 'otp' ? handleSendOtp : handlePasswordLogin} className="flex flex-col gap-4">
               <input
                 type="email"
                 value={email}
@@ -219,8 +297,24 @@ function LoginForm() {
                 }}
               />
 
+              {/* Passwort-Feld (nur im Passwort-Modus) */}
+              {loginMode === 'password' && (
+                <PasswordInput
+                  value={loginPassword}
+                  onChange={setLoginPassword}
+                  placeholder="Dein Passwort"
+                  disabled={loading}
+                />
+              )}
+
               {error && (
                 <p className="text-[0.8rem]" style={{ color: 'var(--error)' }}>{error}</p>
+              )}
+
+              {forgotSent && (
+                <p className="text-[0.8rem]" style={{ color: 'var(--success)' }}>
+                  Wir haben dir einen Link zum Zurücksetzen gesendet.
+                </p>
               )}
 
               <button
@@ -236,14 +330,26 @@ function LoginForm() {
                   boxShadow: loading ? 'none' : '0 0 30px var(--gold-glow)',
                 }}
               >
-                {loading ? '...' : 'Login-Code senden'}
+                {loading ? '...' : loginMode === 'otp' ? 'Login-Code senden' : 'Anmelden'}
               </button>
             </form>
 
-            <p className="mt-6 text-xs" style={{ color: 'var(--text-muted)' }}>
-              Du erhältst einen 6-stelligen Code per E-Mail.
-              <br />Kein Passwort nötig.
-            </p>
+            {/* Info-Text / Passwort vergessen */}
+            {loginMode === 'otp' ? (
+              <p className="mt-6 text-xs" style={{ color: 'var(--text-muted)' }}>
+                Du erhältst einen 8-stelligen Code per E-Mail.
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={loading}
+                className="mt-4 bg-transparent border-none cursor-pointer text-xs font-body transition-colors duration-200"
+                style={{ color: 'var(--gold-text)' }}
+              >
+                Passwort vergessen?
+              </button>
+            )}
 
             {/* Demo-Zugang */}
             <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--divider-l)' }}>

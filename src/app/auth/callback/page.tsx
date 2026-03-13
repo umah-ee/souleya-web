@@ -23,7 +23,7 @@ function CallbackHandler() {
 
   useEffect(() => {
     const supabase = createClient();
-    const next = searchParams.get('next') ?? '/profile';
+    const next = searchParams.get('next') ?? '/onboarding';
     const code = searchParams.get('code');
     const email = searchParams.get('email');
     const otp = searchParams.get('otp');

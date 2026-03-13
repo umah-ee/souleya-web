@@ -19,6 +19,7 @@ export interface Profile {
   interests: string[];
   birthday: string | null;
   referral_code: string;
+  onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
 }

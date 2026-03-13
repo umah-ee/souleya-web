@@ -52,20 +52,29 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // ── Pre-Launch: nur bestimmte Routen zugänglich (Admins ausgenommen) ──
-  if (PRE_LAUNCH) {
-    const isAllowed = PRE_LAUNCH_ALLOWED.some(
-      (prefix) => pathname === prefix || pathname.startsWith(prefix + '/'),
-    );
-    if (!isAllowed) {
-      // Admin + Beta-Tester Check: haben Vollzugriff auch im Pre-Launch
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_admin, is_beta_tester')
-        .eq('id', user.id)
-        .single();
+  // ── Onboarding + Pre-Launch Guard ──
+  // /onboarding selbst ueberspringt beide Guards (User ist authed, muss aber Setup abschliessen)
+  const isOnboarding = pathname.startsWith('/onboarding');
 
-      if (!profile?.is_admin && !profile?.is_beta_tester) {
+  if (!isOnboarding) {
+    // Ein einziger DB-Query fuer Onboarding + Pre-Launch Check
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_completed_at, is_admin, is_beta_tester')
+      .eq('id', user.id)
+      .single();
+
+    // Onboarding-Guard: noch nicht abgeschlossen → /onboarding
+    if (profile && !profile.onboarding_completed_at) {
+      return NextResponse.redirect(new URL('/onboarding', request.url));
+    }
+
+    // Pre-Launch: nur bestimmte Routen zugaenglich (Admins + Beta-Tester ausgenommen)
+    if (PRE_LAUNCH) {
+      const isAllowed = PRE_LAUNCH_ALLOWED.some(
+        (prefix) => pathname === prefix || pathname.startsWith(prefix + '/'),
+      );
+      if (!isAllowed && !profile?.is_admin && !profile?.is_beta_tester) {
         return NextResponse.redirect(new URL('/profile', request.url));
       }
     }
