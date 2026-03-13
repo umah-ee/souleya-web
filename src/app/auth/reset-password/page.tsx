@@ -21,8 +21,24 @@ function ResetPasswordForm() {
     let sub: { unsubscribe: () => void } | null = null;
 
     async function init() {
-      // 1. PKCE-Code aus URL austauschen (Recovery-Link mit ?code=...)
-      const code = new URLSearchParams(window.location.search).get('code');
+      const params = new URLSearchParams(window.location.search);
+      const tokenHash = params.get('token_hash');
+      const type = params.get('type');
+      const code = params.get('code');
+
+      // 1. Token-Hash Flow (Cross-Browser kompatibel – kein code_verifier noetig)
+      if (tokenHash && type === 'recovery') {
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: 'recovery',
+        });
+        if (!error && !cancelled) {
+          setReady(true);
+          return;
+        }
+      }
+
+      // 2. PKCE-Code austauschen (Fallback, funktioniert nur im gleichen Browser)
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error && !cancelled) {
@@ -31,7 +47,7 @@ function ResetPasswordForm() {
         }
       }
 
-      // 2. Bestehende Session pruefen (z.B. nach Redirect durch /auth/callback)
+      // 3. Bestehende Session pruefen
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -40,7 +56,7 @@ function ResetPasswordForm() {
         return;
       }
 
-      // 3. Fallback: onAuthStateChange (Implicit Flow / aeltere Supabase-Versionen)
+      // 4. Fallback: onAuthStateChange (Implicit Flow / aeltere Supabase-Versionen)
       if (cancelled) return;
       const { data } = supabase.auth.onAuthStateChange((event) => {
         if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
