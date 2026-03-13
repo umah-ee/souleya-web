@@ -180,7 +180,7 @@ function LoginForm() {
   // ── Passwort vergessen ────────────────────────────────
   const handleForgotPassword = async () => {
     if (!email.trim()) {
-      setError('Bitte gib zuerst deine E-Mail-Adresse ein.');
+      setError('Gib bitte zuerst deine E-Mail-Adresse ein.');
       return;
     }
 
@@ -190,7 +190,7 @@ function LoginForm() {
     const supabase = createClient();
     const { error } = await supabase.auth.resetPasswordForEmail(
       email.trim().toLowerCase(),
-      { redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password` },
+      { redirectTo: `${window.location.origin}/auth/reset-password` },
     );
 
     setLoading(false);
