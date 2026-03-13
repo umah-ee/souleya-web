@@ -35,7 +35,7 @@ export default function OnboardingPage() {
         password,
       });
       if (pwError) {
-        setError(pwError.message || 'Fehler beim Setzen des Passworts.');
+        setError(pwError.message || 'Das hat leider nicht geklappt. Versuch es gerne nochmal.');
         setLoading(false);
         return;
       }
@@ -45,7 +45,7 @@ export default function OnboardingPage() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        setError('Session abgelaufen. Bitte erneut anmelden.');
+        setError('Deine Sitzung ist abgelaufen. Melde dich einfach nochmal an.');
         setLoading(false);
         return;
       }
@@ -63,7 +63,7 @@ export default function OnboardingPage() {
         .eq('id', user.id);
 
       if (profileError) {
-        setError('Fehler beim Abschliessen. Bitte versuche es erneut.');
+        setError('Das hat leider nicht geklappt. Versuch es gerne nochmal.');
         setLoading(false);
         return;
       }
@@ -74,7 +74,7 @@ export default function OnboardingPage() {
       // 6. Weiter zum Profil (Hard Redirect damit proxy.ts die neuen Session-Cookies bekommt)
       window.location.href = '/profile';
     } catch {
-      setError('Ein unerwarteter Fehler ist aufgetreten.');
+      setError('Etwas ist schiefgelaufen. Versuch es gerne nochmal.');
       setLoading(false);
     }
   };
@@ -219,7 +219,7 @@ export default function OnboardingPage() {
               boxShadow: !isValid || loading ? 'none' : '0 0 30px var(--gold-glow)',
             }}
           >
-            {loading ? 'Wird eingerichtet...' : 'Zugang einrichten'}
+            {loading ? 'Wird eingerichtet …' : 'Zugang einrichten'}
           </button>
         </form>
       </div>

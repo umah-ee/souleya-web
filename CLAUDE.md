@@ -123,4 +123,24 @@ Tokens aus `app/globals.css` – alles über `var(--token)`, keine Hardcoded-Far
 
 ---
 
+## Tonalitaet (verbindlich fuer alle UI-Texte)
+
+Souleya spricht **frisch, locker und liebevoll**. Kein Corporate-Deutsch, keine steifen Floskeln.
+
+- **Duzen** – immer
+- **Positiv formulieren** – statt „Fehler aufgetreten" → „Das hat leider nicht geklappt."
+- **Empathisch bei Fehlern** – „Kein Problem", „Versuch es gerne nochmal."
+- **Ellipsen** – „Einen Moment …" (echtes Auslassungszeichen, nicht „...")
+- **Kein Tech-Jargon** – „Sitzung" statt „Session", „Postfach" statt „Inbox"
+- **Keine Ausrufezeichen-Inflation**
+
+**Beispiele:**
+| Alt | Neu |
+|---|---|
+| Fehler beim Setzen des Passworts. | Das hat leider nicht geklappt. Versuch es gerne nochmal. |
+| Session abgelaufen. Bitte erneut anmelden. | Deine Sitzung ist abgelaufen. Melde dich einfach nochmal an. |
+| Ungültiger Code. Bitte versuche es erneut. | Der Code war leider nicht richtig. Probier es nochmal. |
+
+---
+
 *Zuletzt aktualisiert: März 2026*

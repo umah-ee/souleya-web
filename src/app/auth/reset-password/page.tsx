@@ -1,39 +1,67 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PasswordStrengthBar } from '@/components/auth/PasswordStrengthBar';
 import { logActivity } from '@/lib/activity';
 
 function ResetPasswordForm() {
-  const router = useRouter();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
+  const [expired, setExpired] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Supabase setzt die Recovery-Session automatisch via URL-Hash
   useEffect(() => {
     const supabase = createClient();
+    let cancelled = false;
+    let sub: { unsubscribe: () => void } | null = null;
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setReady(true);
+    async function init() {
+      // 1. PKCE-Code aus URL austauschen (Recovery-Link mit ?code=...)
+      const code = new URLSearchParams(window.location.search).get('code');
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!error && !cancelled) {
+          setReady(true);
+          return;
+        }
       }
-    });
 
-    // Fallback: pruefen ob schon eine Session aktiv ist
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setReady(true);
-    });
+      // 2. Bestehende Session pruefen (z.B. nach Redirect durch /auth/callback)
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user && !cancelled) {
+        setReady(true);
+        return;
+      }
 
-    return () => subscription.unsubscribe();
+      // 3. Fallback: onAuthStateChange (Implicit Flow / aeltere Supabase-Versionen)
+      if (cancelled) return;
+      const { data } = supabase.auth.onAuthStateChange((event) => {
+        if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+          if (!cancelled) setReady(true);
+          data.subscription.unsubscribe();
+        }
+      });
+      sub = data.subscription;
+
+      // Timeout: nach 8 Sekunden Link als abgelaufen markieren
+      setTimeout(() => {
+        if (!cancelled) setExpired(true);
+      }, 8000);
+    }
+
+    init();
+
+    return () => {
+      cancelled = true;
+      sub?.unsubscribe();
+    };
   }, []);
 
   const isValid = password.length >= 8 && password === confirmPassword;
@@ -51,33 +79,57 @@ function ResetPasswordForm() {
     });
 
     if (updateError) {
-      setError(updateError.message || 'Fehler beim Aendern des Passworts.');
+      setError(
+        updateError.message ||
+          'Das hat leider nicht geklappt. Versuch es gerne nochmal.',
+      );
       setLoading(false);
       return;
     }
 
     setSuccess(true);
     logActivity('auth.password_changed', 'Passwort geaendert');
-    setTimeout(() => router.replace('/profile'), 2000);
+    // Hard Redirect damit proxy.ts die neuen Session-Cookies bekommt
+    setTimeout(() => {
+      window.location.href = '/profile';
+    }, 2000);
   };
 
+  // ── Erfolgs-Ansicht ──
   if (success) {
     return (
       <main
         className="min-h-screen flex items-center justify-center p-6 font-body"
-        style={{ background: 'var(--bg-gradient)', backgroundAttachment: 'fixed' }}
+        style={{
+          background: 'var(--bg-gradient)',
+          backgroundAttachment: 'fixed',
+        }}
       >
         <div className="glass-card rounded-3xl py-12 px-10 max-w-[420px] w-full text-center">
           <div className="mb-6">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--success)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mx-auto"
+            >
               <path d="M5 12l5 5l10 -10" />
             </svg>
           </div>
-          <h1 className="font-heading text-[1.5rem] mb-2" style={{ color: 'var(--gold-text)' }}>
-            Passwort geändert!
+          <h1
+            className="font-heading text-[1.5rem] mb-2"
+            style={{ color: 'var(--gold-text)' }}
+          >
+            Alles klar!
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            Du wirst weitergeleitet...
+            Dein neues Passwort ist gespeichert. Du wirst gleich
+            weitergeleitet&nbsp;…
           </p>
         </div>
       </main>
@@ -87,22 +139,42 @@ function ResetPasswordForm() {
   return (
     <main
       className="min-h-screen flex items-center justify-center p-6 font-body"
-      style={{ background: 'var(--bg-gradient)', backgroundAttachment: 'fixed' }}
+      style={{
+        background: 'var(--bg-gradient)',
+        backgroundAttachment: 'fixed',
+      }}
     >
       <div className="glass-card rounded-3xl py-12 px-10 max-w-[420px] w-full text-center">
         {/* Enso Logo */}
         <div className="mb-6">
-          <svg width="64" height="64" viewBox="0 0 100 100" className="mx-auto">
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 100 100"
+            className="mx-auto"
+          >
             <defs>
-              <linearGradient id="enso-reset" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient
+                id="enso-reset"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
                 <stop offset="0%" stopColor="var(--gold-deep)" />
                 <stop offset="100%" stopColor="var(--gold)" />
               </linearGradient>
             </defs>
             <circle
-              cx="50" cy="50" r="36"
-              fill="none" stroke="url(#enso-reset)" strokeWidth="8"
-              strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15"
+              cx="50"
+              cy="50"
+              r="36"
+              fill="none"
+              stroke="url(#enso-reset)"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray="196 30"
+              strokeDashoffset="15"
             />
           </svg>
         </div>
@@ -114,14 +186,38 @@ function ResetPasswordForm() {
           Neues Passwort
         </h1>
         <p className="text-sm mb-8" style={{ color: 'var(--text-muted)' }}>
-          Lege dein neues Passwort fest.
+          Wähle ein neues Passwort, das du dir gut merken kannst.
         </p>
 
-        {!ready ? (
+        {expired && !ready ? (
+          /* ── Link abgelaufen ── */
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-sm" style={{ color: 'var(--error)' }}>
+              Der Link ist leider abgelaufen oder ungültig.
+            </p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              Fordere einfach einen neuen an – das geht ganz schnell.
+            </p>
+            <a
+              href="/login"
+              className="py-3 px-8 border-none rounded-full font-label text-xs tracking-[0.1em] uppercase transition-all duration-300 inline-block no-underline"
+              style={{
+                background:
+                  'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                color: 'var(--text-on-gold)',
+                boxShadow: '0 0 30px var(--gold-glow)',
+              }}
+            >
+              Zurück zum Login
+            </a>
+          </div>
+        ) : !ready ? (
+          /* ── Session wird geladen ── */
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            Einen Moment, Session wird geladen...
+            Einen Moment noch&nbsp;…
           </p>
         ) : (
+          /* ── Passwort-Formular ── */
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <PasswordInput
               value={password}
@@ -165,10 +261,11 @@ function ResetPasswordForm() {
                     ? 'var(--text-muted)'
                     : 'var(--text-on-gold)',
                 cursor: !isValid || loading ? 'not-allowed' : 'pointer',
-                boxShadow: !isValid || loading ? 'none' : '0 0 30px var(--gold-glow)',
+                boxShadow:
+                  !isValid || loading ? 'none' : '0 0 30px var(--gold-glow)',
               }}
             >
-              {loading ? 'Wird gespeichert...' : 'Passwort speichern'}
+              {loading ? 'Wird gespeichert …' : 'Passwort speichern'}
             </button>
           </form>
         )}
@@ -189,7 +286,7 @@ export default function ResetPasswordPage() {
             minHeight: '100vh',
           }}
         >
-          <p style={{ color: 'var(--text-muted)' }}>...</p>
+          <p style={{ color: 'var(--text-muted)' }}>…</p>
         </div>
       }
     >

@@ -68,7 +68,7 @@ function LoginForm() {
     });
 
     if (error) {
-      setError('Fehler beim Senden. Bitte versuche es erneut.');
+      setError('Das hat leider nicht geklappt. Versuch es gerne nochmal.');
     } else {
       setStep('otp');
       setOtpDigits(Array(OTP_LENGTH).fill(''));
@@ -93,7 +93,7 @@ function LoginForm() {
     });
 
     if (error) {
-      setError('Ungültiger Code. Bitte versuche es erneut.');
+      setError('Der Code war leider nicht richtig. Probier es nochmal.');
       setVerifying(false);
       // Felder leeren und Fokus auf erstes Feld
       setOtpDigits(Array(OTP_LENGTH).fill(''));
@@ -169,7 +169,7 @@ function LoginForm() {
     });
 
     if (error) {
-      setError('E-Mail oder Passwort falsch.');
+      setError('E-Mail oder Passwort stimmt nicht. Probier es nochmal.');
       setLoading(false);
     } else {
       router.push(nextUrl);
@@ -190,12 +190,12 @@ function LoginForm() {
     const supabase = createClient();
     const { error } = await supabase.auth.resetPasswordForEmail(
       email.trim().toLowerCase(),
-      { redirectTo: `${window.location.origin}/auth/reset-password` },
+      { redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password` },
     );
 
     setLoading(false);
     if (error) {
-      setError('Fehler beim Senden der Reset-E-Mail.');
+      setError('Das hat leider nicht geklappt. Versuch es gerne nochmal.');
     } else {
       setForgotSent(true);
       logActivity('auth.password_reset_requested', 'Passwort-Reset angefordert', undefined, { email: email.trim().toLowerCase() });
@@ -214,7 +214,7 @@ function LoginForm() {
     });
 
     if (error) {
-      setError('Demo-Login fehlgeschlagen. Bitte versuche es erneut.');
+      setError('Demo-Login hat nicht geklappt. Versuch es nochmal.');
       setDemoLoading(null);
     } else {
       router.push(nextUrl);
@@ -317,7 +317,7 @@ function LoginForm() {
 
               {forgotSent && (
                 <p className="text-[0.8rem]" style={{ color: 'var(--success)' }}>
-                  Wir haben dir einen Link zum Zurücksetzen gesendet.
+                  Wir haben dir einen Link geschickt – schau mal in dein Postfach.
                 </p>
               )}
 
@@ -484,7 +484,7 @@ function LoginForm() {
                   },
                 });
                 if (error) {
-                  setError('Erneutes Senden fehlgeschlagen.');
+                  setError('Das hat leider nicht geklappt. Versuch es nochmal.');
                 } else {
                   setError('');
                   setOtpDigits(Array(OTP_LENGTH).fill(''));
