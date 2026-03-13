@@ -40,7 +40,7 @@ function LoginForm() {
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [verifying, setVerifying] = useState(false);
-  const [loginMode, setLoginMode] = useState<'otp' | 'password'>('otp');
+  const [loginMode, setLoginMode] = useState<'otp' | 'password'>('password');
   const [loginPassword, setLoginPassword] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -157,7 +157,12 @@ function LoginForm() {
   // ── Passwort-Login ─────────────────────────────────────
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !loginPassword) return;
+    if (!email.trim()) return;
+
+    if (!loginPassword) {
+      setError('Gib bitte noch dein Passwort ein.');
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -262,18 +267,6 @@ function LoginForm() {
             <div className="flex gap-2 mb-6 justify-center">
               <button
                 type="button"
-                onClick={() => { setLoginMode('otp'); setError(''); setForgotSent(false); }}
-                className="px-4 py-1.5 rounded-full font-label text-[0.65rem] tracking-[0.08em] uppercase border-none cursor-pointer transition-all duration-200"
-                style={{
-                  background: loginMode === 'otp' ? 'var(--gold-bg)' : 'transparent',
-                  color: loginMode === 'otp' ? 'var(--gold-text)' : 'var(--text-muted)',
-                  border: loginMode === 'otp' ? '1px solid var(--gold-border-s)' : '1px solid var(--glass-border)',
-                }}
-              >
-                OTP-Code
-              </button>
-              <button
-                type="button"
                 onClick={() => { setLoginMode('password'); setError(''); setForgotSent(false); }}
                 className="px-4 py-1.5 rounded-full font-label text-[0.65rem] tracking-[0.08em] uppercase border-none cursor-pointer transition-all duration-200"
                 style={{
@@ -283,6 +276,18 @@ function LoginForm() {
                 }}
               >
                 Passwort
+              </button>
+              <button
+                type="button"
+                onClick={() => { setLoginMode('otp'); setError(''); setForgotSent(false); }}
+                className="px-4 py-1.5 rounded-full font-label text-[0.65rem] tracking-[0.08em] uppercase border-none cursor-pointer transition-all duration-200"
+                style={{
+                  background: loginMode === 'otp' ? 'var(--gold-bg)' : 'transparent',
+                  color: loginMode === 'otp' ? 'var(--gold-text)' : 'var(--text-muted)',
+                  border: loginMode === 'otp' ? '1px solid var(--gold-border-s)' : '1px solid var(--glass-border)',
+                }}
+              >
+                OTP-Code
               </button>
             </div>
 
