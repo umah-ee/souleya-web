@@ -1,14 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PasswordStrengthBar } from '@/components/auth/PasswordStrengthBar';
 import { logActivity } from '@/lib/activity';
 
 export default function OnboardingPage() {
-  const router = useRouter();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
@@ -73,8 +71,8 @@ export default function OnboardingPage() {
       // 5. Activity loggen
       logActivity('onboarding.completed', 'Onboarding abgeschlossen');
 
-      // 6. Weiter zum Profil
-      router.replace('/profile');
+      // 6. Weiter zum Profil (Hard Redirect damit proxy.ts die neuen Session-Cookies bekommt)
+      window.location.href = '/profile';
     } catch {
       setError('Ein unerwarteter Fehler ist aufgetreten.');
       setLoading(false);
