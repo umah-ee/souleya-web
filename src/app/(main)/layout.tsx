@@ -14,7 +14,7 @@ export default async function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Admin-Check: Admins sehen keine Pre-Launch-Einschraenkungen
+  // Admin + Beta-Tester Check: beide sehen keine Pre-Launch-Einschraenkungen
   let showPreLaunch = isPreLaunch;
   if (isPreLaunch) {
     try {
@@ -23,10 +23,10 @@ export default async function MainLayout({
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('is_admin')
+          .select('is_admin, is_beta_tester')
           .eq('id', user.id)
           .single();
-        if (profile?.is_admin) {
+        if (profile?.is_admin || profile?.is_beta_tester) {
           showPreLaunch = false;
         }
       }
