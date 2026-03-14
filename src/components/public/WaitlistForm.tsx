@@ -213,8 +213,12 @@ export default function WaitlistForm() {
         </p>
         <a
           href="/profile"
-          className="inline-block px-8 py-3 rounded-full font-medium text-sm transition-all hover:shadow-lg"
-          style={{ background: 'var(--gold-text)', color: '#fff' }}
+          className="inline-block px-8 py-3 rounded-full font-label text-sm font-semibold uppercase tracking-widest transition-all"
+          style={{
+            background: 'linear-gradient(135deg, #A8894E, #C8A96E, #D4BC8B)',
+            color: 'var(--dark, #1a1a1a)',
+            boxShadow: '0 0 30px rgba(200,169,110,.3)',
+          }}
         >
           Zum Circle
         </a>
@@ -238,8 +242,12 @@ export default function WaitlistForm() {
         <button
           type="submit"
           disabled={loading}
-          className="px-8 py-3 rounded-full font-medium text-sm transition-all hover:shadow-lg disabled:opacity-50"
-          style={{ background: 'var(--gold-text)', color: '#fff' }}
+          className="px-8 py-3 rounded-full font-label text-sm font-semibold uppercase tracking-widest transition-all disabled:opacity-50"
+          style={{
+            background: 'linear-gradient(135deg, #A8894E, #C8A96E, #D4BC8B)',
+            color: 'var(--dark, #1a1a1a)',
+            boxShadow: '0 0 30px rgba(200,169,110,.3)',
+          }}
         >
           {loading ? '…' : 'Sei dabei'}
         </button>

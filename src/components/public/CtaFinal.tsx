@@ -29,8 +29,12 @@ export default function CtaFinal() {
       </p>
       <a
         href="#anmeldung"
-        className="inline-block px-10 py-3.5 rounded-full font-medium text-sm transition-all hover:shadow-lg"
-        style={{ background: 'var(--gold-text)', color: '#fff' }}
+        className="cta-btn inline-block px-10 py-4 rounded-full font-label text-sm font-semibold uppercase tracking-widest transition-all hover:opacity-90 hover:-translate-y-px"
+        style={{
+          background: 'linear-gradient(135deg, #A8894E, #C8A96E, #D4BC8B)',
+          color: 'var(--dark, #1a1a1a)',
+          boxShadow: '0 0 30px rgba(200,169,110,.3)',
+        }}
       >
         Jetzt First Light werden
       </a>

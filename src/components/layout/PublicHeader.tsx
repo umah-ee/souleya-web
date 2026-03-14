@@ -70,8 +70,8 @@ export default function PublicHeader() {
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* ── Logo ── */}
-        <Link href="/" className="flex items-center gap-2.5 no-underline">
-          <svg width="32" height="32" viewBox="0 0 100 100" className="flex-shrink-0">
+        <Link href="/" className="flex items-center gap-3 no-underline">
+          <svg width="40" height="40" viewBox="0 0 100 100" className="flex-shrink-0">
             <defs>
               <linearGradient id="pub-enso" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="var(--gold-deep, #A8894E)" />
@@ -80,13 +80,13 @@ export default function PublicHeader() {
             </defs>
             <circle
               cx="50" cy="50" r="36" fill="none" stroke="url(#pub-enso)"
-              strokeWidth="9" strokeLinecap="round"
+              strokeWidth="7" strokeLinecap="round"
               strokeDasharray="196 30" strokeDashoffset="15"
             />
           </svg>
           <span
-            className="font-heading text-lg italic"
-            style={{ color: 'var(--text-h)' }}
+            className="font-label text-sm font-medium uppercase"
+            style={{ color: 'var(--text-h)', letterSpacing: '3px' }}
           >
             Souleya
           </span>

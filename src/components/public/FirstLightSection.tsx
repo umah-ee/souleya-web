@@ -34,8 +34,8 @@ function ProfileMockup() {
       }}
     >
       {/* Banner */}
-      <div className="h-24 relative" style={{ background: 'linear-gradient(135deg, var(--gold-bg), var(--glass))' }}>
-        <div className="absolute inset-0 opacity-30" style={{ background: 'var(--gold-text)' }} />
+      <div className="h-24 relative" style={{ background: 'linear-gradient(135deg, #D8CFBE, #C8A96E 60%, #B08840)' }}>
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, var(--bg-elevated) 0%, transparent 70%)' }} />
       </div>
 
       {/* Avatar + Enso Ring */}
@@ -151,8 +151,12 @@ export default function FirstLightSection() {
 
           <a
             href="#anmeldung"
-            className="inline-block mt-8 px-8 py-3 rounded-full font-medium text-sm transition-all hover:shadow-lg"
-            style={{ background: 'var(--gold-text)', color: '#fff' }}
+            className="cta-btn inline-block mt-8 px-10 py-4 rounded-full font-label text-sm font-semibold uppercase tracking-widest transition-all hover:opacity-90 hover:-translate-y-px"
+            style={{
+              background: 'linear-gradient(135deg, #A8894E, #C8A96E, #D4BC8B)',
+              color: 'var(--dark, #1a1a1a)',
+              boxShadow: '0 0 30px rgba(200,169,110,.3)',
+            }}
           >
             Jetzt First Light werden
           </a>
