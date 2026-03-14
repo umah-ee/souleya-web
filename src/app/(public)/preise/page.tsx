@@ -27,7 +27,6 @@ export default function PreisePage() {
         </h1>
         <p className="text-base max-w-xl mx-auto" style={{ color: 'var(--text-sec)' }}>
           Ein Preis, alles drin. Keine versteckten Kosten, kein Kleingedrucktes.
-          Monatlich kündbar oder spare mit dem Jahresabo.
         </p>
       </div>
 
@@ -48,10 +47,10 @@ export default function PreisePage() {
             Monatlich
           </p>
           <p className="font-heading text-3xl italic mb-1" style={{ color: 'var(--text-h)' }}>
-            20 EUR <span className="text-base font-normal" style={{ color: 'var(--text-muted)' }}>/ Monat</span>
+            20 € <span className="text-base font-normal" style={{ color: 'var(--text-muted)' }}>/ Monat</span>
           </p>
           <p className="text-xs mb-6" style={{ color: 'var(--text-muted)' }}>
-            monatlich kündbar, keine Mindestlaufzeit
+            Monatlich kündbar, keine Mindestlaufzeit
           </p>
 
           <ul className="space-y-3 text-sm mb-8 flex-1" style={{ color: 'var(--text-body)' }}>
@@ -80,7 +79,7 @@ export default function PreisePage() {
           </Link>
         </div>
 
-        {/* Jährlich */}
+        {/* Jährlich – hervorgehoben */}
         <div
           className="rounded-2xl border p-7 flex flex-col relative overflow-hidden"
           style={{
@@ -88,33 +87,59 @@ export default function PreisePage() {
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             borderColor: 'var(--gold-text)',
-            boxShadow: '0 0 40px rgba(200, 169, 110, 0.08)',
+            boxShadow: '0 0 40px rgba(200, 169, 110, 0.12)',
           }}
         >
-          {/* Badge */}
-          <span
-            className="absolute top-4 right-4 text-[10px] font-medium uppercase tracking-wide px-3 py-1 rounded-full"
-            style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}
+          {/* Diagonales Spar-Banner – rechte obere Ecke */}
+          <div
+            className="absolute z-10 font-medium text-xs uppercase tracking-wider text-center"
+            style={{
+              top: '28px',
+              right: '-42px',
+              width: '200px',
+              padding: '8px 0',
+              background: 'linear-gradient(135deg, #A8894E, #C8A96E, #D4BC8B)',
+              color: '#fff',
+              transform: 'rotate(45deg)',
+              boxShadow: '0 2px 8px rgba(168, 137, 78, 0.4)',
+              letterSpacing: '0.08em',
+            }}
           >
-            Spare 40 EUR
-          </span>
+            Spare 40 €
+          </div>
+
+          {/* 2 Monate geschenkt Hinweis */}
+          <div
+            className="text-center rounded-xl py-3 px-4 mb-5 mt-2"
+            style={{ background: 'var(--gold-bg)' }}
+          >
+            <p className="font-heading text-lg italic" style={{ color: 'var(--gold-text)' }}>
+              2 Monate geschenkt
+            </p>
+          </div>
 
           <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: 'var(--gold-text)' }}>
             Jährlich
           </p>
-          <p className="font-heading text-3xl italic mb-1" style={{ color: 'var(--text-h)' }}>
-            200 EUR <span className="text-base font-normal" style={{ color: 'var(--text-muted)' }}>/ Jahr</span>
-          </p>
+          <div className="flex items-baseline gap-3 mb-1">
+            <p className="font-heading text-3xl italic" style={{ color: 'var(--text-h)' }}>
+              200 €
+            </p>
+            <p className="text-base line-through" style={{ color: 'var(--text-muted)' }}>
+              240 €
+            </p>
+            <span className="text-sm" style={{ color: 'var(--text-muted)' }}>/ Jahr</span>
+          </div>
           <p className="text-xs mb-6" style={{ color: 'var(--text-muted)' }}>
-            entspricht 16,67 EUR/Monat – 2 Monate gratis
+            entspricht 16,67 € pro Monat
           </p>
 
           <ul className="space-y-3 text-sm mb-8 flex-1" style={{ color: 'var(--text-body)' }}>
             {[
-              'Alles aus dem Monatsabo',
-              '2 Monate geschenkt',
-              'Sabbatical-Modus (bis zu 2 Monate pausieren)',
-              'Dein Engagement für deine Reise',
+              '12 Monate Wachstum mit Gleichgesinnten',
+              'Hunderte Events, Sessions und Begegnungen',
+              'Entwicklung auf allen Ebenen – ohne Unterbrechung',
+              'Sabbatical-Modus: bis zu 2 Monate pausieren',
             ].map((item) => (
               <li key={item} className="flex gap-2">
                 <CheckIcon />
@@ -136,131 +161,14 @@ export default function PreisePage() {
         </div>
       </div>
 
-      {/* ── Emotionale Benefits ── */}
-      <section className="max-w-3xl mx-auto mb-16">
-        <h2 className="font-heading text-2xl italic mb-8 text-center" style={{ color: 'var(--text-h)' }}>
-          Was dich bei Souleya erwartet
-        </h2>
-        <div className="grid gap-5 sm:grid-cols-2">
-          {[
-            {
-              title: 'Verbindung, die bleibt',
-              desc: 'Finde Gleichgesinnte, die deinen Weg verstehen – und verliere sie nicht nach dem nächsten Retreat.',
-            },
-            {
-              title: 'Wachstum in deinem Tempo',
-              desc: 'Kurse, Mentoren und Sessions, die dich da abholen, wo du gerade stehst. Kein Druck, kein Vergleich.',
-            },
-            {
-              title: 'Ein Ort, an dem du gesehen wirst',
-              desc: 'Keine Algorithmen, kein Lärm. Eine Community, die dich trägt – so wie du bist.',
-            },
-            {
-              title: 'Dein Beitrag zählt',
-              desc: 'Mit Seeds belohnst du Inhalte, die dich berühren, und unterstützt Mentoren direkt.',
-            },
-          ].map(({ title, desc }) => (
-            <div
-              key={title}
-              className="rounded-2xl border p-6"
-              style={{
-                background: 'var(--glass)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                borderColor: 'var(--glass-border)',
-              }}
-            >
-              <p className="font-medium mb-2" style={{ color: 'var(--text-h)' }}>{title}</p>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-body)' }}>{desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Social Proof / Zugehörigkeit ── */}
-      <section className="max-w-2xl mx-auto mb-16 text-center">
-        <h2 className="font-heading text-2xl italic mb-6" style={{ color: 'var(--text-h)' }}>
-          Souleya ist für Menschen, die …
-        </h2>
-        <div className="space-y-3 text-sm" style={{ color: 'var(--text-body)' }}>
-          {[
-            '… nach einem Retreat nicht wieder allein sein wollen.',
-            '… echte Verbindungen suchen, nicht Follower.',
-            '… wachsen wollen, aber nicht alleine.',
-            '… einen sicheren Raum brauchen, um sie selbst zu sein.',
-          ].map((line) => (
-            <p key={line} className="leading-relaxed">{line}</p>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Was ist alles drin? ── */}
-      <section className="max-w-3xl mx-auto mb-16">
-        <h2 className="font-heading text-2xl italic mb-6 text-center" style={{ color: 'var(--text-h)' }}>
-          Was ist alles drin?
-        </h2>
-        <div
-          className="rounded-2xl border p-6 sm:p-8"
-          style={{
-            background: 'var(--glass)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderColor: 'var(--glass-border)',
-          }}
-        >
-          <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm" style={{ color: 'var(--text-body)' }}>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide mb-3" style={{ color: 'var(--gold-text)' }}>
-                Im Monatsbeitrag enthalten
-              </p>
-              <ul className="space-y-2.5">
-                {[
-                  'Circles (Community-Gruppen)',
-                  'Pulse (Feed und Posts)',
-                  'Chat und Direktnachrichten',
-                  'Events (Online und Live)',
-                  'Basis-Seminare und ausgewählte Mentoren-Inhalte',
-                  'Seeds durch Aktivität verdienen',
-                  'VIP-Status (Enso-Ring) aufbauen',
-                ].map((item) => (
-                  <li key={item} className="flex gap-2">
-                    <CheckIcon />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide mb-3" style={{ color: 'var(--gold-text)' }}>
-                Premium-Inhalte (Seeds oder Einzelkauf)
-              </p>
-              <ul className="space-y-2.5">
-                {[
-                  'Tiefe 1:1-Mentor-Sessions',
-                  'Mehrstündige Intensiv-Workshops',
-                  'Strukturierte Premium-Kurse',
-                  'Exklusives Premium-Material',
-                ].map((item) => (
-                  <li key={item} className="flex gap-2">
-                    <CheckIcon />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Mentor-Modell ── */}
+      {/* ── Mentor-CTA ── */}
       <div className="text-center max-w-2xl mx-auto mb-16">
         <h2 className="font-heading text-2xl italic mb-4" style={{ color: 'var(--text-h)' }}>
           Für Mentoren und Coaches
         </h2>
         <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--text-body)' }}>
           Du bist Coach, Therapeut oder Mentor? Bei Souleya erreichst du Menschen, die wirklich
-          wachsen wollen. Du bestimmst deine Preise, wir kümmern uns um die Plattform. Faire
-          Konditionen, keine Einstiegshürden.
+          wachsen wollen. Du bestimmst deine Preise, wir kümmern uns um die Plattform.
         </p>
         <a
           href="mailto:hello@souleya.com?subject=Mentor bei Souleya"
@@ -274,7 +182,7 @@ export default function PreisePage() {
         </a>
       </div>
 
-      {/* ── FAQ ── */}
+      {/* ── FAQ – nur 3 Fragen ── */}
       <div className="max-w-2xl mx-auto">
         <h2 className="font-heading text-2xl italic mb-6 text-center" style={{ color: 'var(--text-h)' }}>
           Häufige Fragen
@@ -282,24 +190,16 @@ export default function PreisePage() {
         <div className="space-y-4 text-sm" style={{ color: 'var(--text-body)' }}>
           {[
             {
-              q: 'Gibt es eine kostenlose Version?',
-              a: 'Souleya ist eine Gemeinschaft, kein Freemium-Produkt. Für 20 EUR im Monat bekommst du vollen Zugang – zu allem. Ohne Einschränkungen, ohne Upselling.',
+              q: 'Kann ich jederzeit kündigen?',
+              a: 'Ja. Das Monatsabo ist monatlich kündbar, ohne Mindestlaufzeit. Beim Jahresabo kannst du 4 Wochen vor Ablauf kündigen.',
+            },
+            {
+              q: 'Kann ich mein Abo pausieren?',
+              a: 'Ja, mit dem Sabbatical-Modus kannst du bis zu 2 Monate pro Jahr pausieren – ohne Kosten und ohne Statusverlust.',
             },
             {
               q: 'Was sind Seeds?',
-              a: 'Seeds sind Souleyas interne Währung. Du verdienst sie durch Aktivität – zum Beispiel durch Einladungen, Posts oder Engagement. Damit kannst du Premium-Inhalte wie Mentoren-Sessions oder Kurse freischalten.',
-            },
-            {
-              q: 'Kann ich das Abo pausieren?',
-              a: 'Ja, mit dem Sabbatical-Modus kannst du dein Abo bis zu 2 Monate pro Jahr pausieren – ohne Kosten und ohne Statusverlust.',
-            },
-            {
-              q: 'Was passiert mit meinen Daten, wenn ich kündige?',
-              a: 'Du kannst deine Daten jederzeit exportieren. Nach Kündigung werden sie gemäss unserer Datenschutzerklärung gelöscht.',
-            },
-            {
-              q: 'Was kostet das Jahresabo?',
-              a: '200 EUR pro Jahr – das sind 2 Monate gratis im Vergleich zum Monatsabo. Du kannst 4 Wochen vor Ablauf kündigen.',
+              a: 'Seeds sind Souleyas interne Währung. Du verdienst sie durch Aktivität und kannst damit Premium-Inhalte wie Mentoren-Sessions oder Kurse freischalten.',
             },
           ].map(({ q, a }) => (
             <div
