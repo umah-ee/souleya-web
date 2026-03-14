@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Preise | Souleya',
-  description: 'Souleya Mitgliedschaft – Kostenlos starten, Premium für 20 EUR/Monat. Mentoren, Kurse, Events und mehr.',
+  description: 'Souleya Mitgliedschaft – 20 EUR/Monat oder 200 EUR/Jahr. Circles, Studio, Events, Mentoren und mehr.',
 };
 
 function CheckIcon() {
@@ -17,6 +17,7 @@ function CheckIcon() {
 export default function PreisePage() {
   return (
     <div className="max-w-5xl mx-auto px-6 py-16">
+      {/* ── Hero ── */}
       <div className="text-center mb-14">
         <h1
           className="font-heading text-3xl md:text-4xl italic mb-3"
@@ -25,15 +26,15 @@ export default function PreisePage() {
           Einfach. Ehrlich. Fair.
         </h1>
         <p className="text-base max-w-xl mx-auto" style={{ color: 'var(--text-sec)' }}>
-          Starte kostenlos und entscheide selbst, wann du bereit bist für mehr.
-          Keine versteckten Kosten, kein Kleingedrucktes.
+          Ein Preis, alles drin. Keine versteckten Kosten, kein Kleingedrucktes.
+          Monatlich kündbar oder spare mit dem Jahresabo.
         </p>
       </div>
 
       {/* ── Pricing Cards ── */}
       <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-16">
 
-        {/* Kostenlos */}
+        {/* Monatlich */}
         <div
           className="rounded-2xl border p-7 flex flex-col"
           style={{
@@ -44,22 +45,21 @@ export default function PreisePage() {
           }}
         >
           <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>
-            Kostenlos
+            Monatlich
           </p>
           <p className="font-heading text-3xl italic mb-1" style={{ color: 'var(--text-h)' }}>
-            0 EUR
+            20 EUR <span className="text-base font-normal" style={{ color: 'var(--text-muted)' }}>/ Monat</span>
           </p>
           <p className="text-xs mb-6" style={{ color: 'var(--text-muted)' }}>
-            für immer
+            monatlich kündbar, keine Mindestlaufzeit
           </p>
 
           <ul className="space-y-3 text-sm mb-8 flex-1" style={{ color: 'var(--text-body)' }}>
             {[
-              'Profil erstellen und verwalten',
-              'Community entdecken',
-              'Beiträge lesen und liken',
-              'Öffentliche Events sehen',
-              'Direktnachrichten (begrenzt)',
+              'Voller Zugang zu allem',
+              'Circles, Chat, Events, Studio',
+              'Seeds verdienen und einsetzen',
+              'Jederzeit kündbar',
             ].map((item) => (
               <li key={item} className="flex gap-2">
                 <CheckIcon />
@@ -76,11 +76,11 @@ export default function PreisePage() {
               color: 'var(--text-body)',
             }}
           >
-            Kostenlos starten
+            Jetzt starten
           </Link>
         </div>
 
-        {/* Premium */}
+        {/* Jährlich */}
         <div
           className="rounded-2xl border p-7 flex flex-col relative overflow-hidden"
           style={{
@@ -96,29 +96,25 @@ export default function PreisePage() {
             className="absolute top-4 right-4 text-[10px] font-medium uppercase tracking-wide px-3 py-1 rounded-full"
             style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}
           >
-            Empfohlen
+            Spare 40 EUR
           </span>
 
           <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: 'var(--gold-text)' }}>
-            Premium
+            Jährlich
           </p>
           <p className="font-heading text-3xl italic mb-1" style={{ color: 'var(--text-h)' }}>
-            20 EUR <span className="text-base font-normal" style={{ color: 'var(--text-muted)' }}>/ Monat</span>
+            200 EUR <span className="text-base font-normal" style={{ color: 'var(--text-muted)' }}>/ Jahr</span>
           </p>
           <p className="text-xs mb-6" style={{ color: 'var(--text-muted)' }}>
-            oder 200 EUR/Jahr (2 Monate gratis)
+            entspricht 16,67 EUR/Monat – 2 Monate gratis
           </p>
 
           <ul className="space-y-3 text-sm mb-8 flex-1" style={{ color: 'var(--text-body)' }}>
             {[
-              'Alles aus der kostenlosen Version',
-              'Unbegrenzte Nachrichten und Chats',
-              'Circles erstellen und beitreten',
-              'Events erstellen und teilnehmen',
-              'Studio: Kurse und Mentoren-Sessions',
-              'Seeds verdienen und einsetzen',
-              'Erweiterte Profilfunktionen',
-              'Prioritäts-Support',
+              'Alles aus dem Monatsabo',
+              '2 Monate geschenkt',
+              'Sabbatical-Modus (bis zu 2 Monate pausieren)',
+              'Dein Engagement für deine Reise',
             ].map((item) => (
               <li key={item} className="flex gap-2">
                 <CheckIcon />
@@ -135,10 +131,126 @@ export default function PreisePage() {
               color: '#fff',
             }}
           >
-            Jetzt Premium werden
+            Jahresabo wählen
           </Link>
         </div>
       </div>
+
+      {/* ── Emotionale Benefits ── */}
+      <section className="max-w-3xl mx-auto mb-16">
+        <h2 className="font-heading text-2xl italic mb-8 text-center" style={{ color: 'var(--text-h)' }}>
+          Was dich bei Souleya erwartet
+        </h2>
+        <div className="grid gap-5 sm:grid-cols-2">
+          {[
+            {
+              title: 'Verbindung, die bleibt',
+              desc: 'Finde Gleichgesinnte, die deinen Weg verstehen – und verliere sie nicht nach dem nächsten Retreat.',
+            },
+            {
+              title: 'Wachstum in deinem Tempo',
+              desc: 'Kurse, Mentoren und Sessions, die dich da abholen, wo du gerade stehst. Kein Druck, kein Vergleich.',
+            },
+            {
+              title: 'Ein Ort, an dem du gesehen wirst',
+              desc: 'Keine Algorithmen, kein Lärm. Eine Community, die dich trägt – so wie du bist.',
+            },
+            {
+              title: 'Dein Beitrag zählt',
+              desc: 'Mit Seeds belohnst du Inhalte, die dich berühren, und unterstützt Mentoren direkt.',
+            },
+          ].map(({ title, desc }) => (
+            <div
+              key={title}
+              className="rounded-2xl border p-6"
+              style={{
+                background: 'var(--glass)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderColor: 'var(--glass-border)',
+              }}
+            >
+              <p className="font-medium mb-2" style={{ color: 'var(--text-h)' }}>{title}</p>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-body)' }}>{desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Social Proof / Zugehörigkeit ── */}
+      <section className="max-w-2xl mx-auto mb-16 text-center">
+        <h2 className="font-heading text-2xl italic mb-6" style={{ color: 'var(--text-h)' }}>
+          Souleya ist für Menschen, die …
+        </h2>
+        <div className="space-y-3 text-sm" style={{ color: 'var(--text-body)' }}>
+          {[
+            '… nach einem Retreat nicht wieder allein sein wollen.',
+            '… echte Verbindungen suchen, nicht Follower.',
+            '… wachsen wollen, aber nicht alleine.',
+            '… einen sicheren Raum brauchen, um sie selbst zu sein.',
+          ].map((line) => (
+            <p key={line} className="leading-relaxed">{line}</p>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Was ist alles drin? ── */}
+      <section className="max-w-3xl mx-auto mb-16">
+        <h2 className="font-heading text-2xl italic mb-6 text-center" style={{ color: 'var(--text-h)' }}>
+          Was ist alles drin?
+        </h2>
+        <div
+          className="rounded-2xl border p-6 sm:p-8"
+          style={{
+            background: 'var(--glass)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderColor: 'var(--glass-border)',
+          }}
+        >
+          <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm" style={{ color: 'var(--text-body)' }}>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide mb-3" style={{ color: 'var(--gold-text)' }}>
+                Im Monatsbeitrag enthalten
+              </p>
+              <ul className="space-y-2.5">
+                {[
+                  'Circles (Community-Gruppen)',
+                  'Pulse (Feed und Posts)',
+                  'Chat und Direktnachrichten',
+                  'Events (Online und Live)',
+                  'Basis-Seminare und ausgewählte Mentoren-Inhalte',
+                  'Seeds durch Aktivität verdienen',
+                  'VIP-Status (Enso-Ring) aufbauen',
+                ].map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <CheckIcon />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide mb-3" style={{ color: 'var(--gold-text)' }}>
+                Premium-Inhalte (Seeds oder Einzelkauf)
+              </p>
+              <ul className="space-y-2.5">
+                {[
+                  'Tiefe 1:1-Mentor-Sessions',
+                  'Mehrstündige Intensiv-Workshops',
+                  'Strukturierte Premium-Kurse',
+                  'Exklusives Premium-Material',
+                ].map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <CheckIcon />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── Mentor-Modell ── */}
       <div className="text-center max-w-2xl mx-auto mb-16">
@@ -170,16 +282,24 @@ export default function PreisePage() {
         <div className="space-y-4 text-sm" style={{ color: 'var(--text-body)' }}>
           {[
             {
-              q: 'Kann ich wirklich kostenlos starten?',
-              a: 'Ja, Souleya ist kostenlos nutzbar. Du kannst die Community erkunden, Beiträge lesen und dein Profil einrichten – ganz ohne Zahlungsdaten.',
+              q: 'Gibt es eine kostenlose Version?',
+              a: 'Souleya ist eine Gemeinschaft, kein Freemium-Produkt. Für 20 EUR im Monat bekommst du vollen Zugang – zu allem. Ohne Einschränkungen, ohne Upselling.',
+            },
+            {
+              q: 'Was sind Seeds?',
+              a: 'Seeds sind Souleyas interne Währung. Du verdienst sie durch Aktivität – zum Beispiel durch Einladungen, Posts oder Engagement. Damit kannst du Premium-Inhalte wie Mentoren-Sessions oder Kurse freischalten.',
+            },
+            {
+              q: 'Kann ich das Abo pausieren?',
+              a: 'Ja, mit dem Sabbatical-Modus kannst du dein Abo bis zu 2 Monate pro Jahr pausieren – ohne Kosten und ohne Statusverlust.',
             },
             {
               q: 'Was passiert mit meinen Daten, wenn ich kündige?',
               a: 'Du kannst deine Daten jederzeit exportieren. Nach Kündigung werden sie gemäss unserer Datenschutzerklärung gelöscht.',
             },
             {
-              q: 'Kann ich das Abo pausieren?',
-              a: 'Ja, mit dem Sabbatical-Modus kannst du dein Abo bis zu 2 Monate pro Jahr pausieren – ohne Kosten und ohne Statusverlust.',
+              q: 'Was kostet das Jahresabo?',
+              a: '200 EUR pro Jahr – das sind 2 Monate gratis im Vergleich zum Monatsabo. Du kannst 4 Wochen vor Ablauf kündigen.',
             },
           ].map(({ q, a }) => (
             <div

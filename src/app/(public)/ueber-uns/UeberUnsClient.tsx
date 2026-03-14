@@ -12,7 +12,7 @@ const TEAM = [
   },
   {
     name: 'Steffi',
-    role: 'Community & Onboarding',
+    role: 'Founder & Community',
     avatar: '/team/steffi.jpg',
     bio: 'Steffis Superpower: Menschen zusammenbringen und ihnen das Gefühl geben, angekommen zu sein. Sie kümmert sich darum, dass jeder neue Souleya-Mensch sich willkommen fühlt – vom ersten Moment an.',
   },

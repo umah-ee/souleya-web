@@ -71,7 +71,7 @@ export default function PublicHeader() {
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* ── Logo ── */}
         <Link href="/" className="flex items-center gap-3 no-underline">
-          <svg width="40" height="40" viewBox="0 0 100 100" className="flex-shrink-0">
+          <svg width="48" height="48" viewBox="0 0 100 100" className="flex-shrink-0">
             <defs>
               <linearGradient id="pub-enso" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="var(--gold-deep, #A8894E)" />
@@ -80,13 +80,13 @@ export default function PublicHeader() {
             </defs>
             <circle
               cx="50" cy="50" r="36" fill="none" stroke="url(#pub-enso)"
-              strokeWidth="7" strokeLinecap="round"
+              strokeWidth="9" strokeLinecap="round"
               strokeDasharray="196 30" strokeDashoffset="15"
             />
           </svg>
           <span
-            className="font-label text-sm font-medium uppercase"
-            style={{ color: 'var(--text-h)', letterSpacing: '3px' }}
+            className="font-heading uppercase"
+            style={{ color: 'var(--gold-text)', fontSize: '1.3rem', fontWeight: 400, letterSpacing: '0.36em' }}
           >
             Souleya
           </span>
@@ -170,17 +170,11 @@ export default function PublicHeader() {
           ) : (
             <Link
               href="/login"
-              className="text-sm font-medium px-4 py-2 rounded-full transition-all"
+              className="text-sm font-medium px-4 py-2 rounded-full transition-all hover:opacity-80"
               style={{
                 background: 'var(--gold-bg)',
                 color: 'var(--gold-text)',
                 border: '1px solid var(--gold-border)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--gold-bg-hover)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--gold-bg)';
               }}
             >
               Einloggen
