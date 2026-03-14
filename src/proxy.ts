@@ -2,7 +2,7 @@ import { createServerClient, type SetAllCookies } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 // Öffentliche Routen – kein Auth nötig
-const PUBLIC_ROUTES = ['/login', '/auth/', '/api/'];
+const PUBLIC_ROUTES = ['/login', '/auth/', '/api/', '/de/blog', '/en/blog', '/blog'];
 
 // Pre-Launch: nur diese Routen sind für eingeloggte User zugänglich
 const PRE_LAUNCH = process.env.NEXT_PUBLIC_PRE_LAUNCH === 'true';
@@ -11,6 +11,12 @@ const PRE_LAUNCH_ALLOWED = ['/', '/profile', '/u/'];
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
   const { pathname } = request.nextUrl;
+
+  // ── Blog Locale-Redirect: /blog → /de/blog ──
+  if (pathname === '/blog' || pathname.startsWith('/blog/')) {
+    const slug = pathname.replace('/blog', '');
+    return NextResponse.redirect(new URL(`/de/blog${slug}`, request.url));
+  }
 
   // ── Öffentliche Routen: kein Auth-Check nötig ──
   const isPublic = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
