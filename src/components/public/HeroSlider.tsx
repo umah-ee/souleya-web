@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import WaitlistForm from './WaitlistForm';
-import OriginCounter from './OriginCounter';
+import FirstLightCounter from './FirstLightCounter';
 
 const SLIDES = [
   'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1600&h=1000&fit=crop',
@@ -81,7 +81,7 @@ export default function HeroSlider() {
         </p>
 
         <WaitlistForm />
-        <OriginCounter />
+        <FirstLightCounter />
       </div>
 
       {/* ── Navigation Dots ── */}

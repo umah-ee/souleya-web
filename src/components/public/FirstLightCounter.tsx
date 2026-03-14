@@ -8,7 +8,7 @@ const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
 
-export default function OriginCounter() {
+export default function FirstLightCounter() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function OriginCounter() {
 
     // Realtime: neue Profile → Counter aktualisieren
     const channel = supabase
-      .channel('origin-counter')
+      .channel('first-light-counter')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
         load();
       })

@@ -38,7 +38,7 @@ export default function DashboardClient() {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [seeds, setSeeds] = useState(0);
-  const [isFirstLight, setIsOriginSoul] = useState(false);
+  const [isFirstLight, setIsFirstLight] = useState(false);
   const [referralCode, setReferralCode] = useState('');
   const [activities, setActivities] = useState<Activity[]>([]);
   const [showActivities, setShowActivities] = useState(false);
@@ -64,7 +64,7 @@ export default function DashboardClient() {
 
       if (profile) {
         setSeeds(profile.seeds_balance || 0);
-        setIsOriginSoul(profile.is_first_light || false);
+        setIsFirstLight(profile.is_first_light || false);
         setReferralCode(profile.referral_code || '');
       }
 
