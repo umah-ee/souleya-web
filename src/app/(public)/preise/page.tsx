@@ -181,10 +181,6 @@ export default function PreisePage() {
               q: 'Kann ich das Abo pausieren?',
               a: 'Ja, mit dem Sabbatical-Modus kannst du dein Abo bis zu 2 Monate pro Jahr pausieren – ohne Kosten und ohne Statusverlust.',
             },
-            {
-              q: 'Gibt es einen Studierenden-Rabatt?',
-              a: 'Noch nicht, aber wir arbeiten daran. Schreib uns gerne an hello@souleya.com.',
-            },
           ].map(({ q, a }) => (
             <div
               key={q}
