@@ -591,3 +591,84 @@ select:focus {
   0%, 100% { background-position: 0% 60%; }
   50% { background-position: 100% 40%; }
 }
+
+/* ═══════════════════════════════════════════
+   PUBLIC PAGE ANIMATIONS & UTILITIES
+   Migriert aus Landing Page
+═══════════════════════════════════════════ */
+
+@keyframes enso-draw {
+  from { stroke-dashoffset: 280; opacity: 0; }
+  to   { stroke-dashoffset: 15; opacity: 1; }
+}
+
+@keyframes soft-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .55; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes counter-glow {
+  0%, 100% { text-shadow: 0 0 12px rgba(200,169,110,.0); }
+  50%      { text-shadow: 0 0 24px rgba(200,169,110,.35); }
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: .6; }
+  50%      { opacity: 1; }
+}
+
+/* Scroll-Animation Klassen */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .7s ease-out, transform .7s ease-out;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Photo Treatment */
+.photo-gold-wash {
+  position: relative;
+  overflow: hidden;
+}
+.photo-gold-wash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(200,169,110,.18);
+  pointer-events: none;
+}
+
+.photo-vignette {
+  position: relative;
+}
+.photo-vignette::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(22,22,22,.35) 100%);
+  pointer-events: none;
+}
+
+/* Section Backgrounds */
+.section--apricot {
+  background: var(--gold-soft);
+}
+.section--mint {
+  background: rgba(120,180,140,.04);
+}
+.section--dark {
+  background: var(--bg-solid);
+}

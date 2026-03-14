@@ -39,7 +39,7 @@ export default function MobileHeader() {
   return (
     <header className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-5 py-3 glass-nav" style={{ borderBottom: '1px solid var(--glass-nav-b)' }}>
       {/* Logo + Schriftzug */}
-      <Link href="/" className="flex items-center gap-3">
+      <Link href="/pulse" className="flex items-center gap-3">
         <svg width="36" height="36" viewBox="0 0 100 100">
           <defs>
             <linearGradient id="mobile-enso" x1="0%" y1="0%" x2="100%" y2="100%">

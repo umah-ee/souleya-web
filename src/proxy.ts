@@ -2,7 +2,12 @@ import { createServerClient, type SetAllCookies } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 // Öffentliche Routen – kein Auth nötig
-const PUBLIC_ROUTES = ['/login', '/auth/', '/api/', '/de/blog', '/en/blog', '/blog'];
+const PUBLIC_ROUTES = [
+  '/', '/login', '/auth/', '/api/',
+  '/de/blog', '/en/blog', '/blog',
+  '/impressum', '/datenschutz', '/agb', '/preise', '/ueber-uns',
+  '/u/',
+];
 
 // Pre-Launch: nur diese Routen sind für eingeloggte User zugänglich
 const PRE_LAUNCH = process.env.NEXT_PUBLIC_PRE_LAUNCH === 'true';
@@ -19,7 +24,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // ── Öffentliche Routen: kein Auth-Check nötig ──
-  const isPublic = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
+  const isPublic = pathname === '/' || PUBLIC_ROUTES.some((r) => r !== '/' && pathname.startsWith(r));
   if (isPublic) {
     return supabaseResponse;
   }

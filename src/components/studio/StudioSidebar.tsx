@@ -178,7 +178,7 @@ export default function StudioSidebar() {
       {/* Zurueck zur Community */}
       <div className="flex-shrink-0 px-2 py-2">
         <Link
-          href="/"
+          href="/pulse"
           className="flex items-center gap-3 rounded-[8px] w-full transition-all duration-200 no-underline"
           style={{
             padding: collapsed ? '10px 0' : '10px 12px',

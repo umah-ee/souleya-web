@@ -10,7 +10,7 @@ import { useUnread } from '@/components/chat/UnreadContext';
 import { useSidebar } from './SidebarContext';
 
 const navItems: { href: string; icon: IconName; label: string }[] = [
-  { href: '/', icon: 'sparkles', label: 'Pulse' },
+  { href: '/pulse', icon: 'sparkles', label: 'Pulse' },
   { href: '/circles', icon: 'users', label: 'Circle' },
   { href: '/chat', icon: 'message-circle', label: 'Chat' },
   { href: '/discover', icon: 'compass', label: 'Discover' },
@@ -40,7 +40,7 @@ export default function Sidebar() {
   };
 
   const isActive = (href: string) => {
-    if (href === '/') return pathname === '/';
+    if (href === '/pulse') return pathname === '/pulse' || pathname.startsWith('/pulse/');
     return pathname.startsWith(href);
   };
 
@@ -54,7 +54,7 @@ export default function Sidebar() {
     >
       {/* Enso Logo */}
       <Link
-        href="/"
+        href="/pulse"
         className="flex items-center gap-[10px] flex-shrink-0 no-underline"
         style={{
           height: 56,

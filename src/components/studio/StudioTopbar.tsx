@@ -68,7 +68,7 @@ export default function StudioTopbar() {
     >
       {/* Mobile: Hamburger + Zurueck */}
       <Link
-        href="/"
+        href="/pulse"
         className="flex md:hidden items-center gap-1.5 no-underline"
         style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '1px', textTransform: 'uppercase' as const }}
       >

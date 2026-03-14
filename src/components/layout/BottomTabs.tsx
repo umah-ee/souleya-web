@@ -7,7 +7,7 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { useUnread } from '@/components/chat/UnreadContext';
 
 const tabs: { href: string; icon: IconName; label: string }[] = [
-  { href: '/', icon: 'sparkles', label: 'Pulse' },
+  { href: '/pulse', icon: 'sparkles', label: 'Pulse' },
   { href: '/circles', icon: 'users', label: 'Circle' },
   { href: '/chat', icon: 'message-circle', label: 'Chat' },
   { href: '/discover', icon: 'compass', label: 'Discover' },
