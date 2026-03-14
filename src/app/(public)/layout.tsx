@@ -1,5 +1,6 @@
 import PublicHeader from '@/components/layout/PublicHeader';
 import PublicFooter from '@/components/layout/PublicFooter';
+import CookieConsent from '@/components/public/CookieConsent';
 
 export default function PublicLayout({
   children,
@@ -11,6 +12,7 @@ export default function PublicLayout({
       <PublicHeader />
       <main className="flex-1">{children}</main>
       <PublicFooter />
+      <CookieConsent />
     </div>
   );
 }
