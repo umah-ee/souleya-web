@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
 import { Icon } from '@/components/ui/Icon';
+import { createClient } from '@/lib/supabase/client';
 
 export default function PublicHeader() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState<{ avatarUrl: string | null; username: string | null } | null>(null);
 
   // Scroll-Effekt
   useEffect(() => {
@@ -23,6 +25,25 @@ export default function PublicHeader() {
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
+
+  // Session + Profil prüfen
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user: authUser } }) => {
+      if (!authUser) return;
+      supabase
+        .from('profiles')
+        .select('avatar_url, username')
+        .eq('id', authUser.id)
+        .single()
+        .then(({ data }) => {
+          setUser({
+            avatarUrl: data?.avatar_url ?? null,
+            username: data?.username ?? null,
+          });
+        });
+    });
+  }, []);
 
   // Locale-Switch nur auf Blog-Seiten
   const isBlog = pathname.includes('/blog');
@@ -115,24 +136,56 @@ export default function PublicHeader() {
             />
           </button>
 
-          {/* Login */}
-          <Link
-            href="/login"
-            className="text-sm font-medium px-4 py-2 rounded-full transition-all"
-            style={{
-              background: 'var(--gold-bg)',
-              color: 'var(--gold-text)',
-              border: '1px solid var(--gold-border)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--gold-bg-hover)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--gold-bg)';
-            }}
-          >
-            Einloggen
-          </Link>
+          {/* Login / Avatar */}
+          {user ? (
+            <Link href="/pulse" className="flex-shrink-0">
+              {user.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt="Profil"
+                  className="rounded-full object-cover"
+                  style={{
+                    width: 34,
+                    height: 34,
+                    border: '2px solid var(--gold-border)',
+                  }}
+                />
+              ) : (
+                <div
+                  className="rounded-full flex items-center justify-center"
+                  style={{
+                    width: 34,
+                    height: 34,
+                    background: 'var(--gold-bg)',
+                    border: '2px solid var(--gold-border)',
+                    color: 'var(--gold-text)',
+                    fontSize: 14,
+                    fontWeight: 600,
+                  }}
+                >
+                  {(user.username?.[0] ?? '?').toUpperCase()}
+                </div>
+              )}
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="text-sm font-medium px-4 py-2 rounded-full transition-all"
+              style={{
+                background: 'var(--gold-bg)',
+                color: 'var(--gold-text)',
+                border: '1px solid var(--gold-border)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--gold-bg-hover)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--gold-bg)';
+              }}
+            >
+              Einloggen
+            </Link>
+          )}
         </nav>
 
         {/* ── Mobile Hamburger ── */}
@@ -208,17 +261,49 @@ export default function PublicHeader() {
                 )}
               </div>
 
-              <Link
-                href="/login"
-                className="text-sm font-medium px-4 py-2 rounded-full transition-all"
-                style={{
-                  background: 'var(--gold-bg)',
-                  color: 'var(--gold-text)',
-                  border: '1px solid var(--gold-border)',
-                }}
-              >
-                Einloggen
-              </Link>
+              {user ? (
+                <Link href="/pulse" className="flex-shrink-0">
+                  {user.avatarUrl ? (
+                    <img
+                      src={user.avatarUrl}
+                      alt="Profil"
+                      className="rounded-full object-cover"
+                      style={{
+                        width: 34,
+                        height: 34,
+                        border: '2px solid var(--gold-border)',
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className="rounded-full flex items-center justify-center"
+                      style={{
+                        width: 34,
+                        height: 34,
+                        background: 'var(--gold-bg)',
+                        border: '2px solid var(--gold-border)',
+                        color: 'var(--gold-text)',
+                        fontSize: 14,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {(user.username?.[0] ?? '?').toUpperCase()}
+                    </div>
+                  )}
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="text-sm font-medium px-4 py-2 rounded-full transition-all"
+                  style={{
+                    background: 'var(--gold-bg)',
+                    color: 'var(--gold-text)',
+                    border: '1px solid var(--gold-border)',
+                  }}
+                >
+                  Einloggen
+                </Link>
+              )}
             </div>
           </nav>
         </div>
