@@ -103,7 +103,27 @@ Seit Maerz 2026 laeuft **alles** ueber `souleya.com`:
 - Auth: `/login`, `/auth/`
 - App: `/pulse`, `/discover`, `/circles`, `/chat`, `/profile`
 
-`circle.souleya.com` wurde entfernt. Die alte Landing Page (`Dev/landing/`) dient nur noch als Design-Referenz.
+`circle.souleya.com` wurde komplett entfernt (nicht nur Redirect, sondern geloescht). Die alte Landing Page (`Dev/landing/`) dient nur noch als Design-Referenz.
+
+---
+
+## Pre-Launch Sperre
+
+Gesteuert ueber `NEXT_PUBLIC_PRE_LAUNCH=true` in Vercel Environment Variables.
+
+**Server-Seite (`proxy.ts`):**
+- Erlaubte Routen fuer normale User: `/`, `/profile`, `/u/`, `/dashboard`
+- Alle anderen Routen → Redirect auf `/profile`
+- **Admins** (`is_admin`) und **Beta-Tester** (`is_beta_tester`) sind komplett ausgenommen
+
+**Client-Seite (`(main)/layout.tsx`):**
+- Visuelle Overlays (Blur + Banner "Souleya oeffnet am 01.07.2026") ueber Navigation
+- **Admins** und **Beta-Tester** sehen keine Overlays
+
+**Datenbank:**
+- `profiles.is_admin` (Boolean) — gesetzt ueber Migration 032
+- `profiles.is_beta_tester` (Boolean) — gesetzt ueber Migration 047
+- Beide Flags muessen in der DB manuell gesetzt werden (Supabase Dashboard oder SQL)
 
 ---
 

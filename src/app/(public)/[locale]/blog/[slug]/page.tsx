@@ -16,6 +16,8 @@ interface ArticleData {
   category: string | null;
   tags: string[];
   og_image_url: string | null;
+  og_image_photographer: string | null;
+  og_image_photographer_url: string | null;
   cta_type: string;
   views_count: number;
   published_at: string | null;
@@ -191,6 +193,30 @@ export default async function ArticlePage({
               alt={article.title}
               className="w-full object-cover"
             />
+            {article.og_image_photographer && (
+              <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
+                {t ? 'Foto von' : 'Photo by'}{' '}
+                <a
+                  href={`${article.og_image_photographer_url}?utm_source=souleya&utm_medium=referral`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                  style={{ color: 'var(--gold-text)' }}
+                >
+                  {article.og_image_photographer}
+                </a>
+                {' '}{t ? 'auf' : 'on'}{' '}
+                <a
+                  href="https://unsplash.com/?utm_source=souleya&utm_medium=referral"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                  style={{ color: 'var(--gold-text)' }}
+                >
+                  Unsplash
+                </a>
+              </p>
+            )}
           </div>
         )}
 
