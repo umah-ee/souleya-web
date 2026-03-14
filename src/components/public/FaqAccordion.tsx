@@ -8,8 +8,8 @@ const FAQ_ITEMS = [
     a: 'Souleya ist eine App für Menschen, die sich für persönliche Entwicklung, Gesundheit und Spiritualität interessieren. Du findest dort Gleichgesinnte (Circles), kannst Kurse bei Mentoren buchen (Studio) und an echten Treffen vor Ort teilnehmen (Events). Alles in einer App statt auf zehn verschiedenen Plattformen.',
   },
   {
-    q: 'Was ist ein Origin Soul?',
-    a: 'Origin Soul ist ein permanenter Status für die ersten 1.000 Menschen, die sich vor dem Launch registrieren. Du startest auf VIP-Level 2 (Awakened Soul), bekommst einen einzigartigen Enso-Ring um dein Profilbild und kannst schon vor dem Launch Seeds sammeln. Dieser Status wird nach dem Launch nie wieder vergeben.',
+    q: 'Was ist First Light?',
+    a: 'First Light ist ein permanenter Status für die ersten 1.000 Menschen, die sich vor dem Launch registrieren. Du startest auf VIP-Level 2 (Awakened Soul), bekommst einen einzigartigen Enso-Ring um dein Profilbild und kannst schon vor dem Launch Seeds sammeln. Dieser Status wird nach dem Launch nie wieder vergeben.',
   },
   {
     q: 'Was sind Seeds?',
@@ -21,7 +21,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Kostet die Anmeldung etwas?',
-    a: 'Nein. Die Registrierung ist kostenlos. Du gibst nur deine E-Mail-Adresse an und bist dabei. Nach dem Launch wird es ein Membership-Modell geben – aber als Origin Soul hast du von Anfang an Vorteile.',
+    a: 'Nein. Die Registrierung ist kostenlos. Du gibst nur deine E-Mail-Adresse an und bist dabei. Nach dem Launch wird es ein Membership-Modell geben – aber als First Light hast du von Anfang an Vorteile.',
   },
   {
     q: 'Wie kann ich vorab Seeds verdienen?',

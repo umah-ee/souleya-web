@@ -38,7 +38,7 @@ export default function DashboardClient() {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [seeds, setSeeds] = useState(0);
-  const [isOriginSoul, setIsOriginSoul] = useState(false);
+  const [isFirstLight, setIsOriginSoul] = useState(false);
   const [referralCode, setReferralCode] = useState('');
   const [activities, setActivities] = useState<Activity[]>([]);
   const [showActivities, setShowActivities] = useState(false);
@@ -58,13 +58,13 @@ export default function DashboardClient() {
       // Profile laden
       const { data: profile } = await supabase
         .from('profiles')
-        .select('seeds_balance, is_origin_soul, referral_code')
+        .select('seeds_balance, is_first_light, referral_code')
         .eq('id', user.id)
         .single();
 
       if (profile) {
         setSeeds(profile.seeds_balance || 0);
-        setIsOriginSoul(profile.is_origin_soul || false);
+        setIsOriginSoul(profile.is_first_light || false);
         setReferralCode(profile.referral_code || '');
       }
 
@@ -110,7 +110,7 @@ export default function DashboardClient() {
   /* ── WhatsApp teilen ── */
   const shareWhatsApp = () => {
     const link = `${window.location.origin}/?ref=${referralCode}`;
-    const text = `Werde Teil von Souleya und sichere dir den Origin Soul Status! ${link}`;
+    const text = `Werde Teil von Souleya und sichere dir den First Light Status! ${link}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -209,7 +209,7 @@ export default function DashboardClient() {
               strokeDasharray="196 30"
               transform="rotate(-30 50 50)"
             />
-            {isOriginSoul && (
+            {isFirstLight && (
               <>
                 <circle cx="83" cy="31" r="5" fill="var(--gold-text)" opacity="0.6" style={{ animation: 'soft-pulse 2s ease-in-out infinite' }} />
                 <circle cx="83" cy="31" r="3" fill="var(--gold-text)" opacity="0.9" />
@@ -217,10 +217,10 @@ export default function DashboardClient() {
             )}
           </svg>
           <p className="font-medium mb-1" style={{ color: 'var(--text-h)' }}>
-            {isOriginSoul ? 'Origin Soul · VIP 2' : 'Soul Spark · VIP 1'}
+            {isFirstLight ? 'First Light · VIP 2' : 'Soul Spark · VIP 1'}
           </p>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            {isOriginSoul
+            {isFirstLight
               ? 'Du gehörst zu den Ersten. Dein Lichtpunkt am Enso-Ring bleibt für immer.'
               : 'Sammle Seeds und steige im Level auf. Der Launch wartet auf dich.'}
           </p>

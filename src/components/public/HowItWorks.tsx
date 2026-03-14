@@ -14,7 +14,7 @@ const STEPS = [
   {
     number: 3,
     heading: 'Starte am Launch-Tag mit Vorsprung',
-    text: 'Deine Seeds, dein Status und dein Netzwerk warten auf dich, wenn die App live geht. Du bist nicht irgendwer – du bist Origin Soul.',
+    text: 'Deine Seeds, dein Status und dein Netzwerk warten auf dich, wenn die App live geht. Du bist nicht irgendwer – du bist First Light.',
   },
 ];
 

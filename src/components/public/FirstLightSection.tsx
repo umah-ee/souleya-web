@@ -9,7 +9,7 @@ const BENEFITS = [
   {
     icon: '☀',
     heading: 'Du gestaltest mit.',
-    text: 'Origin Souls haben direkten Einfluss auf Features, Circles und die Richtung der Plattform. Deine Stimme zählt ab Tag 1.',
+    text: 'Als First Light hast du direkten Einfluss auf Features, Circles und die Richtung der Plattform. Deine Stimme zählt ab Tag 1.',
   },
   {
     icon: '♡',
@@ -19,7 +19,7 @@ const BENEFITS = [
   {
     icon: '∞',
     heading: 'Für immer sichtbar.',
-    text: 'Origin Soul bleibt dauerhaft in deinem Profil. Egal wohin dein Weg dich führt – dieser Moment gehört dir.',
+    text: 'First Light bleibt dauerhaft in deinem Profil. Egal wohin dein Weg dich führt – dieser Moment gehört dir.',
   },
 ];
 
@@ -51,7 +51,7 @@ function ProfileMockup() {
               strokeDasharray="196 30"
               transform="rotate(-30 50 50)"
             />
-            {/* Origin Soul Glow */}
+            {/* First Light Glow */}
             <circle cx="83" cy="31" r="5" fill="var(--gold-text)" opacity="0.6" style={{ animation: 'soft-pulse 2s ease-in-out infinite' }} />
             <circle cx="83" cy="31" r="3" fill="var(--gold-text)" opacity="0.9" />
           </svg>
@@ -75,7 +75,7 @@ function ProfileMockup() {
           style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}
         >
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--gold-text)' }} />
-          Origin Soul
+          First Light
         </span>
 
         {/* Stats */}
@@ -101,7 +101,7 @@ function ProfileMockup() {
           ))}
         </div>
 
-        {/* Origin Soul Badge */}
+        {/* First Light Badge */}
         <div
           className="flex items-center justify-center gap-2 text-[10px] py-1.5 rounded-full"
           style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}
@@ -109,7 +109,7 @@ function ProfileMockup() {
           <svg viewBox="0 0 100 100" className="w-3.5 h-3.5">
             <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeDasharray="196 30" transform="rotate(-30 50 50)" />
           </svg>
-          <span className="font-medium">Origin Soul</span>
+          <span className="font-medium">First Light</span>
           <span className="opacity-70">· Dabei seit Stunde Null</span>
         </div>
       </div>
@@ -117,21 +117,21 @@ function ProfileMockup() {
   );
 }
 
-export default function OriginSoulSection() {
+export default function FirstLightSection() {
   return (
-    <section id="origin-soul" className="section--apricot py-20 px-6">
+    <section id="first-light" className="section--apricot py-20 px-6">
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Text */}
         <div>
           <p className="text-xs font-medium uppercase tracking-wide mb-2" style={{ color: 'var(--gold-text)' }}>
-            Origin Soul
+            First Light
           </p>
           <h2 className="font-heading text-2xl md:text-3xl italic mb-4" style={{ color: 'var(--text-h)' }}>
             Sei dabei, bevor<br />alles beginnt.
           </h2>
           <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--text-body)' }}>
             Souleya startet in Kürze – eine Plattform für persönliches Wachstum und echte
-            Verbindung. Als Origin Soul gehörst du zu den Ersten, die diese Community
+            Verbindung. Als First Light gehörst du zu den Ersten, die diese Community
             mitgestalten. Kein Beobachter. Ein Wegbereiter.
           </p>
 
@@ -154,7 +154,7 @@ export default function OriginSoulSection() {
             className="inline-block mt-8 px-8 py-3 rounded-full font-medium text-sm transition-all hover:shadow-lg"
             style={{ background: 'var(--gold-text)', color: '#fff' }}
           >
-            Jetzt Origin Soul werden
+            Jetzt First Light werden
           </a>
         </div>
 

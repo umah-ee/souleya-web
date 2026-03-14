@@ -25,14 +25,14 @@ export default function CtaFinal() {
         Dein Platz wartet
       </h2>
       <p className="text-sm max-w-md mx-auto mb-8" style={{ color: 'var(--text-sec)' }}>
-        Werde einer der ersten 1.000 Origin Souls und forme Souleya von Anfang an mit.
+        Werde einer der ersten 1.000 First Lights und forme Souleya von Anfang an mit.
       </p>
       <a
         href="#anmeldung"
         className="inline-block px-10 py-3.5 rounded-full font-medium text-sm transition-all hover:shadow-lg"
         style={{ background: 'var(--gold-text)', color: '#fff' }}
       >
-        Jetzt Origin Soul werden
+        Jetzt First Light werden
       </a>
     </section>
   );

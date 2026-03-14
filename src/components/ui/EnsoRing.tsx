@@ -6,7 +6,7 @@ import { useTheme } from '@/components/ThemeProvider';
 // ══════════════════════════════════════════════════════════════
 // SOULEYA ENSO RING – VIP-Stufen-Konzept v2
 // Level 1–5 mit progressiv schliessendem Kreis
-// First Light (Origin Soul) + Ritterschlag Sonderstatus
+// First Light + Ritterschlag Sonderstatus
 // Farbschema-aware: Gold + Dusk
 // ══════════════════════════════════════════════════════════════
 
@@ -119,7 +119,7 @@ export default function EnsoRing({
           opacity={level === 5 ? undefined : config.opacity}
         />
 
-        {/* ─── First Light (Origin Soul) ───────────── */}
+        {/* ─── First Light ───────────── */}
         {/* Leuchtender Lichtpunkt am Anfang des Kreises */}
         {isFirstLight && (
           <>

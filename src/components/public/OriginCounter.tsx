@@ -48,7 +48,7 @@ export default function OriginCounter() {
         animation: 'counter-glow 3s ease-in-out infinite',
       }}
     >
-      <strong>{count}</strong> von 1.000 Origin Soul Plätzen vergeben
+      <strong>{count}</strong> von 1.000 First Light Plätzen vergeben
     </div>
   );
 }
