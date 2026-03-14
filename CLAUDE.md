@@ -1,6 +1,6 @@
 # souleya-web – Next.js Web-App
 
-**Framework:** Next.js 16 App Router · **Port:** 3001 (`next dev`) · **Production:** circle.souleya.com (Vercel)
+**Framework:** Next.js 16 App Router · **Port:** 3001 (`next dev`) · **Production:** souleya.com (Vercel, Mono-Domain)
 
 ---
 
@@ -38,6 +38,14 @@ NEXT_PUBLIC_MAPBOX_TOKEN=<mapbox_public_token>
 
 ```
 app/
+├── (public)/            # Oeffentliche Seiten (kein Auth noetig)
+│   ├── page.tsx         # Homepage (Hero, Features, First Light, FAQ)
+│   ├── preise/          # Preisseite (20 €/Monat, 200 €/Jahr)
+│   ├── ueber-uns/       # Ueber-uns mit Team-Fotos + Lightbox
+│   ├── blog/            # Blog
+│   ├── impressum/       # Impressum
+│   ├── datenschutz/     # Datenschutz
+│   └── agb/             # AGB
 ├── (main)/              # Authed-Bereich mit Sidebar-Layout
 │   ├── pulse/           # Feed (Timeline, CreatePulseForm)
 │   ├── discover/        # Mapbox-Karte, Events, Places, Nutzer
@@ -82,8 +90,20 @@ lib/
 | Profil | ✅ | Avatar, Banner, GPS, Interest-Tags, Badges |
 | Öffentliches Profil `/u/:username` | ✅ | |
 | Theme (Light/Dark) | ✅ | `data-theme` Attribut, ThemeProvider |
+| Oeffentliche Seiten (Homepage, Preise, Ueber uns, Blog) | ✅ | Mono-Domain souleya.com |
 | Studio | ⏳ | Nur UI-Platzhalter |
 | Analytics | ⏳ | Nur UI-Platzhalter |
+
+---
+
+## Mono-Domain: souleya.com
+
+Seit Maerz 2026 laeuft **alles** ueber `souleya.com`:
+- Oeffentliche Seiten: `/`, `/preise`, `/ueber-uns`, `/blog`, `/impressum`, `/datenschutz`, `/agb`
+- Auth: `/login`, `/auth/`
+- App: `/pulse`, `/discover`, `/circles`, `/chat`, `/profile`
+
+`circle.souleya.com` wurde entfernt. Die alte Landing Page (`Dev/landing/`) dient nur noch als Design-Referenz.
 
 ---
 
@@ -95,20 +115,15 @@ Next.js 16 hat `middleware.ts` durch `proxy.ts` ersetzt. **NIEMALS eine `middlew
 
 ## Auth-Flow
 
-**Registrierung (Landing Page → souleya-web):**
+**Registrierung + Login (alles auf souleya.com):**
 ```
 souleya.com: E-Mail eingeben → signInWithOtp()
-→ OTP-Code per E-Mail
-→ User gibt 8-stelligen Code ein
-→ Redirect zu circle.souleya.com/api/auth/verify?email=...&otp=...
-→ Server-seitige verifyOtp() → Session-Cookies gesetzt → /profile
+→ OTP-Code per E-Mail (8-stellig)
+→ User gibt Code ein
+→ verifyOtp() → Session-Cookies gesetzt → /profile bzw. (main)/...
 ```
 
-**Login (souleya-web intern):**
-```
-/login → signInWithOtp() → 8-stelliger Code per E-Mail
-→ verifyOtp() client-seitig → AuthGuard → (main)/...
-```
+> **Hinweis:** Seit der Mono-Domain-Migration laeuft alles ueber souleya.com. Es gibt kein circle.souleya.com mehr.
 
 **Supabase OTP-Codes sind 8-stellig** (nicht 6).
 
@@ -143,4 +158,15 @@ Souleya spricht **frisch, locker und liebevoll**. Kein Corporate-Deutsch, keine 
 
 ---
 
-*Zuletzt aktualisiert: März 2026*
+## Mitgliedschaft & Preise
+
+| Modell | Preis | Details |
+|---|---|---|
+| Monatlich | 20 € / Monat | Monatlich kuendbar, keine Mindestlaufzeit |
+| Jaehrlich | 200 € / Jahr | 2 Monate gratis, Sabbatical-Modus (bis 2 Monate pausieren) |
+
+Keine kostenfreie Variante. Premium-Inhalte (Mentor-Sessions, Kurse) ueber Seeds oder Einzelkauf.
+
+---
+
+*Zuletzt aktualisiert: Maerz 2026*
