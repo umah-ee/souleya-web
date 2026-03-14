@@ -55,9 +55,9 @@ function CallbackHandler() {
         }
         console.error('OTP verification error:', error);
         setError('Code ungültig oder abgelaufen. Bitte erneut versuchen.');
-        // Nach 3 Sekunden zurück zur Landing Page
+        // Nach 3 Sekunden zurueck zur Startseite
         setTimeout(() => {
-          window.location.href = 'https://souleya.com';
+          router.replace('/');
         }, 3000);
         return;
       }
