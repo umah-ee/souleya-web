@@ -9,8 +9,8 @@ import PulseCard from '@/components/pulse/PulseCard';
 import CreatePulseForm from '@/components/pulse/CreatePulseForm';
 import ConnectionCard from '@/components/circles/ConnectionCard';
 import { IncomingRequestCard, OutgoingRequestCard } from '@/components/circles/RequestCard';
-import { fetchFeed } from '@/lib/pulse';
 import {
+  fetchCircleFeed,
   getConnections,
   getIncomingRequests,
   getOutgoingRequests,
@@ -51,10 +51,10 @@ export default function CirclesClient({ user }: Props) {
   const [mentorsLoading, setMentorsLoading] = useState(false);
 
 
-  // ── Feed laden (globaler Pulse-Feed) ──────────────────────
+  // ── Feed laden (nur Posts von Verbindungen + eigene) ──────
   const loadFeed = useCallback(async (pageNum: number, replace: boolean) => {
     try {
-      const result = await fetchFeed(pageNum, 20);
+      const result = await fetchCircleFeed(pageNum, 20);
       setPulses((prev) => replace ? result.pulses : [...prev, ...result.pulses]);
       setFeedHasMore(result.hasMore);
     } catch (e) {

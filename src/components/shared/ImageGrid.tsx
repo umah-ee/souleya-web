@@ -221,7 +221,7 @@ function Lightbox({
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center animate-fade-in"
       style={{
-        background: 'rgba(0, 0, 0, 0.85)',
+        background: 'rgba(0, 0, 0, 0.92)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
       }}
@@ -231,17 +231,17 @@ function Lightbox({
       role="dialog"
       aria-label="Bildvorschau"
     >
-      {/* Schliessen */}
+      {/* Schliessen — oben rechts, immer sichtbar */}
       <button
-        onClick={onClose}
-        className="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center cursor-pointer z-10 transition-colors"
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        className="absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center cursor-pointer z-20 transition-opacity hover:opacity-80"
         style={{
-          background: 'rgba(0,0,0,0.6)',
-          border: '1px solid rgba(255,255,255,0.3)',
-          color: '#F0E8D8',
+          background: 'rgba(255,255,255,0.2)',
+          border: '2px solid rgba(255,255,255,0.5)',
+          color: '#ffffff',
         }}
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
           <path d="M18 6l-12 12" />
           <path d="M6 6l12 12" />
         </svg>
@@ -251,14 +251,14 @@ function Lightbox({
       {images.length > 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
-          className="absolute left-4 w-11 h-11 rounded-full flex items-center justify-center cursor-pointer z-10 transition-colors"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center cursor-pointer z-20 transition-opacity hover:opacity-80"
           style={{
-            background: 'rgba(255,255,255,0.15)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            color: '#F0E8D8',
+            background: 'rgba(255,255,255,0.2)',
+            border: '2px solid rgba(255,255,255,0.5)',
+            color: '#ffffff',
           }}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
             <path d="M15 6l-6 6l6 6" />
           </svg>
         </button>
@@ -278,14 +278,14 @@ function Lightbox({
       {images.length > 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); onNext(); }}
-          className="absolute right-4 w-11 h-11 rounded-full flex items-center justify-center cursor-pointer z-10 transition-colors"
+          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center cursor-pointer z-20 transition-opacity hover:opacity-80"
           style={{
-            background: 'rgba(255,255,255,0.15)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            color: '#F0E8D8',
+            background: 'rgba(255,255,255,0.2)',
+            border: '2px solid rgba(255,255,255,0.5)',
+            color: '#ffffff',
           }}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
             <path d="M9 6l6 6l-6 6" />
           </svg>
         </button>
@@ -296,9 +296,9 @@ function Lightbox({
         <div
           className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full font-label text-[0.7rem] tracking-[0.1em]"
           style={{
-            background: 'rgba(255,255,255,0.15)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            color: '#F0E8D8',
+            background: 'rgba(255,255,255,0.2)',
+            border: '1px solid rgba(255,255,255,0.4)',
+            color: '#ffffff',
           }}
         >
           {currentIndex + 1} / {images.length}
