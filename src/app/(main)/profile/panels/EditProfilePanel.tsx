@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import type { Profile, UpdateProfileData } from '@/types/profile';
 import { updateProfile, uploadAvatar, uploadBanner } from '@/lib/profile';
 import { geocodeLocation } from '@/lib/events';
@@ -50,7 +50,22 @@ export default function EditProfilePanel({
   const locationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Sync form when panel opens with new profile ──
-  // (useEffect would be better but useState initializer suffices for now)
+  useEffect(() => {
+    if (isOpen) {
+      setForm({
+        display_name: profile.display_name ?? '',
+        username: profile.username ?? '',
+        bio: profile.bio ?? '',
+        birthday: profile.birthday ?? '',
+        location: profile.location ?? '',
+        location_lat: profile.location_lat,
+        location_lng: profile.location_lng,
+        interests: profile.interests ?? [],
+      });
+      setError('');
+      setSuccess('');
+    }
+  }, [isOpen, profile]);
 
   // ── GPS Standort ──
   const handleDetectLocation = async () => {

@@ -3,9 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Profile } from '@/types/profile';
+import type { Pulse } from '@/types/pulse';
 import { fetchProfile, updateProfile } from '@/lib/profile';
+import { fetchMyPulses } from '@/lib/pulse';
 import { getConnections } from '@/lib/circles';
 import type { Connection } from '@/types/circles';
+
+// ── Pulse ──
+import PulseCard from '@/components/pulse/PulseCard';
 
 // ── Profile Components ──
 import ProfileBanner from './components/ProfileBanner';
@@ -31,6 +36,10 @@ export default function ProfileClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activePanel, setActivePanel] = useState<PanelType>(null);
+  const [showBeitraege, setShowBeitraege] = useState(false);
+  const [beitraegePulses, setBeitraegePulses] = useState<Pulse[]>([]);
+  const [beitraegeLoading, setBeitraegeLoading] = useState(false);
+  const [beitraegeFetched, setBeitraegeFetched] = useState(false);
   const [showCircle, setShowCircle] = useState(false);
   const [circleConnections, setCircleConnections] = useState<Connection[]>([]);
   const [circleLoading, setCircleLoading] = useState(false);
@@ -59,7 +68,36 @@ export default function ProfileClient() {
     setProfile(updated);
   };
 
+  const handleBeitraegeClick = async () => {
+    // Schließe Circle wenn offen
+    if (showCircle) setShowCircle(false);
+
+    if (showBeitraege) {
+      setShowBeitraege(false);
+      return;
+    }
+    setShowBeitraege(true);
+    if (beitraegeFetched) return;
+    setBeitraegeLoading(true);
+    try {
+      const res = await fetchMyPulses(1, 50);
+      setBeitraegePulses(res.data);
+      setBeitraegeFetched(true);
+    } catch (e) {
+      console.error('Beitraege laden fehlgeschlagen:', e);
+    } finally {
+      setBeitraegeLoading(false);
+    }
+  };
+
+  const handlePulseDeleted = (id: string) => {
+    setBeitraegePulses((prev) => prev.filter((p) => p.id !== id));
+  };
+
   const handleCircleClick = async () => {
+    // Schließe Beiträge wenn offen
+    if (showBeitraege) setShowBeitraege(false);
+
     if (showCircle) {
       setShowCircle(false);
       return;
@@ -128,9 +166,45 @@ export default function ProfileClient() {
         {/* ─── Stats (Beitraege / Circle) ─── */}
         <ProfileStats
           profile={profile}
+          onBeitraegeClick={handleBeitraegeClick}
+          beitraegeActive={showBeitraege}
           onCircleClick={handleCircleClick}
           circleActive={showCircle}
         />
+
+        {/* ─── Beitraege-Liste (toggle) ─── */}
+        {showBeitraege && (
+          <div className="px-6" style={{ marginTop: '24px' }}>
+            {beitraegeLoading && (
+              <div className="text-center py-8">
+                <p className="font-label text-[0.7rem] tracking-[0.2em]" style={{ color: 'var(--text-muted)' }}>
+                  WIRD GELADEN …
+                </p>
+              </div>
+            )}
+
+            {!beitraegeLoading && beitraegePulses.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  Du hast noch keine Beiträge verfasst.
+                </p>
+              </div>
+            )}
+
+            {!beitraegeLoading && beitraegePulses.length > 0 && (
+              <div className="flex flex-col gap-4">
+                {beitraegePulses.map((pulse) => (
+                  <PulseCard
+                    key={pulse.id}
+                    pulse={pulse}
+                    currentUserId={profile.id}
+                    onDelete={handlePulseDeleted}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ─── Circle-Liste (toggle) ─── */}
         {showCircle && (

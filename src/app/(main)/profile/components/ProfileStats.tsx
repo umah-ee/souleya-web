@@ -42,7 +42,7 @@ export default function ProfileStats({ profile, onBeitraegeClick, beitraegeActiv
         {onBeitraegeClick ? (
           <button
             onClick={onBeitraegeClick}
-            className="text-center transition-colors duration-200"
+            className="group text-center transition-colors duration-200"
             style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
           >
             <span
@@ -55,11 +55,12 @@ export default function ProfileStats({ profile, onBeitraegeClick, beitraegeActiv
               {profile.pulses_count ?? 0}
             </span>
             <span
-              className="font-label uppercase block"
+              className="font-label uppercase block group-hover:underline"
               style={{
                 fontSize: '10px', fontWeight: 500, letterSpacing: '1.2px',
                 color: beitraegeActive ? 'var(--gold)' : 'var(--text-muted)',
                 marginTop: '6px',
+                textUnderlineOffset: '3px',
               }}
             >
               Beitraege
@@ -86,7 +87,7 @@ export default function ProfileStats({ profile, onBeitraegeClick, beitraegeActiv
         {onCircleClick ? (
           <button
             onClick={onCircleClick}
-            className="text-center transition-colors duration-200"
+            className="group text-center transition-colors duration-200"
             style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
           >
             <span
@@ -99,11 +100,12 @@ export default function ProfileStats({ profile, onBeitraegeClick, beitraegeActiv
               {profile.connections_count}
             </span>
             <span
-              className="font-label uppercase block"
+              className="font-label uppercase block group-hover:underline"
               style={{
                 fontSize: '10px', fontWeight: 500, letterSpacing: '1.2px',
                 color: circleActive ? 'var(--gold)' : 'var(--text-muted)',
                 marginTop: '6px',
+                textUnderlineOffset: '3px',
               }}
             >
               Circle
