@@ -10,6 +10,8 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 interface SettingsPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  postsVisibility?: 'public' | 'circle';
+  onPostsVisibilityChange?: (v: 'public' | 'circle') => void;
 }
 
 type SubView = 'main' | 'appearance' | 'notifications' | 'privacy' | 'account';
@@ -23,7 +25,7 @@ type SubView = 'main' | 'appearance' | 'notifications' | 'privacy' | 'account';
  * Account: Logout
  * Version: "Souleya v1.0.0" am Ende
  */
-export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
+export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPostsVisibilityChange }: SettingsPanelProps) {
   const router = useRouter();
   const { theme, colorScheme, toggleTheme, setColorScheme } = useTheme();
   const [subView, setSubView] = useState<SubView>('main');
@@ -272,6 +274,15 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
               onChange={(v) => setPrivacy({ ...privacy, showStats: v })}
               border
             />
+            {onPostsVisibilityChange && (
+              <ToggleRow
+                label="Beitraege oeffentlich"
+                description="Wenn deaktiviert, sehen nur deine Kontakte deine Beitraege"
+                checked={postsVisibility === 'public'}
+                onChange={(v) => onPostsVisibilityChange(v ? 'public' : 'circle')}
+                border
+              />
+            )}
             <ToggleRow
               label="Circles anzeigen"
               checked={privacy.showCircles}
@@ -443,11 +454,13 @@ function CategoryRow({
 /** Toggle Row — Mockup: label 14px, toggle track */
 function ToggleRow({
   label,
+  description,
   checked,
   onChange,
   border,
 }: {
   label: string;
+  description?: string;
   checked: boolean;
   onChange: (v: boolean) => void;
   border?: boolean;
@@ -463,9 +476,16 @@ function ToggleRow({
         borderTop: border ? '1px solid var(--divider-l)' : undefined,
       }}
     >
-      <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-body)' }}>
-        {label}
-      </span>
+      <div className="text-left">
+        <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-body)', display: 'block' }}>
+          {label}
+        </span>
+        {description && (
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>
+            {description}
+          </span>
+        )}
+      </div>
 
       {/* Toggle — Mockup: 40×22px track, 18px knob */}
       <div

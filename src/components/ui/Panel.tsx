@@ -56,7 +56,7 @@ export default function Panel({ isOpen, onClose, title, children }: PanelProps) 
       {/* ─── Panel ─── */}
       <div
         ref={panelRef}
-        className="relative w-full max-w-[600px] max-h-[88vh] overflow-y-auto animate-scale-in"
+        className="relative w-full max-w-[600px] max-h-[88vh] overflow-y-auto animate-scale-in scrollbar-gold"
         style={{
           background: 'var(--bg-elevated)',
           borderRadius: '32px',

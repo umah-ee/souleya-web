@@ -65,6 +65,13 @@ export async function addComment(pulseId: string, content: string): Promise<Puls
   });
 }
 
+// ── Beitraege eines Users laden ───────────────────────────────
+export async function fetchUserPulses(username: string, page = 1, limit = 10) {
+  return apiFetch<{ data: Pulse[]; total: number; hasMore: boolean; visibility: 'granted' | 'restricted' }>(
+    `/pulse/user/${encodeURIComponent(username)}?page=${page}&limit=${limit}`,
+  );
+}
+
 // ── Bild hochladen (ueber API → Supabase Storage) ───────────
 export async function uploadPulseImage(file: File): Promise<string> {
   const supabase = createClient();

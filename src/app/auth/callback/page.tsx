@@ -8,10 +8,10 @@ import { logActivity } from '@/lib/activity';
 /**
  * Auth Callback – verarbeitet drei Flows:
  *
- * 1) Landing Page OTP-Redirect: ?email=xxx&otp=12345678&next=/profile
- *    → verifyOtp() direkt hier → Session entsteht auf circle.souleya.com
+ * 1) OTP-Redirect: ?email=xxx&otp=12345678&next=/profile
+ *    → verifyOtp() direkt hier
  *
- * 2) PKCE Flow (souleya-web Login Magic Links): ?code=xxx&next=/profile
+ * 2) PKCE Flow (Login Magic Links): ?code=xxx&next=/profile
  *    → exchangeCodeForSession(code)
  *
  * 3) Magic Link Klick (Fallback): #access_token=...
@@ -41,8 +41,7 @@ function CallbackHandler() {
     }
 
     async function handle() {
-      // ── 1) Landing Page OTP: ?email=...&otp=... ──
-      // OTP-Verifikation findet hier statt → Session entsteht auf dieser Domain
+      // ── 1) OTP: ?email=...&otp=... ──
       if (email && otp) {
         const { error } = await supabase.auth.verifyOtp({
           email,
@@ -50,7 +49,7 @@ function CallbackHandler() {
           type: 'email',
         });
         if (!error) {
-          go(next, 'otp_landing');
+          go(next, 'otp');
           return;
         }
         console.error('OTP verification error:', error);

@@ -5,6 +5,8 @@ import type { PublicProfile } from '@/lib/users';
 
 interface ProfileStatsProps {
   profile: Profile | PublicProfile;
+  onBeitraegeClick?: () => void;
+  beitraegeActive?: boolean;
 }
 
 /**
@@ -13,7 +15,7 @@ interface ProfileStatsProps {
  * Divider: margin 0 60px, gradient gold-border
  * Stats: gap 48px, number 26px serif, label 10px Josefin, margin-top 6px
  */
-export default function ProfileStats({ profile }: ProfileStatsProps) {
+export default function ProfileStats({ profile, onBeitraegeClick, beitraegeActive }: ProfileStatsProps) {
   return (
     <div className="px-6" style={{ marginTop: '40px' }}>
       {/* ─── Gradient Divider — Mockup: margin 0 60px, class profile-divider ─── */}
@@ -27,20 +29,48 @@ export default function ProfileStats({ profile }: ProfileStatsProps) {
 
       {/* ─── Stats Row — Mockup: gap 48px ─── */}
       <div className="flex justify-center" style={{ gap: '48px' }}>
-        <div className="text-center">
-          <span
-            className="block font-heading"
-            style={{ fontSize: '26px', fontWeight: 500, lineHeight: 1, color: 'var(--text-h)' }}
+        {onBeitraegeClick ? (
+          <button
+            onClick={onBeitraegeClick}
+            className="text-center transition-colors duration-200"
+            style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
           >
-            {profile.pulses_count ?? 0}
-          </span>
-          <span
-            className="font-label uppercase block"
-            style={{ fontSize: '10px', fontWeight: 500, letterSpacing: '1.2px', color: 'var(--text-muted)', marginTop: '6px' }}
-          >
-            Beitraege
-          </span>
-        </div>
+            <span
+              className="block font-heading"
+              style={{
+                fontSize: '26px', fontWeight: 500, lineHeight: 1,
+                color: beitraegeActive ? 'var(--gold)' : 'var(--text-h)',
+              }}
+            >
+              {profile.pulses_count ?? 0}
+            </span>
+            <span
+              className="font-label uppercase block"
+              style={{
+                fontSize: '10px', fontWeight: 500, letterSpacing: '1.2px',
+                color: beitraegeActive ? 'var(--gold)' : 'var(--text-muted)',
+                marginTop: '6px',
+              }}
+            >
+              Beitraege
+            </span>
+          </button>
+        ) : (
+          <div className="text-center">
+            <span
+              className="block font-heading"
+              style={{ fontSize: '26px', fontWeight: 500, lineHeight: 1, color: 'var(--text-h)' }}
+            >
+              {profile.pulses_count ?? 0}
+            </span>
+            <span
+              className="font-label uppercase block"
+              style={{ fontSize: '10px', fontWeight: 500, letterSpacing: '1.2px', color: 'var(--text-muted)', marginTop: '6px' }}
+            >
+              Beitraege
+            </span>
+          </div>
+        )}
         <div className="text-center">
           <span
             className="block font-heading"

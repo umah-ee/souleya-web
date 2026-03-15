@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Profile } from '@/types/profile';
-import { fetchProfile } from '@/lib/profile';
+import { fetchProfile, updateProfile } from '@/lib/profile';
 
 // ── Profile Components ──
 import ProfileBanner from './components/ProfileBanner';
@@ -117,6 +117,15 @@ export default function ProfileClient() {
         <SettingsPanel
           isOpen={activePanel === 'settings'}
           onClose={closePanel}
+          postsVisibility={profile.posts_visibility ?? 'circle'}
+          onPostsVisibilityChange={async (v) => {
+            try {
+              const updated = await updateProfile({ posts_visibility: v });
+              setProfile(updated);
+            } catch (e) {
+              console.error('posts_visibility update failed:', e);
+            }
+          }}
         />
 
         <SeedsPanel

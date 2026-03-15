@@ -6,18 +6,17 @@ import type { NextRequest } from 'next/server';
 /**
  * Server-seitige OTP-Verifikation.
  *
- * Landing Page redirected hierhin:
- *   /api/auth/verify?email=xxx&otp=12345678&next=/profile
+ *   /api/auth/verify?email=xxx&otp=12345678&next=/pulse
  *
  * 1. verifyOtp() mit Supabase Server Client
  * 2. Session-Cookies werden automatisch gesetzt
- * 3. Redirect zu ?next (default: /profile)
+ * 3. Redirect zu ?next (default: /pulse)
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const email = searchParams.get('email');
   const otp = searchParams.get('otp');
-  const next = searchParams.get('next') ?? '/onboarding';
+  const next = searchParams.get('next') ?? '/pulse';
 
   if (!email || !otp) {
     return NextResponse.redirect(`${origin}/login?error=missing_params`);

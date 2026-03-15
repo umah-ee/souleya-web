@@ -18,6 +18,7 @@ export interface Profile {
   pulses_count: number;
   interests: string[];
   birthday: string | null;
+  posts_visibility: 'public' | 'circle';
   referral_code: string;
   onboarding_completed_at: string | null;
   created_at: string;
@@ -35,6 +36,7 @@ export interface UpdateProfileData {
   location_lng?: number;
   interests?: string[];
   birthday?: string;
+  posts_visibility?: 'public' | 'circle';
 }
 
 export const SOUL_LEVEL_NAMES: Record<number, string> = {

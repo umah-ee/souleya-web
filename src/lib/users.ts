@@ -28,6 +28,7 @@ export interface PublicProfile {
   pulses_count: number;
   interests: string[];
   birthday: string | null;
+  posts_visibility?: 'public' | 'circle';
   created_at: string;
 }
 

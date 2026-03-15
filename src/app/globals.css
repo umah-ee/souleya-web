@@ -594,7 +594,6 @@ select:focus {
 
 /* ═══════════════════════════════════════════
    PUBLIC PAGE ANIMATIONS & UTILITIES
-   Migriert aus Landing Page
 ═══════════════════════════════════════════ */
 
 @keyframes enso-draw {
@@ -671,4 +670,24 @@ select:focus {
 }
 .section--dark {
   background: var(--bg-solid);
+}
+
+/* ── FILIGRANE GOLDENE SCROLLBAR ────────────── */
+.scrollbar-gold::-webkit-scrollbar {
+  width: 5px;
+}
+.scrollbar-gold::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-gold::-webkit-scrollbar-thumb {
+  background: var(--gold-border);
+  border-radius: 10px;
+}
+.scrollbar-gold::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+/* Firefox */
+.scrollbar-gold {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-border) transparent;
 }

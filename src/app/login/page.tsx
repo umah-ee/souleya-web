@@ -62,7 +62,6 @@ function LoginForm() {
       options: {
         shouldCreateUser: true,
         // emailRedirectTo setzt {{ .RedirectTo }} im E-Mail-Template
-        // → Button in der E-Mail fuehrt zur Web-App statt Landing Page
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
