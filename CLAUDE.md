@@ -82,15 +82,16 @@ lib/
 
 | Bereich | Status | Anmerkung |
 |---|---|---|
-| Auth (Magic Link OTP) | ✅ | SSR, Auth Callback, AuthGuard |
-| Pulse Feed | ✅ | CRUD, Like, Kommentare, Bilder, Polls |
+| Auth (Magic Link OTP + Passwort) | ✅ | SSR, Auth Callback, AuthGuard, kein Demo-Login mehr |
+| Pulse Feed | ✅ | CRUD, Like, Kommentare, Bilder, Polls, Visibility-Chip (UI ready, API pending) |
 | Discover | ✅ | Mapbox-Karte, Events, Places, User-Suche, Geo |
-| Circles | ✅ | Verbindungen, Anfragen, Feed |
+| Circles | ✅ | Verbindungen, Anfragen, Feed (nur verbundene User via `/circles/feed`) |
 | Chat | ✅ | Realtime, Polls, Seeds-Transfer, Bilder, Gruppen |
 | Profil | ✅ | Avatar, Banner, GPS, Interest-Tags, Badges |
 | Öffentliches Profil `/u/:username` | ✅ | |
 | Theme (Light/Dark) | ✅ | `data-theme` Attribut, ThemeProvider |
 | Oeffentliche Seiten (Homepage, Preise, Ueber uns, Blog) | ✅ | Mono-Domain souleya.com |
+| ImageGrid + Lightbox | ✅ | Global LightboxProvider (Context + Portal), z-200, Keyboard-Support |
 | Studio | ⏳ | Nur UI-Platzhalter |
 | Analytics | ⏳ | Nur UI-Platzhalter |
 
@@ -135,15 +136,13 @@ Next.js 16 hat `middleware.ts` durch `proxy.ts` ersetzt. **NIEMALS eine `middlew
 
 ## Auth-Flow
 
-**Registrierung + Login (alles auf souleya.com):**
-```
-souleya.com: E-Mail eingeben → signInWithOtp()
-→ OTP-Code per E-Mail (8-stellig)
-→ User gibt Code ein
-→ verifyOtp() → Session-Cookies gesetzt → /profile bzw. (main)/...
-```
+**Zwei Login-Modi** (Toggle auf Login-Seite):
+1. **Passwort-Login** (Default): E-Mail + Passwort → `signInWithPassword()`
+2. **OTP-Login**: E-Mail → `signInWithOtp()` → 8-stelliger Code per E-Mail → `verifyOtp()`
 
-> **Hinweis:** Seit der Mono-Domain-Migration laeuft alles ueber souleya.com. Es gibt kein circle.souleya.com mehr.
+Passwort-vergessen-Funktion ueber `resetPasswordForEmail()`.
+
+> **Demo-Login wurde entfernt** (Maerz 2026). Keine Demo-Accounts mehr im System.
 
 **Supabase OTP-Codes sind 8-stellig** (nicht 6).
 

@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Josefin_Sans, Quicksand } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import ThemeProvider from '@/components/ThemeProvider';
+import LightboxProvider from '@/components/shared/LightboxProvider';
 import './globals.css';
 
 const cormorant = Cormorant_Garamond({
@@ -41,7 +42,9 @@ export default function RootLayout({
         className={`${cormorant.variable} ${josefin.variable} ${quicksand.variable} antialiased font-body`}
       >
         <ThemeProvider>
-          {children}
+          <LightboxProvider>
+            {children}
+          </LightboxProvider>
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />
