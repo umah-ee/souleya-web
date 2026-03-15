@@ -7,28 +7,38 @@ interface ProfileStatsProps {
   profile: Profile | PublicProfile;
   onBeitraegeClick?: () => void;
   beitraegeActive?: boolean;
+  onCircleClick?: () => void;
+  circleActive?: boolean;
 }
 
 /**
- * Stats + Divider — exakt nach Mockup
- *
- * Divider: margin 0 60px, gradient gold-border
- * Stats: gap 48px, number 26px serif, label 10px Josefin, margin-top 6px
+ * Stats: Beitraege + Circle
+ * Glasmorphism-Container mit Blur-Hintergrund
  */
-export default function ProfileStats({ profile, onBeitraegeClick, beitraegeActive }: ProfileStatsProps) {
+export default function ProfileStats({ profile, onBeitraegeClick, beitraegeActive, onCircleClick, circleActive }: ProfileStatsProps) {
   return (
     <div className="px-6" style={{ marginTop: '40px' }}>
-      {/* ─── Gradient Divider — Mockup: margin 0 60px, class profile-divider ─── */}
+      {/* ─── Gradient Divider ─── */}
       <div
-        className="h-px profile-divider"
+        className="h-px"
         style={{
           margin: '0 60px 40px',
           background: 'linear-gradient(90deg, transparent, var(--gold-border-s), transparent)',
         }}
       />
 
-      {/* ─── Stats Row — Mockup: gap 48px ─── */}
-      <div className="flex justify-center" style={{ gap: '48px' }}>
+      {/* ─── Stats Container — Glasmorphism ─── */}
+      <div
+        className="flex justify-center rounded-2xl py-6"
+        style={{
+          gap: '48px',
+          background: 'var(--glass)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid var(--glass-border)',
+        }}
+      >
+        {/* Beitraege */}
         {onBeitraegeClick ? (
           <button
             onClick={onBeitraegeClick}
@@ -71,34 +81,50 @@ export default function ProfileStats({ profile, onBeitraegeClick, beitraegeActiv
             </span>
           </div>
         )}
-        <div className="text-center">
-          <span
-            className="block font-heading"
-            style={{ fontSize: '26px', fontWeight: 500, lineHeight: 1, color: 'var(--text-h)' }}
+
+        {/* Circle */}
+        {onCircleClick ? (
+          <button
+            onClick={onCircleClick}
+            className="text-center transition-colors duration-200"
+            style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
           >
-            {profile.connections_count}
-          </span>
-          <span
-            className="font-label uppercase block"
-            style={{ fontSize: '10px', fontWeight: 500, letterSpacing: '1.2px', color: 'var(--text-muted)', marginTop: '6px' }}
-          >
-            Kontakte
-          </span>
-        </div>
-        <div className="text-center">
-          <span
-            className="block font-heading"
-            style={{ fontSize: '26px', fontWeight: 500, lineHeight: 1, color: 'var(--text-h)' }}
-          >
-            0
-          </span>
-          <span
-            className="font-label uppercase block"
-            style={{ fontSize: '10px', fontWeight: 500, letterSpacing: '1.2px', color: 'var(--text-muted)', marginTop: '6px' }}
-          >
-            Circles
-          </span>
-        </div>
+            <span
+              className="block font-heading"
+              style={{
+                fontSize: '26px', fontWeight: 500, lineHeight: 1,
+                color: circleActive ? 'var(--gold)' : 'var(--text-h)',
+              }}
+            >
+              {profile.connections_count}
+            </span>
+            <span
+              className="font-label uppercase block"
+              style={{
+                fontSize: '10px', fontWeight: 500, letterSpacing: '1.2px',
+                color: circleActive ? 'var(--gold)' : 'var(--text-muted)',
+                marginTop: '6px',
+              }}
+            >
+              Circle
+            </span>
+          </button>
+        ) : (
+          <div className="text-center">
+            <span
+              className="block font-heading"
+              style={{ fontSize: '26px', fontWeight: 500, lineHeight: 1, color: 'var(--text-h)' }}
+            >
+              {profile.connections_count}
+            </span>
+            <span
+              className="font-label uppercase block"
+              style={{ fontSize: '10px', fontWeight: 500, letterSpacing: '1.2px', color: 'var(--text-muted)', marginTop: '6px' }}
+            >
+              Circle
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

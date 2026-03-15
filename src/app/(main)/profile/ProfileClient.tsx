@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Profile } from '@/types/profile';
 import { fetchProfile, updateProfile } from '@/lib/profile';
+import { getConnections } from '@/lib/circles';
+import type { Connection } from '@/types/circles';
 
 // ── Profile Components ──
 import ProfileBanner from './components/ProfileBanner';
@@ -29,6 +31,10 @@ export default function ProfileClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activePanel, setActivePanel] = useState<PanelType>(null);
+  const [showCircle, setShowCircle] = useState(false);
+  const [circleConnections, setCircleConnections] = useState<Connection[]>([]);
+  const [circleLoading, setCircleLoading] = useState(false);
+  const [circleFetched, setCircleFetched] = useState(false);
 
   // ── Profil laden ──
   useEffect(() => {
@@ -51,6 +57,25 @@ export default function ProfileClient() {
 
   const handleProfileUpdated = (updated: Profile) => {
     setProfile(updated);
+  };
+
+  const handleCircleClick = async () => {
+    if (showCircle) {
+      setShowCircle(false);
+      return;
+    }
+    setShowCircle(true);
+    if (circleFetched) return;
+    setCircleLoading(true);
+    try {
+      const res = await getConnections(1, 100);
+      setCircleConnections(res.data);
+      setCircleFetched(true);
+    } catch (e) {
+      console.error('Circle laden fehlgeschlagen:', e);
+    } finally {
+      setCircleLoading(false);
+    }
   };
 
   // ── Loading State ──
@@ -100,8 +125,78 @@ export default function ProfileClient() {
         {/* ─── Interest Tags ─── */}
         <ProfileInterests profile={profile} />
 
-        {/* ─── Stats (Beitraege/Kontakte/Circles) ─── */}
-        <ProfileStats profile={profile} />
+        {/* ─── Stats (Beitraege / Circle) ─── */}
+        <ProfileStats
+          profile={profile}
+          onCircleClick={handleCircleClick}
+          circleActive={showCircle}
+        />
+
+        {/* ─── Circle-Liste (toggle) ─── */}
+        {showCircle && (
+          <div className="px-6" style={{ marginTop: '24px' }}>
+            {circleLoading && (
+              <div className="text-center py-8">
+                <p className="font-label text-[0.7rem] tracking-[0.2em]" style={{ color: 'var(--text-muted)' }}>
+                  WIRD GELADEN …
+                </p>
+              </div>
+            )}
+
+            {!circleLoading && circleConnections.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  Du hast noch keine Verbindungen in deinem Circle.
+                </p>
+              </div>
+            )}
+
+            {!circleLoading && circleConnections.length > 0 && (
+              <div className="flex flex-col gap-3">
+                {circleConnections.map((conn) => (
+                  <a
+                    key={conn.id}
+                    href={`/u/${conn.profile.username}`}
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 transition-colors duration-200"
+                    style={{
+                      background: 'var(--glass)',
+                      border: '1px solid var(--glass-border)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center font-heading text-sm overflow-hidden"
+                      style={{
+                        background: 'var(--gold-bg)',
+                        border: '1px solid var(--gold-border-s)',
+                        color: 'var(--gold-text)',
+                      }}
+                    >
+                      {conn.profile.avatar_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={conn.profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        (conn.profile.display_name ?? conn.profile.username ?? '?')[0].toUpperCase()
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-heading text-sm truncate" style={{ color: 'var(--text-h)' }}>
+                        {conn.profile.display_name ?? conn.profile.username}
+                      </p>
+                      {conn.profile.username && (
+                        <p className="font-label text-[0.65rem] tracking-[0.08em] uppercase" style={{ color: 'var(--text-muted)' }}>
+                          @{conn.profile.username}
+                        </p>
+                      )}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ─── Seeds + Einladungen Chips ─── */}
         <ProfilePrivateRow

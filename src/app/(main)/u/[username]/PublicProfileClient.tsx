@@ -6,7 +6,7 @@ import type { PublicProfile } from '@/lib/users';
 import type { ConnectionStatus } from '@/types/circles';
 import { fetchPublicProfile } from '@/lib/users';
 import { fetchUserPulses } from '@/lib/pulse';
-import { getConnectionStatus, sendConnectionRequest } from '@/lib/circles';
+import { getConnectionStatus, sendConnectionRequest, cancelRequest } from '@/lib/circles';
 import { createClient } from '@/lib/supabase/client';
 import type { Pulse } from '@/types/pulse';
 
@@ -31,6 +31,7 @@ export default function PublicProfileClient({ username }: Props) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('none');
   const [sending, setSending] = useState(false);
+  const [connectionId, setConnectionId] = useState<string | null>(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [showPulses, setShowPulses] = useState(false);
   const [pulses, setPulses] = useState<Pulse[]>([]);
@@ -57,6 +58,7 @@ export default function PublicProfileClient({ username }: Props) {
           try {
             const status = await getConnectionStatus(p.id);
             setConnectionStatus(status.status);
+            setConnectionId(status.connectionId);
           } catch {
             // Nicht eingeloggt oder Fehler
           }
@@ -75,8 +77,23 @@ export default function PublicProfileClient({ username }: Props) {
     if (!profile || !currentUserId) return;
     setSending(true);
     try {
-      await sendConnectionRequest(profile.id);
+      const connection = await sendConnectionRequest(profile.id);
       setConnectionStatus('pending_outgoing');
+      setConnectionId(connection.id);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleCancelRequest = async () => {
+    if (!connectionId) return;
+    setSending(true);
+    try {
+      await cancelRequest(connectionId);
+      setConnectionStatus('none');
+      setConnectionId(null);
     } catch (e) {
       console.error(e);
     } finally {
@@ -153,12 +170,18 @@ export default function PublicProfileClient({ username }: Props) {
 
     if (connectionStatus === 'pending_outgoing') {
       return (
-        <span
-          className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase"
-          style={{ border: '1px solid var(--gold-border-s)', color: 'var(--text-muted)' }}
+        <button
+          onClick={handleCancelRequest}
+          disabled={sending}
+          className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
+          style={{
+            border: '1px solid var(--gold-border-s)',
+            color: 'var(--text-muted)',
+            background: 'none',
+          }}
         >
-          Angefragt
-        </span>
+          {sending ? '...' : 'Anfrage abbrechen'}
+        </button>
       );
     }
 
@@ -215,7 +238,7 @@ export default function PublicProfileClient({ username }: Props) {
         {/* ─── Interest Tags ─── */}
         <ProfileInterests profile={profile} />
 
-        {/* ─── Stats (Beitraege/Kontakte/Circles) ─── */}
+        {/* ─── Stats (Beitraege / Circle) ─── */}
         <ProfileStats
           profile={profile}
           onBeitraegeClick={handleBeitraegeClick}
