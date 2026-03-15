@@ -445,7 +445,7 @@ export default function MentorContent() {
           </FadeIn>
 
           {/* 3 große Stat-Cards */}
-          <FadeIn className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ marginTop: 48 }}>
+          <FadeIn className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             {[
               {
                 value: '0 €',
