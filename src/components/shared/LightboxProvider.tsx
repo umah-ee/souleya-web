@@ -103,9 +103,9 @@ function LightboxOverlay({
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center animate-fade-in"
       style={{
-        background: 'rgba(0, 0, 0, 0.92)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        background: 'rgba(0, 0, 0, 0.4)',
+        backdropFilter: 'blur(32px)',
+        WebkitBackdropFilter: 'blur(32px)',
       }}
       onClick={onClose}
       role="dialog"
