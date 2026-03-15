@@ -235,7 +235,7 @@ export default function PublicProfileClient({ username }: Props) {
 
             {!pulsesLoading && pulsesRestricted && (
               <div
-                className="text-center py-8 px-6 rounded-2xl"
+                className="text-center py-8 px-6 rounded-2xl animate-scale-in"
                 style={{
                   background: 'var(--glass)',
                   border: '1px solid var(--glass-border)',
@@ -246,25 +246,10 @@ export default function PublicProfileClient({ username }: Props) {
                 <p className="font-heading text-lg italic mb-2" style={{ color: 'var(--text-h)' }}>
                   Nur fuer den Circle sichtbar
                 </p>
-                <p className="text-sm mb-6" style={{ color: 'var(--text-sec)', maxWidth: '360px', margin: '0 auto 24px' }}>
+                <p className="text-sm" style={{ color: 'var(--text-sec)', maxWidth: '360px', margin: '0 auto' }}>
                   {profile.display_name ?? 'Dieser User'} teilt Beitraege nur mit dem eigenen Circle.
                   Vernetze dich doch – wer weiss, was fuer schoene Begegnungen daraus entstehen.
                 </p>
-                {connectionStatus === 'none' && currentUserId && (
-                  <button
-                    onClick={handleConnect}
-                    disabled={sending}
-                    className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
-                    style={{
-                      background: sending ? 'var(--gold-bg)' : 'var(--primary-gradient)',
-                      color: sending ? 'var(--text-muted)' : 'var(--text-on-gold)',
-                      cursor: sending ? 'not-allowed' : 'pointer',
-                      boxShadow: sending ? 'none' : 'var(--primary-glow)',
-                    }}
-                  >
-                    {sending ? '…' : 'Verbinden'}
-                  </button>
-                )}
               </div>
             )}
 

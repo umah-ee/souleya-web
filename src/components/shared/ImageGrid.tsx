@@ -219,8 +219,12 @@ function Lightbox({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center"
-      style={{ background: 'rgba(0, 0, 0, 0.9)' }}
+      className="fixed inset-0 z-[200] flex items-center justify-center animate-fade-in"
+      style={{
+        background: 'rgba(0, 0, 0, 0.85)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+      }}
       onClick={onClose}
       onKeyDown={onKeyDown}
       tabIndex={0}
@@ -230,8 +234,12 @@ function Lightbox({
       {/* Schliessen */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer z-10"
-        style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#F0E8D8' }}
+        className="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center cursor-pointer z-10 transition-colors"
+        style={{
+          background: 'rgba(255,255,255,0.15)',
+          border: '1px solid rgba(255,255,255,0.2)',
+          color: '#F0E8D8',
+        }}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
           <path d="M18 6l-12 12" />
@@ -243,8 +251,12 @@ function Lightbox({
       {images.length > 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
-          className="absolute left-4 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer z-10"
-          style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#F0E8D8' }}
+          className="absolute left-4 w-11 h-11 rounded-full flex items-center justify-center cursor-pointer z-10 transition-colors"
+          style={{
+            background: 'rgba(255,255,255,0.15)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            color: '#F0E8D8',
+          }}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
             <path d="M15 6l-6 6l6 6" />
@@ -257,7 +269,8 @@ function Lightbox({
       <img
         src={images[currentIndex]}
         alt=""
-        className="max-w-[90vw] max-h-[90vh] object-contain"
+        className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
+        style={{ boxShadow: '0 0 60px rgba(0,0,0,0.5)' }}
         onClick={(e) => e.stopPropagation()}
       />
 
@@ -265,8 +278,12 @@ function Lightbox({
       {images.length > 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); onNext(); }}
-          className="absolute right-4 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer z-10"
-          style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#F0E8D8' }}
+          className="absolute right-4 w-11 h-11 rounded-full flex items-center justify-center cursor-pointer z-10 transition-colors"
+          style={{
+            background: 'rgba(255,255,255,0.15)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            color: '#F0E8D8',
+          }}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
             <path d="M9 6l6 6l-6 6" />
@@ -277,8 +294,12 @@ function Lightbox({
       {/* Zaehler */}
       {images.length > 1 && (
         <div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full font-label text-[0.7rem] tracking-[0.1em]"
-          style={{ background: 'rgba(255,255,255,0.1)', color: '#F0E8D8' }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full font-label text-[0.7rem] tracking-[0.1em]"
+          style={{
+            background: 'rgba(255,255,255,0.15)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            color: '#F0E8D8',
+          }}
         >
           {currentIndex + 1} / {images.length}
         </div>

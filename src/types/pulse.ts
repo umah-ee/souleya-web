@@ -42,6 +42,7 @@ export interface Pulse {
   author: PulseAuthor;
   has_liked?: boolean;
   poll?: PulsePoll | null;
+  visibility?: 'public' | 'circle' | 'private';
 }
 
 export interface PulseComment {
@@ -64,4 +65,5 @@ export interface CreatePulseData {
     multiple_choice?: boolean;
     options: { label: string }[];
   };
+  visibility?: 'public' | 'circle' | 'private';
 }

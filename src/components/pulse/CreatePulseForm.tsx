@@ -53,6 +53,10 @@ export default function CreatePulseForm({ onCreated, onChallengeCreated }: Props
   // ── Challenge ───────────────────────────────────────────────
   const [showChallengeModal, setShowChallengeModal] = useState(false);
 
+  // ── Sichtbarkeit ───────────────────────────────────────────
+  const [visibility, setVisibility] = useState<'public' | 'circle' | 'private'>('circle');
+  const [showVisibilityMenu, setShowVisibilityMenu] = useState(false);
+
   const hasContent = content.trim().length > 0;
   const hasAttachment = imageFiles.length > 0 || !!location || !!poll;
   const isEmpty = !hasContent && !hasAttachment;
@@ -213,6 +217,7 @@ export default function CreatePulseForm({ onCreated, onChallengeCreated }: Props
               options: poll.options.map((label) => ({ label })),
             }
           : undefined,
+        visibility,
       });
 
       // Reset
@@ -531,6 +536,51 @@ export default function CreatePulseForm({ onCreated, onChallengeCreated }: Props
           >
             {content.length}/{maxLen}
           </span>
+
+          {/* Sichtbarkeit */}
+          <div className="relative ml-2">
+            <button
+              type="button"
+              onClick={() => setShowVisibilityMenu(!showVisibilityMenu)}
+              className="flex items-center gap-1 px-2 py-1 rounded-full text-[0.6rem] font-label tracking-[0.08em] uppercase cursor-pointer transition-colors border-none"
+              style={{
+                background: 'var(--glass)',
+                color: 'var(--text-sec)',
+              }}
+            >
+              <Icon
+                name={visibility === 'public' ? 'world' : visibility === 'circle' ? 'users' : 'lock'}
+                size={12}
+              />
+              {visibility === 'public' ? 'Alle' : visibility === 'circle' ? 'Circle' : 'Nur ich'}
+            </button>
+            {showVisibilityMenu && (
+              <div
+                className="absolute bottom-full left-0 mb-1 rounded-lg overflow-hidden shadow-lg z-20"
+                style={{ background: 'var(--bg-elevated)', border: '1px solid var(--divider-l)', minWidth: '140px' }}
+              >
+                {([
+                  { value: 'public' as const, label: 'Alle', icon: 'world' },
+                  { value: 'circle' as const, label: 'Circle', icon: 'users' },
+                  { value: 'private' as const, label: 'Nur ich', icon: 'lock' },
+                ]).map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => { setVisibility(opt.value); setShowVisibilityMenu(false); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-body cursor-pointer border-none transition-colors"
+                    style={{
+                      background: visibility === opt.value ? 'var(--gold-bg)' : 'transparent',
+                      color: visibility === opt.value ? 'var(--gold)' : 'var(--text-h)',
+                    }}
+                  >
+                    <Icon name={opt.icon} size={14} />
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-2 items-center">

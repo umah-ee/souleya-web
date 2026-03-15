@@ -350,7 +350,7 @@ body {
   transition-timing-function: ease;
 }
 /* Exclude map and animations from transition */
-.mapboxgl-map *, .animate-slide-up, .animate-scale-in, .first-light-glow, .ritter-glow {
+.mapboxgl-map *, .animate-slide-up, .animate-scale-in, .animate-fade-in, .first-light-glow, .ritter-glow {
   transition: none !important;
 }
 
@@ -615,6 +615,7 @@ select:focus {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+.animate-fade-in { animation: fade-in 0.3s ease-out; }
 
 @keyframes counter-glow {
   0%, 100% { text-shadow: 0 0 12px rgba(200,169,110,.0); }
