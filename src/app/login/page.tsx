@@ -46,7 +46,7 @@ function LoginForm() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextUrl = searchParams.get('next') ?? '/';
+  const nextUrl = searchParams.get('next') ?? '/pulse';
 
   // ── Schritt 1: OTP-Code per E-Mail senden ──────────────
   const handleSendOtp = async (e: React.FormEvent) => {

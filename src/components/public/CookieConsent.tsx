@@ -170,8 +170,8 @@ export default function CookieConsent() {
                     className="sr-only peer"
                   />
                   <div
-                    className="w-9 h-5 rounded-full transition-colors peer-checked:bg-[var(--gold-text)]"
-                    style={{ background: marketingChecked ? 'var(--gold-text)' : 'var(--glass-border)' }}
+                    className="w-9 h-5 rounded-full transition-colors"
+                    style={{ background: marketingChecked ? 'var(--gold-text)' : 'var(--text-muted)' }}
                   >
                     <div
                       className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform"

@@ -156,6 +156,8 @@ API-Calls: JWT Bearer Token aus Supabase Session → `lib/api.ts`
 Tokens aus `app/globals.css` – alles über `var(--token)`, keine Hardcoded-Farben.
 **Referenz:** `Strategy/Souleya_StyleGuide_Complete.html` (v2.1)
 
+**Enso-Logo:** Öffnung **immer zwischen 1 und 2 Uhr** (Uhrzeigerposition). Das Logo ist unveränderlich — Öffnungsposition, Strichstärke und Proportionen dürfen NICHT variiert werden.
+
 ---
 
 ## Tonalitaet (verbindlich fuer alle UI-Texte)

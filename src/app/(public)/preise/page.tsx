@@ -130,9 +130,7 @@ export default function PreisePage() {
             </p>
             <span className="text-sm" style={{ color: 'var(--text-muted)' }}>/ Jahr</span>
           </div>
-          <p className="text-xs mb-6" style={{ color: 'var(--text-muted)' }}>
-            entspricht 16,67 € pro Monat
-          </p>
+          <div className="mb-6" />
 
           <ul className="space-y-3 text-sm mb-8 flex-1" style={{ color: 'var(--text-body)' }}>
             {[

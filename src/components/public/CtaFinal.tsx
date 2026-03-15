@@ -11,13 +11,13 @@ export default function CtaFinal() {
           </linearGradient>
         </defs>
         <circle
-          cx="50" cy="50" r="38"
+          cx="50" cy="50" r="36"
           fill="none"
           stroke="url(#cta-enso)"
-          strokeWidth="3"
+          strokeWidth="9"
           strokeLinecap="round"
           strokeDasharray="196 30"
-          transform="rotate(-30 50 50)"
+          strokeDashoffset="15"
         />
       </svg>
 

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import WaitlistForm from './WaitlistForm';
-import FirstLightCounter from './FirstLightCounter';
 
 const SLIDES = [
   'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1600&h=1000&fit=crop',
@@ -62,13 +61,13 @@ export default function HeroSlider() {
           <circle
             cx="50"
             cy="50"
-            r="38"
+            r="36"
             fill="none"
             stroke="url(#hero-enso-grad)"
-            strokeWidth="3"
+            strokeWidth="9"
             strokeLinecap="round"
             strokeDasharray="196 30"
-            transform="rotate(-30 50 50)"
+            strokeDashoffset="15"
           />
         </svg>
 
@@ -81,7 +80,6 @@ export default function HeroSlider() {
         </p>
 
         <WaitlistForm />
-        <FirstLightCounter />
       </div>
 
       {/* ── Navigation Dots ── */}

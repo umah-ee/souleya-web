@@ -2,7 +2,8 @@ import FadeUp from './FadeUp';
 
 const BENEFITS = [
   {
-    icon: '✧',
+    icon: '',
+    glowDot: true,
     heading: 'Dein Profil leuchtet.',
     text: 'Der goldene Lichtpunkt am Enso-Ring zeigt allen: Du warst von Anfang an dabei. Dieses Zeichen kann man nicht kaufen – nur verdienen.',
   },
@@ -14,7 +15,7 @@ const BENEFITS = [
   {
     icon: '♡',
     heading: 'Du bist nicht allein.',
-    text: 'Eine kleine Gruppe, die gemeinsam startet. Keine anonyme Masse – sondern Menschen, die sich finden, bevor der Trubel beginnt.',
+    text: 'Eine kleine Gruppe, die gemeinsam startet. Keine anonyme Masse – sondern echte Verbindungen, noch bevor die Türen für alle öffnen.',
   },
   {
     icon: '∞',
@@ -139,7 +140,31 @@ export default function FirstLightSection() {
             {BENEFITS.map((b, i) => (
               <FadeUp key={b.heading} delay={i * 100}>
                 <div className="flex gap-3">
-                  <span className="text-lg mt-0.5" style={{ color: 'var(--gold-text)' }}>{b.icon}</span>
+                  {b.glowDot ? (
+                    <span className="relative flex-shrink-0 mt-1.5" style={{ width: 20, height: 20 }}>
+                      <span
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: '#E8D5A8',
+                          opacity: 0.5,
+                          animation: 'soft-pulse 2s ease-in-out infinite',
+                        }}
+                      />
+                      <span
+                        className="absolute rounded-full"
+                        style={{
+                          width: 10,
+                          height: 10,
+                          top: 5,
+                          left: 5,
+                          background: '#C8A96E',
+                          boxShadow: '0 0 14px rgba(232,213,168,0.8), 0 0 6px rgba(232,213,168,0.5)',
+                        }}
+                      />
+                    </span>
+                  ) : (
+                    <span className="text-lg mt-0.5 flex-shrink-0" style={{ color: 'var(--gold-text)' }}>{b.icon}</span>
+                  )}
                   <div>
                     <p className="font-medium mb-1" style={{ color: 'var(--text-h)' }}>{b.heading}</p>
                     <p className="text-sm leading-relaxed" style={{ color: 'var(--text-body)' }}>{b.text}</p>

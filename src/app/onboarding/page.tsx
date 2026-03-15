@@ -72,7 +72,7 @@ export default function OnboardingPage() {
       logActivity('onboarding.completed', 'Onboarding abgeschlossen');
 
       // 6. Weiter zum Profil (Hard Redirect damit proxy.ts die neuen Session-Cookies bekommt)
-      window.location.href = '/profile';
+      window.location.href = '/pulse';
     } catch {
       setError('Etwas ist schiefgelaufen. Versuch es gerne nochmal.');
       setLoading(false);
