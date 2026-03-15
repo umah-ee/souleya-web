@@ -560,9 +560,9 @@ export default function CreatePulseForm({ onCreated, onChallengeCreated }: Props
                 style={{ background: 'var(--bg-elevated)', border: '1px solid var(--divider-l)', minWidth: '140px' }}
               >
                 {([
-                  { value: 'public' as const, label: 'Alle', icon: 'world' },
-                  { value: 'circle' as const, label: 'Circle', icon: 'users' },
-                  { value: 'private' as const, label: 'Nur ich', icon: 'lock' },
+                  { value: 'public' as const, label: 'Alle', icon: 'world' as const },
+                  { value: 'circle' as const, label: 'Circle', icon: 'users' as const },
+                  { value: 'private' as const, label: 'Nur ich', icon: 'lock' as const },
                 ]).map((opt) => (
                   <button
                     key={opt.value}
