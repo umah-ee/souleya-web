@@ -236,8 +236,8 @@ function Lightbox({
         onClick={onClose}
         className="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center cursor-pointer z-10 transition-colors"
         style={{
-          background: 'rgba(255,255,255,0.15)',
-          border: '1px solid rgba(255,255,255,0.2)',
+          background: 'rgba(0,0,0,0.6)',
+          border: '1px solid rgba(255,255,255,0.3)',
           color: '#F0E8D8',
         }}
       >
@@ -269,7 +269,7 @@ function Lightbox({
       <img
         src={images[currentIndex]}
         alt=""
-        className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
+        className="max-w-[85vw] max-h-[80vh] object-contain rounded-lg"
         style={{ boxShadow: '0 0 60px rgba(0,0,0,0.5)' }}
         onClick={(e) => e.stopPropagation()}
       />
