@@ -217,7 +217,6 @@ export default function CreatePulseForm({ onCreated, onChallengeCreated }: Props
               options: poll.options.map((label) => ({ label })),
             }
           : undefined,
-        visibility,
       });
 
       // Reset
@@ -537,8 +536,13 @@ export default function CreatePulseForm({ onCreated, onChallengeCreated }: Props
             {content.length}/{maxLen}
           </span>
 
+        </div>
+
+        <div className="flex gap-2 items-center">
+          {error && <span className="text-xs" style={{ color: 'var(--error)' }}>{error}</span>}
+
           {/* Sichtbarkeit */}
-          <div className="relative ml-2">
+          <div className="relative">
             <button
               type="button"
               onClick={() => setShowVisibilityMenu(!showVisibilityMenu)}
@@ -556,7 +560,7 @@ export default function CreatePulseForm({ onCreated, onChallengeCreated }: Props
             </button>
             {showVisibilityMenu && (
               <div
-                className="absolute bottom-full left-0 mb-1 rounded-lg overflow-hidden shadow-lg z-20"
+                className="absolute bottom-full right-0 mb-1 rounded-lg overflow-hidden shadow-lg z-20"
                 style={{ background: 'var(--bg-elevated)', border: '1px solid var(--divider-l)', minWidth: '140px' }}
               >
                 {([
@@ -581,10 +585,7 @@ export default function CreatePulseForm({ onCreated, onChallengeCreated }: Props
               </div>
             )}
           </div>
-        </div>
 
-        <div className="flex gap-2 items-center">
-          {error && <span className="text-xs" style={{ color: 'var(--error)' }}>{error}</span>}
           <button
             type="submit"
             disabled={isDisabled}
