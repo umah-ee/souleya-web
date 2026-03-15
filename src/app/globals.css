@@ -60,6 +60,10 @@
   --event-purple-border:rgba(122,95,160, .30);
   --warning:       #C07830;
 
+  /* Section Backgrounds */
+  --section-warm:      #F5EDE4;
+  --bg-section-warm:   linear-gradient(180deg, #F5EDE4 0%, #F8F6F2 100%);
+
   /* Primary-Gradient (Buttons, Studio-Icon) */
   --primary-gradient: var(--gold);
   --primary-glow:    0 4px 16px var(--gold-glow);
@@ -129,6 +133,10 @@
   --event-purple-bg:rgba(155,114,207, .10);
   --event-purple-border:rgba(155,114,207, .30);
   --warning:       #F4A261;
+
+  /* Section Backgrounds */
+  --section-warm:      #1A1713;
+  --bg-section-warm:   linear-gradient(180deg, #1E1B16 0%, #161616 100%);
 
   /* Primary-Gradient (Buttons, Studio-Icon) */
   --primary-gradient: var(--gold);
@@ -334,6 +342,7 @@ body {
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow), var(--glass-inset);
+  border-radius: 24px;
 }
 
 .glass-nav {

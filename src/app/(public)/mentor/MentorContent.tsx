@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 
 /* ── Fade-in Hook ── */
 function useFadeIn() {
@@ -152,7 +152,7 @@ export default function MentorContent() {
       <section
         className="flex items-center justify-center text-center"
         style={{
-          minHeight: '85vh',
+          minHeight: '100vh',
           padding: '80px 28px 100px',
           background: 'radial-gradient(ellipse at 50% 30%, var(--gold-softer, rgba(200,169,110,0.06)) 0%, transparent 60%)',
         }}
@@ -179,7 +179,7 @@ export default function MentorContent() {
             <h1
               className="font-heading"
               style={{
-                fontSize: 'clamp(36px, 5.5vw, 56px)',
+                fontSize: 'clamp(28px, 5vw, 42px)',
                 lineHeight: 1.15,
                 color: 'var(--text-h)',
                 marginBottom: 28,
@@ -190,14 +190,14 @@ export default function MentorContent() {
               <br />
               verlieren <em style={{ fontStyle: 'italic', color: 'var(--gold, #C8A96E)' }}>den Faden.</em>
               <br />
-              Wir aendern das.
+              Wir ändern das.
             </h1>
 
             <p
               className="font-body"
               style={{
                 fontSize: 18,
-                color: 'var(--text-sec, var(--text-s))',
+                color: 'var(--text-sec)',
                 maxWidth: 540,
                 margin: '0 auto',
                 lineHeight: 1.8,
@@ -214,8 +214,7 @@ export default function MentorContent() {
            2 · DAS PROBLEM
       ══════════════════════════════ */}
       <section
-        className="py-24"
-        style={{ background: 'var(--bg-section-warm, var(--bg-elevated))' }}
+        style={{ padding: '100px 0', background: 'var(--bg-section-warm)' }}
       >
         <div className="max-w-[1080px] mx-auto px-7">
           <FadeIn>
@@ -237,18 +236,18 @@ export default function MentorContent() {
           </FadeIn>
 
           <FadeIn className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-            <div className="glass-card" style={{ padding: 36 }}>
-              <p className="font-body text-[17px] leading-[1.8]" style={{ color: 'var(--text-body, var(--text-p))' }}>
-                Deine Teilnehmer kommen mit leuchtenden Augen aus deinem Kurs. Voller Energie, bereit fuer Veraenderung.
+            <div className="glass-card rounded-3xl" style={{ padding: 36 }}>
+              <p className="font-body text-[17px] leading-[1.8]" style={{ color: 'var(--text-body)' }}>
+                Deine Teilnehmer kommen mit leuchtenden Augen aus deinem Kurs. Voller Energie, bereit für Veränderung.
               </p>
             </div>
-            <div className="glass-card" style={{ padding: 36 }}>
-              <p className="font-body text-[17px] leading-[1.8]" style={{ color: 'var(--text-body, var(--text-p))' }}>
-                Dann gehen sie nach Hause. In einen Alltag, in dem niemand versteht was sie gerade erlebt haben. Kein Gespraechspartner, kein Raum.
+            <div className="glass-card rounded-3xl" style={{ padding: 36 }}>
+              <p className="font-body text-[17px] leading-[1.8]" style={{ color: 'var(--text-body)' }}>
+                Dann gehen sie nach Hause. In einen Alltag, in dem niemand versteht was sie gerade erlebt haben. Kein Gesprächspartner, kein Raum.
               </p>
             </div>
             <div
-              className="glass-card md:col-span-2 text-center"
+              className="glass-card rounded-3xl md:col-span-2 text-center"
               style={{
                 padding: 36,
                 borderColor: 'var(--gold-border, rgba(200,169,110,0.14))',
@@ -267,7 +266,7 @@ export default function MentorContent() {
                 <br />
                 Nicht weil der Impuls schwach war –
                 <br />
-                sondern weil er allein nicht traegt.&ldquo;
+                sondern weil er allein nicht trägt.&ldquo;
               </p>
             </div>
           </FadeIn>
@@ -275,9 +274,9 @@ export default function MentorContent() {
       </section>
 
       {/* ══════════════════════════════
-           3 · DIE LOESUNG
+           3 · DIE LÖSUNG
       ══════════════════════════════ */}
-      <section className="py-24 text-center">
+      <section className="text-center" style={{ padding: '100px 0' }}>
         <div className="max-w-[1080px] mx-auto px-7">
           <FadeIn>
             <p className="font-label text-[11px] font-medium tracking-[0.25em] uppercase mb-4" style={{ color: 'var(--gold)' }}>
@@ -293,33 +292,33 @@ export default function MentorContent() {
                 fontWeight: 400,
               }}
             >
-              Der Raum, der den Faden haelt.
+              Der Raum, der den Faden hält.
             </h2>
             <p
               className="font-body"
               style={{
                 fontSize: 18,
-                color: 'var(--text-sec, var(--text-s))',
+                color: 'var(--text-sec)',
                 maxWidth: 600,
                 margin: '0 auto 48px',
                 lineHeight: 1.9,
               }}
             >
-              Eine Gemeinschaft fuer Menschen die wachsen wollen. Deine Teilnehmer machen nach dem Kurs weiter – im Austausch mit Gleichgesinnten, begleitet von dir.
+              Eine Gemeinschaft für Menschen die wachsen wollen. Deine Teilnehmer machen nach dem Kurs weiter – im Austausch mit Gleichgesinnten, begleitet von dir.
             </p>
           </FadeIn>
 
           <FadeIn className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[800px] mx-auto">
             {[
-              { title: 'Kurse', desc: 'Dein Wissen, dauerhaft verfuegbar. Videos, Texte, Meditationen.' },
+              { title: 'Kurse', desc: 'Dein Wissen, dauerhaft verfügbar. Videos, Texte, Meditationen.' },
               { title: 'Community', desc: 'Chat, Events, Austausch. Deine Teilnehmer bleiben verbunden.' },
-              { title: 'Mentoring', desc: 'Du begleitest persoenlich. Auf deine Weise, in deinem Rhythmus.' },
+              { title: 'Mentoring', desc: 'Du begleitest persönlich. Auf deine Weise, in deinem Rhythmus.' },
             ].map((f) => (
-              <div key={f.title} className="glass-card text-center" style={{ padding: '28px 24px' }}>
+              <div key={f.title} className="glass-card rounded-3xl text-center" style={{ padding: '28px 24px' }}>
                 <h3 className="font-heading text-xl mb-2" style={{ color: 'var(--text-h)', fontWeight: 400 }}>
                   {f.title}
                 </h3>
-                <p className="font-body text-[15px] leading-[1.7]" style={{ color: 'var(--text-sec, var(--text-s))' }}>
+                <p className="font-body text-[15px] leading-[1.7]" style={{ color: 'var(--text-sec)' }}>
                   {f.desc}
                 </p>
               </div>
@@ -332,8 +331,7 @@ export default function MentorContent() {
            4 · DEIN HEBEL
       ══════════════════════════════ */}
       <section
-        className="py-24"
-        style={{ background: 'var(--section-warm, var(--bg-elevated))' }}
+        style={{ padding: '100px 0', background: 'var(--section-warm, var(--bg-elevated))' }}
       >
         <div className="max-w-[1080px] mx-auto px-7">
           <FadeIn>
@@ -350,19 +348,19 @@ export default function MentorContent() {
                 fontWeight: 400,
               }}
             >
-              Deine Community ist dein groesster Vorteil.
+              Deine Community ist dein größter Vorteil.
             </h2>
             <p
               className="font-body"
               style={{
                 fontSize: 18,
-                color: 'var(--text-sec, var(--text-s))',
+                color: 'var(--text-sec)',
                 maxWidth: 620,
                 lineHeight: 1.8,
                 marginBottom: 56,
               }}
             >
-              Menschen mit positiver Erfahrung erzaehlen weiter. Jeder einzelne wird zum Botschafter – und verdient dir Geld.
+              Menschen mit positiver Erfahrung erzählen weiter. Jeder einzelne wird zum Botschafter – und verdient dir Geld.
             </p>
           </FadeIn>
 
@@ -371,23 +369,23 @@ export default function MentorContent() {
               {
                 num: '1',
                 title: 'Du bringst deine Leute mit',
-                desc: 'Deine Teilnehmer und Follower kommen ueber deinen persoenlichen Link.',
+                desc: 'Deine Teilnehmer und Follower kommen über deinen persönlichen Link.',
                 arrow: true,
               },
               {
                 num: '2',
                 title: 'Sie teilen ihre Erfahrung',
-                desc: 'Begeisterte Mitglieder erzaehlen weiter – organisch, authentisch.',
+                desc: 'Begeisterte Mitglieder erzählen weiter – organisch, authentisch.',
                 arrow: true,
               },
               {
                 num: '3',
-                title: 'Deine Reichweite waechst',
+                title: 'Deine Reichweite wächst',
                 desc: 'Neue Menschen finden dich – ohne Werbung, durch echte Empfehlungen.',
                 arrow: false,
               },
             ].map((card) => (
-              <div key={card.num} className="glass-card text-center relative" style={{ padding: '36px 28px' }}>
+              <div key={card.num} className="glass-card rounded-3xl text-center relative" style={{ padding: '36px 28px' }}>
                 <div
                   className="font-heading text-[52px] leading-none mb-4"
                   style={{ color: 'var(--gold-soft, rgba(200,169,110,0.10))', fontWeight: 400 }}
@@ -397,7 +395,7 @@ export default function MentorContent() {
                 <h3 className="font-heading text-xl mb-2.5" style={{ color: 'var(--text-h)', fontWeight: 400 }}>
                   {card.title}
                 </h3>
-                <p className="font-body text-[15px] leading-[1.75]" style={{ color: 'var(--text-sec, var(--text-s))' }}>
+                <p className="font-body text-[15px] leading-[1.75]" style={{ color: 'var(--text-sec)' }}>
                   {card.desc}
                 </p>
                 {card.arrow && (
@@ -414,7 +412,7 @@ export default function MentorContent() {
       {/* ══════════════════════════════
            5 · DIE ZAHLEN
       ══════════════════════════════ */}
-      <section className="py-24">
+      <section style={{ padding: '100px 0' }}>
         <div className="max-w-[1080px] mx-auto px-7">
           <FadeIn>
             <p className="font-label text-[11px] font-medium tracking-[0.25em] uppercase mb-4" style={{ color: 'var(--gold)' }}>
@@ -436,43 +434,43 @@ export default function MentorContent() {
               className="font-body"
               style={{
                 fontSize: 18,
-                color: 'var(--text-sec, var(--text-s))',
+                color: 'var(--text-sec)',
                 maxWidth: 620,
                 lineHeight: 1.8,
                 marginBottom: 56,
               }}
             >
-              Als Gruendungsmentor ist Souleya fuer dich kostenlos. Du verdienst auf zwei Wegen – ab Tag 1.
+              Als Gründungsmentor ist Souleya für dich kostenlos. Du verdienst auf zwei Wegen – ab Tag 1.
             </p>
           </FadeIn>
 
-          {/* 3 grosse Stat-Cards */}
-          <FadeIn className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* 3 große Stat-Cards */}
+          <FadeIn className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ marginTop: 48 }}>
             {[
               {
-                value: '0 \u20AC',
+                value: '0 €',
                 label: 'Plattformkosten',
-                detail: 'Kein Abo, keine Gebuehr.\nFuer Gruendungsmentoren dauerhaft.',
+                detail: 'Kein Abo, keine Gebühr.\nFür Gründungsmentoren dauerhaft.',
               },
               {
                 value: '20 %',
                 label: 'Provision pro User',
-                detail: 'Fuer jeden Menschen den du mitbringst. Wiederkehrend, jeden Monat.',
+                detail: 'Für jeden Menschen den du mitbringst. Wiederkehrend, jeden Monat.',
               },
               {
                 value: '80 %',
                 label: 'Deine Kurseinnahmen',
-                detail: 'Du setzt deine Preise selbst. 80 % gehoeren dir, direkt via Stripe.',
+                detail: 'Du setzt deine Preise selbst. 80 % gehören dir, direkt via Stripe.',
               },
             ].map((stat) => (
-              <div key={stat.label} className="glass-card text-center" style={{ padding: '44px 28px' }}>
+              <div key={stat.label} className="glass-card rounded-3xl text-center" style={{ padding: '44px 28px' }}>
                 <div
                   className="font-heading leading-none mb-3"
                   style={{ fontSize: 'clamp(48px, 6vw, 72px)', color: 'var(--gold)', fontWeight: 400 }}
                 >
                   {stat.value}
                 </div>
-                <div className="font-label text-[11px] font-medium tracking-[0.18em] uppercase mb-2.5" style={{ color: 'var(--text-sec, var(--text-s))' }}>
+                <div className="font-label text-[11px] font-medium tracking-[0.18em] uppercase mb-2.5" style={{ color: 'var(--text-sec)' }}>
                   {stat.label}
                 </div>
                 <div className="font-body text-[15px] leading-[1.65]" style={{ color: 'var(--text-muted)' }}>
@@ -489,30 +487,30 @@ export default function MentorContent() {
 
           {/* Detail-Blocks */}
           <FadeIn className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-            <div className="glass-card" style={{ padding: 40 }}>
+            <div className="glass-card rounded-3xl" style={{ padding: 40 }}>
               <h3 className="font-heading text-xl mb-5" style={{ color: 'var(--gold)', fontWeight: 400 }}>
-                Fuer jeden den du mitbringst
+                Für jeden den du mitbringst
               </h3>
               <table className="w-full" style={{ borderCollapse: 'collapse' }}>
                 <tbody>
-                  <tr style={{ borderBottom: '1px solid var(--divider, var(--border))' }}>
-                    <td className="py-3 pr-4 font-body text-[15px]" style={{ color: 'var(--text-body, var(--text-p))', width: '48%' }}>
+                  <tr style={{ borderBottom: '1px solid var(--divider)' }}>
+                    <td className="py-3 pr-4 font-body text-[15px]" style={{ color: 'var(--text-body)', width: '48%' }}>
                       Monatsabo
-                      <span className="block text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>20 \u20AC / Monat</span>
+                      <span className="block text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>20 € / Monat</span>
                     </td>
-                    <td className="py-3 font-body text-[15px]" style={{ color: 'var(--text-sec, var(--text-s))' }}>
-                      <span className="font-semibold" style={{ color: 'var(--gold)' }}>4 \u20AC / Monat</span>
+                    <td className="py-3 font-body text-[15px]" style={{ color: 'var(--text-sec)' }}>
+                      <span className="font-semibold" style={{ color: 'var(--gold)' }}>4 € / Monat</span>
                       <span className="block text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>wiederkehrend</span>
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-3 pr-4 font-body text-[15px]" style={{ color: 'var(--text-body, var(--text-p))' }}>
+                    <td className="py-3 pr-4 font-body text-[15px]" style={{ color: 'var(--text-body)' }}>
                       Jahresabo
-                      <span className="block text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>200 \u20AC / Jahr</span>
+                      <span className="block text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>200 € / Jahr</span>
                     </td>
-                    <td className="py-3 font-body text-[15px]" style={{ color: 'var(--text-sec, var(--text-s))' }}>
-                      <span className="font-semibold" style={{ color: 'var(--gold)' }}>40 \u20AC / Jahr</span>
-                      <span className="block text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>inkl. Verlaengerung</span>
+                    <td className="py-3 font-body text-[15px]" style={{ color: 'var(--text-sec)' }}>
+                      <span className="font-semibold" style={{ color: 'var(--gold)' }}>40 € / Jahr</span>
+                      <span className="block text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>inkl. Verlängerung</span>
                     </td>
                   </tr>
                 </tbody>
@@ -522,31 +520,31 @@ export default function MentorContent() {
               </p>
             </div>
 
-            <div className="glass-card" style={{ padding: 40 }}>
+            <div className="glass-card rounded-3xl" style={{ padding: 40 }}>
               <h3 className="font-heading text-xl mb-5" style={{ color: 'var(--gold)', fontWeight: 400 }}>
-                Fuer deine Kurse &amp; Sessions
+                Für deine Kurse &amp; Sessions
               </h3>
-              <p className="font-body text-[16px] leading-[1.8] mb-2" style={{ color: 'var(--text-body, var(--text-p))' }}>
-                Du setzt deinen Preis – Souleya behaelt 20 %, damit die Plattform waechst und dich weiter tragen kann.
+              <p className="font-body text-[16px] leading-[1.8] mb-2" style={{ color: 'var(--text-body)' }}>
+                Du setzt deinen Preis – Souleya behält 20 %, damit die Plattform wächst und dich weiter tragen kann.
               </p>
-              <p className="font-body text-[16px] leading-[1.8] mb-2" style={{ color: 'var(--text-body, var(--text-p))' }}>
-                Auszahlung ueber Stripe. Transparent, direkt.
+              <p className="font-body text-[16px] leading-[1.8] mb-2" style={{ color: 'var(--text-body)' }}>
+                Auszahlung über Stripe. Transparent, direkt.
               </p>
               <p className="font-body text-[13px] mt-4" style={{ color: 'var(--text-muted)' }}>
-                Keine Monatsgebuehr. Keine versteckten Kosten.
+                Keine Monatsgebühr. Keine versteckten Kosten.
               </p>
             </div>
 
             {/* Beispielrechnung */}
             <div
-              className="glass-card md:col-span-2"
+              className="glass-card rounded-3xl md:col-span-2"
               style={{
                 padding: 44,
                 borderColor: 'var(--gold-border, rgba(200,169,110,0.14))',
               }}
             >
               <h3 className="font-heading text-[22px] mb-8" style={{ color: 'var(--gold)', fontWeight: 400 }}>
-                Ein Beispiel, das fuer sich spricht.
+                Ein Beispiel, das für sich spricht.
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                 <div>
@@ -555,26 +553,26 @@ export default function MentorContent() {
                   </div>
                   <div
                     className="font-heading leading-[1.1] mb-1.5"
-                    style={{ fontSize: 'clamp(32px, 4vw, 44px)', color: 'var(--gold)', fontWeight: 400 }}
+                    style={{ fontSize: 'clamp(32px, 4vw, 42px)', color: 'var(--gold)', fontWeight: 400 }}
                   >
-                    200 \u20AC
+                    200 €
                   </div>
                   <div className="font-body text-[14px] leading-[1.6]" style={{ color: 'var(--text-muted)' }}>
-                    50 \u00D7 4 \u20AC Provision / Monat
+                    50 × 4 € Provision / Monat
                   </div>
                 </div>
                 <div>
                   <div className="font-label text-[10px] font-medium tracking-[0.18em] uppercase mb-2.5" style={{ color: 'var(--text-muted)' }}>
-                    Kurs: 79 \u20AC · 20 Teilnehmer
+                    Kurs: 79 € · 20 Teilnehmer
                   </div>
                   <div
                     className="font-heading leading-[1.1] mb-1.5"
-                    style={{ fontSize: 'clamp(32px, 4vw, 44px)', color: 'var(--gold)', fontWeight: 400 }}
+                    style={{ fontSize: 'clamp(32px, 4vw, 42px)', color: 'var(--gold)', fontWeight: 400 }}
                   >
-                    1.264 \u20AC
+                    1.264 €
                   </div>
                   <div className="font-body text-[14px] leading-[1.6]" style={{ color: 'var(--text-muted)' }}>
-                    80 % von 1.580 \u20AC Einnahmen
+                    80 % von 1.580 € Einnahmen
                   </div>
                 </div>
                 <div className="md:border-l md:pl-8" style={{ borderColor: 'var(--gold-border, rgba(200,169,110,0.14))' }}>
@@ -583,12 +581,12 @@ export default function MentorContent() {
                   </div>
                   <div
                     className="font-heading leading-[1.1] mb-1.5"
-                    style={{ fontSize: 'clamp(40px, 5vw, 56px)', color: 'var(--gold)', fontWeight: 400 }}
+                    style={{ fontSize: 'clamp(40px, 5vw, 42px)', color: 'var(--gold)', fontWeight: 400 }}
                   >
-                    1.464 \u20AC
+                    1.464 €
                   </div>
-                  <div className="font-body text-[14px] leading-[1.6]" style={{ color: 'var(--text-sec, var(--text-s))' }}>
-                    Ohne Werbung. Ohne Gebuehr.
+                  <div className="font-body text-[14px] leading-[1.6]" style={{ color: 'var(--text-sec)' }}>
+                    Ohne Werbung. Ohne Gebühr.
                   </div>
                 </div>
               </div>
@@ -601,8 +599,7 @@ export default function MentorContent() {
            6 · DEIN START
       ══════════════════════════════ */}
       <section
-        className="py-24"
-        style={{ background: 'var(--bg-section-warm, var(--bg-elevated))' }}
+        style={{ padding: '100px 0', background: 'var(--bg-section-warm)' }}
       >
         <div className="max-w-[1080px] mx-auto px-7">
           <FadeIn>
@@ -623,12 +620,12 @@ export default function MentorContent() {
 
           <FadeIn className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
             {[
-              { num: '01', title: 'Kurzes Gespraech', desc: 'Wir lernen uns kennen. Kein Interview – ein echtes Gespraech.' },
+              { num: '01', title: 'Kurzes Gespräch', desc: 'Wir lernen uns kennen. Kein Interview – ein echtes Gespräch.' },
               { num: '02', title: 'Raum einrichten', desc: 'Dein Mentor-Profil. Dein erster Gratis-Inhalt. Auf deine Weise.' },
               { num: '03', title: 'Community einladen', desc: 'Teile deinen Link. Jeder der kommt, verdient dir ab Tag 1.' },
               { num: '04', title: 'Zusammen wachsen', desc: 'Ab Launch begleitest du – und neue finden dich von selbst.' },
             ].map((step) => (
-              <div key={step.num} className="glass-card text-center" style={{ padding: '32px 24px' }}>
+              <div key={step.num} className="glass-card rounded-3xl text-center" style={{ padding: '32px 24px' }}>
                 <div
                   className="font-heading text-[44px] leading-none mb-4"
                   style={{ color: 'var(--gold-soft, rgba(200,169,110,0.10))', fontWeight: 400 }}
@@ -638,7 +635,7 @@ export default function MentorContent() {
                 <h3 className="font-heading text-lg mb-2.5" style={{ color: 'var(--text-h)', fontWeight: 400 }}>
                   {step.title}
                 </h3>
-                <p className="font-body text-[14px] leading-[1.7]" style={{ color: 'var(--text-sec, var(--text-s))' }}>
+                <p className="font-body text-[14px] leading-[1.7]" style={{ color: 'var(--text-sec)' }}>
                   {step.desc}
                 </p>
               </div>
@@ -650,7 +647,7 @@ export default function MentorContent() {
       {/* ══════════════════════════════
            7 · ANFORDERUNGEN
       ══════════════════════════════ */}
-      <section className="py-24">
+      <section style={{ padding: '100px 0' }}>
         <div className="max-w-[1080px] mx-auto px-7">
           <FadeIn>
             <p className="font-label text-[11px] font-medium tracking-[0.25em] uppercase mb-4" style={{ color: 'var(--gold)' }}>
@@ -672,14 +669,14 @@ export default function MentorContent() {
             {[
               'Echte Erfahrung in dem was du teilst – gelebtes Wissen, keine Theorie',
               'Die Bereitschaft sichtbar zu sein – auf deine Weise, in deinem Rhythmus',
-              'Respekt fuer den Raum anderer – Begegnung, nicht Buehne',
+              'Respekt für den Raum anderer – Begegnung, nicht Bühne',
               'Mindestens einen Gratis-Inhalt – damit Besucher erleben was dich ausmacht',
             ].map((text, i) => (
-              <div key={i} className="glass-card flex items-start gap-4" style={{ padding: '28px 32px' }}>
+              <div key={i} className="glass-card rounded-3xl flex items-start gap-4" style={{ padding: '28px 32px' }}>
                 <span className="text-[10px] mt-1 flex-shrink-0" style={{ color: 'var(--gold)', opacity: 0.7 }}>
                   ✦
                 </span>
-                <p className="font-body text-[16px] leading-[1.7]" style={{ color: 'var(--text-body, var(--text-p))' }}>
+                <p className="font-body text-[16px] leading-[1.7]" style={{ color: 'var(--text-body)' }}>
                   {text}
                 </p>
               </div>
@@ -705,7 +702,7 @@ export default function MentorContent() {
           <h2
             className="font-heading"
             style={{
-              fontSize: 'clamp(32px, 5vw, 50px)',
+              fontSize: 'clamp(28px, 5vw, 42px)',
               color: 'var(--text-h)',
               marginBottom: 16,
               fontWeight: 400,
@@ -717,12 +714,12 @@ export default function MentorContent() {
             className="font-body"
             style={{
               fontSize: 17,
-              color: 'var(--text-sec, var(--text-s))',
+              color: 'var(--text-sec)',
               marginBottom: 48,
               lineHeight: 1.8,
             }}
           >
-            Wenn das resoniert, freuen wir uns von dir zu hoeren.
+            Wenn das resoniert, freuen wir uns von dir zu hören.
             <br />
             Schreib uns kurz – per WhatsApp oder E-Mail.
           </p>
@@ -750,7 +747,7 @@ export default function MentorContent() {
               }}
             >
               <WhatsAppIcon />
-              Gespraech auf WhatsApp
+              Gespräch auf WhatsApp
             </a>
 
             <a
@@ -780,7 +777,7 @@ export default function MentorContent() {
           </div>
 
           <p className="font-body text-[13px] mt-6" style={{ color: 'var(--text-muted)' }}>
-            Wir melden uns persoenlich bei dir.
+            Wir melden uns persönlich bei dir.
           </p>
         </FadeIn>
       </section>
