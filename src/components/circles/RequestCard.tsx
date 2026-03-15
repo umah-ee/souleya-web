@@ -61,40 +61,57 @@ export function IncomingRequestCard({ request, onAccept, onDecline }: IncomingPr
   );
 
   return (
-    <div className="flex items-center gap-3 glass-card rounded-2xl p-4 mb-3 transition-colors">
-      {profile.username ? (
-        <Link href={`/u/${profile.username}`} className="flex items-center gap-3 flex-1 min-w-0">
-          {avatarAndInfo}
-        </Link>
-      ) : (
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          {avatarAndInfo}
+    <div className="glass-card rounded-2xl p-4 mb-3 transition-colors">
+      <div className="flex items-center gap-3">
+        {profile.username ? (
+          <Link href={`/u/${profile.username}`} className="flex items-center gap-3 flex-1 min-w-0">
+            {avatarAndInfo}
+          </Link>
+        ) : (
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {avatarAndInfo}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-2 flex-shrink-0">
+          <button
+            onClick={() => onAccept(request.id)}
+            className="px-3 py-1.5 border-none rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-opacity duration-200"
+            style={{
+              background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+              color: 'var(--text-on-gold)',
+            }}
+          >
+            Annehmen
+          </button>
+          <button
+            onClick={() => onDecline(request.id)}
+            className="px-3 py-1.5 bg-transparent rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
+            style={{
+              border: '1px solid var(--divider)',
+              color: 'var(--text-muted)',
+            }}
+          >
+            Ablehnen
+          </button>
+        </div>
+      </div>
+
+      {/* Persoenliche Nachricht */}
+      {request.message && (
+        <div
+          className="mt-3 ml-11 rounded-xl px-4 py-3"
+          style={{
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--glass-border)',
+          }}
+        >
+          <p className="text-sm font-body italic leading-relaxed" style={{ color: 'var(--text-sec)' }}>
+            &bdquo;{request.message}&ldquo;
+          </p>
         </div>
       )}
-
-      {/* Actions */}
-      <div className="flex gap-2 flex-shrink-0">
-        <button
-          onClick={() => onAccept(request.id)}
-          className="px-3 py-1.5 border-none rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-opacity duration-200"
-          style={{
-            background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
-            color: 'var(--text-on-gold)',
-          }}
-        >
-          Annehmen
-        </button>
-        <button
-          onClick={() => onDecline(request.id)}
-          className="px-3 py-1.5 bg-transparent rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors duration-200"
-          style={{
-            border: '1px solid var(--divider)',
-            color: 'var(--text-muted)',
-          }}
-        >
-          Ablehnen
-        </button>
-      </div>
     </div>
   );
 }

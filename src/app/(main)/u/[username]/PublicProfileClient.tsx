@@ -33,6 +33,8 @@ export default function PublicProfileClient({ username }: Props) {
   const [sending, setSending] = useState(false);
   const [connectionId, setConnectionId] = useState<string | null>(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [showMessageInput, setShowMessageInput] = useState(false);
+  const [message, setMessage] = useState('');
   const [showPulses, setShowPulses] = useState(false);
   const [pulses, setPulses] = useState<Pulse[]>([]);
   const [pulsesLoading, setPulsesLoading] = useState(false);
@@ -73,13 +75,23 @@ export default function PublicProfileClient({ username }: Props) {
     load();
   }, [username]);
 
-  const handleConnect = async () => {
+  const handleConnectClick = () => {
+    setShowMessageInput(true);
+  };
+
+  const handleSendRequest = async (withMessage: boolean) => {
     if (!profile || !currentUserId) return;
     setSending(true);
     try {
-      const connection = await sendConnectionRequest(profile.id);
+      const trimmed = message.trim();
+      const connection = await sendConnectionRequest(
+        profile.id,
+        withMessage && trimmed ? trimmed : undefined,
+      );
       setConnectionStatus('pending_outgoing');
       setConnectionId(connection.id);
+      setShowMessageInput(false);
+      setMessage('');
     } catch (e) {
       console.error(e);
     } finally {
@@ -196,19 +208,79 @@ export default function PublicProfileClient({ username }: Props) {
       );
     }
 
+    if (showMessageInput) {
+      return (
+        <div
+          className="rounded-2xl p-5 text-left animate-scale-in"
+          style={{
+            background: 'var(--glass)',
+            border: '1px solid var(--glass-border)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
+        >
+          <p className="font-heading text-base mb-3" style={{ color: 'var(--text-h)' }}>
+            Moechtest du eine Nachricht mitsenden?
+          </p>
+          <textarea
+            value={message}
+            onChange={(e) => {
+              if (e.target.value.length <= 200) setMessage(e.target.value);
+            }}
+            placeholder="Schreib etwas Persoenliches …"
+            rows={3}
+            className="w-full p-3 text-sm font-body resize-none focus:outline-none focus:ring-1 transition-colors"
+            style={{
+              background: 'var(--bg-input)',
+              border: '1px solid var(--glass-border)',
+              borderRadius: '8px',
+              color: 'var(--text)',
+            }}
+          />
+          <div className="flex items-center justify-between mt-2">
+            <span className="text-[0.7rem] font-label" style={{ color: 'var(--text-muted)' }}>
+              {message.length}/200
+            </span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleSendRequest(false)}
+                disabled={sending}
+                className="text-sm font-body cursor-pointer transition-colors"
+                style={{ color: 'var(--text-sec)', background: 'none', border: 'none' }}
+              >
+                Ohne Nachricht
+              </button>
+              <button
+                onClick={() => handleSendRequest(true)}
+                disabled={sending}
+                className="py-2 px-6 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200 cursor-pointer"
+                style={{
+                  background: sending ? 'var(--gold-bg)' : 'var(--primary-gradient)',
+                  color: sending ? 'var(--text-muted)' : 'var(--text-on-gold)',
+                  cursor: sending ? 'not-allowed' : 'pointer',
+                  boxShadow: sending ? 'none' : 'var(--primary-glow)',
+                }}
+              >
+                {sending ? '…' : 'Anfrage senden'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <button
-        onClick={handleConnect}
-        disabled={sending}
+        onClick={handleConnectClick}
         className="py-2.5 px-8 rounded-full font-label text-[0.7rem] tracking-[0.1em] uppercase transition-all duration-200"
         style={{
-          background: sending ? 'var(--gold-bg)' : 'var(--primary-gradient)',
-          color: sending ? 'var(--text-muted)' : 'var(--text-on-gold)',
-          cursor: sending ? 'not-allowed' : 'pointer',
-          boxShadow: sending ? 'none' : 'var(--primary-glow)',
+          background: 'var(--primary-gradient)',
+          color: 'var(--text-on-gold)',
+          cursor: 'pointer',
+          boxShadow: 'var(--primary-glow)',
         }}
       >
-        {sending ? '...' : 'Verbinden'}
+        Verbinden
       </button>
     );
   };

@@ -4,10 +4,13 @@ import type { Pulse } from '../types/pulse';
 
 // ── Anfragen ──────────────────────────────────────────────
 
-export async function sendConnectionRequest(addresseeId: string) {
+export async function sendConnectionRequest(addresseeId: string, message?: string) {
   return apiFetch<Connection>('/circles/request', {
     method: 'POST',
-    body: JSON.stringify({ addressee_id: addresseeId }),
+    body: JSON.stringify({
+      addressee_id: addresseeId,
+      ...(message ? { message } : {}),
+    }),
   });
 }
 

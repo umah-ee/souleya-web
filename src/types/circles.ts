@@ -12,6 +12,7 @@ export interface Connection {
   requester_id: string;
   addressee_id: string;
   status: 'pending' | 'accepted' | 'declined';
+  message: string | null;
   created_at: string;
   updated_at: string;
   profile: ConnectionProfile;
