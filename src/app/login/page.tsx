@@ -6,21 +6,6 @@ import { createClient } from '@/lib/supabase/client';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { logActivity } from '@/lib/activity';
 
-const SOUL_LEVELS: Record<number, string> = {
-  1: 'Soul Spark',
-  2: 'Awakened Soul',
-  3: 'Harmony Keeper',
-  4: 'Zen Master',
-  5: 'Soul Mentor',
-};
-
-const DEMO_USERS = [
-  { email: 'lena@souleya-demo.com', name: 'Lena Sonnenberg', role: 'Yogalehrerin', soul_level: 3, is_first_light: true, is_mentor: true },
-  { email: 'sophia@souleya-demo.com', name: 'Sophia Lichtweg', role: 'Reiki-Meisterin', soul_level: 2, is_first_light: true, is_mentor: false },
-  { email: 'max@souleya-demo.com', name: 'Max Bergmann', role: 'Achtsamkeitstrainer', soul_level: 1, is_first_light: false, is_mentor: false },
-  { email: 'david@souleya-demo.com', name: 'David Goldbach', role: 'Buddhismus-Lehrer', soul_level: 5, is_first_light: false, is_mentor: true },
-];
-
 const OTP_LENGTH = 8;
 
 export default function LoginPage() {
@@ -36,8 +21,6 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'email' | 'otp'>('email');
   const [error, setError] = useState('');
-  const [showDemo, setShowDemo] = useState(false);
-  const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [verifying, setVerifying] = useState(false);
   const [loginMode, setLoginMode] = useState<'otp' | 'password'>('password');
@@ -206,25 +189,6 @@ function LoginForm() {
     }
   };
 
-  // ── Demo-Login (Passwort-basiert, unveraendert) ────────
-  const handleDemoLogin = async (demoEmail: string) => {
-    setDemoLoading(demoEmail);
-    setError('');
-
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email: demoEmail,
-      password: 'Demo1234!',
-    });
-
-    if (error) {
-      setError('Demo-Login hat nicht geklappt. Versuch es nochmal.');
-      setDemoLoading(null);
-    } else {
-      router.push(nextUrl);
-    }
-  };
-
   return (
     <main
       className="min-h-screen flex items-center justify-center p-6 font-body"
@@ -359,71 +323,6 @@ function LoginForm() {
               </button>
             )}
 
-            {/* Demo-Zugang */}
-            <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--divider-l)' }}>
-              <button
-                onClick={() => setShowDemo(!showDemo)}
-                className="text-xs transition-colors cursor-pointer font-label tracking-[0.1em] uppercase bg-transparent border-none"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                {showDemo ? '▾ Demo-Zugang ausblenden' : '▸ Demo-Zugang'}
-              </button>
-
-              {showDemo && (
-                <div className="mt-4 flex flex-col gap-2">
-                  {DEMO_USERS.map((user) => (
-                    <button
-                      key={user.email}
-                      onClick={() => handleDemoLogin(user.email)}
-                      disabled={demoLoading !== null}
-                      className={`
-                        py-2.5 px-4 rounded-[8px] text-left transition-all duration-200
-                        ${demoLoading !== null && demoLoading !== user.email ? 'opacity-40' : ''}
-                      `}
-                      style={{
-                        background: demoLoading === user.email ? 'var(--gold-bg)' : 'var(--glass)',
-                        border: `1px solid ${demoLoading === user.email ? 'var(--gold-border-s)' : 'var(--glass-border)'}`,
-                        cursor: demoLoading !== null ? 'wait' : 'pointer',
-                      }}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div>
-                          <span className="text-sm block" style={{ color: 'var(--text-h)' }}>{user.name}</span>
-                          <span className="text-[0.7rem]" style={{ color: 'var(--text-muted)' }}>{user.role}</span>
-                        </div>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          {user.is_first_light && (
-                            <span
-                              className="text-[0.55rem] font-label tracking-[0.05em] uppercase px-1.5 py-0.5 rounded-full"
-                              style={{ background: 'rgba(200,169,110,.15)', color: 'var(--gold-text)' }}
-                            >
-                              ✦ FL
-                            </span>
-                          )}
-                          {user.is_mentor && (
-                            <span
-                              className="text-[0.55rem] font-label tracking-[0.05em] uppercase px-1.5 py-0.5 rounded-full"
-                              style={{ background: 'var(--success-bg)', color: 'var(--success)' }}
-                            >
-                              Mentor
-                            </span>
-                          )}
-                          <span
-                            className="text-[0.55rem] font-label tracking-[0.05em] uppercase px-1.5 py-0.5 rounded-full"
-                            style={{ background: 'var(--glass-strong)', color: 'var(--text-sec)' }}
-                          >
-                            Lv{user.soul_level}
-                          </span>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                  <p className="text-[0.65rem] mt-1" style={{ color: 'var(--text-muted)' }}>
-                    Demo-Accounts mit vordefinierten Testdaten
-                  </p>
-                </div>
-              )}
-            </div>
           </>
         ) : (
           /* OTP-Code Eingabe */
