@@ -40,7 +40,7 @@ export default function PublicFooter() {
           </div>
 
           {/* Legal Links */}
-          <nav className="flex items-center gap-5 text-xs">
+          <nav className="flex items-center gap-5 text-xs flex-wrap justify-center">
             <Link
               href="/impressum"
               className="hover:text-[var(--gold-text)] transition-colors"
@@ -61,6 +61,13 @@ export default function PublicFooter() {
               style={{ color: 'var(--text-muted)' }}
             >
               AGB
+            </Link>
+            <Link
+              href="/mentor"
+              className="hover:text-[var(--gold-text)] transition-colors"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              Als Mentor bewerben
             </Link>
           </nav>
 
