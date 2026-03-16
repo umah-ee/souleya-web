@@ -6,7 +6,7 @@ import WaitlistForm from './WaitlistForm';
 const SLIDES = [
   'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1600&h=1000&fit=crop',
   'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1600&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1506869640319-fe1a24fd76cb?w=1600&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1619781458519-5c6115c0ee98?w=1600&h=1000&fit=crop',
 ];
 
 export default function HeroSlider() {
