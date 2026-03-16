@@ -87,7 +87,7 @@ lib/
 | Discover | ✅ | Mapbox-Karte, Events, Places, User-Suche, Geo |
 | Circles | ✅ | Verbindungen, Anfragen, Feed (nur verbundene User via `/circles/feed`) |
 | Chat | ✅ | Realtime, Polls, Seeds-Transfer, Bilder, Gruppen |
-| Profil | ✅ | Avatar, Banner, GPS, Interest-Tags, Badges |
+| Profil | ✅ | Avatar, Banner (300px, Crop-Modal), GPS, Interest-Tags, Badges |
 | Öffentliches Profil `/u/:username` | ✅ | |
 | Theme (Light/Dark) | ✅ | `data-theme` Attribut, ThemeProvider |
 | Oeffentliche Seiten (Homepage, Preise, Ueber uns, Blog) | ✅ | Mono-Domain souleya.com |
