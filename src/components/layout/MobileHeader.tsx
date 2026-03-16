@@ -49,7 +49,7 @@ export default function MobileHeader() {
           </defs>
           <circle
             cx="50" cy="50" r="36" fill="none" stroke="url(#mobile-enso)"
-            strokeWidth="8" strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15"
+            strokeWidth="9" strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15"
           />
         </svg>
         <span className="text-[13px] font-normal tracking-[5px] uppercase" style={{ color: 'var(--gold-deep)', fontFamily: 'Georgia, serif' }}>

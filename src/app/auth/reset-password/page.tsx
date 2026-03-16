@@ -187,7 +187,7 @@ function ResetPasswordForm() {
               r="36"
               fill="none"
               stroke="url(#enso-reset)"
-              strokeWidth="8"
+              strokeWidth="9"
               strokeLinecap="round"
               strokeDasharray="196 30"
               strokeDashoffset="15"

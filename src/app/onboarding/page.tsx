@@ -96,7 +96,7 @@ export default function OnboardingPage() {
             </defs>
             <circle
               cx="50" cy="50" r="36"
-              fill="none" stroke="url(#enso-onboarding)" strokeWidth="8"
+              fill="none" stroke="url(#enso-onboarding)" strokeWidth="9"
               strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15"
             />
           </svg>
@@ -163,9 +163,11 @@ export default function OnboardingPage() {
             <span className="text-sm" style={{ color: 'var(--text-body)' }}>
               Ich akzeptiere die{' '}
               <a
-                href="#"
+                href="/datenschutz"
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{ color: 'var(--gold-text)', textDecoration: 'underline' }}
-                onClick={(e) => e.preventDefault()}
+                onClick={(e) => e.stopPropagation()}
               >
                 Datenschutzbestimmungen
               </a>
@@ -185,9 +187,11 @@ export default function OnboardingPage() {
             <span className="text-sm" style={{ color: 'var(--text-body)' }}>
               Ich akzeptiere die{' '}
               <a
-                href="#"
+                href="/agb"
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{ color: 'var(--gold-text)', textDecoration: 'underline' }}
-                onClick={(e) => e.preventDefault()}
+                onClick={(e) => e.stopPropagation()}
               >
                 Nutzungsvereinbarungen
               </a>

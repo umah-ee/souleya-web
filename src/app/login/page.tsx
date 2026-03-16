@@ -75,22 +75,41 @@ function LoginForm() {
     });
 
     if (error) {
+      console.error('[OTP Verify]', error.message);
       setError('Der Code war leider nicht richtig. Probier es nochmal.');
       setVerifying(false);
       // Felder leeren und Fokus auf erstes Feld
       setOtpDigits(Array(OTP_LENGTH).fill(''));
       setTimeout(() => inputRefs.current[0]?.focus(), 100);
     } else {
-      // Erfolg → zur App weiterleiten
-      router.push(nextUrl);
+      // Erfolg → zur App weiterleiten (Hard Redirect damit proxy.ts die neuen Session-Cookies bekommt)
       logActivity('auth.login', 'Login via OTP', 'Magic Link Code verifiziert', { method: 'otp' });
+      window.location.href = nextUrl;
     }
   };
 
   // ── OTP-Eingabe: einzelne Ziffern ──────────────────────
   const handleOtpChange = (index: number, value: string) => {
-    // Nur Zahlen erlauben
-    const digit = value.replace(/\D/g, '').slice(-1);
+    const digits = value.replace(/\D/g, '');
+
+    // Multi-Char Input (z.B. iOS Autofill, Samsung Keyboard)
+    if (digits.length > 1) {
+      const code = digits.slice(0, OTP_LENGTH);
+      const newDigits = Array(OTP_LENGTH).fill('');
+      for (let i = 0; i < code.length; i++) {
+        newDigits[i] = code[i];
+      }
+      setOtpDigits(newDigits);
+      const focusIdx = Math.min(code.length, OTP_LENGTH - 1);
+      inputRefs.current[focusIdx]?.focus();
+      if (code.length === OTP_LENGTH) {
+        handleVerifyOtp(code);
+      }
+      return;
+    }
+
+    // Einzel-Ziffer
+    const digit = digits.slice(-1);
     const newDigits = [...otpDigits];
     newDigits[index] = digit;
     setOtpDigits(newDigits);
@@ -207,7 +226,7 @@ function LoginForm() {
               </linearGradient>
             </defs>
             <circle cx="50" cy="50" r="36"
-              fill="none" stroke="url(#enso-login)" strokeWidth="8"
+              fill="none" stroke="url(#enso-login)" strokeWidth="9"
               strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15" />
           </svg>
         </div>
@@ -343,18 +362,21 @@ function LoginForm() {
                   ref={(el) => { inputRefs.current[i] = el; }}
                   type="text"
                   inputMode="numeric"
-                  maxLength={1}
+                  pattern="[0-9]*"
+                  autoComplete={i === 0 ? 'one-time-code' : 'off'}
+                  maxLength={i === 0 ? OTP_LENGTH : 1}
                   value={digit}
                   onChange={(e) => handleOtpChange(i, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
                   onPaste={i === 0 ? handleOtpPaste : undefined}
                   disabled={verifying}
-                  className="w-full aspect-[3/4] rounded-input text-center text-lg sm:text-xl font-heading outline-none transition-all duration-200"
+                  className="w-full aspect-[3/4] text-center text-lg sm:text-xl font-heading outline-none transition-all duration-200"
                   style={{
                     background: 'var(--glass)',
                     border: `1px solid ${digit ? 'var(--gold-border-s)' : 'var(--glass-border)'}`,
                     color: 'var(--gold-text)',
                     opacity: verifying ? 0.5 : 1,
+                    borderRadius: '4px',
                   }}
                 />
               ))}
