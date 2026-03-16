@@ -352,6 +352,25 @@ body {
   border-color: var(--glass-nav-b);
 }
 
+/* ── GOLD SCROLLBAR (filigran) ──────────── */
+.scrollbar-gold {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-border-s) transparent;
+}
+.scrollbar-gold::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-gold::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-gold::-webkit-scrollbar-thumb {
+  background: var(--gold-border-s);
+  border-radius: 9999px;
+}
+.scrollbar-gold::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
 /* ── THEME TRANSITION ──────────────────── */
 [data-theme] * {
   transition-property: background-color, border-color, color, box-shadow;

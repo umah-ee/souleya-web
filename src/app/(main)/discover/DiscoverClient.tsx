@@ -78,6 +78,7 @@ export default function DiscoverClient({ userId }: Props) {
   const [searched, setSearched] = useState(false);
   const [statuses, setStatuses] = useState<Record<string, ConnectionStatus>>({});
   const [sending, setSending] = useState<Record<string, boolean>>({});
+  const [geoExpanded, setGeoExpanded] = useState(false);
 
   // ── Karte + Discover ──────────────────────────────────────
   const [mapCenter, setMapCenter] = useState<[number, number]>(getInitialCenter);
@@ -413,8 +414,10 @@ export default function DiscoverClient({ userId }: Props) {
       setSearchResults([]);
       setGeoResults([]);
       setSearched(false);
+      setGeoExpanded(false);
       return;
     }
+    setGeoExpanded(false);
 
     setSearching(true);
     try {
@@ -733,7 +736,7 @@ export default function DiscoverClient({ userId }: Props) {
       {/* ─── SUCHE AKTIV → Ergebnisliste ────────────────────── */}
       {isSearchActive ? (
         <div className="h-full flex flex-col pt-[60px]" style={{ background: 'var(--bg-solid)' }}>
-          <div className="flex-1 overflow-y-auto px-4 pb-4">
+          <div className="flex-1 overflow-y-auto scrollbar-gold px-4 pb-4">
             {searching && (
               <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
                 <p className="font-label text-[0.7rem] tracking-[0.2em]">SUCHE ...</p>
@@ -748,31 +751,54 @@ export default function DiscoverClient({ userId }: Props) {
             )}
 
             {/* Orte */}
-            {!searching && geoResults.length > 0 && (
-              <div className="mb-4">
-                <p className="font-label text-[0.7rem] tracking-[0.15em] uppercase mb-2" style={{ color: 'var(--text-muted)' }}>Orte</p>
-                <div className="space-y-2">
-                  {geoResults.map((geo, i) => (
+            {!searching && geoResults.length > 0 && (() => {
+              const GEO_LIMIT = 3;
+              const visible = geoExpanded ? geoResults : geoResults.slice(0, GEO_LIMIT);
+              const hiddenCount = geoResults.length - GEO_LIMIT;
+              return (
+                <div className="mb-4">
+                  <p className="font-label text-[0.7rem] tracking-[0.15em] uppercase mb-2" style={{ color: 'var(--text-muted)' }}>Orte</p>
+                  <div className="space-y-2">
+                    {visible.map((geo, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleGeoClick(geo)}
+                        className="w-full flex items-center gap-3 glass-card rounded-2xl p-3 transition-colors cursor-pointer text-left"
+                      >
+                        <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}>
+                          <Icon name="map-pin" size={18} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-body text-sm truncate" style={{ color: 'var(--text-h)' }}>{geo.place_name}</p>
+                          <p className="text-xs font-label" style={{ color: 'var(--text-muted)' }}>
+                            {geo.feature_type === 'poi' ? 'Ort / Lokal' : geo.feature_type === 'address' ? 'Adresse' : geo.feature_type === 'place' ? 'Stadt' : geo.feature_type === 'locality' ? 'Ortsteil' : geo.feature_type === 'neighborhood' ? 'Viertel' : 'Gebiet'}
+                          </p>
+                        </div>
+                        <Icon name="compass" size={14} style={{ color: 'var(--gold)' }} />
+                      </button>
+                    ))}
+                  </div>
+                  {!geoExpanded && hiddenCount > 0 && (
                     <button
-                      key={i}
-                      onClick={() => handleGeoClick(geo)}
-                      className="w-full flex items-center gap-3 glass-card rounded-2xl p-3 transition-colors cursor-pointer text-left"
+                      onClick={() => setGeoExpanded(true)}
+                      className="w-full mt-2 py-2 text-center font-label text-[0.7rem] tracking-[0.12em] uppercase rounded-xl transition-colors cursor-pointer"
+                      style={{ color: 'var(--gold)', border: '1px dashed var(--gold-border-s)' }}
                     >
-                      <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}>
-                        <Icon name="map-pin" size={18} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-body text-sm truncate" style={{ color: 'var(--text-h)' }}>{geo.place_name}</p>
-                        <p className="text-xs font-label" style={{ color: 'var(--text-muted)' }}>
-                          {geo.feature_type === 'poi' ? 'Ort / Lokal' : geo.feature_type === 'address' ? 'Adresse' : geo.feature_type === 'place' ? 'Stadt' : geo.feature_type === 'locality' ? 'Ortsteil' : geo.feature_type === 'neighborhood' ? 'Viertel' : 'Gebiet'}
-                        </p>
-                      </div>
-                      <Icon name="compass" size={14} style={{ color: 'var(--gold)' }} />
+                      {hiddenCount} weitere{hiddenCount === 1 ? 'r Ort' : ' Orte'}
                     </button>
-                  ))}
+                  )}
+                  {geoExpanded && geoResults.length > GEO_LIMIT && (
+                    <button
+                      onClick={() => setGeoExpanded(false)}
+                      className="w-full mt-2 py-2 text-center font-label text-[0.7rem] tracking-[0.12em] uppercase rounded-xl transition-colors cursor-pointer"
+                      style={{ color: 'var(--gold)', border: '1px dashed var(--gold-border-s)' }}
+                    >
+                      Weniger anzeigen
+                    </button>
+                  )}
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Souls */}
             {!searching && searchResults.length > 0 && (
