@@ -30,3 +30,11 @@ export async function markNotificationRead(id: string) {
 export async function markAllNotificationsRead() {
   return apiFetch('/notifications/read-all', { method: 'PATCH' });
 }
+
+export async function deleteNotification(id: string) {
+  return apiFetch(`/notifications/${id}`, { method: 'DELETE' });
+}
+
+export async function deleteReadNotifications() {
+  return apiFetch<{ success: boolean; deleted: number }>('/notifications/read', { method: 'DELETE' });
+}

@@ -1,7 +1,11 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, useRef, useEffect, type ReactNode } from 'react';
-import { fetchNotifications, fetchUnreadCount, markNotificationRead, markAllNotificationsRead, type Notification } from '@/lib/notifications';
+import {
+  fetchNotifications, fetchUnreadCount, markNotificationRead, markAllNotificationsRead,
+  deleteNotification as apiDeleteNotification, deleteReadNotifications as apiDeleteRead,
+  type Notification,
+} from '@/lib/notifications';
 import { createClient } from '@/lib/supabase/client';
 
 interface NotificationContextValue {
@@ -10,6 +14,8 @@ interface NotificationContextValue {
   isLoading: boolean;
   markAsRead: (id: string) => Promise<void>;
   markAllRead: () => Promise<void>;
+  deleteOne: (id: string) => Promise<void>;
+  deleteRead: () => Promise<void>;
   refreshNotifications: () => Promise<void>;
 }
 
@@ -19,6 +25,8 @@ const NotificationContext = createContext<NotificationContextValue>({
   isLoading: false,
   markAsRead: async () => {},
   markAllRead: async () => {},
+  deleteOne: async () => {},
+  deleteRead: async () => {},
   refreshNotifications: async () => {},
 });
 
@@ -72,6 +80,26 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const deleteOne = useCallback(async (id: string) => {
+    try {
+      const wasUnread = notifications.find((n) => n.id === id && !n.is_read);
+      await apiDeleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      if (wasUnread) setUnreadCount((c) => Math.max(0, c - 1));
+    } catch {
+      // silent
+    }
+  }, [notifications]);
+
+  const deleteRead = useCallback(async () => {
+    try {
+      await apiDeleteRead();
+      setNotifications((prev) => prev.filter((n) => !n.is_read));
+    } catch {
+      // silent
+    }
+  }, []);
+
   // Initial fetch + 30s Polling
   useEffect(() => {
     refreshNotifications();
@@ -103,7 +131,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, [refreshNotifications]);
 
   return (
-    <NotificationContext.Provider value={{ unreadCount, notifications, isLoading, markAsRead, markAllRead, refreshNotifications }}>
+    <NotificationContext.Provider value={{ unreadCount, notifications, isLoading, markAsRead, markAllRead, deleteOne, deleteRead, refreshNotifications }}>
       {children}
     </NotificationContext.Provider>
   );
