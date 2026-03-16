@@ -54,7 +54,7 @@ export default function ProfileBanner({
 
   return (
     <>
-      <div className="relative w-full h-[200px] overflow-hidden">
+      <div className="relative w-full h-[300px] overflow-hidden">
         {/* Banner-Bild oder Gradient-Fallback */}
         {profile.banner_url ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -154,7 +154,7 @@ interface CropModalProps {
 }
 
 function CropModal({ imageUrl, initialPosX, initialPosY, onSave, onCancel }: CropModalProps) {
-  const FRAME_HEIGHT = 200; // Banner-Höhe
+  const FRAME_HEIGHT = 300; // Banner-Höhe
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
