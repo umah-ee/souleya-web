@@ -18,7 +18,8 @@ export interface PublicProfile {
   display_name: string | null;
   avatar_url: string | null;
   banner_url: string | null;
-  banner_position?: number;
+  banner_pos_x?: number;
+  banner_pos_y?: number;
   bio: string | null;
   location: string | null;
   soul_level: number;

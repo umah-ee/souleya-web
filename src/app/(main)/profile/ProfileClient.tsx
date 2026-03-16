@@ -149,9 +149,9 @@ export default function ProfileClient() {
           profile={profile}
           onSettingsClick={() => openPanel('settings')}
           onEditClick={() => openPanel('edit')}
-          onRepositionSave={async (position) => {
+          onRepositionSave={async (posX, posY) => {
             try {
-              const updated = await updateProfile({ banner_position: position });
+              const updated = await updateProfile({ banner_pos_x: posX, banner_pos_y: posY });
               setProfile(updated);
             } catch { /* ignore */ }
           }}
