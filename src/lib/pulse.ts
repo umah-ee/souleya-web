@@ -4,6 +4,11 @@ import type { Pulse, PulseComment, PulsePoll, CreatePulseData } from '../types/p
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
+// ── Einzelnen Pulse laden ─────────────────────────────────
+export async function fetchPulse(id: string): Promise<Pulse> {
+  return apiFetch<Pulse>(`/pulse/${id}`);
+}
+
 // ── Feed laden (paginiert) ──────────────────────────────────
 export async function fetchFeed(page = 1, limit = 20) {
   const res = await apiFetch<{ data: Pulse[]; total: number; hasMore: boolean }>(
