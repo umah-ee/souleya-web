@@ -736,7 +736,7 @@ export default function DiscoverClient({ userId }: Props) {
       {/* ─── SUCHE AKTIV → Ergebnisliste ────────────────────── */}
       {isSearchActive ? (
         <div className="h-full flex flex-col pt-[60px]" style={{ background: 'var(--bg-solid)' }}>
-          <div className="flex-1 overflow-y-auto scrollbar-gold px-4 pb-4">
+          <div className="flex-1 overflow-y-auto scrollbar-gold px-4 pb-20">
             {searching && (
               <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
                 <p className="font-label text-[0.7rem] tracking-[0.2em]">SUCHE ...</p>
@@ -901,7 +901,7 @@ export default function DiscoverClient({ userId }: Props) {
 
           {/* Events Board */}
           {segment === 'events' && (
-            <div className="h-full overflow-y-auto pt-36 px-4 pb-4" style={{ background: 'var(--bg-solid)' }}>
+            <div className="h-full overflow-y-auto scrollbar-gold pt-36 px-4 pb-20" style={{ background: 'var(--bg-solid)' }}>
               {events.length === 0 ? (
                 <div className="text-center py-12 px-4 rounded-2xl mt-4" style={{ border: '1px dashed var(--gold-border-s)' }}>
                   <p className="font-heading text-xl mb-2" style={{ color: 'var(--gold)' }}>Keine Events</p>
@@ -930,7 +930,7 @@ export default function DiscoverClient({ userId }: Props) {
 
           {/* Orte Board */}
           {segment === 'orte' && (
-            <div className="h-full overflow-y-auto pt-36 px-4 pb-4" style={{ background: 'var(--bg-solid)' }}>
+            <div className="h-full overflow-y-auto scrollbar-gold pt-36 px-4 pb-20" style={{ background: 'var(--bg-solid)' }}>
               {places.length === 0 ? (
                 <div className="text-center py-12 px-4 rounded-2xl mt-4" style={{ border: '1px dashed var(--gold-border-s)' }}>
                   <p className="font-heading text-xl mb-2" style={{ color: 'var(--gold)' }}>Keine Soul Places</p>
