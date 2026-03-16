@@ -149,6 +149,12 @@ export default function ProfileClient() {
           profile={profile}
           onSettingsClick={() => openPanel('settings')}
           onEditClick={() => openPanel('edit')}
+          onRepositionSave={async (position) => {
+            try {
+              const updated = await updateProfile({ banner_position: position });
+              setProfile(updated);
+            } catch { /* ignore */ }
+          }}
         />
 
         {/* ─── Identity (EnsoRing 112px + Name 32px) ─── */}
