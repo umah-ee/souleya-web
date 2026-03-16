@@ -39,7 +39,7 @@ const COLOR_CONFIG = {
 const SIZE_CONFIG = {
   'profile': { svgSize: 88, avatarSize: 56, avatarOffset: 16 },
   'profile-large': { svgSize: 112, avatarSize: 72, avatarOffset: 20 },
-  'header': { svgSize: 54, avatarSize: 38, avatarOffset: 8 },
+  'header': { svgSize: 65, avatarSize: 45, avatarOffset: 10 },
   'feed': { svgSize: 44, avatarSize: 28, avatarOffset: 8 },
   'standalone': { svgSize: 48, avatarSize: 0, avatarOffset: 0 },
 } as const;
