@@ -388,7 +388,7 @@ export default function MentorContent() {
               <div key={card.num} className="glass-card rounded-3xl text-center relative" style={{ padding: '36px 28px' }}>
                 <div
                   className="font-heading text-[52px] leading-none mb-4"
-                  style={{ color: 'var(--gold-soft, rgba(200,169,110,0.10))', fontWeight: 400 }}
+                  style={{ color: 'var(--gold)', fontWeight: 400 }}
                 >
                   {card.num}
                 </div>
@@ -628,7 +628,7 @@ export default function MentorContent() {
               <div key={step.num} className="glass-card rounded-3xl text-center" style={{ padding: '32px 24px' }}>
                 <div
                   className="font-heading text-[44px] leading-none mb-4"
-                  style={{ color: 'var(--gold-soft, rgba(200,169,110,0.10))', fontWeight: 400 }}
+                  style={{ color: 'var(--gold)', fontWeight: 400 }}
                 >
                   {step.num}
                 </div>
