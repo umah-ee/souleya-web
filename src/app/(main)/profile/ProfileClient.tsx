@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { Profile } from '@/types/profile';
 import type { Pulse } from '@/types/pulse';
 import { fetchProfile, updateProfile } from '@/lib/profile';
@@ -32,10 +32,19 @@ type PanelType = 'settings' | 'seeds' | 'referral' | 'edit' | 'visitenkarte' | n
 
 export default function ProfileClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activePanel, setActivePanel] = useState<PanelType>(null);
+  const tabParam = searchParams.get('tab');
+
+  // Deep-Link: ?tab=notifications oeffnet Settings direkt auf Benachrichtigungen
+  useEffect(() => {
+    if (tabParam === 'notifications') {
+      setActivePanel('settings');
+    }
+  }, [tabParam]);
   const [showBeitraege, setShowBeitraege] = useState(false);
   const [beitraegePulses, setBeitraegePulses] = useState<Pulse[]>([]);
   const [beitraegeLoading, setBeitraegeLoading] = useState(false);
@@ -292,6 +301,7 @@ export default function ProfileClient() {
         <SettingsPanel
           isOpen={activePanel === 'settings'}
           onClose={closePanel}
+          initialSubView={tabParam === 'notifications' ? 'notifications' : undefined}
           postsVisibility={profile.posts_visibility ?? 'circle'}
           onPostsVisibilityChange={async (v) => {
             try {

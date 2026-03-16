@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
 import { createClient } from '@/lib/supabase/client';
@@ -12,6 +12,7 @@ interface SettingsPanelProps {
   onClose: () => void;
   postsVisibility?: 'public' | 'circle';
   onPostsVisibilityChange?: (v: 'public' | 'circle') => void;
+  initialSubView?: 'main' | 'notifications';
 }
 
 type SubView = 'main' | 'appearance' | 'notifications' | 'privacy' | 'account';
@@ -25,10 +26,17 @@ type SubView = 'main' | 'appearance' | 'notifications' | 'privacy' | 'account';
  * Account: Logout
  * Version: "Souleya v1.0.0" am Ende
  */
-export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPostsVisibilityChange }: SettingsPanelProps) {
+export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPostsVisibilityChange, initialSubView }: SettingsPanelProps) {
   const router = useRouter();
   const { theme, colorScheme, toggleTheme, setColorScheme } = useTheme();
-  const [subView, setSubView] = useState<SubView>('main');
+  const [subView, setSubView] = useState<SubView>(initialSubView ?? 'main');
+
+  // Sync mit initialSubView wenn Panel geoeffnet wird
+  useEffect(() => {
+    if (isOpen && initialSubView) {
+      setSubView(initialSubView);
+    }
+  }, [isOpen, initialSubView]);
 
   // Notification toggles state
   const [notifs, setNotifs] = useState({

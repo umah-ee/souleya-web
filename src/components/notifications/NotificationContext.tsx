@@ -32,6 +32,51 @@ const NotificationContext = createContext<NotificationContextValue>({
 
 const STALE_MS = 30_000;
 
+/**
+ * Klangschalen-Sound via Web Audio API — sanft, warm, kurz (~1.2s)
+ * Zwei ueberlagerte Sinustoene mit Fade-Out fuer den typischen "Pling"-Charakter.
+ */
+function playSingingBowlSound() {
+  try {
+    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    const now = ctx.currentTime;
+
+    // Grundton (F5 ~698 Hz) — warm und klar
+    const osc1 = ctx.createOscillator();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(698, now);
+    osc1.frequency.exponentialRampToValueAtTime(694, now + 1.2);
+
+    // Oberton (leichter Shimmer, ~1396 Hz)
+    const osc2 = ctx.createOscillator();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1396, now);
+    osc2.frequency.exponentialRampToValueAtTime(1390, now + 1.0);
+
+    // Gain Envelopes
+    const gain1 = ctx.createGain();
+    gain1.gain.setValueAtTime(0.15, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+
+    const gain2 = ctx.createGain();
+    gain2.gain.setValueAtTime(0.06, now);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+
+    osc1.connect(gain1).connect(ctx.destination);
+    osc2.connect(gain2).connect(ctx.destination);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 1.3);
+    osc2.stop(now + 1.1);
+
+    // AudioContext nach Abspielen aufraumen
+    setTimeout(() => ctx.close().catch(() => {}), 2000);
+  } catch {
+    // Silent — Browser unterstuetzt kein Web Audio oder autoplay blockiert
+  }
+}
+
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -121,6 +166,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         () => {
           lastUpdatedRef.current = 0;
           refreshNotifications();
+          playSingingBowlSound();
         },
       )
       .subscribe();
