@@ -21,11 +21,11 @@ export default function UserMenu() {
       <NotificationBell />
 
       {/* Profile with EnsoRing */}
-      <Link href="/profile" className="no-underline" title="Profil">
+      <Link href="/profile" className="no-underline block cursor-pointer" title="Profil">
         <EnsoRing
           soulLevel={profile.soul_level ?? 1}
           isFirstLight={profile.is_first_light ?? false}
-          size="feed"
+          size="header"
         >
           {profile.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element

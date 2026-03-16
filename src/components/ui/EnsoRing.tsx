@@ -39,6 +39,7 @@ const COLOR_CONFIG = {
 const SIZE_CONFIG = {
   'profile': { svgSize: 88, avatarSize: 56, avatarOffset: 16 },
   'profile-large': { svgSize: 112, avatarSize: 72, avatarOffset: 20 },
+  'header': { svgSize: 48, avatarSize: 32, avatarOffset: 8 },
   'feed': { svgSize: 44, avatarSize: 28, avatarOffset: 8 },
   'standalone': { svgSize: 48, avatarSize: 0, avatarOffset: 0 },
 } as const;
@@ -50,8 +51,8 @@ interface EnsoRingProps {
   isFirstLight?: boolean;
   /** Ritterschlag – Leuchtpunkt an der Oeffnung */
   hasRitterschlag?: boolean;
-  /** Groesse: profile (88px), profile-large (112px), feed (44px), standalone (48px) */
-  size?: 'profile' | 'profile-large' | 'feed' | 'standalone';
+  /** Groesse: profile (88px), profile-large (112px), header (48px), feed (44px), standalone (48px) */
+  size?: 'profile' | 'profile-large' | 'header' | 'feed' | 'standalone';
   /** Avatar oder anderer Inhalt, zentriert im Ring */
   children?: React.ReactNode;
   /** Zusaetzliche CSS-Klassen */
@@ -84,7 +85,7 @@ export default function EnsoRing({
         width={svgSize}
         height={svgSize}
         viewBox="0 0 100 100"
-        className="absolute inset-0"
+        className="absolute inset-0 pointer-events-none"
         style={{ overflow: 'visible' }}
       >
         <defs>
