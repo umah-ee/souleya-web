@@ -2,22 +2,17 @@ export default function CtaFinal() {
   return (
     <section className="py-20 px-6 text-center">
       {/* Enso */}
-      <svg viewBox="0 0 100 100" className="w-12 h-12 mx-auto mb-6">
+      <svg width="24" height="24" viewBox="0 0 100 100" className="mx-auto mb-6">
         <defs>
           <linearGradient id="cta-enso" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#A8894E" />
-            <stop offset="50%" stopColor="#D4BC8B" />
-            <stop offset="100%" stopColor="#A8894E" />
+            <stop offset="0%" stopColor="var(--gold-deep, #A8894E)" />
+            <stop offset="100%" stopColor="var(--gold, #C8A96E)" />
           </linearGradient>
         </defs>
         <circle
-          cx="50" cy="50" r="36"
-          fill="none"
-          stroke="url(#cta-enso)"
-          strokeWidth="9"
-          strokeLinecap="round"
-          strokeDasharray="196 30"
-          strokeDashoffset="15"
+          cx="50" cy="50" r="36" fill="none" stroke="url(#cta-enso)"
+          strokeWidth="9" strokeLinecap="round"
+          strokeDasharray="196 30" strokeDashoffset="15"
         />
       </svg>
 

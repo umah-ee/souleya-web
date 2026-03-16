@@ -46,28 +46,17 @@ export default function HeroSlider() {
       {/* ── Content ── */}
       <div className="relative z-10 text-center px-6 max-w-2xl mx-auto">
         {/* Enso Icon */}
-        <svg
-          viewBox="0 0 100 100"
-          className="w-16 h-16 mx-auto mb-6"
-          style={{ animation: 'enso-draw 2s ease-out forwards' }}
-        >
+        <svg width="48" height="48" viewBox="0 0 100 100" className="mx-auto mb-6">
           <defs>
             <linearGradient id="hero-enso-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#A8894E" />
-              <stop offset="50%" stopColor="#D4BC8B" />
-              <stop offset="100%" stopColor="#A8894E" />
+              <stop offset="0%" stopColor="var(--gold-deep, #A8894E)" />
+              <stop offset="100%" stopColor="var(--gold, #C8A96E)" />
             </linearGradient>
           </defs>
           <circle
-            cx="50"
-            cy="50"
-            r="36"
-            fill="none"
-            stroke="url(#hero-enso-grad)"
-            strokeWidth="9"
-            strokeLinecap="round"
-            strokeDasharray="196 30"
-            strokeDashoffset="15"
+            cx="50" cy="50" r="36" fill="none" stroke="url(#hero-enso-grad)"
+            strokeWidth="9" strokeLinecap="round"
+            strokeDasharray="196 30" strokeDashoffset="15"
           />
         </svg>
 
