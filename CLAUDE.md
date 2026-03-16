@@ -66,12 +66,17 @@ components/
 ├── chat/                # ChannelList, ChatRoom, MessageBubble, Reactions,
 │                          Polls, SeedsTransfer, GroupInfoPanel
 ├── circles/             # ConnectionCard, RequestList, CirclesFeed
-├── layout/              # Sidebar (Desktop), BottomTabs (Mobile), UnreadBadge
+├── layout/              # Sidebar (Desktop), BottomTabs (Mobile), UserMenu, UnreadBadge
+├── notifications/       # NotificationContext, NotificationBell (Dropdown-Panel)
 ├── shared/              # Avatar, Badge, EnsoRing, ThemeToggle, ...
 └── ui/                  # Base Components (Button, Input, Card, Modal)
 
+hooks/
+└── useCurrentProfile.ts # Aktuelles Profil (avatar, soul_level, is_first_light)
+
 lib/
 ├── api.ts               # REST API Client (JWT Bearer → souleya-api)
+├── notifications.ts     # Notifications API (CRUD, unread-count)
 ├── supabase/            # SSR + Browser Client
 └── pulse|chat|places|events|circles|users|profile.ts
 ```
@@ -92,6 +97,8 @@ lib/
 | Theme (Light/Dark) | ✅ | `data-theme` Attribut, ThemeProvider |
 | Oeffentliche Seiten (Homepage, Preise, Ueber uns, Blog) | ✅ | Mono-Domain souleya.com |
 | ImageGrid + Lightbox | ✅ | Global LightboxProvider (Context + Portal), z-200, Keyboard-Support |
+| Navigation | ✅ | Sidebar default ausgeklappt, Profil oben rechts (EnsoRing), Notification-Bell |
+| Benachrichtigungen | ✅ | NotificationBell mit Dropdown-Panel, Realtime + 30s Polling, Badge |
 | Studio | ⏳ | Nur UI-Platzhalter |
 | Analytics | ⏳ | Nur UI-Platzhalter |
 

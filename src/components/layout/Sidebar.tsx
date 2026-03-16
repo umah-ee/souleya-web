@@ -251,40 +251,6 @@ export default function Sidebar() {
           )}
         </button>
 
-        {/* Profil */}
-        <Link
-          href="/profile"
-          className="flex items-center gap-3 rounded-[8px] w-full transition-colors duration-200 no-underline relative"
-          style={{
-            padding: collapsed ? '8px 0' : '8px 12px',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            background: pathname.startsWith('/profile') ? 'var(--sidebar-active)' : 'transparent',
-            color: pathname.startsWith('/profile') ? 'var(--gold)' : 'var(--text-sec)',
-          }}
-          title="Profil"
-          onMouseEnter={(e) => {
-            if (!pathname.startsWith('/profile')) e.currentTarget.style.background = 'var(--sidebar-hover)';
-          }}
-          onMouseLeave={(e) => {
-            if (!pathname.startsWith('/profile')) e.currentTarget.style.background = 'transparent';
-          }}
-        >
-          {pathname.startsWith('/profile') && (
-            <span
-              className="absolute left-0 top-1/2 -translate-y-1/2"
-              style={{ width: 3, height: 20, background: 'var(--gold)', borderRadius: '0 3px 3px 0' }}
-            />
-          )}
-          <span className="flex-shrink-0 flex items-center justify-center" style={{ width: 20, height: 20 }}>
-            <Icon name="user" size={16} />
-          </span>
-          {!collapsed && (
-            <span style={{ fontSize: 10, color: pathname.startsWith('/profile') ? 'var(--gold-text)' : 'var(--text-muted)', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
-              Profil
-            </span>
-          )}
-        </Link>
-
         {/* Logout */}
         <button
           onClick={handleLogout}

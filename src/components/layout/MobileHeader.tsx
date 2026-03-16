@@ -1,40 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
-import { useTheme } from '@/components/ThemeProvider';
+import EnsoRing from '@/components/ui/EnsoRing';
+import NotificationBell from '@/components/notifications/NotificationBell';
+import { useCurrentProfile } from '@/hooks/useCurrentProfile';
 import { Icon } from '@/components/ui/Icon';
 
 export default function MobileHeader() {
-  const { theme, toggleTheme } = useTheme();
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [initials, setInitials] = useState('');
+  const { profile } = useCurrentProfile();
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data } = await supabase
-          .from('profiles')
-          .select('avatar_url, display_name, username')
-          .eq('id', user.id)
-          .single();
-
-        if (data) {
-          setAvatarUrl(data.avatar_url);
-          const name = data.display_name ?? data.username ?? '';
-          setInitials(name.slice(0, 1).toUpperCase());
-        }
-      } catch {
-        // Nicht eingeloggt oder Fehler
-      }
-    };
-    loadProfile();
-  }, []);
+  const initials = (profile?.display_name ?? profile?.username ?? '').slice(0, 1).toUpperCase();
 
   return (
     <header className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-5 py-3 glass-nav" style={{ borderBottom: '1px solid var(--glass-nav-b)' }}>
@@ -57,31 +32,29 @@ export default function MobileHeader() {
         </span>
       </Link>
 
-      <div className="flex items-center gap-3">
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-colors"
-          style={{ background: 'var(--gold-bg)', border: '1px solid var(--gold-border-s)', color: 'var(--gold-text)' }}
-          title={theme === 'dark' ? 'Hell' : 'Dunkel'}
-        >
-          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={14} />
-        </button>
+      <div className="flex items-center gap-2.5">
+        {/* Notification Bell */}
+        <NotificationBell />
 
-        {/* Profilbild */}
-        <Link
-          href="/profile"
-          className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center"
-          style={{ background: 'var(--avatar-bg)', border: '1.5px solid var(--gold-border)' }}
-        >
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-sm" style={{ color: 'var(--gold-text)' }}>
-              {initials || <Icon name="user" size={14} />}
-            </span>
-          )}
+        {/* Profilbild mit EnsoRing */}
+        <Link href="/profile" className="no-underline" title="Profil">
+          <EnsoRing
+            soulLevel={profile?.soul_level ?? 1}
+            isFirstLight={profile?.is_first_light ?? false}
+            size="feed"
+          >
+            {profile?.avatar_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span
+                className="w-full h-full flex items-center justify-center text-xs"
+                style={{ background: 'var(--avatar-bg)', color: 'var(--gold-text)' }}
+              >
+                {initials || <Icon name="user" size={12} />}
+              </span>
+            )}
+          </EnsoRing>
         </Link>
       </div>
     </header>
