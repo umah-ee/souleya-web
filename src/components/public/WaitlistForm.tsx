@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 
 const supabase = createBrowserClient(
@@ -140,7 +140,7 @@ export default function WaitlistForm() {
   };
 
   /* ── OTP Input Handler ── */
-  const handleOtpChange = useCallback((index: number, value: string) => {
+  const handleOtpChange = (index: number, value: string) => {
     const digits = value.replace(/\D/g, '');
 
     // Multi-Char Input (z.B. iOS Autofill, Samsung Keyboard)
@@ -175,15 +175,15 @@ export default function WaitlistForm() {
     if (digit && index < 7) {
       otpRefs.current[index + 1]?.focus();
     }
-  }, []);
+  };
 
-  const handleOtpKeyDown = useCallback((index: number, e: React.KeyboardEvent) => {
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
       otpRefs.current[index - 1]?.focus();
     }
-  }, [otpCode]);
+  };
 
-  const handleOtpPaste = useCallback((e: React.ClipboardEvent) => {
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const digits = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 8);
     const next = Array(8).fill('');
@@ -191,7 +191,7 @@ export default function WaitlistForm() {
     setOtpCode(next);
     if (digits.length === 8) submitOtp(digits);
     else otpRefs.current[digits.length]?.focus();
-  }, []);
+  };
 
   /* ── OTP Verifizierung ── */
   const submitOtp = async (code: string) => {
