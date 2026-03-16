@@ -141,7 +141,26 @@ export default function WaitlistForm() {
 
   /* ── OTP Input Handler ── */
   const handleOtpChange = useCallback((index: number, value: string) => {
-    const digit = value.replace(/\D/g, '').slice(-1);
+    const digits = value.replace(/\D/g, '');
+
+    // Multi-Char Input (z.B. iOS Autofill, Samsung Keyboard)
+    if (digits.length > 1) {
+      const code = digits.slice(0, 8);
+      const next = Array(8).fill('');
+      for (let i = 0; i < code.length; i++) {
+        next[i] = code[i];
+      }
+      setOtpCode(next);
+      const focusIdx = Math.min(code.length, 7);
+      otpRefs.current[focusIdx]?.focus();
+      if (code.length === 8) {
+        submitOtp(code);
+      }
+      return;
+    }
+
+    // Einzel-Ziffer
+    const digit = digits.slice(-1);
     setOtpCode((prev) => {
       const next = [...prev];
       next[index] = digit;
@@ -265,15 +284,16 @@ export default function WaitlistForm() {
             }}
           >
             {/* Enso */}
-            <svg viewBox="0 0 100 100" className="w-20 h-20 mx-auto mb-4" style={{ animation: 'enso-draw 2s ease-out forwards' }}>
+            <svg viewBox="0 0 100 100" className="w-16 h-16 mx-auto mb-4">
               <defs>
                 <linearGradient id="otp-enso" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#A8894E" />
-                  <stop offset="50%" stopColor="#D4BC8B" />
-                  <stop offset="100%" stopColor="#A8894E" />
+                  <stop offset="0%" stopColor="var(--gold-deep)" />
+                  <stop offset="100%" stopColor="var(--gold)" />
                 </linearGradient>
               </defs>
-              <circle cx="50" cy="50" r="38" fill="none" stroke="url(#otp-enso)" strokeWidth="3" strokeLinecap="round" strokeDasharray="196 30" transform="rotate(-30 50 50)" />
+              <circle cx="50" cy="50" r="36"
+                fill="none" stroke="url(#otp-enso)" strokeWidth="9"
+                strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15" />
             </svg>
 
             <h2 className="font-heading text-xl italic mb-1" style={{ color: 'var(--text-h)' }}>
@@ -289,24 +309,28 @@ export default function WaitlistForm() {
             </p>
 
             {/* OTP Inputs */}
-            <div className="flex justify-center gap-1.5 mb-4">
+            <div className="grid grid-cols-8 gap-1.5 sm:gap-2 mb-4 w-full max-w-[320px] mx-auto">
               {otpCode.map((digit, i) => (
                 <input
                   key={i}
                   ref={(el) => { otpRefs.current[i] = el; }}
                   type="text"
                   inputMode="numeric"
-                  maxLength={1}
+                  pattern="[0-9]*"
+                  autoComplete={i === 0 ? 'one-time-code' : 'off'}
+                  maxLength={i === 0 ? 8 : 1}
                   value={digit}
                   onChange={(e) => handleOtpChange(i, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
                   onPaste={i === 0 ? handleOtpPaste : undefined}
                   disabled={verifying}
-                  className="w-9 h-11 text-center text-lg font-medium rounded-lg border transition-colors focus:outline-none focus:border-[var(--gold-text)]"
+                  className="w-full aspect-[3/4] text-center text-lg font-heading outline-none transition-all duration-200"
                   style={{
-                    background: 'var(--bg-input, var(--glass))',
-                    borderColor: digit ? 'var(--gold-text)' : 'var(--glass-border)',
+                    background: 'var(--glass)',
+                    border: digit ? '1.5px solid var(--gold)' : '1px solid rgba(128,120,112, 0.25)',
+                    borderRadius: '8px',
                     color: 'var(--text-h)',
+                    opacity: verifying ? 0.5 : 1,
                   }}
                 />
               ))}
