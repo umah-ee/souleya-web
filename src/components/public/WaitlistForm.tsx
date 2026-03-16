@@ -30,15 +30,28 @@ const TYPO_MAP: Record<string, string> = {
   'tonline.de': 't-online.de',
 };
 
+/* ── Wegwerf-E-Mail-Domains ── */
+const DISPOSABLE_DOMAINS = new Set([
+  'tempmail.com', 'guerrillamail.com', 'mailinator.com', 'throwaway.email',
+  'yopmail.com', 'sharklasers.com', 'guerrillamailblock.com', 'grr.la',
+  'dispostable.com', 'trashmail.com', '10minutemail.com', 'temp-mail.org',
+  'fakeinbox.com', 'tempail.com', 'mohmal.com', 'getnada.com',
+  'emailondeck.com', 'burnermail.io', 'maildrop.cc', 'harakirimail.com',
+  'guerrillamail.info', 'guerrillamail.net', 'minutemail.com', 'tempinbox.com',
+]);
+
 function validateEmail(email: string): { valid: boolean; error?: string; suggestion?: string } {
   const re = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
   if (!re.test(email)) {
     return { valid: false, error: 'Bitte gib eine gültige E-Mail-Adresse ein.' };
   }
-  const domain = email.split('@')[1];
+  const domain = email.split('@')[1]?.toLowerCase();
   if (TYPO_MAP[domain]) {
     const corrected = email.replace(domain, TYPO_MAP[domain]);
     return { valid: false, error: `Meintest du ${corrected}?`, suggestion: corrected };
+  }
+  if (DISPOSABLE_DOMAINS.has(domain)) {
+    return { valid: false, error: 'Bitte verwende eine permanente E-Mail-Adresse.' };
   }
   return { valid: true };
 }
