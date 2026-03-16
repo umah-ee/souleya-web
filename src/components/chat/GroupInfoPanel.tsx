@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelDetail, ChannelMember } from '@/types/chat';
 import type { Connection } from '@/types/circles';
-import { updateChannel, addChannelMember, removeChannelMember, fetchChannel } from '@/lib/chat';
+import { updateChannel, addChannelMember, removeChannelMember, fetchChannel, muteChannel, unmuteChannel } from '@/lib/chat';
 import { getConnections } from '@/lib/circles';
 import { Icon } from '@/components/ui/Icon';
 
@@ -27,8 +27,12 @@ export default function GroupInfoPanel({ channel, currentUserId, onClose, onChan
   const [loadingConnections, setLoadingConnections] = useState(false);
   const [removingUserId, setRemovingUserId] = useState<string | null>(null);
   const [leaving, setLeaving] = useState(false);
+  const [showMuteOptions, setShowMuteOptions] = useState(false);
+  const [muting, setMuting] = useState(false);
 
   const isAdmin = channel.members.find((m) => m.user_id === currentUserId)?.role === 'admin';
+  const myMember = channel.members.find((m) => m.user_id === currentUserId);
+  const isMuted = myMember?.muted_until ? new Date(myMember.muted_until) > new Date() : false;
   const memberIds = new Set(channel.members.map((m) => m.user_id));
 
   // Kontakte laden wenn "Hinzufuegen" geoeffnet wird
@@ -412,8 +416,80 @@ export default function GroupInfoPanel({ channel, currentUserId, onClose, onChan
         {/* Divider */}
         <div className="mx-5 mt-auto" style={{ borderBottom: '1px solid var(--divider-l)' }} />
 
+        {/* Stummschalten */}
+        <div className="px-5 pt-4 pb-2">
+          {isMuted ? (
+            <button
+              onClick={async () => {
+                setMuting(true);
+                try {
+                  await unmuteChannel(channel.id);
+                  await refreshChannel();
+                } catch (e) { console.error(e); }
+                finally { setMuting(false); }
+              }}
+              disabled={muting}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors"
+              style={{ color: 'var(--gold-text)', border: '1px solid var(--gold-border-s)' }}
+            >
+              <Icon name="bell" size={14} />
+              {muting ? 'Wird aufgehoben …' : 'Stummschaltung aufheben'}
+            </button>
+          ) : showMuteOptions ? (
+            <div
+              className="rounded-xl p-3"
+              style={{ background: 'var(--glass)', border: '1px solid var(--glass-border)' }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-label text-[0.65rem] tracking-[0.1em] uppercase" style={{ color: 'var(--text-muted)' }}>
+                  Wie lange stummschalten?
+                </span>
+                <button onClick={() => setShowMuteOptions(false)} className="cursor-pointer p-0.5" style={{ color: 'var(--text-muted)' }}>
+                  <Icon name="x" size={14} />
+                </button>
+              </div>
+              <div className="flex flex-col gap-1">
+                {[
+                  { label: '1 Stunde', value: '1h' },
+                  { label: '8 Stunden', value: '8h' },
+                  { label: '1 Tag', value: '1d' },
+                  { label: '1 Woche', value: '1w' },
+                  { label: 'Dauerhaft', value: 'forever' },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={async () => {
+                      setMuting(true);
+                      try {
+                        await muteChannel(channel.id, opt.value);
+                        await refreshChannel();
+                        setShowMuteOptions(false);
+                      } catch (e) { console.error(e); }
+                      finally { setMuting(false); }
+                    }}
+                    disabled={muting}
+                    className="w-full text-left px-3 py-2 rounded-lg text-[12px] cursor-pointer transition-colors"
+                    style={{ color: 'var(--text-body)' }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowMuteOptions(true)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase cursor-pointer transition-colors"
+              style={{ color: 'var(--text-muted)', border: '1px solid var(--glass-border)' }}
+            >
+              <Icon name="bell-off" size={14} />
+              Stummschalten
+            </button>
+          )}
+        </div>
+
         {/* Gruppe verlassen */}
-        <div className="px-5 py-4">
+        <div className="px-5 pb-4">
           <button
             onClick={handleLeaveGroup}
             disabled={leaving}
@@ -425,7 +501,7 @@ export default function GroupInfoPanel({ channel, currentUserId, onClose, onChan
             }}
           >
             <Icon name="logout" size={14} />
-            {leaving ? 'Verlassen ...' : 'Gruppe verlassen'}
+            {leaving ? 'Verlassen …' : 'Gruppe verlassen'}
           </button>
         </div>
       </div>

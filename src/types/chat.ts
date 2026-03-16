@@ -88,6 +88,8 @@ export interface Message {
   created_at: string;
   edited_at: string | null;
   deleted_at: string | null;
+  pinned_at?: string | null;
+  pinned_by?: string | null;
   author: MessageAuthor;
   reply_message?: ReplyMessage | null;
 }
@@ -101,6 +103,14 @@ export interface ReactionSummary {
 export interface UnreadCount {
   channel_id: string;
   unread_count: number;
+}
+
+// ── Read Status ──────────────────────────────────────────────
+
+export interface ReadStatusMember {
+  user_id: string;
+  last_read_at: string;
+  display_name: string | null;
 }
 
 // ── Polls ─────────────────────────────────────────────────────

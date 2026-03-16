@@ -3,23 +3,28 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
-import type { ChannelDetail, Message, ReactionSummary } from '@/types/chat';
+import type { ChannelDetail, Message, ReactionSummary, ReadStatusMember } from '@/types/chat';
 import {
   fetchChannel, fetchMessages, sendMessage, markChannelAsRead,
   deleteMessage, editMessage, addReaction, removeReaction,
-  uploadChatImage,
+  uploadChatImage, uploadVoiceMessage, fetchReadStatus,
+  pinMessage, unpinMessage,
 } from '@/lib/chat';
+import { useVoiceRecorder } from '@/hooks/useVoiceRecorder';
 import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
 import ChatBubble from '@/components/chat/ChatBubble';
 import GroupInfoPanel from '@/components/chat/GroupInfoPanel';
 import CreatePollForm from '@/components/chat/CreatePollForm';
 import SeedsTransferModal from '@/components/chat/SeedsTransferModal';
+import MessageSearch from '@/components/chat/MessageSearch';
+import ForwardMessageModal from '@/components/chat/ForwardMessageModal';
 import CreateChallengeModal from '@/components/challenges/CreateChallengeModal';
 import { createChallenge } from '@/lib/challenges';
 import type { Challenge } from '@/types/challenges';
+import dynamic from 'next/dynamic';
 
-const QUICK_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '👏', '🙏', '✨', '🔥', '🕊️', '🌿', '💛'];
+const EmojiPicker = dynamic(() => import('@/components/chat/EmojiPicker'), { ssr: false });
 
 type ReactionsMap = Record<string, ReactionSummary[]>;
 
@@ -46,13 +51,21 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [showPollForm, setShowPollForm] = useState(false);
   const [showSeedsModal, setShowSeedsModal] = useState(false);
   const [showChallengeModal, setShowChallengeModal] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [forwardingMsg, setForwardingMsg] = useState<Message | null>(null);
   const [pendingImages, setPendingImages] = useState<File[]>([]);
   const [pendingImagePreviews, setPendingImagePreviews] = useState<string[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<{ id: string; name: string }[]>([]);
+  const [readStatus, setReadStatus] = useState<ReadStatusMember[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const channelRef = useRef<ChannelDetail | null>(null);
+  const presenceChannelRef = useRef<ReturnType<ReturnType<typeof createClient>['channel']> | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { isRecording, durationMs, startRecording, stopRecording, cancelRecording } = useVoiceRecorder();
+  const [sendingVoice, setSendingVoice] = useState(false);
 
   // ── Reactions batch laden (via Supabase direkt) ──────────
   const loadReactionsForMessages = useCallback(async (messageIds: string[]) => {
@@ -101,6 +114,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
       setPage(1);
       await markChannelAsRead(channelId);
       loadReactionsForMessages(msgs.data.map((m) => m.id));
+      fetchReadStatus(channelId).then(setReadStatus).catch(() => {});
     } catch (e) {
       console.error(e);
     } finally {
@@ -195,12 +209,58 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           window.dispatchEvent(new Event('poll-vote-update'));
         },
       )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'channel_members', filter: `channel_id=eq.${channelId}` },
+        () => {
+          fetchReadStatus(channelId).then(setReadStatus).catch(() => {});
+        },
+      )
       .subscribe();
 
     return () => {
       supabase.removeChannel(sub);
     };
   }, [channelId, user?.id]);
+
+  // ── Typing Indicator (Supabase Presence) ────────────────────
+  useEffect(() => {
+    if (!user?.id) return;
+    const supabase = createClient();
+    const presenceCh = supabase.channel(`typing:${channelId}`, { config: { presence: { key: user.id } } });
+
+    presenceCh
+      .on('presence', { event: 'sync' }, () => {
+        const state = presenceCh.presenceState();
+        const users: { id: string; name: string }[] = [];
+        for (const [uid, presences] of Object.entries(state)) {
+          if (uid === user.id) continue;
+          const p = presences[0] as { typing?: boolean; name?: string } | undefined;
+          if (p?.typing) {
+            users.push({ id: uid, name: p.name ?? 'Jemand' });
+          }
+        }
+        setTypingUsers(users);
+      })
+      .subscribe();
+
+    presenceChannelRef.current = presenceCh;
+
+    return () => {
+      supabase.removeChannel(presenceCh);
+      presenceChannelRef.current = null;
+    };
+  }, [channelId, user?.id]);
+
+  const trackTyping = useCallback((isTyping: boolean) => {
+    const ch = presenceChannelRef.current;
+    if (!ch || !user?.id) return;
+    const myProfile = channelRef.current?.members.find((m) => m.user_id === user.id);
+    ch.track({
+      typing: isTyping,
+      name: myProfile?.profile.display_name ?? myProfile?.profile.username ?? 'Jemand',
+    });
+  }, [user?.id]);
 
   // ── Auto-Scroll (nur bei neuen Nachrichten am Ende) ──────
   const prevMsgCountRef = useRef(0);
@@ -262,6 +322,8 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     }
 
     setSending(true);
+    trackTyping(false);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     try {
       const msg = await sendMessage(channelId, {
         type: 'text',
@@ -376,6 +438,29 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     }
   };
 
+  // ── Voice Message ────────────────────────────────────────
+  const handleSendVoice = async () => {
+    if (!user?.id || sendingVoice) return;
+    setSendingVoice(true);
+    try {
+      const { blob, durationMs: dur } = await stopRecording();
+      const voiceUrl = await uploadVoiceMessage(blob, user.id);
+      const msg = await sendMessage(channelId, {
+        type: 'voice',
+        content: voiceUrl,
+        metadata: { duration_ms: dur },
+      });
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
+    } catch (e) {
+      console.error('Sprachnachricht fehlgeschlagen:', e);
+    } finally {
+      setSendingVoice(false);
+    }
+  };
+
   // ── Reactions ─────────────────────────────────────────────
   const handleToggleReaction = async (msgId: string, emoji: string) => {
     const existing = reactions[msgId]?.find((r) => r.emoji === emoji);
@@ -395,6 +480,21 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     const msgId = emojiPickerMsgId;
     setEmojiPickerMsgId(null);
     await handleToggleReaction(msgId, emoji);
+  };
+
+  // ── Pin ──────────────────────────────────────────────────────
+  const handleTogglePin = async (msg: Message) => {
+    try {
+      if (msg.pinned_at) {
+        await unpinMessage(msg.id);
+        setMessages((prev) => prev.map((m) => m.id === msg.id ? { ...m, pinned_at: null, pinned_by: null } : m));
+      } else {
+        await pinMessage(msg.id);
+        setMessages((prev) => prev.map((m) => m.id === msg.id ? { ...m, pinned_at: new Date().toISOString(), pinned_by: user?.id ?? null } : m));
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   // ── Channel-Name bestimmen ────────────────────────────────
@@ -478,7 +578,33 @@ export default function ChatRoomClient({ channelId, user }: Props) {
             {getMembersLabel()}
           </div>
         </div>
+
+        <button
+          onClick={() => setShowSearch((s) => !s)}
+          className="p-1.5 cursor-pointer shrink-0"
+          style={{ color: showSearch ? 'var(--gold-text)' : 'var(--text-muted)' }}
+          title="Suchen"
+        >
+          <Icon name="search" size={18} />
+        </button>
       </div>
+
+      {/* ── Suche ────────────────────────────────────────── */}
+      {showSearch && (
+        <MessageSearch
+          channelId={channelId}
+          onClose={() => setShowSearch(false)}
+          onScrollToMessage={(msgId) => {
+            setShowSearch(false);
+            const el = document.getElementById(`msg-${msgId}`);
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              el.style.background = 'rgba(200,169,110,0.15)';
+              setTimeout(() => { el.style.background = ''; }, 2000);
+            }
+          }}
+        />
+      )}
 
       {/* ── Nachrichten ────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1 relative">
@@ -499,64 +625,39 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           const isOwn = msg.user_id === user?.id;
           const prevMsg = messages[i - 1];
           const showAuthor = !isOwn && (!prevMsg || prevMsg.user_id !== msg.user_id);
+          const msgRead = isOwn && readStatus.some(
+            (rs) => new Date(rs.last_read_at) >= new Date(msg.created_at),
+          );
 
           return (
+            <div key={msg.id} id={`msg-${msg.id}`}>
             <ChatBubble
-              key={msg.id}
               message={msg}
               isOwn={isOwn}
               showAuthor={showAuthor}
               currentUserId={user?.id ?? ''}
               reactions={reactions[msg.id] ?? []}
+              isRead={msgRead}
               onReply={() => handleReply(msg)}
               onReact={() => setEmojiPickerMsgId(msg.id)}
+              onPin={() => handleTogglePin(msg)}
+              onForward={msg.type === 'text' ? () => setForwardingMsg(msg) : undefined}
               onEdit={isOwn && msg.type === 'text' ? () => handleStartEdit(msg) : undefined}
               onDelete={isOwn ? () => handleDelete(msg.id) : undefined}
               onToggleReaction={(emoji) => handleToggleReaction(msg.id, emoji)}
             />
+            </div>
           );
         })}
         <div ref={messagesEndRef} />
 
         {/* Emoji Picker Popover */}
         {emojiPickerMsgId && (
-          <div className="fixed inset-0 z-40" onClick={() => setEmojiPickerMsgId(null)}>
-            <div
-              className="absolute bottom-24 left-1/2 -translate-x-1/2 rounded-2xl p-3 z-50"
-              style={{
-                background: 'var(--bg-solid)',
-                border: '1px solid var(--glass-border)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <p
-                className="text-[10px] font-label tracking-[0.15em] uppercase text-center mb-3"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                Reaktion wählen
-              </p>
-              <div className="grid grid-cols-6 gap-1.5">
-                {QUICK_EMOJIS.map((emoji) => {
-                  const hasReacted = reactions[emojiPickerMsgId]?.some(
-                    (r) => r.emoji === emoji && r.has_reacted,
-                  );
-                  return (
-                    <button
-                      key={emoji}
-                      onClick={() => handleEmojiSelect(emoji)}
-                      className="w-11 h-11 rounded-xl flex items-center justify-center text-xl cursor-pointer transition-colors duration-150"
-                      style={{
-                        background: hasReacted ? 'var(--gold-bg)' : 'var(--glass)',
-                        border: `1px solid ${hasReacted ? 'var(--gold-border-s)' : 'var(--glass-border)'}`,
-                      }}
-                    >
-                      {emoji}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          <div className="fixed inset-0 z-40 flex items-end justify-center pb-28">
+            <EmojiPicker
+              onSelect={handleEmojiSelect}
+              onClose={() => setEmojiPickerMsgId(null)}
+            />
           </div>
         )}
       </div>
@@ -649,6 +750,22 @@ export default function ChatRoomClient({ channelId, user }: Props) {
         </div>
       )}
 
+      {/* ── Typing Indicator ─────────────────────────────── */}
+      {typingUsers.length > 0 && (
+        <div className="px-4 py-1.5 shrink-0">
+          <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+            {typingUsers.length === 1
+              ? `${typingUsers[0].name} schreibt gerade`
+              : `${typingUsers.map((u) => u.name).join(', ')} schreiben gerade`}
+            <span className="inline-flex ml-0.5">
+              <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
+              <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
+              <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
+            </span>
+          </span>
+        </div>
+      )}
+
       {/* ── Input ──────────────────────────────────────────── */}
       {showPollForm ? (
         <CreatePollForm
@@ -704,35 +821,84 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           >
             <Icon name="target" size={16} />
           </button>
-          <input
-            ref={inputRef}
-            type="text"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={editingMsg ? 'Nachricht bearbeiten ...' : 'Nachricht schreiben ...'}
-            maxLength={5000}
-            className="flex-1 px-4 py-2.5 text-sm font-body outline-none"
-            style={{
-              background: 'var(--input-bg)',
-              border: '1px solid var(--input-border)',
-              borderRadius: '8px',
-              color: 'var(--text-body)',
-            }}
-          />
-          <button
-            onClick={handleSend}
-            disabled={!text.trim() || sending}
-            className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200"
-            style={{
-              background: text.trim() && !sending
-                ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))'
-                : 'var(--gold-bg)',
-              color: text.trim() && !sending ? 'var(--text-on-gold)' : 'var(--text-muted)',
-            }}
-          >
-            <Icon name="send" size={16} />
-          </button>
+          {isRecording ? (
+            /* ── Recording UI ──────────────────── */
+            <>
+              <button
+                onClick={cancelRecording}
+                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 cursor-pointer"
+                style={{ color: 'var(--text-muted)' }}
+                title="Abbrechen"
+              >
+                <Icon name="x" size={16} />
+              </button>
+              <div className="flex-1 flex items-center gap-2 px-3">
+                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#ef4444' }} />
+                <span className="text-[12px] font-label tabular-nums" style={{ color: 'var(--text-body)' }}>
+                  {Math.floor(durationMs / 60000)}:{String(Math.floor((durationMs % 60000) / 1000)).padStart(2, '0')}
+                </span>
+                <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Aufnahme …</span>
+              </div>
+              <button
+                onClick={handleSendVoice}
+                disabled={sendingVoice}
+                className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200"
+                style={{
+                  background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                  color: 'var(--text-on-gold)',
+                }}
+              >
+                <Icon name="send" size={16} />
+              </button>
+            </>
+          ) : (
+            /* ── Normal Input ──────────────────── */
+            <>
+              <input
+                ref={inputRef}
+                type="text"
+                value={text}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  trackTyping(true);
+                  if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                  typingTimeoutRef.current = setTimeout(() => trackTyping(false), 3000);
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder={editingMsg ? 'Nachricht bearbeiten ...' : 'Nachricht schreiben ...'}
+                maxLength={5000}
+                className="flex-1 px-4 py-2.5 text-sm font-body outline-none"
+                style={{
+                  background: 'var(--input-bg)',
+                  border: '1px solid var(--input-border)',
+                  borderRadius: '8px',
+                  color: 'var(--text-body)',
+                }}
+              />
+              {text.trim() ? (
+                <button
+                  onClick={handleSend}
+                  disabled={sending}
+                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200"
+                  style={{
+                    background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                    color: 'var(--text-on-gold)',
+                  }}
+                >
+                  <Icon name="send" size={16} />
+                </button>
+              ) : (
+                <button
+                  onClick={() => startRecording().catch(console.error)}
+                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200"
+                  style={{ background: 'var(--gold-bg)', color: 'var(--text-muted)' }}
+                  title="Sprachnachricht aufnehmen"
+                >
+                  <Icon name="microphone" size={16} />
+                </button>
+              )}
+            </>
+          )}
         </div>
       )}
 
@@ -766,6 +932,15 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           currentUserId={user?.id ?? ''}
           onClose={() => setShowSeedsModal(false)}
           onSent={() => setShowSeedsModal(false)}
+        />
+      )}
+
+      {/* Forward Message Modal */}
+      {forwardingMsg && (
+        <ForwardMessageModal
+          message={forwardingMsg}
+          onClose={() => setForwardingMsg(null)}
+          onForwarded={() => setForwardingMsg(null)}
         />
       )}
     </div>

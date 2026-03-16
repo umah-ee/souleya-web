@@ -31,6 +31,7 @@ NEXT_PUBLIC_MAPBOX_TOKEN=<mapbox_public_token>
 - **Zustand** – Client State (Auth, Theme)
 - **Mapbox GL** – Karte im Discover-Bereich
 - **Tailwind CSS 3.4**
+- **emoji-mart** – Vollstaendiger Emoji Picker
 
 ---
 
@@ -64,7 +65,9 @@ components/
 ├── discover/            # MapView, EventCard, PlaceCard, PlaceDetailModal,
 │                          CreateEventModal, CreatePlaceModal, ProfileModal
 ├── chat/                # ChannelList, ChatRoom, MessageBubble, Reactions,
-│                          Polls, SeedsTransfer, GroupInfoPanel
+│                          Polls, SeedsTransfer, GroupInfoPanel, EmojiPicker,
+│                          MessageSearch, ForwardMessageModal, LinkPreviewCard,
+│                          VoicePlayer, PinnedMessagesBar
 ├── circles/             # ConnectionCard, RequestList, CirclesFeed
 ├── layout/              # Sidebar (Desktop), BottomTabs (Mobile), UserMenu, UnreadBadge
 ├── notifications/       # NotificationContext, NotificationBell (Dropdown-Panel)
@@ -72,7 +75,8 @@ components/
 └── ui/                  # Base Components (Button, Input, Card, Modal)
 
 hooks/
-└── useCurrentProfile.ts # Aktuelles Profil (avatar, soul_level, is_first_light)
+├── useCurrentProfile.ts # Aktuelles Profil (avatar, soul_level, is_first_light)
+└── useVoiceRecorder.ts  # MediaRecorder Hook fuer Sprachnachrichten
 
 lib/
 ├── api.ts               # REST API Client (JWT Bearer → souleya-api)
@@ -91,7 +95,7 @@ lib/
 | Pulse Feed | ✅ | CRUD, Like, Kommentare, Bilder, Polls, Visibility-Chip (UI ready, API pending) |
 | Discover | ✅ | Mapbox-Karte, Events, Places, User-Suche, Geo |
 | Circles | ✅ | Verbindungen, Anfragen, Feed (nur verbundene User via `/circles/feed`) |
-| Chat | ✅ | Realtime, Polls, Seeds-Transfer, Bilder, Gruppen |
+| Chat | ✅ | Realtime, Polls, Seeds-Transfer, Bilder, Gruppen, Markdown, Emoji-Picker, Tipp-Indikator, Lesebestaetigungen, Mute, Suche, Pin, Forward, Link-Preview, Sprachnachrichten |
 | Profil | ✅ | Avatar, Banner (300px, Crop-Modal), GPS, Interest-Tags, Badges |
 | Öffentliches Profil `/u/:username` | ✅ | |
 | Theme (Light/Dark) | ✅ | `data-theme` Attribut, ThemeProvider |

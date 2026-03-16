@@ -3,12 +3,15 @@
 import { useState, useEffect } from 'react';
 import type { Message, ReactionSummary } from '@/types/chat';
 import { Icon } from '@/components/ui/Icon';
+import { renderMarkdown } from '@/lib/markdown';
 import EventShareCard from '@/components/shared/EventShareCard';
 import PollBubble from '@/components/chat/PollBubble';
 import ImageGrid from '@/components/shared/ImageGrid';
 import { fetchChallenge } from '@/lib/challenges';
 import type { Challenge } from '@/types/challenges';
 import ChallengeCard from '@/components/challenges/ChallengeCard';
+import LinkPreviewCard from '@/components/chat/LinkPreviewCard';
+import VoicePlayer from '@/components/chat/VoicePlayer';
 
 function formatTime(dateString: string): string {
   return new Date(dateString).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
@@ -20,10 +23,13 @@ interface Props {
   showAuthor: boolean;
   currentUserId: string;
   reactions?: ReactionSummary[];
+  isRead?: boolean;
   onReply?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
   onReact?: () => void;
+  onPin?: () => void;
+  onForward?: () => void;
   onToggleReaction?: (emoji: string) => void;
 }
 
@@ -39,7 +45,7 @@ function InlineChallengeEmbed({ challengeId }: { challengeId: string }) {
 
 export default function ChatBubble({
   message, isOwn, showAuthor, currentUserId, reactions = [],
-  onReply, onEdit, onDelete, onReact, onToggleReaction,
+  isRead, onReply, onEdit, onDelete, onReact, onPin, onForward, onToggleReaction,
 }: Props) {
   const [showActions, setShowActions] = useState(false);
   const authorName = message.author?.display_name ?? message.author?.username ?? 'Anonym';
@@ -95,6 +101,14 @@ export default function ChatBubble({
           </p>
         )}
 
+        {/* Pin-Indikator */}
+        {message.pinned_at && (
+          <div className={`flex items-center gap-1 mb-0.5 px-1 ${isOwn ? 'justify-end' : ''}`}>
+            <Icon name="pin-filled" size={10} style={{ color: 'var(--gold)' }} />
+            <span className="text-[9px]" style={{ color: 'var(--gold-text)' }}>Angepinnt</span>
+          </div>
+        )}
+
         <div className="relative group">
           {/* Reply-Vorschau */}
           {message.reply_message && (
@@ -127,10 +141,20 @@ export default function ChatBubble({
                 : message.reply_message ? '14px 0 14px 4px' : '14px 14px 14px 4px',
             }}
           >
+            {/* Forwarded Header */}
+            {Boolean(message.metadata?.forwarded) && (
+              <div className="flex items-center gap-1 mb-1">
+                <Icon name="arrow-forward-up" size={10} style={{ color: 'var(--text-muted)' }} />
+                <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                  Weitergeleitet von {String(message.metadata.forwarded_author ?? 'Jemand')}
+                </span>
+              </div>
+            )}
+
             {/* Content */}
             {message.type === 'text' && (
               <p className="text-[13px] leading-[1.6] whitespace-pre-wrap break-words" style={{ color: 'var(--text-body)' }}>
-                {message.content}
+                {renderMarkdown(message.content ?? '')}
               </p>
             )}
 
@@ -156,11 +180,11 @@ export default function ChatBubble({
               ) : null;
             })()}
 
-            {message.type === 'voice' && (
-              <div className="flex items-center gap-2">
-                <Icon name="microphone" size={14} style={{ color: 'var(--gold-text)' }} />
-                <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Sprachnachricht</span>
-              </div>
+            {message.type === 'voice' && message.content && (
+              <VoicePlayer
+                src={message.content}
+                durationMs={message.metadata?.duration_ms as number | undefined}
+              />
             )}
 
             {message.type === 'location' && (
@@ -174,14 +198,14 @@ export default function ChatBubble({
               <PollBubble message={message} isOwn={isOwn} currentUserId={currentUserId} />
             )}
 
-            {message.type === 'challenge' && Boolean(message.metadata?.challenge_id) && (
+            {message.type === 'challenge' && !!message.metadata?.challenge_id ? (
               <div className="-mx-1 my-0.5">
                 <InlineChallengeEmbed challengeId={String(message.metadata.challenge_id)} />
               </div>
-            )}
+            ) : null}
 
             {/* Event Embed */}
-            {Boolean(message.metadata?.event_id) && (
+            {!!message.metadata?.event_id && (
               <div className="mt-1.5 -mx-0.5">
                 <EventShareCard
                   data={{
@@ -198,14 +222,30 @@ export default function ChatBubble({
               </div>
             )}
 
-            {/* Meta (Zeit + editiert) */}
-            <div className={`flex items-center gap-1.5 mt-0.5 ${isOwn ? 'justify-end' : ''}`}>
+            {/* Link-Vorschau */}
+            {!!message.metadata?.link_preview && (
+              <div className="mt-1.5 -mx-0.5">
+                <LinkPreviewCard preview={message.metadata.link_preview as { url: string; title?: string; description?: string; image?: string; site_name?: string }} />
+              </div>
+            )}
+
+            {/* Meta (Zeit + editiert + Häkchen) */}
+            <div className={`flex items-center gap-1 mt-0.5 ${isOwn ? 'justify-end' : ''}`}>
               {message.edited_at && (
                 <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>bearbeitet</span>
               )}
               <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>
                 {formatTime(message.created_at)}
               </span>
+              {isOwn && (
+                <span style={{ color: isRead ? 'var(--gold)' : 'var(--text-muted)' }}>
+                  {isRead ? (
+                    <Icon name="checks" size={12} />
+                  ) : (
+                    <Icon name="check" size={12} />
+                  )}
+                </span>
+              )}
             </div>
           </div>
 
@@ -232,9 +272,9 @@ export default function ChatBubble({
           )}
 
           {/* Action Buttons (Hover) */}
-          {showActions && (onReply || onEdit || onDelete || onReact) && (
+          {showActions && (onReply || onEdit || onDelete || onReact || onPin) && (
             <div
-              className={`absolute top-0 ${isOwn ? '-left-20' : '-right-20'} flex gap-0.5`}
+              className={`absolute top-0 ${isOwn ? '-left-24' : '-right-24'} flex gap-0.5`}
               style={{ zIndex: 10 }}
             >
               {onReact && (
@@ -245,6 +285,26 @@ export default function ChatBubble({
                   title="Reagieren"
                 >
                   <Icon name="face-smile" size={12} />
+                </button>
+              )}
+              {onPin && (
+                <button
+                  onClick={onPin}
+                  className="w-6 h-6 rounded flex items-center justify-center cursor-pointer transition-colors"
+                  style={{ color: message.pinned_at ? 'var(--gold)' : 'var(--text-muted)', background: 'var(--glass)' }}
+                  title={message.pinned_at ? 'Lospinnen' : 'Anpinnen'}
+                >
+                  <Icon name={message.pinned_at ? 'pin-filled' : 'pin'} size={12} />
+                </button>
+              )}
+              {onForward && (
+                <button
+                  onClick={onForward}
+                  className="w-6 h-6 rounded flex items-center justify-center cursor-pointer transition-colors"
+                  style={{ color: 'var(--text-muted)', background: 'var(--glass)' }}
+                  title="Weiterleiten"
+                >
+                  <Icon name="arrow-forward-up" size={12} />
                 </button>
               )}
               {onReply && (

@@ -89,7 +89,13 @@ export type IconName =
   | 'message'
   | 'lock'
   | 'menu-2'
-  | 'arrows-vertical';
+  | 'arrows-vertical'
+  | 'pin'
+  | 'pin-filled'
+  | 'checks'
+  | 'arrow-forward-up'
+  | 'bell-off'
+  | 'player-pause';
 
 const paths: Record<IconName, React.ReactNode> = {
   home: (
@@ -620,6 +626,45 @@ const paths: Record<IconName, React.ReactNode> = {
       <path d="M8 7l4 -4l4 4" />
       <path d="M8 17l4 4l4 -4" />
       <path d="M12 3l0 18" />
+    </>
+  ),
+  pin: (
+    <>
+      <path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4" />
+      <path d="M9 15l-4.5 4.5" />
+      <path d="M14.5 4l5.5 5.5" />
+    </>
+  ),
+  'pin-filled': (
+    <>
+      <path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4" fill="currentColor" />
+      <path d="M9 15l-4.5 4.5" />
+      <path d="M14.5 4l5.5 5.5" />
+    </>
+  ),
+  checks: (
+    <>
+      <path d="M7 12l5 5l10 -10" />
+      <path d="M2 12l5 5m5 -5l5 -5" />
+    </>
+  ),
+  'arrow-forward-up': (
+    <>
+      <path d="M15 14v-8h-8" />
+      <path d="M15 6l-12 12" />
+    </>
+  ),
+  'bell-off': (
+    <>
+      <path d="M13.73 21a2 2 0 0 1 -3.46 0" />
+      <path d="M9.174 4.174a4 4 0 0 1 6.826 2.826v3a11.944 11.944 0 0 0 2 5h-12.603" />
+      <path d="M3 3l18 18" />
+    </>
+  ),
+  'player-pause': (
+    <>
+      <path d="M6 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+      <path d="M14 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
     </>
   ),
 };

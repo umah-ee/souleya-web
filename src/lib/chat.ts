@@ -3,6 +3,7 @@ import { createClient } from './supabase/client';
 import type {
   ChannelOverview, ChannelDetail, Channel,
   Message, ReactionSummary, UnreadCount, PollResult,
+  ReadStatusMember,
 } from '../types/chat';
 
 // ══════════════════════════════════════════════════════════════
@@ -134,6 +135,56 @@ export async function fetchUnreadCounts() {
   return apiFetch<UnreadCount[]>('/chat/unread');
 }
 
+export async function fetchReadStatus(channelId: string) {
+  return apiFetch<ReadStatusMember[]>(`/chat/channels/${channelId}/read-status`);
+}
+
+export async function muteChannel(channelId: string, until: string) {
+  return apiFetch<{ success: boolean }>(`/chat/channels/${channelId}/mute`, {
+    method: 'POST',
+    body: JSON.stringify({ until }),
+  });
+}
+
+export async function unmuteChannel(channelId: string) {
+  return apiFetch<{ success: boolean }>(`/chat/channels/${channelId}/mute`, {
+    method: 'DELETE',
+  });
+}
+
+export async function searchMessages(channelId: string, query: string, page = 1) {
+  return apiFetch<{ data: Message[]; total: number; hasMore: boolean }>(
+    `/chat/channels/${channelId}/messages/search?q=${encodeURIComponent(query)}&page=${page}`,
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// FORWARD
+// ══════════════════════════════════════════════════════════════
+
+export async function forwardMessage(messageId: string, targetChannelId: string) {
+  return apiFetch<Message>(`/chat/messages/${messageId}/forward`, {
+    method: 'POST',
+    body: JSON.stringify({ target_channel_id: targetChannelId }),
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// PIN
+// ══════════════════════════════════════════════════════════════
+
+export async function pinMessage(messageId: string) {
+  return apiFetch<{ success: boolean }>(`/chat/messages/${messageId}/pin`, { method: 'POST' });
+}
+
+export async function unpinMessage(messageId: string) {
+  return apiFetch<{ success: boolean }>(`/chat/messages/${messageId}/pin`, { method: 'DELETE' });
+}
+
+export async function fetchPinnedMessages(channelId: string) {
+  return apiFetch<Message[]>(`/chat/channels/${channelId}/pinned`);
+}
+
 // ══════════════════════════════════════════════════════════════
 // POLLS
 // ══════════════════════════════════════════════════════════════
@@ -175,6 +226,28 @@ export async function transferSeeds(channelId: string, data: {
     `/chat/channels/${channelId}/seeds`,
     { method: 'POST', body: JSON.stringify(data) },
   );
+}
+
+// ══════════════════════════════════════════════════════════════
+// VOICE UPLOAD
+// ══════════════════════════════════════════════════════════════
+
+export async function uploadVoiceMessage(blob: Blob, userId: string): Promise<string> {
+  const supabase = createClient();
+  const ext = blob.type.includes('mp4') ? 'mp4' : 'webm';
+  const path = `${userId}/${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from('chat-voice')
+    .upload(path, blob, { contentType: blob.type, upsert: false });
+
+  if (error) throw new Error(`Upload fehlgeschlagen: ${error.message}`);
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('chat-voice')
+    .getPublicUrl(path);
+
+  return publicUrl;
 }
 
 // ══════════════════════════════════════════════════════════════
