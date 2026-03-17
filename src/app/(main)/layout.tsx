@@ -7,6 +7,7 @@ import { UnreadProvider } from '@/components/chat/UnreadContext';
 import { NotificationProvider } from '@/components/notifications/NotificationContext';
 import { SidebarProvider } from '@/components/layout/SidebarContext';
 import DynamicMain from '@/components/layout/DynamicMain';
+import PreLaunchOverlay from '@/components/layout/PreLaunchOverlay';
 import { createClient } from '@/lib/supabase/server';
 
 const isPreLaunch = process.env.NEXT_PUBLIC_PRE_LAUNCH === 'true';
@@ -63,73 +64,7 @@ export default async function MainLayout({
             <BottomTabs />
 
             {/* Pre-Launch: Nav-Overlays (blockieren Klicks + visuelles Blur) */}
-            {showPreLaunch && (
-              <>
-                {/* Sidebar-Overlay (Desktop) */}
-                <div
-                  className="hidden md:block"
-                  style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: 64,
-                    bottom: 0,
-                    zIndex: 50,
-                    backdropFilter: 'blur(3px)',
-                    background: 'rgba(0,0,0,0.18)',
-                    cursor: 'not-allowed',
-                  }}
-                />
-                {/* Mobile Header Overlay */}
-                <div
-                  className="md:hidden"
-                  style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 56,
-                    zIndex: 50,
-                    backdropFilter: 'blur(3px)',
-                    background: 'rgba(0,0,0,0.18)',
-                    cursor: 'not-allowed',
-                  }}
-                />
-                {/* Bottom Tabs Overlay (Mobile) */}
-                <div
-                  className="md:hidden"
-                  style={{
-                    position: 'fixed',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: 80,
-                    zIndex: 50,
-                    backdropFilter: 'blur(3px)',
-                    background: 'rgba(0,0,0,0.18)',
-                    cursor: 'not-allowed',
-                  }}
-                />
-                {/* Launch-Banner */}
-                <div
-                  style={{
-                    position: 'fixed',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    zIndex: 60,
-                    textAlign: 'center',
-                    padding: '8px 16px',
-                    fontSize: '0.8rem',
-                    background: 'var(--gold-bg)',
-                    color: 'var(--gold-text)',
-                    borderTop: '1px solid var(--gold-border)',
-                  }}
-                >
-                  Souleya öffnet im Sommer 2026 – dein Profil ist schon bereit 🌿
-                </div>
-              </>
-            )}
+            {showPreLaunch && <PreLaunchOverlay />}
           </div>
         </SidebarProvider>
         </NotificationProvider>
