@@ -173,7 +173,7 @@ export default function MentorContent() {
                 marginBottom: 36,
               }}
             >
-              Souleya Launch · Juli 2026
+              Souleya Launch · Sommer 2026
             </span>
 
             <h1

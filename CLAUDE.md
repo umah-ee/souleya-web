@@ -129,7 +129,7 @@ Gesteuert ueber `NEXT_PUBLIC_PRE_LAUNCH=true` in Vercel Environment Variables.
 - **Admins** (`is_admin`) und **Beta-Tester** (`is_beta_tester`) sind komplett ausgenommen
 
 **Client-Seite (`(main)/layout.tsx`):**
-- Visuelle Overlays (Blur + Banner "Souleya oeffnet am 01.07.2026") ueber Navigation
+- Visuelle Overlays (Blur + Banner "Souleya oeffnet im Sommer 2026") ueber Navigation
 - **Admins** und **Beta-Tester** sehen keine Overlays
 
 **Datenbank:**

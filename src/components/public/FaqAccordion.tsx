@@ -17,7 +17,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Wann startet Souleya?',
-    a: 'Der offizielle Launch ist für Juli 2026 geplant. Bis dahin bauen wir die Community auf, veröffentlichen Impulse und geben dir die Möglichkeit, schon vor dem Start Seeds zu sammeln und deinen Status aufzubauen.',
+    a: 'Der offizielle Launch ist für Sommer 2026 geplant. Bis dahin bauen wir die Community auf, veröffentlichen Impulse und geben dir die Möglichkeit, schon vor dem Start Seeds zu sammeln und deinen Status aufzubauen.',
   },
   {
     q: 'Kostet die Anmeldung etwas?',

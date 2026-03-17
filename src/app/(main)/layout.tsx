@@ -126,7 +126,7 @@ export default async function MainLayout({
                     borderTop: '1px solid var(--gold-border)',
                   }}
                 >
-                  Souleya öffnet am 01.07.2026 – dein Profil ist schon bereit 🌿
+                  Souleya öffnet im Sommer 2026 – dein Profil ist schon bereit 🌿
                 </div>
               </>
             )}
