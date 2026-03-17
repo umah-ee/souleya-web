@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import WaitlistForm from './WaitlistForm';
-import PhotoCredit from '@/components/shared/PhotoCredit';
 import { getCreditForUrl } from '@/lib/unsplash-credits';
 
 const SLIDES = [
@@ -23,31 +22,58 @@ export default function HeroSlider() {
     return () => clearInterval(interval);
   }, [next]);
 
+  const currentCredit = getCreditForUrl(SLIDES[current]);
+
   return (
     <section id="anmeldung" className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* ── Background Slides ── */}
-      {SLIDES.map((src, i) => {
-        const credit = getCreditForUrl(src);
-        return (
-          <div
-            key={src}
-            className="absolute inset-0 transition-opacity duration-1000 group"
-            style={{ opacity: i === current ? 1 : 0 }}
-          >
-            <img
-              src={src}
-              alt=""
-              className="w-full h-full object-cover photo-gold-wash"
-              loading={i === 0 ? 'eager' : 'lazy'}
-            />
-            <div className="absolute inset-0 photo-vignette" />
-            {credit && <PhotoCredit credit={credit} />}
-          </div>
-        );
-      })}
+      {SLIDES.map((src, i) => (
+        <div
+          key={src}
+          className="absolute inset-0 transition-opacity duration-1000"
+          style={{ opacity: i === current ? 1 : 0 }}
+        >
+          <img
+            src={src}
+            alt=""
+            className="w-full h-full object-cover photo-gold-wash"
+            loading={i === 0 ? 'eager' : 'lazy'}
+          />
+          <div className="absolute inset-0 photo-vignette" />
+        </div>
+      ))}
 
       {/* ── Dark Overlay ── */}
       <div className="absolute inset-0 bg-black/40" />
+
+      {/* ── Unsplash Credit (immer sichtbar, dezent) ── */}
+      {currentCredit && (
+        <div className="absolute bottom-[52px] left-3 z-[5] pointer-events-auto">
+          <p
+            className="text-[9px]"
+            style={{ color: 'rgba(255,255,255,0.4)', textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}
+          >
+            Foto von{' '}
+            <a
+              href={`https://unsplash.com/@${currentCredit.username}?utm_source=souleya&utm_medium=referral`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-white/70 transition-colors"
+            >
+              {currentCredit.name}
+            </a>
+            {' '}auf{' '}
+            <a
+              href="https://unsplash.com/?utm_source=souleya&utm_medium=referral"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-white/70 transition-colors"
+            >
+              Unsplash
+            </a>
+          </p>
+        </div>
+      )}
 
       {/* ── Content ── */}
       <div className="relative z-10 text-center px-6 max-w-2xl mx-auto">
