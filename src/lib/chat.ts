@@ -239,7 +239,7 @@ export async function uploadVoiceMessage(blob: Blob, userId: string): Promise<st
 
   const { error } = await supabase.storage
     .from('chat-voice')
-    .upload(path, blob, { contentType: blob.type, upsert: false });
+    .upload(path, blob, { contentType: blob.type.split(';')[0] || 'audio/webm', upsert: false });
 
   if (error) throw new Error(`Upload fehlgeschlagen: ${error.message}`);
 
