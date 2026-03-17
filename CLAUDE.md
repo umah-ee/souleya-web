@@ -71,7 +71,7 @@ components/
 ├── circles/             # ConnectionCard, RequestList, CirclesFeed
 ├── layout/              # Sidebar (Desktop), BottomTabs (Mobile), UserMenu, UnreadBadge
 ├── notifications/       # NotificationContext, NotificationBell (Dropdown-Panel)
-├── shared/              # Avatar, Badge, EnsoRing, ThemeToggle, ...
+├── shared/              # Avatar, Badge, EnsoRing, ThemeToggle, PhotoCredit, ...
 └── ui/                  # Base Components (Button, Input, Card, Modal)
 
 hooks/
@@ -80,6 +80,8 @@ hooks/
 
 lib/
 ├── api.ts               # REST API Client (JWT Bearer → souleya-api)
+├── unsplash-credits.ts  # Zentrales Mapping Unsplash Photo-ID → Fotografen-Info
+├── demo-covers.ts       # Demo-/Testbilder fuer Events (DemoCover mit Credit)
 ├── notifications.ts     # Notifications API (CRUD, unread-count)
 ├── supabase/            # SSR + Browser Client
 └── pulse|chat|places|events|circles|users|profile.ts
@@ -166,7 +168,54 @@ API-Calls: JWT Bearer Token aus Supabase Session → `lib/api.ts`
 Tokens aus `app/globals.css` – alles über `var(--token)`, keine Hardcoded-Farben.
 **Referenz:** `Strategy/Souleya_StyleGuide_Complete.html` (v2.1)
 
-**Enso-Logo:** Öffnung **immer zwischen 1 und 2 Uhr** (Uhrzeigerposition). Das Logo ist unveränderlich — Öffnungsposition, Strichstärke und Proportionen dürfen NICHT variiert werden.
+### Enso-Logo (Offizielle Spezifikation)
+
+**Einzige autorisierte Quelle:** `Souleya/Mockups/Souleya_Logo_Final_Enso.html`
+
+Das Enso-Logo darf **ausschliesslich** aus dieser Referenz-Datei reproduziert werden. Keine Eigeninterpretationen.
+
+```html
+<svg viewBox="0 0 100 100" width="SIZE" height="SIZE">
+  <defs>
+    <linearGradient id="enso-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A8894E"/>
+      <stop offset="100%" stop-color="#D4BC8B"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="36" fill="none"
+    stroke="url(#enso-grad)" stroke-width="8" stroke-linecap="round"
+    stroke-dasharray="196 30" stroke-dashoffset="15"/>
+</svg>
+```
+
+| Display-Groesse | stroke-width |
+|---|---|
+| ≤ 20px | `10` |
+| 36px | `9` |
+| 48px | `8` oder `9` |
+| 56px+ | `8` |
+
+Oeffnung **immer zwischen 1 und 2 Uhr**. Gradient `#A8894E` → `#D4BC8B`. Kein Fill. Strichstaerke/Proportionen/Oeffnung NICHT variieren.
+
+### Enso-Ring im Profil (Offizielle Spezifikation)
+
+**Einzige autorisierte Quelle:** `Souleya/Mockups/Souleya_EnsoRing_Levels.html`
+
+Der Enso-Ring als Profil-Avatar-Rahmen (Soul Levels, First Light, Mentor-Kompassstern) darf **ausschliesslich** aus dieser Referenz-Datei reproduziert werden. Enthält: 5 Level-Stufen (`stroke-dasharray`), First Light-Lichtpunkt (`cx="82.8" cy="35.2"`), Mentor-Kompassstern (`cx="61.2" cy="15.8"`, nur Level 5), alle SVG-Parameter und Kombinationen. Keine Eigeninterpretationen.
+
+### Unsplash-Attribution
+
+Alle Unsplash-Bilder muessen korrekt attribuiert werden: **Fotografen-Name** (verlinkt auf Profil mit UTM) + **"auf Unsplash"** (verlinkt mit UTM).
+
+- **`src/lib/unsplash-credits.ts`** — Zentrales Mapping von Unsplash Photo-ID → `{ name, username }`
+- **`src/components/shared/PhotoCredit.tsx`** — Wiederverwendbare Attributions-Komponente
+  - `hover` (default): Halbtransparentes Overlay am unteren Bildrand, sichtbar bei Hover. Container braucht `position: relative` und `class="group"`.
+  - `inline`: Statischer Text unter dem Bild (z.B. Blog-Detail)
+  - `mini`: Kamera-Icon mit Tooltip (z.B. kleine Avatare)
+- **`src/lib/demo-covers.ts`** — `getEventCover()` und `getDemoCover()` geben `DemoCover { url, credit }` zurueck (nicht mehr nur `string`)
+- UTM-Parameter: `?utm_source=souleya&utm_medium=referral`
+
+**Wo verwendet:** HeroSlider, FeaturesGrid, HowItWorks, FirstLightSection, EventCardCompact, DiscoverOverlay, Blog-Liste, Blog-Detail. Events mit eigenem `cover_url` (kein Unsplash) bekommen keinen Credit.
 
 ---
 

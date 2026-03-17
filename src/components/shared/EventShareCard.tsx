@@ -32,7 +32,7 @@ function formatTime(dateString: string): string {
 
 export default function EventShareCard({ data, onClick }: Props) {
   const isCourse = data.event_category === 'course';
-  const thumbUrl = getEventCover(data.event_cover_url ?? null, data.event_id);
+  const cover = getEventCover(data.event_cover_url ?? null, data.event_id);
 
   return (
     <div
@@ -45,7 +45,7 @@ export default function EventShareCard({ data, onClick }: Props) {
         <div className="w-[88px] flex-shrink-0 relative overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={thumbUrl}
+            src={cover.url}
             alt=""
             className="w-full h-full object-cover"
           />

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import WaitlistForm from './WaitlistForm';
+import PhotoCredit from '@/components/shared/PhotoCredit';
+import { getCreditForUrl } from '@/lib/unsplash-credits';
 
 const SLIDES = [
   'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1600&h=1000&fit=crop',
@@ -24,21 +26,25 @@ export default function HeroSlider() {
   return (
     <section id="anmeldung" className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* ── Background Slides ── */}
-      {SLIDES.map((src, i) => (
-        <div
-          key={src}
-          className="absolute inset-0 transition-opacity duration-1000"
-          style={{ opacity: i === current ? 1 : 0 }}
-        >
-          <img
-            src={src}
-            alt=""
-            className="w-full h-full object-cover photo-gold-wash"
-            loading={i === 0 ? 'eager' : 'lazy'}
-          />
-          <div className="absolute inset-0 photo-vignette" />
-        </div>
-      ))}
+      {SLIDES.map((src, i) => {
+        const credit = getCreditForUrl(src);
+        return (
+          <div
+            key={src}
+            className="absolute inset-0 transition-opacity duration-1000 group"
+            style={{ opacity: i === current ? 1 : 0 }}
+          >
+            <img
+              src={src}
+              alt=""
+              className="w-full h-full object-cover photo-gold-wash"
+              loading={i === 0 ? 'eager' : 'lazy'}
+            />
+            <div className="absolute inset-0 photo-vignette" />
+            {credit && <PhotoCredit credit={credit} />}
+          </div>
+        );
+      })}
 
       {/* ── Dark Overlay ── */}
       <div className="absolute inset-0 bg-black/40" />

@@ -7,6 +7,7 @@ import type { SoEvent } from '@/types/events';
 import { SOUL_LEVEL_NAMES } from '@/types/profile';
 import { Icon } from '@/components/ui/Icon';
 import { getEventCover } from '@/lib/demo-covers';
+import PhotoCredit from '@/components/shared/PhotoCredit';
 
 interface UserOverlayProps {
   type: 'user';
@@ -375,7 +376,7 @@ function EventOverlay({
   const isFull = event.max_participants != null && event.participants_count >= event.max_participants;
   const creatorName = event.creator?.display_name ?? event.creator?.username ?? 'Anonym';
   const creatorInitial = creatorName.slice(0, 1).toUpperCase();
-  const heroUrl = getEventCover(event.cover_url, event.id);
+  const cover = getEventCover(event.cover_url, event.id);
 
   return (
     <div
@@ -392,15 +393,18 @@ function EventOverlay({
         }}
       >
         {/* Hero-Bild */}
-        <div className="relative overflow-hidden" style={{ height: '160px' }}>
+        <div className="relative overflow-hidden group" style={{ height: '160px' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={heroUrl} alt="" className="w-full h-full object-cover block" />
+          <img src={cover.url} alt="" className="w-full h-full object-cover block" />
           <div
             className="absolute inset-0"
             style={{
               background: 'linear-gradient(to top, rgba(0,0,0,.65) 0%, rgba(0,0,0,.15) 40%, transparent 70%)',
             }}
           />
+
+          {/* Unsplash Credit */}
+          {cover.credit && <PhotoCredit credit={cover.credit} />}
 
           {/* Schliessen */}
           <button

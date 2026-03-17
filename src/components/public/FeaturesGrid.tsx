@@ -1,4 +1,6 @@
 import FadeUp from './FadeUp';
+import PhotoCredit from '@/components/shared/PhotoCredit';
+import { getCreditForUrl } from '@/lib/unsplash-credits';
 
 const FEATURES = [
   {
@@ -54,13 +56,14 @@ export default function FeaturesGrid() {
                   borderColor: 'var(--glass-border)',
                 }}
               >
-                <div className="aspect-[3/2] overflow-hidden">
+                <div className="aspect-[3/2] overflow-hidden relative">
                   <img
                     src={f.image}
                     alt={f.heading}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                     loading="lazy"
                   />
+                  {(() => { const c = getCreditForUrl(f.image); return c ? <PhotoCredit credit={c} /> : null; })()}
                 </div>
                 <div className="p-5">
                   <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: 'var(--gold-text)' }}>

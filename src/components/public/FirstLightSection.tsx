@@ -1,4 +1,6 @@
 import FadeUp from './FadeUp';
+import PhotoCredit from '@/components/shared/PhotoCredit';
+import { getCreditForUrl } from '@/lib/unsplash-credits';
 
 const BENEFITS = [
   {
@@ -56,12 +58,15 @@ function ProfileMockup() {
             <circle cx="83" cy="31" r="5" fill="var(--gold-text)" opacity="0.6" style={{ animation: 'soft-pulse 2s ease-in-out infinite' }} />
             <circle cx="83" cy="31" r="3" fill="var(--gold-text)" opacity="0.9" />
           </svg>
-          <img
-            src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face"
-            alt="Maya Lindström"
-            className="w-[72px] h-[72px] rounded-full object-cover border-4"
-            style={{ borderColor: 'var(--bg-elevated)' }}
-          />
+          <div className="relative group">
+            <img
+              src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face"
+              alt="Maya Lindström"
+              className="w-[72px] h-[72px] rounded-full object-cover border-4"
+              style={{ borderColor: 'var(--bg-elevated)' }}
+            />
+            {(() => { const c = getCreditForUrl('https://images.unsplash.com/photo-1544005313-94ddf0286df2'); return c ? <PhotoCredit credit={c} variant="mini" /> : null; })()}
+          </div>
         </div>
       </div>
 

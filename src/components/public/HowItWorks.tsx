@@ -1,4 +1,6 @@
 import FadeUp from './FadeUp';
+import PhotoCredit from '@/components/shared/PhotoCredit';
+import { getCreditForUrl } from '@/lib/unsplash-credits';
 
 const STEPS = [
   {
@@ -24,13 +26,14 @@ export default function HowItWorks() {
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Image */}
         <FadeUp>
-          <div className="rounded-2xl overflow-hidden">
+          <div className="rounded-2xl overflow-hidden relative group">
             <img
               src="https://images.unsplash.com/photo-1525026198548-4baa812f1183?w=600&h=800&fit=crop"
               alt="Menschen in der Community"
               className="w-full h-auto object-cover photo-gold-wash"
               loading="lazy"
             />
+            {(() => { const c = getCreditForUrl('https://images.unsplash.com/photo-1525026198548-4baa812f1183'); return c ? <PhotoCredit credit={c} /> : null; })()}
           </div>
         </FadeUp>
 

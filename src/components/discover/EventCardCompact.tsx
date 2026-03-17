@@ -3,6 +3,7 @@
 import type { SoEvent } from '@/types/events';
 import { Icon } from '@/components/ui/Icon';
 import { getEventCover } from '@/lib/demo-covers';
+import PhotoCredit from '@/components/shared/PhotoCredit';
 
 interface Props {
   event: SoEvent;
@@ -40,7 +41,7 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
   const creatorInitial = creatorName.slice(0, 1).toUpperCase();
 
   // Hero-Bild: cover_url oder Demo-Fallback
-  const heroUrl = getEventCover(event.cover_url, event.id);
+  const cover = getEventCover(event.cover_url, event.id);
 
   return (
     <div
@@ -56,11 +57,11 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
     >
       {/* ── Hero Image (160px Compact) ────────────── */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden group"
         style={{ height: '160px' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={heroUrl} alt="" className="w-full h-full object-cover block" />
+        <img src={cover.url} alt="" className="w-full h-full object-cover block" />
 
         {/* Gradient-Overlay */}
         <div
@@ -112,6 +113,9 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
             {event.category === 'course' ? 'Kurs' : 'Event'}
           </div>
         </div>
+
+        {/* Unsplash Credit */}
+        {cover.credit && <PhotoCredit credit={cover.credit} />}
 
         {/* Bottom: Title + Subtitle */}
         <div className="absolute bottom-3 left-3.5 right-3.5">

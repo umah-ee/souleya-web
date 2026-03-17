@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PhotoCredit from '@/components/shared/PhotoCredit';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
@@ -12,6 +13,8 @@ interface Article {
   category: string | null;
   tags: string[];
   og_image_url: string | null;
+  og_image_photographer: string | null;
+  og_image_photographer_url: string | null;
   views_count: number;
   published_at: string | null;
   title: string;
@@ -112,12 +115,19 @@ export default async function BlogOverviewPage({
             >
               {/* OG Image */}
               {article.og_image_url && (
-                <div className="aspect-[2/1] overflow-hidden">
+                <div className="aspect-[2/1] overflow-hidden relative group/img">
                   <img
                     src={article.og_image_url}
                     alt={article.title}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
+                  {article.og_image_photographer && article.og_image_photographer_url && (() => {
+                    const m = article.og_image_photographer_url!.match(/@([^/?]+)/);
+                    const username = m ? m[1] : '';
+                    return username ? (
+                      <PhotoCredit credit={{ name: article.og_image_photographer!, username }} />
+                    ) : null;
+                  })()}
                 </div>
               )}
 

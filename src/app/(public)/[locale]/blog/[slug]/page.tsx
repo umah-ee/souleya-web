@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ViewCounter } from './ViewCounter';
 import { ShareButtons } from './ShareButtons';
+import PhotoCredit from '@/components/shared/PhotoCredit';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
@@ -193,30 +194,13 @@ export default async function ArticlePage({
               alt={article.title}
               className="w-full object-cover"
             />
-            {article.og_image_photographer && (
-              <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-                {t ? 'Foto von' : 'Photo by'}{' '}
-                <a
-                  href={`${article.og_image_photographer_url}?utm_source=souleya&utm_medium=referral`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline"
-                  style={{ color: 'var(--gold-text)' }}
-                >
-                  {article.og_image_photographer}
-                </a>
-                {' '}{t ? 'auf' : 'on'}{' '}
-                <a
-                  href="https://unsplash.com/?utm_source=souleya&utm_medium=referral"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline"
-                  style={{ color: 'var(--gold-text)' }}
-                >
-                  Unsplash
-                </a>
-              </p>
-            )}
+            {article.og_image_photographer && article.og_image_photographer_url && (() => {
+              const usernameMatch = article.og_image_photographer_url!.match(/@([^/?]+)/);
+              const username = usernameMatch ? usernameMatch[1] : '';
+              return username ? (
+                <PhotoCredit credit={{ name: article.og_image_photographer!, username }} variant="inline" />
+              ) : null;
+            })()}
           </div>
         )}
 
