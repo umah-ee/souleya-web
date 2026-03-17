@@ -607,7 +607,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
       )}
 
       {/* ── Nachrichten ────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1 relative">
+      <div className="flex-1 overflow-y-auto scrollbar-gold px-4 py-4 space-y-1 relative">
         {hasMore && (
           <div className="text-center pb-3">
             <button
