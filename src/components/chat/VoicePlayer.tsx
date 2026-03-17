@@ -17,11 +17,50 @@ function formatDuration(ms: number): string {
 
 export default function VoicePlayer({ src, durationMs }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const objectUrlRef = useRef<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(durationMs ? durationMs / 1000 : 0);
+  const [loadError, setLoadError] = useState(false);
 
+  // Audio als Blob fetchen und Object URL erstellen
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    let cancelled = false;
+
+    fetch(src)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.blob();
+      })
+      .then((blob) => {
+        if (cancelled) return;
+        // Blob mit korrektem MIME-Type erstellen
+        const mimeType = src.includes('.mp4') ? 'audio/mp4' : 'audio/webm';
+        const typedBlob = new Blob([blob], { type: mimeType });
+        const url = URL.createObjectURL(typedBlob);
+        objectUrlRef.current = url;
+        audio.src = url;
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('Audio laden fehlgeschlagen:', err);
+        setLoadError(true);
+      });
+
+    return () => {
+      cancelled = true;
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+    };
+  }, [src]);
+
+  // Audio-Events
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -46,8 +85,9 @@ export default function VoicePlayer({ src, durationMs }: Props) {
     };
 
     const onError = () => {
-      console.error('Audio laden fehlgeschlagen:', audio.error?.message, 'src:', src);
+      console.error('Audio-Wiedergabe fehlgeschlagen:', audio.error?.message);
       setIsPlaying(false);
+      setLoadError(true);
     };
 
     audio.addEventListener('timeupdate', onTimeUpdate);
@@ -61,11 +101,11 @@ export default function VoicePlayer({ src, durationMs }: Props) {
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('error', onError);
     };
-  }, [src]);
+  }, []);
 
   const togglePlay = () => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || loadError) return;
 
     if (isPlaying) {
       audio.pause();
@@ -88,12 +128,16 @@ export default function VoicePlayer({ src, durationMs }: Props) {
 
   return (
     <div className="flex items-center gap-2 min-w-[180px]">
-      <audio ref={audioRef} src={src} preload="auto" />
+      <audio ref={audioRef} preload="auto" />
 
       <button
         onClick={togglePlay}
         className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer"
-        style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}
+        style={{
+          background: loadError ? 'var(--text-muted)' : 'var(--gold-bg)',
+          color: loadError ? 'var(--bg)' : 'var(--gold-text)',
+          opacity: loadError ? 0.5 : 1,
+        }}
       >
         <Icon name={isPlaying ? 'player-pause' : 'player-play'} size={14} />
       </button>
@@ -113,9 +157,11 @@ export default function VoicePlayer({ src, durationMs }: Props) {
 
         {/* Duration */}
         <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>
-          {isPlaying || currentTime > 0
-            ? formatDuration(currentTime * 1000)
-            : formatDuration(duration * 1000)
+          {loadError
+            ? 'Nicht abspielbar'
+            : isPlaying || currentTime > 0
+              ? formatDuration(currentTime * 1000)
+              : formatDuration(duration * 1000)
           }
         </span>
       </div>

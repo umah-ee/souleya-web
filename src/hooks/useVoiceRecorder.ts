@@ -35,7 +35,7 @@ export function useVoiceRecorder() {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
 
-      recorder.start(100); // Collect data every 100ms
+      recorder.start(); // Kein Timeslice — ein vollstaendiger Chunk beim Stop
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
       setDurationMs(0);
