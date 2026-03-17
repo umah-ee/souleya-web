@@ -45,16 +45,23 @@ export default function VoicePlayer({ src, durationMs }: Props) {
       setCurrentTime(0);
     };
 
+    const onError = () => {
+      console.error('Audio laden fehlgeschlagen:', audio.error?.message, 'src:', src);
+      setIsPlaying(false);
+    };
+
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('loadedmetadata', onLoadedMetadata);
     audio.addEventListener('ended', onEnded);
+    audio.addEventListener('error', onError);
 
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('loadedmetadata', onLoadedMetadata);
       audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('error', onError);
     };
-  }, []);
+  }, [src]);
 
   const togglePlay = () => {
     const audio = audioRef.current;
@@ -64,8 +71,9 @@ export default function VoicePlayer({ src, durationMs }: Props) {
       audio.pause();
       setIsPlaying(false);
     } else {
-      audio.play();
-      setIsPlaying(true);
+      audio.play()
+        .then(() => setIsPlaying(true))
+        .catch((err) => console.error('Audio-Wiedergabe fehlgeschlagen:', err));
     }
   };
 
@@ -80,7 +88,7 @@ export default function VoicePlayer({ src, durationMs }: Props) {
 
   return (
     <div className="flex items-center gap-2 min-w-[180px]">
-      <audio ref={audioRef} src={src} preload="metadata" />
+      <audio ref={audioRef} src={src} preload="auto" />
 
       <button
         onClick={togglePlay}
