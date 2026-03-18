@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchProgression, checkOnboarding, type ProgressionStatus } from '@/lib/progression';
-import EnsoRing from '@/components/ui/EnsoRing';
 
 // ══════════════════════════════════════════════════════════════
 // ONBOARDING WIZARD – Soul 1 → 2 (Fullscreen Overlay)
@@ -85,14 +84,14 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, o
   const [status, setStatus] = useState<ProgressionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
+  const prevCompletedRef = useRef<number | null>(null);
 
-  // Nur anzeigen fuer Soul Level 1
-  const shouldShow = soulLevel === 1 && !dismissed;
+  const isLevel1 = soulLevel === 1;
 
   const loadStatus = useCallback(async () => {
-    if (!shouldShow) return;
+    if (!isLevel1) return;
     try {
       const data = await fetchProgression();
       setStatus(data);
@@ -101,11 +100,29 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, o
     } finally {
       setIsLoading(false);
     }
-  }, [shouldShow]);
+  }, [isLevel1]);
 
+  // Initial load
   useEffect(() => {
     loadStatus();
   }, [loadStatus]);
+
+  // Wenn hidden: alle 5s Status neu laden (User fuellt Profil aus)
+  useEffect(() => {
+    if (!hidden || !isLevel1) return;
+    const interval = setInterval(loadStatus, 5000);
+    return () => clearInterval(interval);
+  }, [hidden, isLevel1, loadStatus]);
+
+  // Wenn sich completedCount aendert waehrend hidden → Overlay wieder zeigen
+  useEffect(() => {
+    if (!status) return;
+    const completedCount = status.requirements.filter((r) => r.completed).length;
+    if (prevCompletedRef.current !== null && completedCount > prevCompletedRef.current && hidden) {
+      setHidden(false);
+    }
+    prevCompletedRef.current = completedCount;
+  }, [status, hidden]);
 
   const handleCheckOnboarding = async () => {
     setIsChecking(true);
@@ -125,11 +142,11 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, o
 
   const handleCompleteClose = () => {
     onLevelUp?.();
-    setDismissed(true);
     setShowComplete(false);
+    setHidden(true);
   };
 
-  if (!shouldShow || isLoading || !status) return null;
+  if (!isLevel1 || isLoading || !status) return null;
 
   const completedCount = status.requirements.filter((r) => r.completed).length;
   const totalCount = status.requirements.length;
@@ -144,6 +161,42 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, o
   const progressWidth = totalCount > 1
     ? Math.round((completedCount / (totalCount - 1)) * 100)
     : 0;
+
+  // Floating-Button wenn Wizard versteckt ist
+  if (hidden && !showComplete) {
+    return (
+      <button
+        onClick={() => setHidden(false)}
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[180] flex items-center gap-2 px-5 py-2.5 rounded-full border-none cursor-pointer transition-all hover:-translate-y-0.5"
+        style={{
+          background: 'linear-gradient(135deg, #A8894E, #C8A96E)',
+          color: 'var(--text-on-gold, #1A1714)',
+          boxShadow: '0 4px 20px rgba(200,169,110,0.35)',
+          fontFamily: "'Josefin Sans', sans-serif",
+          fontSize: '0.65rem',
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase' as const,
+          fontWeight: 500,
+          animation: 'wizard-card-in 0.4s ease-out',
+        }}
+      >
+        <svg viewBox="0 0 100 100" width="16" height="16">
+          <circle
+            cx="50" cy="50" r="36" fill="none"
+            stroke="currentColor" strokeWidth="10" strokeLinecap="round"
+            strokeDasharray={LEVEL_DASHARRAY[2]} strokeDashoffset="15"
+          />
+        </svg>
+        Weiter mit Onboarding
+        <span
+          className="ml-1 px-1.5 py-0.5 rounded-full text-[0.55rem]"
+          style={{ background: 'rgba(0,0,0,0.15)' }}
+        >
+          {completedCount}/{totalCount}
+        </span>
+      </button>
+    );
+  }
 
   // Fertig-State
   if (showComplete) {
@@ -471,7 +524,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, o
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => {
-                    setDismissed(true);
+                    setHidden(true);
                     router.push(nextStepMeta.link);
                   }}
                   className="font-label text-[0.65rem] tracking-[0.1em] uppercase px-6 py-2.5 rounded-full border-none cursor-pointer transition-all hover:-translate-y-px"
@@ -484,7 +537,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, o
                   {nextStepMeta.btnLabel}
                 </button>
                 <button
-                  onClick={() => setDismissed(true)}
+                  onClick={() => setHidden(true)}
                   className="text-[12px] border-none bg-transparent cursor-pointer transition-colors hover:opacity-80"
                   style={{ color: 'var(--text-muted, #807870)', fontFamily: "'Quicksand', sans-serif" }}
                 >
@@ -500,7 +553,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, o
           <div className="px-6 pb-6">
             <button
               onClick={() => {
-                setDismissed(true);
+                setHidden(true);
                 router.push('/profile');
               }}
               className="w-full flex items-center gap-2.5 p-3 px-3.5 rounded-xl transition-all hover:opacity-90 border-none text-left cursor-pointer"
