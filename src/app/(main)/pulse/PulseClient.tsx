@@ -14,8 +14,6 @@ import { fetchMyPulses, createPulse } from '@/lib/pulse';
 import { getDailyQuote } from '@/lib/wisdomQuotes';
 import { Icon } from '@/components/ui/Icon';
 import EnsoRing from '@/components/ui/EnsoRing';
-import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
-
 // ── Props ─────────────────────────────────────────────────────
 interface Props {
   user: User | null;
@@ -268,9 +266,6 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
           {formatDateLong(new Date())}
         </p>
       </div>
-
-      {/* ── Onboarding Wizard (nur Soul Level 1) ──────────────── */}
-      <OnboardingWizard soulLevel={soulLevel} />
 
       {/* ── Täglicher Weisheitsspruch ─────────────────────────── */}
       <div

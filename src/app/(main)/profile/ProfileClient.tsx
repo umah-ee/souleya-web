@@ -20,6 +20,7 @@ import ProfileStudioCard from './components/ProfileStudioCard';
 import ProfileInterests from './components/ProfileInterests';
 import ProfileStats from './components/ProfileStats';
 import SoulProgressCard from '@/components/profile/SoulProgressCard';
+import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
 import ProfilePrivateRow from './components/ProfilePrivateRow';
 
 // ── Panels ──
@@ -188,8 +189,9 @@ export default function ProfileClient() {
           circleActive={showCircle}
         />
 
-        {/* ─── Soul Progress Card ─── */}
+        {/* ─── Onboarding Wizard (Soul 1) + Soul Progress Card ─── */}
         <div className="px-6 mt-6">
+          <OnboardingWizard soulLevel={profile.soul_level ?? 1} />
           <SoulProgressCard soulLevel={profile.soul_level} />
         </div>
 
