@@ -189,11 +189,14 @@ export default function ProfileClient() {
           circleActive={showCircle}
         />
 
-        {/* ─── Onboarding Wizard (Soul 1, Fullscreen Overlay) ─── */}
+        {/* ─── Onboarding Wizard (Soul 1, Fullscreen Overlay, Inline) ─── */}
         <OnboardingWizard
           soulLevel={profile.soul_level ?? 1}
           isFirstLight={profile.is_first_light}
           avatarUrl={profile.avatar_url}
+          profile={profile}
+          onLevelUp={() => fetchProfile().then((p) => setProfile(p))}
+          onProfileUpdated={handleProfileUpdated}
         />
 
         {/* ─── Soul Progress Card (ab Level 2) ─── */}
