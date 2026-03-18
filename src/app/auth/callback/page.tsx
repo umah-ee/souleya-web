@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { logActivity } from '@/lib/activity';
+import { trackSignup, trackLogin } from '@/lib/analytics';
 
 /**
  * Auth Callback – verarbeitet drei Flows:
@@ -37,6 +38,32 @@ function CallbackHandler() {
       logActivity('auth.login', `Login via ${method || 'Callback'}`, undefined, {
         method: method || 'callback',
       });
+
+      // Analytics: Signup vs. Login unterscheiden
+      // Neuer User = Profil juenger als 60 Sekunden
+      (async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('created_at, onboarding_completed_at')
+              .eq('id', user.id)
+              .single();
+            if (profile) {
+              const age = Date.now() - new Date(profile.created_at).getTime();
+              if (age < 60_000) {
+                trackSignup(method);
+              } else {
+                trackLogin();
+              }
+            }
+          }
+        } catch {
+          // Analytics darf nie den Flow blockieren
+        }
+      })();
+
       router.replace(path);
     }
 
