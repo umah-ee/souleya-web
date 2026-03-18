@@ -228,7 +228,7 @@ export default async function ArticlePage({
           }}
         >
           <h3 className="font-serif text-xl italic mb-2" style={{ color: 'var(--text-h)' }}>
-            {article.cta_type === 'waitlist'
+            {article.cta_type === 'signup'
               ? (t ? 'Werde Teil unserer Community' : 'Join our community')
               : (t ? 'Jetzt kostenlos beitreten' : 'Join for free')}
           </h3>
@@ -242,8 +242,8 @@ export default async function ArticlePage({
             className="inline-block px-8 py-3 rounded-full text-sm font-medium transition-transform hover:scale-105"
             style={{ background: 'var(--gold)', color: '#fff' }}
           >
-            {article.cta_type === 'waitlist'
-              ? (t ? 'Auf die Warteliste' : 'Join Waitlist')
+            {article.cta_type === 'signup'
+              ? (t ? 'Jetzt registrieren' : 'Sign Up Now')
               : (t ? 'Kostenlos starten' : 'Get Started Free')}
           </a>
         </div>

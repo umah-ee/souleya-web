@@ -26,9 +26,10 @@ export default function SoulProgressCard({ soulLevel }: Props) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [soulLevel]);
 
   useEffect(() => {
+    setIsLoading(true);
     loadStatus();
   }, [loadStatus]);
 

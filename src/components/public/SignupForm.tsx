@@ -62,7 +62,7 @@ function getReferralFromURL(): string | null {
   return new URLSearchParams(window.location.search).get('ref');
 }
 
-export default function WaitlistForm() {
+export default function SignupForm() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);

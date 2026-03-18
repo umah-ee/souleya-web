@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import WaitlistForm from './WaitlistForm';
+import SignupForm from './SignupForm';
 import FirstLightProgressBar from './FirstLightProgressBar';
 import { getCreditForUrl } from '@/lib/unsplash-credits';
 
@@ -101,7 +101,7 @@ export default function HeroSlider() {
           Kurse, Mentoren, Events und Gleichgesinnte – alles an einem Ort.
         </p>
 
-        <WaitlistForm />
+        <SignupForm />
 
         <FirstLightProgressBar />
       </div>
