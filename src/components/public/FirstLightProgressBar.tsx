@@ -243,8 +243,8 @@ export default function FirstLightProgressBar() {
       </div>
 
       {/* ── Compare-Akkordeon (integriert) ── */}
-      <div style={{ marginTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 10 }}>
-        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginBottom: 8, letterSpacing: '0.05em' }}>
+      <div className="fl-compare-sep" style={{ marginTop: 14, paddingTop: 10 }}>
+        <p className="fl-compare-hint" style={{ fontSize: 10, textAlign: 'center', marginBottom: 8, letterSpacing: '0.05em' }}>
           Was unterscheidet die Plätze?
         </p>
         <div className="flex flex-col" style={{ gap: 4 }}>
@@ -252,55 +252,39 @@ export default function FirstLightProgressBar() {
             const isOpen = openTier === tier.key;
             return (
               <div key={tier.key}>
-                {/* Klickbare Zeile */}
                 <button
                   onClick={() => setOpenTier(isOpen ? null : tier.key)}
-                  className="w-full flex items-center justify-between px-3 py-2 border-none bg-transparent cursor-pointer rounded-lg transition-colors"
-                  style={{
-                    background: isOpen
-                      ? (tier.highlight ? 'rgba(200,169,110,0.10)' : 'rgba(255,255,255,0.04)')
-                      : 'transparent',
-                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2 border-none bg-transparent cursor-pointer rounded-lg transition-colors ${isOpen ? (tier.highlight ? 'fl-compare-row-open' : 'fl-compare-row-open-default') : ''}`}
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className="font-label flex-shrink-0"
-                      style={{
-                        fontSize: 9, letterSpacing: '0.06em', textTransform: 'uppercase' as const,
-                        color: tier.muted ? 'rgba(255,255,255,0.25)' : '#C8A96E',
-                      }}
+                      className={`font-label flex-shrink-0 ${tier.muted ? 'fl-compare-spots-muted' : 'fl-compare-spots'}`}
+                      style={{ fontSize: 9, letterSpacing: '0.06em', textTransform: 'uppercase' as const }}
                     >
                       {tier.spots}
                     </span>
                     <span
-                      className="font-body truncate"
-                      style={{
-                        fontSize: 12, fontWeight: 500,
-                        color: tier.muted ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.85)',
-                      }}
+                      className={`font-body truncate ${tier.muted ? 'fl-compare-title-muted' : 'fl-compare-title'}`}
+                      style={{ fontSize: 12, fontWeight: 500 }}
                     >
                       {tier.title}
                     </span>
                     <span
-                      className="flex-shrink-0"
-                      style={{
-                        fontSize: 9,
-                        color: tier.muted ? 'rgba(255,255,255,0.2)' : 'rgba(200,169,110,0.6)',
-                      }}
+                      className={`flex-shrink-0 ${tier.muted ? 'fl-compare-soul-muted' : 'fl-compare-soul'}`}
+                      style={{ fontSize: 9 }}
                     >
                       {tier.soulBadge}
                     </span>
                   </div>
                   <svg
                     viewBox="0 0 24 24" width="14" height="14" fill="none"
-                    stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                    className="fl-compare-chevron" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
                     style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}
                   >
                     <path d="M6 9l6 6l6 -6" />
                   </svg>
                 </button>
 
-                {/* Aufklappbare Features */}
                 <div
                   style={{
                     maxHeight: isOpen ? '300px' : '0',
@@ -312,16 +296,16 @@ export default function FirstLightProgressBar() {
                   <div className="flex flex-col gap-1 px-3 pb-2 pt-0.5">
                     {tier.features.map((f, i) => (
                       <div key={i} className="flex items-start gap-2">
-                        <span style={{
-                          fontSize: 9, flexShrink: 0, marginTop: 2,
-                          color: f.included ? '#C8A96E' : 'rgba(255,255,255,0.2)',
-                        }}>
+                        <span
+                          className={f.included ? 'fl-compare-check' : 'fl-compare-dash'}
+                          style={{ fontSize: 9, flexShrink: 0, marginTop: 2 }}
+                        >
                           {f.included ? '✓' : '–'}
                         </span>
-                        <span style={{
-                          fontSize: 11, lineHeight: 1.4,
-                          color: f.included ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.25)',
-                        }}>
+                        <span
+                          className={f.included ? 'fl-compare-text' : 'fl-compare-text-ex'}
+                          style={{ fontSize: 11, lineHeight: 1.4 }}
+                        >
                           {f.text}
                         </span>
                       </div>

@@ -871,6 +871,39 @@ select:focus {
   color: #6B5228;
 }
 
+/* ── Compare-Akkordeon (integriert in Fortschrittsbox) ── */
+.fl-compare-sep { border-top: 1px solid rgba(255,255,255,0.06); }
+.fl-compare-hint { color: rgba(255,255,255,0.35); }
+.fl-compare-spots { color: #C8A96E; }
+.fl-compare-spots-muted { color: rgba(255,255,255,0.25); }
+.fl-compare-title { color: rgba(255,255,255,0.85); }
+.fl-compare-title-muted { color: rgba(255,255,255,0.3); }
+.fl-compare-soul { color: rgba(200,169,110,0.6); }
+.fl-compare-soul-muted { color: rgba(255,255,255,0.2); }
+.fl-compare-chevron { stroke: rgba(255,255,255,0.3); }
+.fl-compare-check { color: #C8A96E; }
+.fl-compare-dash { color: rgba(255,255,255,0.2); }
+.fl-compare-text { color: rgba(255,255,255,0.65); }
+.fl-compare-text-ex { color: rgba(255,255,255,0.25); }
+.fl-compare-row-open { background: rgba(200,169,110,0.10); }
+.fl-compare-row-open-default { background: rgba(255,255,255,0.04); }
+
+[data-theme="light"] .fl-compare-sep { border-top-color: rgba(168,137,78,0.15); }
+[data-theme="light"] .fl-compare-hint { color: rgba(90,69,32,0.5); }
+[data-theme="light"] .fl-compare-spots { color: #8B6914; }
+[data-theme="light"] .fl-compare-spots-muted { color: rgba(90,69,32,0.4); }
+[data-theme="light"] .fl-compare-title { color: #3D2E10; }
+[data-theme="light"] .fl-compare-title-muted { color: rgba(90,69,32,0.4); }
+[data-theme="light"] .fl-compare-soul { color: #8B6914; }
+[data-theme="light"] .fl-compare-soul-muted { color: rgba(90,69,32,0.3); }
+[data-theme="light"] .fl-compare-chevron { stroke: rgba(90,69,32,0.4); }
+[data-theme="light"] .fl-compare-check { color: #8B6914; }
+[data-theme="light"] .fl-compare-dash { color: rgba(90,69,32,0.25); }
+[data-theme="light"] .fl-compare-text { color: rgba(60,45,16,0.75); }
+[data-theme="light"] .fl-compare-text-ex { color: rgba(90,69,32,0.35); }
+[data-theme="light"] .fl-compare-row-open { background: rgba(168,137,78,0.08); }
+[data-theme="light"] .fl-compare-row-open-default { background: rgba(0,0,0,0.03); }
+
 /* Responsive */
 @media (max-width: 640px) {
   .fl-bar { height: 16px; }
