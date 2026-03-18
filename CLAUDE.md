@@ -65,8 +65,8 @@ components/
 ├── discover/            # MapView, EventCard, PlaceCard, PlaceDetailModal,
 │                          CreateEventModal, CreatePlaceModal, ProfileModal,
 │                          EventReviewCard, EventReviewForm, NominationCard
-├── onboarding/          # OnboardingWizard (Soul 1→2, Fullscreen-Overlay, Inline-Steps: Avatar/Bio/Interests/Location/Connection)
-│   └── steps/           # StepAvatar, StepBio, StepInterests, StepLocation, StepConnection
+├── onboarding/          # OnboardingWizard (Soul 1→2/3, Fullscreen-Overlay, Inline-Steps: Avatar/Bio/Interests/Location/Birthday)
+│   └── steps/           # StepAvatar, StepBio, StepInterests, StepLocation, StepBirthday
 ├── profile/             # SoulProgressCard, LevelUpModal
 ├── chat/                # ChannelList, ChatRoom, MessageBubble, Reactions,
 │                          Polls, SeedsTransfer, GroupInfoPanel, EmojiPicker,
@@ -114,7 +114,7 @@ lib/
 | ImageGrid + Lightbox | ✅ | Global LightboxProvider (Context + Portal), z-200, Keyboard-Support |
 | Navigation | ✅ | Sidebar default ausgeklappt, Profil oben rechts (EnsoRing), Notification-Bell |
 | Benachrichtigungen | ✅ | NotificationBell mit Dropdown-Panel (Actor-Avatar, Loeschen, Gelesene loeschen, Badge-Pulse-Animation, Settings-Link), Realtime + 30s Polling |
-| Soul Level System | ✅ | OnboardingWizard (Soul 1→2, Fullscreen-Overlay, Inline-Steps — User verlaesst Wizard nie), SoulProgressCard (ab Level 2), LevelUpModal (Konfetti), Event Reviews, Sichtbarkeits-Algorithmus (Events + Pulse), Mentor-Voting, Level-Badges im Feed |
+| Soul Level System | ✅ | OnboardingWizard (Soul 1→2/3, Fullscreen-Overlay, Inline-Steps: Avatar/Bio/Interests/Location/Birthday; Early 1–200 → Level 3), SoulProgressCard (ab Level 2), LevelUpModal (Konfetti), Event Reviews, Sichtbarkeits-Algorithmus (Events + Pulse), Mentor-Voting, Level-Badges im Feed |
 | Studio | ⏳ | Nur UI-Platzhalter |
 | Analytics | ⏳ | Nur UI-Platzhalter |
 
