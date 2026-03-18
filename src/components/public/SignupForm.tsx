@@ -261,14 +261,20 @@ export default function SignupForm() {
   return (
     <>
       {/* ── Email Form ── */}
-      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" noValidate>
         <input
-          type="email"
+          type="text"
+          inputMode="email"
+          autoComplete="email"
           value={email}
           onChange={(e) => { setEmail(e.target.value); setError(''); }}
           placeholder="Deine E-Mail-Adresse"
-          className="flex-1 px-4 py-3 rounded-lg text-sm bg-white/10 border border-white/20 text-white placeholder:text-white/50 backdrop-blur-sm focus:outline-none focus:border-[var(--gold-text)]"
-          required
+          className="flex-1 px-4 py-3 rounded-lg text-sm bg-white/10 border text-white placeholder:text-white/50 backdrop-blur-sm focus:outline-none transition-colors"
+          style={{
+            borderColor: error ? 'rgba(229,115,115,0.6)' : 'rgba(255,255,255,0.2)',
+          }}
+          onFocus={(e) => { if (!error) e.target.style.borderColor = 'var(--gold-text)'; }}
+          onBlur={(e) => { if (!error) e.target.style.borderColor = 'rgba(255,255,255,0.2)'; }}
           disabled={loading}
         />
         <button
@@ -284,7 +290,18 @@ export default function SignupForm() {
           {loading ? '…' : 'Sei dabei'}
         </button>
       </form>
-      {error && <p className="text-sm text-red-400 mt-2">{error}</p>}
+      {error && (
+        <div
+          className="mt-3 px-4 py-2.5 rounded-lg text-sm max-w-md mx-auto text-center"
+          style={{
+            background: 'rgba(229,115,115,0.15)',
+            border: '1px solid rgba(229,115,115,0.3)',
+            color: '#F5B0B0',
+          }}
+        >
+          {error}
+        </div>
+      )}
 
       {/* ── OTP Modal ── */}
       {showOtp && (

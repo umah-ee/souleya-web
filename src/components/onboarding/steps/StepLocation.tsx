@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { updateProfile } from '@/lib/profile';
 import { geocodeLocation } from '@/lib/events';
 
@@ -20,17 +21,16 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
   const [error, setError] = useState('');
   const [suggestions, setSuggestions] = useState<Array<{ place_name: string; lat: number; lng: number }>>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number } | null>(null);
 
   const isValid = !!locationLat || !!currentLocation;
 
-  // Dropdown-Position berechnen (fixed, relativ zum Input)
-  const updateDropdownPos = useCallback(() => {
+  // Dropdown-Position aktualisieren
+  const updateRect = useCallback(() => {
     if (inputRef.current) {
-      const rect = inputRef.current.getBoundingClientRect();
-      setDropdownPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+      setDropdownRect(inputRef.current.getBoundingClientRect());
     }
   }, []);
 
@@ -45,14 +45,22 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
       try {
         const res = await geocodeLocation(location, 'forward');
         setSuggestions(res.results.slice(0, 5));
-        updateDropdownPos();
+        updateRect();
         setShowDropdown(true);
       } catch {
         // silent
       }
     }, 400);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
-  }, [location, locationLat]);
+  }, [location, locationLat, updateRect]);
+
+  // Klick ausserhalb schliesst Dropdown
+  useEffect(() => {
+    if (!showDropdown) return;
+    const handleClick = () => setShowDropdown(false);
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [showDropdown]);
 
   const handleDetect = async () => {
     if (!navigator.geolocation) {
@@ -82,6 +90,7 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
   };
 
   const handleSelect = (s: { place_name: string; lat: number; lng: number }) => {
+    // Nur Stadt + Land (erste 2 Teile)
     setLocation(s.place_name.split(',').slice(0, 2).join(',').trim());
     setLocationLat(s.lat);
     setLocationLng(s.lng);
@@ -106,6 +115,44 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
       setSaving(false);
     }
   };
+
+  // Dropdown als Portal in document.body
+  const dropdown = showDropdown && suggestions.length > 0 && dropdownRect && typeof document !== 'undefined'
+    ? createPortal(
+        <div
+          className="rounded-lg overflow-hidden"
+          style={{
+            position: 'fixed',
+            top: dropdownRect.bottom + 4,
+            left: dropdownRect.left,
+            width: dropdownRect.width,
+            zIndex: 9999,
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--glass-border)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          }}
+        >
+          {suggestions.map((s, i) => (
+            <button
+              key={i}
+              onClick={(e) => { e.stopPropagation(); handleSelect(s); }}
+              className="w-full text-left px-3.5 py-2.5 text-[12px] border-none cursor-pointer transition-colors"
+              style={{
+                background: 'transparent',
+                color: 'var(--text-body)',
+                fontFamily: "'Quicksand', sans-serif",
+                borderBottom: i < suggestions.length - 1 ? '1px solid var(--glass-border)' : 'none',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--accent-muted)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+            >
+              {s.place_name}
+            </button>
+          ))}
+        </div>,
+        document.body,
+      )
+    : null;
 
   return (
     <div>
@@ -173,42 +220,10 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
             </svg>
           </div>
         )}
-
-        {/* Dropdown — fixed, ragt ueber den Modal-Rand hinaus */}
-        {showDropdown && suggestions.length > 0 && dropdownPos && (
-          <div
-            className="rounded-lg overflow-hidden"
-            style={{
-              position: 'fixed',
-              top: dropdownPos.top,
-              left: dropdownPos.left,
-              width: dropdownPos.width,
-              zIndex: 300,
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--glass-border)',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-            }}
-          >
-            {suggestions.map((s, i) => (
-              <button
-                key={i}
-                onClick={() => handleSelect(s)}
-                className="w-full text-left px-3.5 py-2.5 text-[12px] border-none cursor-pointer transition-colors"
-                style={{
-                  background: 'transparent',
-                  color: 'var(--text-body)',
-                  fontFamily: "'Quicksand', sans-serif",
-                  borderBottom: i < suggestions.length - 1 ? '1px solid var(--glass-border)' : 'none',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(200,169,110,0.08)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              >
-                {s.place_name}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
+
+      {/* Dropdown via Portal */}
+      {dropdown}
 
       {error && (
         <p className="text-[12px] mb-3" style={{ color: '#E57373' }}>{error}</p>
