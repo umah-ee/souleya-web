@@ -269,9 +269,11 @@ export default function SignupForm() {
           value={email}
           onChange={(e) => { setEmail(e.target.value); setError(''); }}
           placeholder="Deine E-Mail-Adresse"
-          className="flex-1 px-4 py-3 rounded-lg text-sm bg-white/10 border text-white placeholder:text-white/50 backdrop-blur-sm focus:outline-none transition-colors"
+          className="flex-1 px-4 py-3 rounded-lg text-sm border text-white placeholder:text-white/50 focus:outline-none transition-colors"
+
           style={{
-            borderColor: error ? 'rgba(229,115,115,0.6)' : 'rgba(255,255,255,0.2)',
+            background: 'rgba(30, 28, 26, 0.85)',
+            borderColor: error ? '#D47272' : 'rgba(255,255,255,0.2)',
           }}
           onFocus={(e) => { if (!error) e.target.style.borderColor = 'var(--gold-text)'; }}
           onBlur={(e) => { if (!error) e.target.style.borderColor = 'rgba(255,255,255,0.2)'; }}
@@ -291,16 +293,9 @@ export default function SignupForm() {
         </button>
       </form>
       {error && (
-        <div
-          className="mt-3 px-4 py-2.5 rounded-lg text-sm max-w-md mx-auto text-center"
-          style={{
-            background: 'rgba(229,115,115,0.15)',
-            border: '1px solid rgba(229,115,115,0.3)',
-            color: '#F5B0B0',
-          }}
-        >
+        <p className="mt-2.5 text-sm max-w-md mx-auto text-center" style={{ color: '#E8A0A0' }}>
           {error}
-        </div>
+        </p>
       )}
 
       {/* ── OTP Modal ── */}
