@@ -5,7 +5,7 @@ import { uploadAvatar, updateProfile } from '@/lib/profile';
 
 interface Props {
   currentAvatarUrl?: string | null;
-  onComplete: () => void;
+  onComplete: (avatarUrl?: string) => void;
   onBack: () => void;
   isFirst: boolean;
 }
@@ -114,7 +114,7 @@ export default function StepAvatar({ currentAvatarUrl, onComplete, onBack, isFir
           </button>
         ) : <span />}
         <button
-          onClick={onComplete}
+          onClick={() => onComplete(previewUrl ?? undefined)}
           disabled={!uploaded || uploading}
           className="font-label text-[0.7rem] tracking-[0.1em] uppercase px-7 py-3 rounded-full border-none cursor-pointer transition-all hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           style={{

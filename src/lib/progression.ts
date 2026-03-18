@@ -40,7 +40,7 @@ export async function fetchLevelHistory() {
 }
 
 export async function checkOnboarding() {
-  return apiFetch<{ leveled_up: boolean; message: string }>(
+  return apiFetch<{ leveled_up: boolean; new_level: number; new_level_name: string; message: string }>(
     '/users/me/onboarding',
     { method: 'POST' },
   );

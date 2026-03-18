@@ -83,6 +83,9 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
   const [hidden, setHidden] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
   const [activeStepKey, setActiveStepKey] = useState<string | null>(null);
+  const [completedLevel, setCompletedLevel] = useState<number>(2);
+  const [completedLevelName, setCompletedLevelName] = useState<string>('Awakened Soul');
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(avatarUrl ?? null);
 
   const isLevel1 = soulLevel === 1;
 
@@ -108,7 +111,9 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
     try {
       const result = await checkOnboarding();
       if (result.leveled_up) {
-        track('onboarding_complete', { new_level: 2 });
+        setCompletedLevel(result.new_level);
+        setCompletedLevelName(result.new_level_name);
+        track('onboarding_complete', { new_level: result.new_level });
         setShowComplete(true);
       } else {
         await loadStatus();
@@ -134,7 +139,8 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
   };
 
   // Step-Navigation
-  const handleStepComplete = useCallback(async () => {
+  const handleStepComplete = useCallback(async (updatedAvatarUrl?: string) => {
+    if (updatedAvatarUrl) setCurrentAvatarUrl(updatedAvatarUrl);
     await loadStatus();
     setActiveStepKey(null); // auto-advance to next incomplete
   }, [loadStatus]);
@@ -227,7 +233,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
             animation: 'wizard-card-in 0.5s ease-out 0.1s both',
           }}
         >
-          {/* Enso-Ring Level 2 mit Avatar */}
+          {/* Enso-Ring mit dynamischem Level + Avatar */}
           <div className="relative w-[120px] h-[120px] mx-auto mb-5">
             <svg
               viewBox="0 0 100 100" width="120" height="120"
@@ -243,7 +249,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
               <circle
                 cx="50" cy="50" r="36" fill="none"
                 stroke="url(#wizard-complete-grad)" strokeWidth="8" strokeLinecap="round"
-                strokeDasharray={LEVEL_DASHARRAY[2]} strokeDashoffset="15"
+                strokeDasharray={LEVEL_DASHARRAY[completedLevel] ?? LEVEL_DASHARRAY[2]} strokeDashoffset="15"
               />
               {isFirstLight && (
                 <>
@@ -256,9 +262,9 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[76px] h-[76px] rounded-full overflow-hidden flex items-center justify-center"
               style={{ background: 'var(--bg-elevated)', border: '2px solid var(--glass-border)' }}
             >
-              {avatarUrl ? (
+              {currentAvatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={avatarUrl} alt="" className="w-full h-full object-cover rounded-full" />
+                <img src={currentAvatarUrl} alt="" className="w-full h-full object-cover rounded-full" />
               ) : (
                 <span className="text-[28px]" style={{ color: 'var(--text-muted)' }}>?</span>
               )}
@@ -266,10 +272,10 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
           </div>
 
           <h2 className="font-heading text-[26px] mb-1" style={{ color: 'var(--text-h)' }}>
-            Du bist eine Awakened Soul
+            Du bist {completedLevelName === 'Harmony Keeper' ? 'ein' : 'eine'} {completedLevelName}
           </h2>
           <div className="font-label text-[0.6rem] tracking-[0.12em] uppercase mb-2" style={{ color: 'var(--accent)' }}>
-            Soul Level 2{isFirstLight ? ' · First Light' : ''}
+            Soul Level {completedLevel}{isFirstLight ? ' · First Light' : ''}
           </div>
           <p className="text-[13px] leading-relaxed mb-6" style={{ color: 'var(--text-body)' }}>
             Dein Profil ist komplett. Willkommen in der Souleya-Gemeinschaft.
