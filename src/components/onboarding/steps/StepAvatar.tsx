@@ -91,7 +91,7 @@ export default function StepAvatar({ currentAvatarUrl, onComplete, onBack, isFir
       </div>
 
       {!previewUrl && (
-        <p className="text-center text-[12px] mb-4" style={{ color: 'var(--text-muted, #807870)' }}>
+        <p className="text-center text-[12px] mb-4" style={{ color: 'var(--text-muted, #B0A898)' }}>
           Klicke auf den Kreis um ein Bild hochzuladen
         </p>
       )}
@@ -107,7 +107,7 @@ export default function StepAvatar({ currentAvatarUrl, onComplete, onBack, isFir
             onClick={onBack}
             className="text-[12.5px] border-none bg-transparent cursor-pointer px-3 py-2 rounded-lg transition-colors"
             style={{ color: 'var(--text-body, #D0C8B8)', fontFamily: "'Quicksand', sans-serif" }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
             ← Zurueck

@@ -43,21 +43,21 @@ export default function StepBio({ currentBio, onComplete, onBack, isFirst }: Pro
         rows={4}
         className="w-full rounded-lg px-3.5 py-3 text-[13px] leading-relaxed resize-none outline-none transition-all"
         style={{
-          background: 'var(--bg-tertiary, rgba(255,255,255,0.04))',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--bg-tertiary, rgba(255,255,255,0.06))',
+          border: '1px solid rgba(255,255,255,0.12)',
           color: 'var(--text-body, #D0C8B8)',
           fontFamily: "'Quicksand', sans-serif",
           borderRadius: '8px',
         }}
         onFocus={(e) => e.target.style.borderColor = 'rgba(200,169,110,0.3)'}
-        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.12)'}
       />
 
       <div className="flex items-center justify-between mt-1.5 mb-3">
         <p className="text-[11px]" style={{ color: bio.trim().length < MIN_BIO ? 'var(--text-muted)' : 'var(--accent, #C8A96E)' }}>
           {bio.trim().length < MIN_BIO ? `Mindestens ${MIN_BIO} Zeichen` : ''}
         </p>
-        <span className="text-[11px]" style={{ color: 'var(--text-muted, #807870)' }}>
+        <span className="text-[11px]" style={{ color: 'var(--text-muted, #B0A898)' }}>
           {bio.length}/{MAX_BIO}
         </span>
       </div>
@@ -72,7 +72,7 @@ export default function StepBio({ currentBio, onComplete, onBack, isFirst }: Pro
             onClick={onBack}
             className="text-[12.5px] border-none bg-transparent cursor-pointer px-3 py-2 rounded-lg transition-colors"
             style={{ color: 'var(--text-body, #D0C8B8)', fontFamily: "'Quicksand', sans-serif" }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
             ← Zurueck

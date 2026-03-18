@@ -89,8 +89,8 @@ export default function StepInterests({ currentInterests, onComplete, onBack, is
         placeholder="Interessen suchen …"
         className="w-full px-3 py-2 text-[12px] rounded-lg outline-none mb-2"
         style={{
-          background: 'var(--bg-tertiary, rgba(255,255,255,0.04))',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--bg-tertiary, rgba(255,255,255,0.06))',
+          border: '1px solid rgba(255,255,255,0.12)',
           color: 'var(--text-body, #D0C8B8)',
           fontFamily: "'Quicksand', sans-serif",
           borderRadius: '8px',
@@ -181,7 +181,7 @@ export default function StepInterests({ currentInterests, onComplete, onBack, is
             onClick={onBack}
             className="text-[12.5px] border-none bg-transparent cursor-pointer px-3 py-2 rounded-lg transition-colors"
             style={{ color: 'var(--text-body, #D0C8B8)', fontFamily: "'Quicksand', sans-serif" }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
             ← Zurueck

@@ -73,14 +73,14 @@ export default function StepBirthday({ currentBirthday, onComplete, onBack, isFi
         onChange={(e) => setBirthday(e.target.value)}
         className="w-full px-3.5 py-3 text-[13px] rounded-lg outline-none"
         style={{
-          background: 'var(--bg-tertiary, rgba(255,255,255,0.04))',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--bg-tertiary, rgba(255,255,255,0.06))',
+          border: '1px solid rgba(255,255,255,0.12)',
           color: 'var(--text-body, #D0C8B8)',
           fontFamily: "'Quicksand', sans-serif",
           borderRadius: '8px',
         }}
         onFocus={(e) => e.target.style.borderColor = 'rgba(200,169,110,0.3)'}
-        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.12)'}
       />
 
       {/* Sternzeichen-Vorschau */}
@@ -97,7 +97,7 @@ export default function StepBirthday({ currentBirthday, onComplete, onBack, isFi
             <p className="text-[13px] font-medium" style={{ color: 'var(--accent, #C8A96E)' }}>
               {zodiac.sign}
             </p>
-            <p className="text-[11px]" style={{ color: 'var(--text-muted, #807870)' }}>
+            <p className="text-[11px]" style={{ color: 'var(--text-muted, #B0A898)' }}>
               Dein Sternzeichen wird auf deinem Profil angezeigt
             </p>
           </div>
@@ -118,7 +118,7 @@ export default function StepBirthday({ currentBirthday, onComplete, onBack, isFi
               color: 'var(--text-body, #D0C8B8)',
               fontFamily: "'Quicksand', sans-serif",
             }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
             ← Zurueck

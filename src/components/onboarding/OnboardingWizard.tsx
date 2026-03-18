@@ -213,18 +213,16 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
         <div
           className="absolute inset-0"
           style={{
-            background: 'rgba(10, 10, 10, 0.75)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
+            background: 'rgba(8, 8, 8, 0.92)',
+            backdropFilter: 'blur(30px)',
+            WebkitBackdropFilter: 'blur(30px)',
           }}
         />
         <div
           className="relative z-[1] w-full max-w-[480px] rounded-[20px] overflow-hidden text-center py-10 px-6"
           style={{
-            background: 'rgba(30, 30, 30, 0.95)',
-            backdropFilter: 'blur(40px)',
-            WebkitBackdropFilter: 'blur(40px)',
-            border: '1px solid rgba(255,255,255, 0.08)',
+            background: '#1E1E1E',
+            border: '1px solid rgba(255,255,255, 0.1)',
             boxShadow: '0 24px 80px rgba(0,0,0, 0.6)',
             animation: 'wizard-card-in 0.5s ease-out 0.1s both',
           }}
@@ -273,7 +271,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
           <div className="font-label text-[0.6rem] tracking-[0.12em] uppercase mb-2" style={{ color: 'var(--accent, #C8A96E)' }}>
             Soul Level 2{isFirstLight ? ' · First Light' : ''}
           </div>
-          <p className="text-[13px] leading-relaxed mb-6" style={{ color: 'var(--text-sec, #A09888)' }}>
+          <p className="text-[13px] leading-relaxed mb-6" style={{ color: 'var(--text-body, #D0C8B8)' }}>
             Dein Profil ist komplett. Willkommen in der Souleya-Gemeinschaft.
           </p>
           <button
@@ -298,24 +296,22 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
       className="fixed inset-0 z-[200] flex items-center justify-center p-5"
       style={{ animation: 'wizard-overlay-in 0.4s ease-out' }}
     >
-      {/* Backdrop */}
+      {/* Backdrop — opak, kein Durchscheinen vom Profil-Banner */}
       <div
         className="absolute inset-0"
         style={{
-          background: 'rgba(10, 10, 10, 0.75)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          background: 'rgba(8, 8, 8, 0.92)',
+          backdropFilter: 'blur(30px)',
+          WebkitBackdropFilter: 'blur(30px)',
         }}
       />
 
-      {/* Card */}
+      {/* Card — opaker dunkler Hintergrund */}
       <div
         className="relative z-[1] w-full max-w-[480px] rounded-[20px] overflow-hidden"
         style={{
-          background: 'rgba(30, 30, 30, 0.95)',
-          backdropFilter: 'blur(40px)',
-          WebkitBackdropFilter: 'blur(40px)',
-          border: '1px solid rgba(255,255,255, 0.08)',
+          background: '#1E1E1E',
+          border: '1px solid rgba(255,255,255, 0.1)',
           boxShadow: '0 24px 80px rgba(0,0,0, 0.6), 0 0 0 1px rgba(200,169,110, 0.06)',
           animation: 'wizard-card-in 0.5s ease-out 0.1s both',
           maxHeight: 'calc(100vh - 40px)',
@@ -344,7 +340,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
             <h2 className="font-heading text-[26px] mb-1.5" style={{ color: 'var(--text-h, #F5F0E6)' }}>
               Willkommen bei Souleya
             </h2>
-            <p className="text-[13px] leading-relaxed max-w-[340px] mx-auto" style={{ color: 'var(--text-sec, #A09888)' }}>
+            <p className="text-[13px] leading-relaxed max-w-[340px] mx-auto" style={{ color: 'var(--text-body, #D0C8B8)' }}>
               Mach dein Profil komplett und werde zur Awakened Soul. Es dauert nur einen Moment.
             </p>
           </div>
@@ -356,7 +352,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
             <h3 className="font-heading text-lg" style={{ color: 'var(--text-h, #F5F0E6)' }}>
               Deine Reise
             </h3>
-            <p className="text-[12.5px] mt-0.5" style={{ color: 'var(--text-muted, #807870)' }}>
+            <p className="text-[12.5px] mt-0.5" style={{ color: 'var(--text-muted, #B0A898)' }}>
               {allCompleted
                 ? 'Alle Schritte erledigt'
                 : `Noch ${remaining} ${remaining === 1 ? 'Schritt' : 'Schritte'} bis Awakened Soul`}
@@ -377,7 +373,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
         <div className="flex items-center px-6 pt-5">
           <span
             className="font-label text-[0.5rem] tracking-[0.08em] uppercase flex-shrink-0"
-            style={{ color: 'var(--text-muted, #807870)' }}
+            style={{ color: 'var(--text-muted, #B0A898)' }}
           >
             Start
           </span>
@@ -462,8 +458,8 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
             <div
               className="rounded-[14px] p-5"
               style={{
-                background: 'linear-gradient(135deg, rgba(200,169,110,0.08), rgba(200,169,110,0.02))',
-                border: '1px solid rgba(200,169,110,0.12)',
+                background: 'linear-gradient(135deg, rgba(200,169,110,0.1), rgba(200,169,110,0.03))',
+                border: '1px solid rgba(200,169,110,0.18)',
                 animation: 'wizard-step-in 0.3s ease-out',
               }}
               key={activeKey}
@@ -482,7 +478,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
                   <h4 className="font-heading text-[18px] mb-0.5" style={{ color: 'var(--text-h, #F5F0E6)' }}>
                     {activeStepMeta.title}
                   </h4>
-                  <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-sec, #A09888)' }}>
+                  <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-body, #D0C8B8)' }}>
                     {activeStepMeta.description}
                   </p>
                 </div>

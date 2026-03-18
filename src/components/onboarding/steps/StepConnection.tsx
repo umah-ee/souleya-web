@@ -66,7 +66,7 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
       <div className="relative mb-3">
         <svg
           viewBox="0 0 24 24" width="16" height="16" fill="none"
-          stroke="var(--text-muted, #807870)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+          stroke="var(--text-muted, #B0A898)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
           className="absolute left-3 top-1/2 -translate-y-1/2"
         >
           <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
@@ -79,8 +79,8 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
           placeholder="Name oder Username suchen …"
           className="w-full pl-9 pr-3.5 py-2.5 text-[13px] rounded-lg outline-none"
           style={{
-            background: 'var(--bg-tertiary, rgba(255,255,255,0.04))',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--bg-tertiary, rgba(255,255,255,0.06))',
+            border: '1px solid rgba(255,255,255,0.12)',
             color: 'var(--text-body, #D0C8B8)',
             fontFamily: "'Quicksand', sans-serif",
             borderRadius: '8px',
@@ -133,7 +133,7 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
                   {user.display_name || user.username || 'Unbekannt'}
                 </p>
                 {user.bio && (
-                  <p className="text-[11px] truncate" style={{ color: 'var(--text-muted, #807870)' }}>
+                  <p className="text-[11px] truncate" style={{ color: 'var(--text-muted, #B0A898)' }}>
                     {user.bio}
                   </p>
                 )}
@@ -178,7 +178,7 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
           <button
             onClick={onBack}
             className="text-[12px] border-none bg-transparent cursor-pointer"
-            style={{ color: 'var(--text-muted, #807870)', fontFamily: "'Quicksand', sans-serif" }}
+            style={{ color: 'var(--text-muted, #B0A898)', fontFamily: "'Quicksand', sans-serif" }}
           >
             Zurueck
           </button>
@@ -187,7 +187,7 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
           <button
             onClick={onComplete}
             className="text-[12px] border-none bg-transparent cursor-pointer"
-            style={{ color: 'var(--text-muted, #807870)', fontFamily: "'Quicksand', sans-serif" }}
+            style={{ color: 'var(--text-muted, #B0A898)', fontFamily: "'Quicksand', sans-serif" }}
           >
             Ueberspringen
           </button>
