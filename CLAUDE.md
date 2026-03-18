@@ -75,7 +75,7 @@ components/
 ├── circles/             # ConnectionCard, RequestList, CirclesFeed
 ├── layout/              # Sidebar (Desktop), BottomTabs (Mobile), UserMenu, UnreadBadge
 ├── notifications/       # NotificationContext, NotificationBell (Dropdown-Panel)
-├── public/              # HeroSlider, SignupForm, FirstLightProgressBar,
+├── public/              # HeroSlider, SignupForm, FirstLightProgressBar, FirstLightCompare,
 │                          FirstLightSection, FeaturesGrid, HowItWorks, CtaFinal, ...
 ├── shared/              # Avatar, Badge, EnsoRing, ThemeToggle, PhotoCredit, ...
 └── ui/                  # Base Components (Button, Input, Card, Modal)
