@@ -12,11 +12,48 @@ const TOTAL = 500;
 const EARLY_LIMIT = 200;
 const URGENCY_THRESHOLD = 450;
 
+// ── Compare-Daten (integriert in die Fortschrittsbox) ────────
+interface CompareFeature { text: string; included: boolean; }
+interface CompareTier { key: string; spots: string; title: string; soulBadge: string; highlight?: boolean; muted?: boolean; features: CompareFeature[]; }
+
+const TIERS: CompareTier[] = [
+  {
+    key: 'early', spots: '1 – 200', title: 'First Light Early', soulBadge: 'Soul 3', highlight: true,
+    features: [
+      { included: true, text: 'Sofort Event-Recht ab Launch' },
+      { included: true, text: 'Sichtbarkeit im Feed ab Tag 1' },
+      { included: true, text: 'Permanenter First-Light-Status' },
+      { included: true, text: '33 Seeds + Referral-Link sofort' },
+      { included: true, text: 'Reputation vor allen anderen' },
+    ],
+  },
+  {
+    key: 'firstlight', spots: '201 – 500', title: 'First Light', soulBadge: 'Soul 2',
+    features: [
+      { included: true, text: 'Event-Recht nach 1 Monat' },
+      { included: true, text: 'Permanenter First-Light-Status' },
+      { included: true, text: '33 Seeds + Referral-Link' },
+      { included: true, text: 'Vor dem Ansturm dabei' },
+      { included: false, text: 'Kein sofortiges Event-Recht' },
+    ],
+  },
+  {
+    key: 'regular', spots: 'Ab Launch', title: 'Regulär', soulBadge: 'Soul 1', muted: true,
+    features: [
+      { included: false, text: 'Kein First-Light-Status' },
+      { included: false, text: 'Event-Recht erst ueber Soul 3' },
+      { included: false, text: 'Kein Startbonus' },
+      { included: false, text: 'Kein Sonderstatus' },
+    ],
+  },
+];
+
 export default function FirstLightProgressBar() {
   const [count, setCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [openTier, setOpenTier] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Supabase: Count laden + Realtime
@@ -203,6 +240,98 @@ export default function FirstLightProgressBar() {
       {/* Kontextabhängige Nachricht */}
       <div className="fl-message">
         {renderMessage()}
+      </div>
+
+      {/* ── Compare-Akkordeon (integriert) ── */}
+      <div style={{ marginTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 10 }}>
+        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginBottom: 8, letterSpacing: '0.05em' }}>
+          Was unterscheidet die Plätze?
+        </p>
+        <div className="flex flex-col" style={{ gap: 4 }}>
+          {TIERS.map((tier) => {
+            const isOpen = openTier === tier.key;
+            return (
+              <div key={tier.key}>
+                {/* Klickbare Zeile */}
+                <button
+                  onClick={() => setOpenTier(isOpen ? null : tier.key)}
+                  className="w-full flex items-center justify-between px-3 py-2 border-none bg-transparent cursor-pointer rounded-lg transition-colors"
+                  style={{
+                    background: isOpen
+                      ? (tier.highlight ? 'rgba(200,169,110,0.10)' : 'rgba(255,255,255,0.04)')
+                      : 'transparent',
+                  }}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span
+                      className="font-label flex-shrink-0"
+                      style={{
+                        fontSize: 9, letterSpacing: '0.06em', textTransform: 'uppercase' as const,
+                        color: tier.muted ? 'rgba(255,255,255,0.25)' : '#C8A96E',
+                      }}
+                    >
+                      {tier.spots}
+                    </span>
+                    <span
+                      className="font-body truncate"
+                      style={{
+                        fontSize: 12, fontWeight: 500,
+                        color: tier.muted ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.85)',
+                      }}
+                    >
+                      {tier.title}
+                    </span>
+                    <span
+                      className="flex-shrink-0"
+                      style={{
+                        fontSize: 9,
+                        color: tier.muted ? 'rgba(255,255,255,0.2)' : 'rgba(200,169,110,0.6)',
+                      }}
+                    >
+                      {tier.soulBadge}
+                    </span>
+                  </div>
+                  <svg
+                    viewBox="0 0 24 24" width="14" height="14" fill="none"
+                    stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                    style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}
+                  >
+                    <path d="M6 9l6 6l6 -6" />
+                  </svg>
+                </button>
+
+                {/* Aufklappbare Features */}
+                <div
+                  style={{
+                    maxHeight: isOpen ? '300px' : '0',
+                    opacity: isOpen ? 1 : 0,
+                    overflow: 'hidden',
+                    transition: 'max-height 0.25s ease-out, opacity 0.25s ease-out',
+                  }}
+                >
+                  <div className="flex flex-col gap-1 px-3 pb-2 pt-0.5">
+                    {tier.features.map((f, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <span style={{
+                          fontSize: 9, flexShrink: 0, marginTop: 2,
+                          color: f.included ? '#C8A96E' : 'rgba(255,255,255,0.2)',
+                        }}>
+                          {f.included ? '✓' : '–'}
+                        </span>
+                        <span style={{
+                          fontSize: 11, lineHeight: 1.4,
+                          color: f.included ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.25)',
+                        }}>
+                          {f.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import SignupForm from './SignupForm';
 import FirstLightProgressBar from './FirstLightProgressBar';
-import FirstLightCompare from './FirstLightCompare';
 import { getCreditForUrl } from '@/lib/unsplash-credits';
 
 const SLIDES = [
@@ -105,8 +104,6 @@ export default function HeroSlider() {
         <SignupForm />
 
         <FirstLightProgressBar />
-
-        <FirstLightCompare />
       </div>
 
       {/* ── Navigation Dots ── */}
