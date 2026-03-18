@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchProgression, checkOnboarding, type ProgressionStatus } from '@/lib/progression';
 import { track } from '@vercel/analytics';
 import type { Profile } from '@/types/profile';
+import { useCurrentProfile } from '@/hooks/useCurrentProfile';
 import StepAvatar from './steps/StepAvatar';
 import StepBio from './steps/StepBio';
 import StepInterests from './steps/StepInterests';
@@ -77,6 +78,7 @@ interface Props {
 }
 
 export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, profile, onLevelUp, onProfileUpdated }: Props) {
+  const { refresh: refreshHeader } = useCurrentProfile();
   const [status, setStatus] = useState<ProgressionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
@@ -133,6 +135,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
   }, [status, showComplete, isChecking, handleCheckOnboarding]);
 
   const handleCompleteClose = () => {
+    refreshHeader(true); // Header-Avatar + Soul Level sofort aktualisieren
     onLevelUp?.();
     setShowComplete(false);
     setHidden(true);
@@ -387,7 +390,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
           <div className="flex-1 relative mx-2.5" style={{ height: '22px' }}>
             <div
               className="absolute left-0 right-0 top-1/2 -translate-y-1/2 rounded-full"
-              style={{ height: '2px', background: 'var(--bg-tertiary)' }}
+              style={{ height: '2px', background: 'var(--text-muted)', opacity: 0.3 }}
             />
             <div
               className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full transition-all duration-700 ease-out"
@@ -416,7 +419,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
                           ? 'none'
                           : isActive
                             ? '2px solid var(--accent, #C8A96E)'
-                            : '1.5px solid var(--glass-border)',
+                            : '2px solid var(--text-muted)',
                         animation: isActive && !req.completed ? 'wizard-node-pulse 2s infinite' : 'none',
                       }}
                     >

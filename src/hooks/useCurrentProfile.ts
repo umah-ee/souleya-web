@@ -22,9 +22,9 @@ export function useCurrentProfile() {
   const [isLoading, setIsLoading] = useState(!cachedProfile);
   const isFetchingRef = useRef(false);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (force = false) => {
     if (isFetchingRef.current) return;
-    if (Date.now() - lastFetched < STALE_MS && cachedProfile) {
+    if (!force && Date.now() - lastFetched < STALE_MS && cachedProfile) {
       setProfile(cachedProfile);
       setIsLoading(false);
       return;

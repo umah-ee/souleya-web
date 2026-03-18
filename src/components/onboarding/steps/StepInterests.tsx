@@ -81,13 +81,20 @@ export default function StepInterests({ currentInterests, onComplete, onBack, is
         {selected.length}/{MAX_INTERESTS} (mind. {MIN_INTERESTS})
       </p>
 
-      {/* Suche */}
+      {/* Suche + manuelle Eingabe */}
       <input
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="Interessen suchen …"
-        className="w-full px-3 py-2 text-[12px] rounded-lg outline-none mb-2"
+        onKeyDown={(e) => {
+          if ((e.key === 'Enter' || e.key === ',') && search.trim()) {
+            e.preventDefault();
+            const tag = search.trim().replace(/,$/, '');
+            if (tag.length >= 2) addTag(tag);
+          }
+        }}
+        placeholder="Interessen suchen oder eintippen …"
+        className="w-full px-3 py-2 text-[12px] rounded-lg outline-none mb-1"
         style={{
           background: 'var(--bg-tertiary)',
           border: '1px solid var(--glass-border)',
@@ -96,6 +103,9 @@ export default function StepInterests({ currentInterests, onComplete, onBack, is
           borderRadius: '8px',
         }}
       />
+      <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
+        Nichts Passendes dabei? Tipp deine Interessen einfach ein und drueck Enter.
+      </p>
 
       {/* Suchergebnisse */}
       {searchResults.length > 0 && (
