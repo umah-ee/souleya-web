@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import WaitlistForm from './WaitlistForm';
+import FirstLightProgressBar from './FirstLightProgressBar';
 import { getCreditForUrl } from '@/lib/unsplash-credits';
 
 const SLIDES = [
@@ -101,6 +102,8 @@ export default function HeroSlider() {
         </p>
 
         <WaitlistForm />
+
+        <FirstLightProgressBar />
       </div>
 
       {/* ── Navigation Dots ── */}

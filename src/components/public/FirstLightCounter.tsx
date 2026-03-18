@@ -48,7 +48,7 @@ export default function FirstLightCounter() {
         animation: 'counter-glow 3s ease-in-out infinite',
       }}
     >
-      <strong>{count}</strong> von 1.000 First Light Plätzen vergeben
+      <strong>{count}</strong> von 500 First Light Plätzen vergeben
     </div>
   );
 }

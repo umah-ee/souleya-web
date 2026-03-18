@@ -71,6 +71,8 @@ components/
 ├── circles/             # ConnectionCard, RequestList, CirclesFeed
 ├── layout/              # Sidebar (Desktop), BottomTabs (Mobile), UserMenu, UnreadBadge
 ├── notifications/       # NotificationContext, NotificationBell (Dropdown-Panel)
+├── public/              # HeroSlider, WaitlistForm, FirstLightProgressBar,
+│                          FirstLightSection, FeaturesGrid, HowItWorks, CtaFinal, ...
 ├── shared/              # Avatar, Badge, EnsoRing, ThemeToggle, PhotoCredit, ...
 └── ui/                  # Base Components (Button, Input, Card, Modal)
 
@@ -102,6 +104,7 @@ lib/
 | Öffentliches Profil `/u/:username` | ✅ | |
 | Theme (Light/Dark) | ✅ | `data-theme` Attribut, ThemeProvider |
 | Oeffentliche Seiten (Homepage, Preise, Ueber uns, Blog) | ✅ | Mono-Domain souleya.com |
+| First Light Fortschrittsbalken | ✅ | Zweizonen-Balken (Early 1–200 + First Light 201–500), Enso-Marker, Shimmer, Realtime-Count, dynamisches Messaging |
 | ImageGrid + Lightbox | ✅ | Global LightboxProvider (Context + Portal), z-200, Keyboard-Support |
 | Navigation | ✅ | Sidebar default ausgeklappt, Profil oben rechts (EnsoRing), Notification-Bell |
 | Benachrichtigungen | ✅ | NotificationBell mit Dropdown-Panel (Actor-Avatar, Loeschen, Gelesene loeschen, Badge-Pulse-Animation, Settings-Link), Realtime + 30s Polling |
