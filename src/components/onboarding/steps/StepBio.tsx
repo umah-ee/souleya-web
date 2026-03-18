@@ -66,27 +66,30 @@ export default function StepBio({ currentBio, onComplete, onBack, isFirst }: Pro
         <p className="text-[12px] mb-3" style={{ color: '#E57373' }}>{error}</p>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mt-2">
         {!isFirst ? (
           <button
             onClick={onBack}
-            className="text-[12px] border-none bg-transparent cursor-pointer"
-            style={{ color: 'var(--text-muted, #807870)', fontFamily: "'Quicksand', sans-serif" }}
+            className="text-[12.5px] border-none bg-transparent cursor-pointer px-3 py-2 rounded-lg transition-colors"
+            style={{ color: 'var(--text-body, #D0C8B8)', fontFamily: "'Quicksand', sans-serif" }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
-            Zurueck
+            ← Zurueck
           </button>
         ) : <span />}
         <button
           onClick={handleSave}
           disabled={!isValid || saving}
-          className="font-label text-[0.65rem] tracking-[0.1em] uppercase px-6 py-2.5 rounded-full border-none cursor-pointer transition-all hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+          className="font-label text-[0.7rem] tracking-[0.1em] uppercase px-7 py-3 rounded-full border-none cursor-pointer transition-all hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           style={{
             background: isValid && !saving ? 'linear-gradient(135deg, #A8894E, #C8A96E)' : 'var(--bg-tertiary)',
             color: isValid && !saving ? 'var(--text-on-gold, #1A1714)' : 'var(--text-muted)',
             boxShadow: isValid && !saving ? '0 4px 16px rgba(200,169,110,0.25)' : 'none',
+            fontWeight: 600,
           }}
         >
-          {saving ? '…' : 'Weiter'}
+          {saving ? '…' : 'Weiter →'}
         </button>
       </div>
     </div>

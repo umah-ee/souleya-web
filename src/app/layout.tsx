@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, Josefin_Sans, Quicksand } from 'next/font/google';
-import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import ThemeProvider from '@/components/ThemeProvider';
 import LightboxProvider from '@/components/shared/LightboxProvider';
+import AnalyticsProvider from '@/components/AnalyticsProvider';
 import './globals.css';
 
 const cormorant = Cormorant_Garamond({
@@ -46,7 +46,7 @@ export default function RootLayout({
             {children}
           </LightboxProvider>
         </ThemeProvider>
-        <Analytics />
+        <AnalyticsProvider />
         <SpeedInsights />
       </body>
     </html>

@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { fetchProgression, checkOnboarding, type ProgressionStatus } from '@/lib/progression';
-import { updateProfile } from '@/lib/profile';
+import { track } from '@vercel/analytics';
 import type { Profile } from '@/types/profile';
 import StepAvatar from './steps/StepAvatar';
 import StepBio from './steps/StepBio';
 import StepInterests from './steps/StepInterests';
 import StepLocation from './steps/StepLocation';
-import StepConnection from './steps/StepConnection';
+import StepBirthday from './steps/StepBirthday';
 
 // ══════════════════════════════════════════════════════════════
 // ONBOARDING WIZARD – Soul 1 → 2 (Fullscreen Overlay, Inline)
@@ -48,15 +48,15 @@ const STEP_META: Record<string, StepMeta> = {
     description: 'Fuer Events und Gleichgesinnte in deiner Naehe. Nur die Stadt – keine genaue Adresse.',
     shortLabel: 'Standort',
   },
-  connection: {
-    icon: 'M7 5m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0 M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5 M17 5m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0 M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4',
-    title: 'Deine erste Verbindung',
-    description: 'Schick eine Anfrage an jemanden, der dich inspiriert.',
-    shortLabel: 'Verbindung',
+  birthday: {
+    icon: 'M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z',
+    title: 'Wann hast du Geburtstag?',
+    description: 'Du bekommst dein Sternzeichen am Profil und persoenliche Impulse.',
+    shortLabel: 'Geburtstag',
   },
 };
 
-const STEP_KEYS = ['avatar', 'bio', 'interests', 'location', 'connection'];
+const STEP_KEYS = ['avatar', 'bio', 'interests', 'location', 'birthday'];
 
 // Soul Level Dasharrays (aus Souleya_EnsoRing_Levels.html)
 const LEVEL_DASHARRAY: Record<number, string> = {
@@ -83,8 +83,6 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
   const [hidden, setHidden] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
   const [activeStepKey, setActiveStepKey] = useState<string | null>(null);
-  const [birthday, setBirthday] = useState(profile.birthday ?? '');
-  const [savingBirthday, setSavingBirthday] = useState(false);
 
   const isLevel1 = soulLevel === 1;
 
@@ -110,6 +108,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
     try {
       const result = await checkOnboarding();
       if (result.leveled_up) {
+        track('onboarding_complete', { new_level: 2 });
         setShowComplete(true);
       } else {
         await loadStatus();
@@ -149,19 +148,6 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
       setActiveStepKey(keys[currentIdx - 1]);
     }
   }, [status, activeStepKey]);
-
-  const handleSaveBirthday = async () => {
-    if (!birthday) return;
-    setSavingBirthday(true);
-    try {
-      const updated = await updateProfile({ birthday });
-      onProfileUpdated?.(updated);
-    } catch {
-      // silent
-    } finally {
-      setSavingBirthday(false);
-    }
-  };
 
   if (!isLevel1 || isLoading || !status) return null;
 
@@ -535,8 +521,9 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
                   isFirst={activeStepIdx === 0}
                 />
               )}
-              {activeKey === 'connection' && (
-                <StepConnection
+              {activeKey === 'birthday' && (
+                <StepBirthday
+                  currentBirthday={profile.birthday}
                   onComplete={handleStepComplete}
                   onBack={handleStepBack}
                   isFirst={activeStepIdx === 0}
@@ -546,73 +533,17 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
           </div>
         )}
 
-        {/* ── Bonus: Geburtsdatum (inline) ── */}
-        {!allCompleted && (
-          <div className="px-6 pb-6">
-            <div
-              className="flex items-center gap-2.5 p-3 px-3.5 rounded-xl"
-              style={{
-                background: 'rgba(200,169,110,0.04)',
-                border: '1px dashed rgba(200,169,110,0.15)',
-              }}
-            >
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: 'var(--accent-muted, rgba(200,169,110,0.12))' }}
-              >
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent, #C8A96E)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <p className="text-[11px] mb-1.5" style={{ color: 'var(--accent, #C8A96E)', fontWeight: 500 }}>
-                  Bonus: Wann hast du Geburtstag?
-                </p>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="date"
-                    value={birthday}
-                    onChange={(e) => setBirthday(e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 text-[12px] rounded-lg outline-none"
-                    style={{
-                      background: 'var(--bg-tertiary, rgba(255,255,255,0.04))',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      color: 'var(--text-body, #D0C8B8)',
-                      fontFamily: "'Quicksand', sans-serif",
-                      borderRadius: '8px',
-                    }}
-                  />
-                  {birthday && (
-                    <button
-                      onClick={handleSaveBirthday}
-                      disabled={savingBirthday}
-                      className="text-[10px] font-label tracking-[0.06em] uppercase px-3 py-1.5 rounded-full border-none cursor-pointer"
-                      style={{
-                        background: 'linear-gradient(135deg, #A8894E, #C8A96E)',
-                        color: 'var(--text-on-gold, #1A1714)',
-                      }}
-                    >
-                      {savingBirthday ? '…' : 'Speichern'}
-                    </button>
-                  )}
-                </div>
-                <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted, #807870)' }}>
-                  Du bekommst dein Sternzeichen am Profil und persoenliche Impulse.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* ── Spaeter-Button ── */}
         {!allCompleted && (
           <div className="px-6 pb-5 text-center">
             <button
               onClick={() => setHidden(true)}
-              className="text-[12px] border-none bg-transparent cursor-pointer transition-colors hover:opacity-80"
-              style={{ color: 'var(--text-muted, #807870)', fontFamily: "'Quicksand', sans-serif" }}
+              className="text-[12.5px] border-none bg-transparent cursor-pointer px-4 py-2 rounded-lg transition-colors"
+              style={{ color: 'var(--text-body, #D0C8B8)', fontFamily: "'Quicksand', sans-serif" }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
-              Spaeter
+              Spaeter weitermachen
             </button>
           </div>
         )}
