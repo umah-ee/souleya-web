@@ -100,7 +100,7 @@ lib/
 | Discover | ✅ | Mapbox-Karte, Events, Places, User-Suche, Geo |
 | Circles | ✅ | Verbindungen, Anfragen, Feed (nur verbundene User via `/circles/feed`) |
 | Chat | ✅ | Realtime, Polls, Seeds-Transfer, Bilder, Gruppen, Markdown, Emoji-Picker, Tipp-Indikator, Lesebestaetigungen, Mute, Suche, Pin, Forward, Link-Preview, Sprachnachrichten |
-| Profil | ✅ | Avatar, Banner (300px, Crop-Modal), GPS, Interest-Tags, Badges |
+| Profil | ✅ | Avatar, Banner (300px, Crop-Modal), GPS, Interest-Tags, Badges, EnsoRing v3 (Mockup-konform) |
 | Öffentliches Profil `/u/:username` | ✅ | |
 | Theme (Light/Dark) | ✅ | `data-theme` Attribut, ThemeProvider |
 | Oeffentliche Seiten (Homepage, Preise, Ueber uns, Blog) | ✅ | Mono-Domain souleya.com |

@@ -4,19 +4,21 @@ import { useId } from 'react';
 import { useTheme } from '@/components/ThemeProvider';
 
 // ══════════════════════════════════════════════════════════════
-// SOULEYA ENSO RING – VIP-Stufen-Konzept v2
+// SOULEYA ENSO RING – Soul Level System v3
 // Level 1–5 mit progressiv schliessendem Kreis
-// First Light + Ritterschlag Sonderstatus
+// First Light (Halo + Kern) + Mentor-Kompassstern
 // Farbschema-aware: Gold + Dusk
+// Quelle: Mockups/Souleya_EnsoRing_Levels.html
 // ══════════════════════════════════════════════════════════════
 
-// ── VIP Level Ring Konfiguration ─────────────────────────────
-const LEVEL_CONFIG: Record<number, { dasharray: string; strokeWidth: number; opacity: number }> = {
-  1: { dasharray: '90 136.5', strokeWidth: 5, opacity: 0.7 },     // Soul Spark
-  2: { dasharray: '140 86.5', strokeWidth: 5.5, opacity: 0.8 },   // Awakened Soul
-  3: { dasharray: '180 46.5', strokeWidth: 6, opacity: 0.85 },    // Harmony Keeper
-  4: { dasharray: '206 20.5', strokeWidth: 7, opacity: 0.92 },    // Zen Master
-  5: { dasharray: '216 10.5', strokeWidth: 7.5, opacity: 1 },     // Soul Mentor
+// ── Soul Level Ring Konfiguration (aus Mockup) ─────────────
+// strokeWidth = 8 fuer alle Level, keine Opacity-Variation
+const LEVEL_CONFIG: Record<number, { dasharray: string }> = {
+  1: { dasharray: '45 181' },    // Soul Spark
+  2: { dasharray: '83 143' },    // Awakened Soul
+  3: { dasharray: '120 106' },   // Harmony Keeper
+  4: { dasharray: '158 68' },    // Zen Master
+  5: { dasharray: '196 30' },    // Soul Mentor
 };
 
 // ── Farbschema-Konfiguration ─────────────────────────────────
@@ -45,13 +47,13 @@ const SIZE_CONFIG = {
 } as const;
 
 interface EnsoRingProps {
-  /** VIP Level 1–5 */
+  /** Soul Level 1–5 */
   soulLevel: number;
-  /** First Light – Leuchtpunkt am Kreisanfang */
+  /** First Light – Pulsierender Halo + Leuchtpunkt bei ~2 Uhr */
   isFirstLight?: boolean;
-  /** Ritterschlag – Leuchtpunkt an der Oeffnung */
-  hasRitterschlag?: boolean;
-  /** Groesse: profile (88px), profile-large (112px), header (48px), feed (44px), standalone (48px) */
+  /** Mentor – Kompassstern bei ~12:30 Uhr (nur Level 5) */
+  isMentor?: boolean;
+  /** Groesse: profile (88px), profile-large (112px), header (65px), feed (44px), standalone (48px) */
   size?: 'profile' | 'profile-large' | 'header' | 'feed' | 'standalone';
   /** Avatar oder anderer Inhalt, zentriert im Ring */
   children?: React.ReactNode;
@@ -62,7 +64,7 @@ interface EnsoRingProps {
 export default function EnsoRing({
   soulLevel,
   isFirstLight = false,
-  hasRitterschlag = false,
+  isMentor = false,
   size = 'standalone',
   children,
   className = '',
@@ -74,6 +76,8 @@ export default function EnsoRing({
   const { svgSize, avatarSize, avatarOffset } = SIZE_CONFIG[size];
   const colors = COLOR_CONFIG[colorScheme] ?? COLOR_CONFIG.gold;
   const gradientId = `enso-g${uid}`;
+  const flGlowId = `fl-glow${uid}`;
+  const mentorGlowId = `mentor-glow${uid}`;
 
   return (
     <div
@@ -93,6 +97,14 @@ export default function EnsoRing({
             <stop offset="0%" stopColor={colors.gradientStart} />
             <stop offset="100%" stopColor={colors.gradientEnd} />
           </linearGradient>
+          {/* First Light Glow Filter */}
+          <filter id={flGlowId}>
+            <feGaussianBlur stdDeviation="5" />
+          </filter>
+          {/* Mentor Kompassstern Glow Filter */}
+          <filter id={mentorGlowId}>
+            <feGaussianBlur stdDeviation="4" />
+          </filter>
         </defs>
 
         {/* Level 5: Blur-Glow-Ring (Doppelring-Effekt) */}
@@ -100,9 +112,9 @@ export default function EnsoRing({
           <circle
             cx="50" cy="50" r="36" fill="none"
             stroke={colors.glowColor}
-            strokeWidth="7"
+            strokeWidth="8"
             strokeLinecap="round"
-            strokeDasharray="216 10.5"
+            strokeDasharray="196 30"
             strokeDashoffset="15"
             opacity=".12"
             style={{ filter: 'blur(4px)' }}
@@ -113,45 +125,40 @@ export default function EnsoRing({
         <circle
           cx="50" cy="50" r="36" fill="none"
           stroke={`url(#${gradientId})`}
-          strokeWidth={config.strokeWidth}
+          strokeWidth={8}
           strokeLinecap="round"
           strokeDasharray={config.dasharray}
           strokeDashoffset="15"
-          opacity={level === 5 ? undefined : config.opacity}
         />
 
-        {/* ─── First Light ───────────── */}
-        {/* Leuchtender Lichtpunkt am Anfang des Kreises */}
+        {/* ─── First Light ───────────────────────────── */}
+        {/* Pulsierender Halo + Leucht-Kern bei ~2 Uhr */}
         {isFirstLight && (
           <>
             <circle
-              cx="83" cy="35" r="4" fill={colors.dotColor}
-              opacity=".12" className="first-light-glow"
-              style={{ filter: 'blur(3px)' }}
+              cx="82.8" cy="35.2" r="10"
+              fill={colors.dotColor}
+              className="fl-halo"
             />
             <circle
-              cx="83" cy="35" r="2" fill={colors.dotColor}
-              opacity=".6" className="first-light-glow"
+              cx="82.8" cy="35.2" r="5"
+              fill={colors.dotColor}
+              filter={`url(#${flGlowId})`}
             />
-            <circle cx="83" cy="35" r=".8" fill="#fff" opacity=".9" />
           </>
         )}
 
-        {/* ─── Ritterschlag ────────────────────────── */}
-        {/* Leuchtender Stern an der Oeffnung des Kreises */}
-        {hasRitterschlag && (
-          <>
-            <circle
-              cx="18.5" cy="35" r="4" fill={colors.dotColor}
-              opacity=".15" className="ritter-glow"
-              style={{ filter: 'blur(3px)' }}
+        {/* ─── Mentor-Kompassstern ───────────────────── */}
+        {/* 4-zackiger Stern bei ~12:30 Uhr (nur Level 5) */}
+        {isMentor && (
+          <g transform="translate(61.2, 15.8)">
+            <path
+              d="M 0,-8 L 1.8,-1.8 L 8,0 L 1.8,1.8 L 0,8 L -1.8,1.8 L -8,0 L -1.8,-1.8 Z"
+              fill={colors.dotColor}
+              filter={`url(#${mentorGlowId})`}
             />
-            <circle
-              cx="18.5" cy="35" r="2" fill={colors.dotColor}
-              opacity=".7" className="ritter-glow"
-            />
-            <circle cx="18.5" cy="35" r=".8" fill="#fff" opacity=".9" />
-          </>
+            <circle r="2.5" fill={colors.dotColor} />
+          </g>
         )}
       </svg>
 
