@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { updateProfile } from '@/lib/profile';
 import { geocodeLocation } from '@/lib/events';
 
@@ -21,8 +21,18 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
   const [suggestions, setSuggestions] = useState<Array<{ place_name: string; lat: number; lng: number }>>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number } | null>(null);
 
   const isValid = !!locationLat || !!currentLocation;
+
+  // Dropdown-Position berechnen (fixed, relativ zum Input)
+  const updateDropdownPos = useCallback(() => {
+    if (inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+    }
+  }, []);
 
   // Debounced Forward-Geocode
   useEffect(() => {
@@ -35,6 +45,7 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
       try {
         const res = await geocodeLocation(location, 'forward');
         setSuggestions(res.results.slice(0, 5));
+        updateDropdownPos();
         setShowDropdown(true);
       } catch {
         // silent
@@ -58,7 +69,8 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
       const res = await geocodeLocation(`${longitude},${latitude}`, 'reverse');
       if (res.results.length > 0) {
         const place = res.results[0];
-        setLocation(place.place_name.split(',').slice(0, 2).join(',').trim());
+        // API gibt jetzt nur Stadt-Level (place) zurueck
+        setLocation(place.place_name);
         setLocationLat(place.lat);
         setLocationLng(place.lng);
       }
@@ -136,6 +148,7 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
       {/* Text-Input mit Autocomplete */}
       <div className="relative mb-3">
         <input
+          ref={inputRef}
           type="text"
           value={location}
           onChange={(e) => {
@@ -161,14 +174,19 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
           </div>
         )}
 
-        {/* Dropdown */}
-        {showDropdown && suggestions.length > 0 && (
+        {/* Dropdown — fixed, ragt ueber den Modal-Rand hinaus */}
+        {showDropdown && suggestions.length > 0 && dropdownPos && (
           <div
-            className="absolute left-0 right-0 top-full mt-1 rounded-lg overflow-hidden z-10"
+            className="rounded-lg overflow-hidden"
             style={{
+              position: 'fixed',
+              top: dropdownPos.top,
+              left: dropdownPos.left,
+              width: dropdownPos.width,
+              zIndex: 300,
               background: 'var(--bg-elevated)',
               border: '1px solid var(--glass-border)',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
             }}
           >
             {suggestions.map((s, i) => (
