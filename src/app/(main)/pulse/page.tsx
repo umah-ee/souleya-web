@@ -10,11 +10,12 @@ export default async function HomePage() {
   let locationLat: number | null = null;
   let locationLng: number | null = null;
   let interests: string[] = [];
+  let soulLevel = 1;
 
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('display_name, location_lat, location_lng, interests')
+      .select('display_name, location_lat, location_lng, interests, soul_level')
       .eq('id', user.id)
       .single();
 
@@ -23,6 +24,7 @@ export default async function HomePage() {
       locationLat = profile.location_lat;
       locationLng = profile.location_lng;
       interests = profile.interests ?? [];
+      soulLevel = profile.soul_level ?? 1;
     }
   }
 
@@ -33,6 +35,7 @@ export default async function HomePage() {
       locationLat={locationLat}
       locationLng={locationLng}
       interests={interests}
+      soulLevel={soulLevel}
     />
   );
 }

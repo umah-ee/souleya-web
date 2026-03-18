@@ -14,6 +14,7 @@ import { fetchMyPulses, createPulse } from '@/lib/pulse';
 import { getDailyQuote } from '@/lib/wisdomQuotes';
 import { Icon } from '@/components/ui/Icon';
 import EnsoRing from '@/components/ui/EnsoRing';
+import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
 
 // ── Props ─────────────────────────────────────────────────────
 interface Props {
@@ -22,6 +23,7 @@ interface Props {
   locationLat: number | null;
   locationLng: number | null;
   interests: string[];
+  soulLevel: number;
 }
 
 // ── Hilfsfunktionen ───────────────────────────────────────────
@@ -68,7 +70,7 @@ function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): num
 // PULSE DASHBOARD — Ive Style
 // ══════════════════════════════════════════════════════════════
 
-export default function PulseClient({ user, displayName, locationLat, locationLng, interests }: Props) {
+export default function PulseClient({ user, displayName, locationLat, locationLng, interests, soulLevel }: Props) {
   // State
   const [requests, setRequests] = useState<Connection[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<SoEvent[]>([]);
@@ -266,6 +268,9 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
           {formatDateLong(new Date())}
         </p>
       </div>
+
+      {/* ── Onboarding Wizard (nur Soul Level 1) ──────────────── */}
+      <OnboardingWizard soulLevel={soulLevel} />
 
       {/* ── Täglicher Weisheitsspruch ─────────────────────────── */}
       <div

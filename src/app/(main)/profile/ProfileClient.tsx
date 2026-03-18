@@ -19,6 +19,7 @@ import ProfileBio from './components/ProfileBio';
 import ProfileStudioCard from './components/ProfileStudioCard';
 import ProfileInterests from './components/ProfileInterests';
 import ProfileStats from './components/ProfileStats';
+import SoulProgressCard from '@/components/profile/SoulProgressCard';
 import ProfilePrivateRow from './components/ProfilePrivateRow';
 
 // ── Panels ──
@@ -186,6 +187,11 @@ export default function ProfileClient() {
           onCircleClick={handleCircleClick}
           circleActive={showCircle}
         />
+
+        {/* ─── Soul Progress Card ─── */}
+        <div className="px-6 mt-6">
+          <SoulProgressCard soulLevel={profile.soul_level} />
+        </div>
 
         {/* ─── Beitraege-Liste (toggle) ─── */}
         {showBeitraege && (

@@ -63,7 +63,10 @@ components/
 ├── auth/                # LoginForm
 ├── pulse/               # PulseCard, CreatePulseForm
 ├── discover/            # MapView, EventCard, PlaceCard, PlaceDetailModal,
-│                          CreateEventModal, CreatePlaceModal, ProfileModal
+│                          CreateEventModal, CreatePlaceModal, ProfileModal,
+│                          EventReviewCard, EventReviewForm, NominationCard
+├── onboarding/          # OnboardingWizard (Soul 1→2 Checklist)
+├── profile/             # SoulProgressCard, LevelUpModal
 ├── chat/                # ChannelList, ChatRoom, MessageBubble, Reactions,
 │                          Polls, SeedsTransfer, GroupInfoPanel, EmojiPicker,
 │                          MessageSearch, ForwardMessageModal, LinkPreviewCard,
@@ -85,6 +88,8 @@ lib/
 ├── unsplash-credits.ts  # Zentrales Mapping Unsplash Photo-ID → Fotografen-Info
 ├── demo-covers.ts       # Demo-/Testbilder fuer Events (DemoCover mit Credit)
 ├── notifications.ts     # Notifications API (CRUD, unread-count)
+├── progression.ts       # Soul Level Progression API (status, history, onboarding, event reviews)
+├── nominations.ts       # Mentor-Voting API (active nominations, vote)
 ├── supabase/            # SSR + Browser Client
 └── pulse|chat|places|events|circles|users|profile.ts
 ```
@@ -108,6 +113,7 @@ lib/
 | ImageGrid + Lightbox | ✅ | Global LightboxProvider (Context + Portal), z-200, Keyboard-Support |
 | Navigation | ✅ | Sidebar default ausgeklappt, Profil oben rechts (EnsoRing), Notification-Bell |
 | Benachrichtigungen | ✅ | NotificationBell mit Dropdown-Panel (Actor-Avatar, Loeschen, Gelesene loeschen, Badge-Pulse-Animation, Settings-Link), Realtime + 30s Polling |
+| Soul Level System | ✅ | OnboardingWizard (Soul 1→2), SoulProgressCard, LevelUpModal (Konfetti), Event Reviews, Sichtbarkeits-Algorithmus (Events + Pulse), Mentor-Voting, Level-Badges im Feed |
 | Studio | ⏳ | Nur UI-Platzhalter |
 | Analytics | ⏳ | Nur UI-Platzhalter |
 

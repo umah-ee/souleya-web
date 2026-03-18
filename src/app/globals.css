@@ -942,3 +942,80 @@ select:focus {
   scrollbar-width: thin;
   scrollbar-color: var(--gold-border) transparent;
 }
+
+/* ═══════════════════════════════════════════
+   LEVEL-UP CELEBRATION
+═══════════════════════════════════════════ */
+
+/* Confetti */
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 301;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  border-radius: 2px;
+  animation: confetti-fall linear forwards;
+  opacity: 0.9;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Level-Up Modal entrance */
+.animate-level-up-enter {
+  animation: level-up-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes level-up-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Enso Ring close animation (used in LevelUpModal) */
+.animate-enso-close {
+  animation: enso-pulse 2s ease-in-out infinite;
+}
+
+@keyframes enso-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(200, 169, 110, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(200, 169, 110, 0.6));
+  }
+}
+
+/* Soul Level gold border on feed cards */
+.soul-level-border-3 {
+  border: 1px solid var(--gold) !important;
+}
+
+.soul-level-border-4 {
+  border: 1px solid var(--gold) !important;
+  box-shadow: 0 0 12px rgba(200, 169, 110, 0.15);
+}
+
+.soul-level-border-5 {
+  border: 1px solid var(--gold) !important;
+  box-shadow: 0 0 16px rgba(200, 169, 110, 0.2);
+}

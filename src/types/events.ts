@@ -15,15 +15,19 @@ export interface SoEvent {
   cover_url: string | null;
   created_at: string;
   updated_at: string;
+  avg_rating?: number;
+  reviews_count?: number;
   creator?: {
     id: string;
     display_name: string | null;
     username: string | null;
     avatar_url: string | null;
     is_first_light: boolean;
+    soul_level?: number;
   };
   has_joined?: boolean;
   is_bookmarked?: boolean;
+  quality_score?: number;
 }
 
 export interface CreateEventData {

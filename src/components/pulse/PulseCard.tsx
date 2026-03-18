@@ -234,7 +234,7 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
   const isOwner = currentUserId === pulse.author.id;
 
   return (
-    <article className="glass-card rounded-2xl p-5 mb-4">
+    <article className={`glass-card rounded-2xl p-5 mb-4${pulse.author.soul_level >= 3 ? ` soul-level-border-${Math.min(pulse.author.soul_level, 5)}` : ''}`}>
       {/* Author Header */}
       <div className="flex items-center gap-3 mb-3">
         <AuthorAvatar author={pulse.author} />
@@ -243,6 +243,18 @@ export default function PulseCard({ pulse, currentUserId, onDelete }: Props) {
             <span className="font-body font-medium text-sm" style={{ color: 'var(--text-h)' }}>
               {pulse.author.display_name ?? pulse.author.username ?? 'Anonym'}
             </span>
+            {pulse.author.soul_level >= 4 && (
+              <span
+                className="text-[0.55rem] tracking-[0.1em] uppercase font-label rounded-full px-1.5 py-px"
+                style={{
+                  color: 'var(--gold-text)',
+                  background: 'var(--gold-bg)',
+                  border: '1px solid var(--gold-border-s)',
+                }}
+              >
+                {pulse.author.soul_level >= 5 ? 'Mentor' : 'Empfohlen'}
+              </span>
+            )}
             {pulse.author.is_first_light && (
               <span
                 className="text-[0.6rem] tracking-[0.15em] uppercase font-label rounded-full px-1.5 py-px"

@@ -30,10 +30,24 @@ export default function EventCard({ event, onJoin, onLeave, joining, userId }: P
   const isFull = event.max_participants != null && event.participants_count >= event.max_participants;
   const creatorName = event.creator?.display_name ?? event.creator?.username ?? 'Anonym';
 
+  const creatorLevel = event.creator?.soul_level ?? 1;
+
   return (
-    <div className="glass-card rounded-2xl p-4 transition-colors">
+    <div className={`glass-card rounded-2xl p-4 transition-colors${creatorLevel >= 3 ? ` soul-level-border-${Math.min(creatorLevel, 5)}` : ''}`}>
       {/* Kategorie + Datum */}
       <div className="flex items-center justify-between mb-3">
+        {creatorLevel >= 4 && (
+          <span
+            className="text-[0.55rem] tracking-[0.1em] uppercase font-label px-2 py-0.5 rounded-full mr-1.5"
+            style={{
+              color: 'var(--gold-text)',
+              background: 'var(--gold-bg)',
+              border: '1px solid var(--gold-border-s)',
+            }}
+          >
+            {creatorLevel >= 5 ? '✦ Mentor' : 'Empfohlen'}
+          </span>
+        )}
         <span
           className="text-[0.6rem] tracking-[0.15em] uppercase font-label px-2 py-0.5 rounded-full"
           style={event.category === 'course' ? {
@@ -62,10 +76,18 @@ export default function EventCard({ event, onJoin, onLeave, joining, userId }: P
         <p className="text-xs font-body line-clamp-2 mb-3" style={{ color: 'var(--text-muted)' }}>{event.description}</p>
       )}
 
-      {/* Ort */}
+      {/* Ort + Rating */}
       <div className="flex items-center gap-1.5 mb-3">
         <span style={{ color: 'var(--text-muted)' }}><Icon name="map-pin" size={12} /></span>
         <span className="text-xs font-body truncate" style={{ color: 'var(--text-sec)' }}>{event.location_name}</span>
+        {(event.avg_rating ?? 0) > 0 && (
+          <span className="ml-auto flex items-center gap-0.5 flex-shrink-0">
+            <Icon name="star-filled" size={12} style={{ color: 'var(--gold)' }} />
+            <span className="text-xs font-label" style={{ color: 'var(--gold-text)' }}>
+              {Number(event.avg_rating).toFixed(1)}
+            </span>
+          </span>
+        )}
       </div>
 
       {/* Footer: Creator + Teilnehmer + Action */}
