@@ -213,7 +213,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
         <div
           className="absolute inset-0"
           style={{
-            background: 'rgba(8, 8, 8, 0.92)',
+            background: 'var(--wizard-backdrop, rgba(0,0,0,0.6))',
             backdropFilter: 'blur(30px)',
             WebkitBackdropFilter: 'blur(30px)',
           }}
@@ -221,9 +221,9 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
         <div
           className="relative z-[1] w-full max-w-[480px] rounded-[20px] overflow-hidden text-center py-10 px-6"
           style={{
-            background: '#1E1E1E',
-            border: '1px solid rgba(255,255,255, 0.1)',
-            boxShadow: '0 24px 80px rgba(0,0,0, 0.6)',
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--glass-border)',
+            boxShadow: 'var(--glass-shadow, 0 24px 80px rgba(0,0,0,0.3))',
             animation: 'wizard-card-in 0.5s ease-out 0.1s both',
           }}
         >
@@ -254,7 +254,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
             </svg>
             <div
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[76px] h-[76px] rounded-full overflow-hidden flex items-center justify-center"
-              style={{ background: 'var(--bg-elevated)', border: '2px solid rgba(255,255,255,0.06)' }}
+              style={{ background: 'var(--bg-elevated)', border: '2px solid var(--glass-border)' }}
             >
               {avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -265,13 +265,13 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
             </div>
           </div>
 
-          <h2 className="font-heading text-[26px] mb-1" style={{ color: 'var(--text-h, #F5F0E6)' }}>
+          <h2 className="font-heading text-[26px] mb-1" style={{ color: 'var(--text-h)' }}>
             Du bist eine Awakened Soul
           </h2>
-          <div className="font-label text-[0.6rem] tracking-[0.12em] uppercase mb-2" style={{ color: 'var(--accent, #C8A96E)' }}>
+          <div className="font-label text-[0.6rem] tracking-[0.12em] uppercase mb-2" style={{ color: 'var(--accent)' }}>
             Soul Level 2{isFirstLight ? ' · First Light' : ''}
           </div>
-          <p className="text-[13px] leading-relaxed mb-6" style={{ color: 'var(--text-body, #D0C8B8)' }}>
+          <p className="text-[13px] leading-relaxed mb-6" style={{ color: 'var(--text-body)' }}>
             Dein Profil ist komplett. Willkommen in der Souleya-Gemeinschaft.
           </p>
           <button
@@ -296,23 +296,23 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
       className="fixed inset-0 z-[200] flex items-center justify-center p-5"
       style={{ animation: 'wizard-overlay-in 0.4s ease-out' }}
     >
-      {/* Backdrop — opak, kein Durchscheinen vom Profil-Banner */}
+      {/* Backdrop — Theme-konform */}
       <div
         className="absolute inset-0"
         style={{
-          background: 'rgba(8, 8, 8, 0.92)',
+          background: 'var(--wizard-backdrop, rgba(0,0,0,0.6))',
           backdropFilter: 'blur(30px)',
           WebkitBackdropFilter: 'blur(30px)',
         }}
       />
 
-      {/* Card — opaker dunkler Hintergrund */}
+      {/* Card — nutzt Theme-Tokens */}
       <div
         className="relative z-[1] w-full max-w-[480px] rounded-[20px] overflow-hidden"
         style={{
-          background: '#1E1E1E',
-          border: '1px solid rgba(255,255,255, 0.1)',
-          boxShadow: '0 24px 80px rgba(0,0,0, 0.6), 0 0 0 1px rgba(200,169,110, 0.06)',
+          background: 'var(--bg-elevated)',
+          border: '1px solid var(--glass-border)',
+          boxShadow: 'var(--glass-shadow, 0 24px 80px rgba(0,0,0,0.3))',
           animation: 'wizard-card-in 0.5s ease-out 0.1s both',
           maxHeight: 'calc(100vh - 40px)',
           overflowY: 'auto',
@@ -337,10 +337,10 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
                 />
               </svg>
             </div>
-            <h2 className="font-heading text-[26px] mb-1.5" style={{ color: 'var(--text-h, #F5F0E6)' }}>
+            <h2 className="font-heading text-[26px] mb-1.5" style={{ color: 'var(--text-h)' }}>
               Willkommen bei Souleya
             </h2>
-            <p className="text-[13px] leading-relaxed max-w-[340px] mx-auto" style={{ color: 'var(--text-body, #D0C8B8)' }}>
+            <p className="text-[13px] leading-relaxed max-w-[340px] mx-auto" style={{ color: 'var(--text-body)' }}>
               Mach dein Profil komplett und werde zur Awakened Soul. Es dauert nur einen Moment.
             </p>
           </div>
@@ -349,10 +349,10 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
         {/* ── Header mit Counter ── */}
         <div className="px-6 pt-6 flex items-center justify-between">
           <div>
-            <h3 className="font-heading text-lg" style={{ color: 'var(--text-h, #F5F0E6)' }}>
+            <h3 className="font-heading text-lg" style={{ color: 'var(--text-h)' }}>
               Deine Reise
             </h3>
-            <p className="text-[12.5px] mt-0.5" style={{ color: 'var(--text-muted, #B0A898)' }}>
+            <p className="text-[12.5px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
               {allCompleted
                 ? 'Alle Schritte erledigt'
                 : `Noch ${remaining} ${remaining === 1 ? 'Schritt' : 'Schritte'} bis Awakened Soul`}
@@ -361,8 +361,8 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
           <span
             className="font-label text-[0.65rem] tracking-[0.08em] px-3.5 py-1 rounded-full"
             style={{
-              background: 'var(--accent-muted, rgba(200,169,110,0.12))',
-              color: 'var(--accent, #C8A96E)',
+              background: 'var(--accent-muted)',
+              color: 'var(--accent)',
             }}
           >
             {completedCount} / {totalCount}
@@ -373,7 +373,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
         <div className="flex items-center px-6 pt-5">
           <span
             className="font-label text-[0.5rem] tracking-[0.08em] uppercase flex-shrink-0"
-            style={{ color: 'var(--text-muted, #B0A898)' }}
+            style={{ color: 'var(--text-muted)' }}
           >
             Start
           </span>
@@ -381,7 +381,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
           <div className="flex-1 relative mx-2.5" style={{ height: '22px' }}>
             <div
               className="absolute left-0 right-0 top-1/2 -translate-y-1/2 rounded-full"
-              style={{ height: '2px', background: 'var(--bg-tertiary, rgba(255,255,255,0.06))' }}
+              style={{ height: '2px', background: 'var(--bg-tertiary)' }}
             />
             <div
               className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full transition-all duration-700 ease-out"
@@ -405,12 +405,12 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
                       style={{
                         background: req.completed
                           ? 'var(--accent, #C8A96E)'
-                          : 'var(--bg-elevated, #242424)',
+                          : 'var(--bg-elevated)',
                         border: req.completed
                           ? 'none'
                           : isActive
                             ? '2px solid var(--accent, #C8A96E)'
-                            : '1.5px solid rgba(255,255,255,0.08)',
+                            : '1.5px solid var(--glass-border)',
                         animation: isActive && !req.completed ? 'wizard-node-pulse 2s infinite' : 'none',
                       }}
                     >
@@ -424,9 +424,9 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
                     <div
                       className="absolute bottom-full mb-2 px-2.5 py-1 rounded-lg text-[11px] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10"
                       style={{
-                        background: 'var(--bg-elevated, #242424)',
+                        background: 'var(--bg-elevated)',
                         border: '1px solid var(--glass-border)',
-                        color: 'var(--text-body, #D0C8B8)',
+                        color: 'var(--text-body)',
                       }}
                     >
                       {meta?.shortLabel ?? req.label}
@@ -439,7 +439,7 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
 
           <span
             className="font-label text-[0.5rem] tracking-[0.08em] uppercase flex-shrink-0 flex items-center gap-1"
-            style={{ color: 'var(--accent, #C8A96E)' }}
+            style={{ color: 'var(--accent)' }}
           >
             <svg viewBox="0 0 100 100" width="16" height="16">
               <circle
@@ -468,17 +468,17 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
               <div className="flex items-start gap-3.5 mb-4">
                 <div
                   className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'var(--accent-muted, rgba(200,169,110,0.12))' }}
+                  style={{ background: 'var(--accent-muted)' }}
                 >
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--accent, #C8A96E)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d={activeStepMeta.icon} />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-heading text-[18px] mb-0.5" style={{ color: 'var(--text-h, #F5F0E6)' }}>
+                  <h4 className="font-heading text-[18px] mb-0.5" style={{ color: 'var(--text-h)' }}>
                     {activeStepMeta.title}
                   </h4>
-                  <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-body, #D0C8B8)' }}>
+                  <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-body)' }}>
                     {activeStepMeta.description}
                   </p>
                 </div>
@@ -535,8 +535,8 @@ export default function OnboardingWizard({ soulLevel, isFirstLight, avatarUrl, p
             <button
               onClick={() => setHidden(true)}
               className="text-[12.5px] border-none bg-transparent cursor-pointer px-4 py-2 rounded-lg transition-colors"
-              style={{ color: 'var(--text-body, #D0C8B8)', fontFamily: "'Quicksand', sans-serif" }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+              style={{ color: 'var(--text-body)', fontFamily: "'Quicksand', sans-serif" }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
               Spaeter weitermachen

@@ -58,7 +58,7 @@ export default function StepAvatar({ currentAvatarUrl, onComplete, onBack, isFir
           disabled={uploading}
           className="relative w-24 h-24 rounded-full overflow-hidden border-none cursor-pointer transition-all hover:scale-105 group"
           style={{
-            background: 'var(--bg-tertiary, rgba(255,255,255,0.06))',
+            background: 'var(--bg-tertiary)',
             border: '2px dashed rgba(200,169,110,0.3)',
           }}
         >
@@ -91,7 +91,7 @@ export default function StepAvatar({ currentAvatarUrl, onComplete, onBack, isFir
       </div>
 
       {!previewUrl && (
-        <p className="text-center text-[12px] mb-4" style={{ color: 'var(--text-muted, #B0A898)' }}>
+        <p className="text-center text-[12px] mb-4" style={{ color: 'var(--text-muted)' }}>
           Klicke auf den Kreis um ein Bild hochzuladen
         </p>
       )}
@@ -106,8 +106,8 @@ export default function StepAvatar({ currentAvatarUrl, onComplete, onBack, isFir
           <button
             onClick={onBack}
             className="text-[12.5px] border-none bg-transparent cursor-pointer px-3 py-2 rounded-lg transition-colors"
-            style={{ color: 'var(--text-body, #D0C8B8)', fontFamily: "'Quicksand', sans-serif" }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+            style={{ color: 'var(--text-body)', fontFamily: "'Quicksand', sans-serif" }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
             ← Zurueck

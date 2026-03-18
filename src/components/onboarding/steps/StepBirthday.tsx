@@ -73,14 +73,14 @@ export default function StepBirthday({ currentBirthday, onComplete, onBack, isFi
         onChange={(e) => setBirthday(e.target.value)}
         className="w-full px-3.5 py-3 text-[13px] rounded-lg outline-none"
         style={{
-          background: 'var(--bg-tertiary, rgba(255,255,255,0.06))',
-          border: '1px solid rgba(255,255,255,0.12)',
-          color: 'var(--text-body, #D0C8B8)',
+          background: 'var(--bg-tertiary)',
+          border: '1px solid var(--glass-border)',
+          color: 'var(--text-body)',
           fontFamily: "'Quicksand', sans-serif",
           borderRadius: '8px',
         }}
         onFocus={(e) => e.target.style.borderColor = 'rgba(200,169,110,0.3)'}
-        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.12)'}
+        onBlur={(e) => e.target.style.borderColor = 'var(--glass-border)'}
       />
 
       {/* Sternzeichen-Vorschau */}
@@ -88,16 +88,16 @@ export default function StepBirthday({ currentBirthday, onComplete, onBack, isFi
         <div
           className="flex items-center gap-2.5 mt-3 px-3.5 py-2.5 rounded-xl"
           style={{
-            background: 'var(--accent-muted, rgba(200,169,110,0.08))',
+            background: 'var(--accent-muted)',
             border: '1px solid rgba(200,169,110,0.12)',
           }}
         >
           <span className="text-[22px]">{zodiac.emoji}</span>
           <div>
-            <p className="text-[13px] font-medium" style={{ color: 'var(--accent, #C8A96E)' }}>
+            <p className="text-[13px] font-medium" style={{ color: 'var(--accent)' }}>
               {zodiac.sign}
             </p>
-            <p className="text-[11px]" style={{ color: 'var(--text-muted, #B0A898)' }}>
+            <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
               Dein Sternzeichen wird auf deinem Profil angezeigt
             </p>
           </div>
@@ -115,10 +115,10 @@ export default function StepBirthday({ currentBirthday, onComplete, onBack, isFi
             onClick={onBack}
             className="text-[12.5px] border-none bg-transparent cursor-pointer px-3 py-2 rounded-lg transition-colors"
             style={{
-              color: 'var(--text-body, #D0C8B8)',
+              color: 'var(--text-body)',
               fontFamily: "'Quicksand', sans-serif",
             }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
             ← Zurueck

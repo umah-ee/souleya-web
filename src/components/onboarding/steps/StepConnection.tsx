@@ -79,9 +79,9 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
           placeholder="Name oder Username suchen …"
           className="w-full pl-9 pr-3.5 py-2.5 text-[13px] rounded-lg outline-none"
           style={{
-            background: 'var(--bg-tertiary, rgba(255,255,255,0.06))',
-            border: '1px solid rgba(255,255,255,0.12)',
-            color: 'var(--text-body, #D0C8B8)',
+            background: 'var(--bg-tertiary)',
+            border: '1px solid var(--glass-border)',
+            color: 'var(--text-body)',
             fontFamily: "'Quicksand', sans-serif",
             borderRadius: '8px',
           }}
@@ -110,12 +110,12 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
             <div
               key={user.id}
               className="flex items-center gap-3 py-2.5 px-2 rounded-lg transition-all"
-              style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}
+              style={{ borderBottom: '1px solid var(--glass-border)' }}
             >
               {/* Avatar */}
               <div
                 className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center"
-                style={{ background: 'var(--bg-tertiary, rgba(255,255,255,0.06))' }}
+                style={{ background: 'var(--bg-tertiary)' }}
               >
                 {user.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -129,11 +129,11 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-medium truncate" style={{ color: 'var(--text-body, #D0C8B8)' }}>
+                <p className="text-[13px] font-medium truncate" style={{ color: 'var(--text-body)' }}>
                   {user.display_name || user.username || 'Unbekannt'}
                 </p>
                 {user.bio && (
-                  <p className="text-[11px] truncate" style={{ color: 'var(--text-muted, #B0A898)' }}>
+                  <p className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>
                     {user.bio}
                   </p>
                 )}
@@ -145,7 +145,7 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
                   <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="var(--accent, #C8A96E)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12l5 5l10 -10" />
                   </svg>
-                  <span className="text-[10px] font-label tracking-[0.06em] uppercase" style={{ color: 'var(--accent, #C8A96E)' }}>
+                  <span className="text-[10px] font-label tracking-[0.06em] uppercase" style={{ color: 'var(--accent)' }}>
                     Gesendet
                   </span>
                 </div>
@@ -156,7 +156,7 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
                   className="text-[10px] font-label tracking-[0.06em] uppercase px-3 py-1.5 rounded-full border-none cursor-pointer transition-all hover:scale-105"
                   style={{
                     background: 'linear-gradient(135deg, #A8894E, #C8A96E)',
-                    color: 'var(--text-on-gold, #1A1714)',
+                    color: 'var(--text-on-gold)',
                     opacity: isSending ? 0.6 : 1,
                   }}
                 >
@@ -178,7 +178,7 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
           <button
             onClick={onBack}
             className="text-[12px] border-none bg-transparent cursor-pointer"
-            style={{ color: 'var(--text-muted, #B0A898)', fontFamily: "'Quicksand', sans-serif" }}
+            style={{ color: 'var(--text-muted)', fontFamily: "'Quicksand', sans-serif" }}
           >
             Zurueck
           </button>
@@ -187,7 +187,7 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
           <button
             onClick={onComplete}
             className="text-[12px] border-none bg-transparent cursor-pointer"
-            style={{ color: 'var(--text-muted, #B0A898)', fontFamily: "'Quicksand', sans-serif" }}
+            style={{ color: 'var(--text-muted)', fontFamily: "'Quicksand', sans-serif" }}
           >
             Ueberspringen
           </button>
@@ -197,7 +197,7 @@ export default function StepConnection({ onComplete, onBack, isFirst }: Props) {
               className="font-label text-[0.65rem] tracking-[0.1em] uppercase px-6 py-2.5 rounded-full border-none cursor-pointer transition-all hover:-translate-y-px"
               style={{
                 background: 'linear-gradient(135deg, #A8894E, #C8A96E)',
-                color: 'var(--text-on-gold, #1A1714)',
+                color: 'var(--text-on-gold)',
                 boxShadow: '0 4px 16px rgba(200,169,110,0.25)',
               }}
             >

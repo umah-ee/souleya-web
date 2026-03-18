@@ -89,9 +89,9 @@ export default function StepInterests({ currentInterests, onComplete, onBack, is
         placeholder="Interessen suchen …"
         className="w-full px-3 py-2 text-[12px] rounded-lg outline-none mb-2"
         style={{
-          background: 'var(--bg-tertiary, rgba(255,255,255,0.06))',
-          border: '1px solid rgba(255,255,255,0.12)',
-          color: 'var(--text-body, #D0C8B8)',
+          background: 'var(--bg-tertiary)',
+          border: '1px solid var(--glass-border)',
+          color: 'var(--text-body)',
           fontFamily: "'Quicksand', sans-serif",
           borderRadius: '8px',
         }}
@@ -107,8 +107,8 @@ export default function StepInterests({ currentInterests, onComplete, onBack, is
               disabled={isFull}
               className="text-[10px] font-label tracking-[0.6px] uppercase px-[9px] py-[3px] rounded-full border-none cursor-pointer transition-all hover:scale-105 disabled:opacity-30"
               style={{
-                background: 'var(--accent-muted, rgba(200,169,110,0.12))',
-                color: 'var(--accent, #C8A96E)',
+                background: 'var(--accent-muted)',
+                color: 'var(--accent)',
               }}
             >
               + {tag}
@@ -131,7 +131,7 @@ export default function StepInterests({ currentInterests, onComplete, onBack, is
                   className="w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-left border-none cursor-pointer transition-all"
                   style={{
                     background: isExpanded ? 'var(--accent-muted, rgba(200,169,110,0.08))' : 'transparent',
-                    color: 'var(--text-body, #D0C8B8)',
+                    color: 'var(--text-body)',
                     fontFamily: "'Quicksand', sans-serif",
                     fontSize: '12px',
                   }}
@@ -155,8 +155,8 @@ export default function StepInterests({ currentInterests, onComplete, onBack, is
                         disabled={isFull}
                         className="text-[10px] font-label tracking-[0.6px] uppercase px-[9px] py-[3px] rounded-full border-none cursor-pointer transition-all hover:scale-105 disabled:opacity-30"
                         style={{
-                          background: 'var(--accent-muted, rgba(200,169,110,0.12))',
-                          color: 'var(--accent, #C8A96E)',
+                          background: 'var(--accent-muted)',
+                          color: 'var(--accent)',
                         }}
                       >
                         + {tag}
@@ -180,8 +180,8 @@ export default function StepInterests({ currentInterests, onComplete, onBack, is
           <button
             onClick={onBack}
             className="text-[12.5px] border-none bg-transparent cursor-pointer px-3 py-2 rounded-lg transition-colors"
-            style={{ color: 'var(--text-body, #D0C8B8)', fontFamily: "'Quicksand', sans-serif" }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+            style={{ color: 'var(--text-body)', fontFamily: "'Quicksand', sans-serif" }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
             ← Zurueck

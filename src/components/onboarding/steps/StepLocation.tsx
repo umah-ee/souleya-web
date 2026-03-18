@@ -103,8 +103,8 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
         disabled={detecting}
         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-none cursor-pointer transition-all hover:scale-[1.01] mb-4"
         style={{
-          background: 'var(--accent-muted, rgba(200,169,110,0.12))',
-          color: 'var(--accent, #C8A96E)',
+          background: 'var(--accent-muted)',
+          color: 'var(--accent)',
           fontFamily: "'Quicksand', sans-serif",
           fontSize: '13px',
           fontWeight: 500,
@@ -128,9 +128,9 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
       </button>
 
       <div className="flex items-center gap-3 mb-3">
-        <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
-        <span className="text-[11px]" style={{ color: 'var(--text-muted, #B0A898)' }}>oder manuell eingeben</span>
-        <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+        <div className="flex-1 h-px" style={{ background: 'var(--bg-tertiary)' }} />
+        <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>oder manuell eingeben</span>
+        <div className="flex-1 h-px" style={{ background: 'var(--bg-tertiary)' }} />
       </div>
 
       {/* Text-Input mit Autocomplete */}
@@ -146,9 +146,9 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
           placeholder="Stadt oder Ort eingeben …"
           className="w-full px-3.5 py-2.5 text-[13px] rounded-lg outline-none"
           style={{
-            background: 'var(--bg-tertiary, rgba(255,255,255,0.06))',
-            border: locationLat ? '1px solid rgba(200,169,110,0.3)' : '1px solid rgba(255,255,255,0.12)',
-            color: 'var(--text-body, #D0C8B8)',
+            background: 'var(--bg-tertiary)',
+            border: locationLat ? '1px solid rgba(200,169,110,0.3)' : '1px solid var(--glass-border)',
+            color: 'var(--text-body)',
             fontFamily: "'Quicksand', sans-serif",
             borderRadius: '8px',
           }}
@@ -166,8 +166,8 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
           <div
             className="absolute left-0 right-0 top-full mt-1 rounded-lg overflow-hidden z-10"
             style={{
-              background: 'var(--bg-elevated, #242424)',
-              border: '1px solid rgba(255,255,255,0.12)',
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--glass-border)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
             }}
           >
@@ -178,9 +178,9 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
                 className="w-full text-left px-3.5 py-2.5 text-[12px] border-none cursor-pointer transition-colors"
                 style={{
                   background: 'transparent',
-                  color: 'var(--text-body, #D0C8B8)',
+                  color: 'var(--text-body)',
                   fontFamily: "'Quicksand', sans-serif",
-                  borderBottom: i < suggestions.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                  borderBottom: i < suggestions.length - 1 ? '1px solid var(--glass-border)' : 'none',
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(200,169,110,0.08)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
@@ -202,8 +202,8 @@ export default function StepLocation({ currentLocation, onComplete, onBack, isFi
           <button
             onClick={onBack}
             className="text-[12.5px] border-none bg-transparent cursor-pointer px-3 py-2 rounded-lg transition-colors"
-            style={{ color: 'var(--text-body, #D0C8B8)', fontFamily: "'Quicksand', sans-serif" }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+            style={{ color: 'var(--text-body)', fontFamily: "'Quicksand', sans-serif" }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
             ← Zurueck
