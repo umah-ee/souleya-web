@@ -32,8 +32,8 @@ export default function SoulProgressCard({ soulLevel }: Props) {
     loadStatus();
   }, [loadStatus]);
 
-  // Soul 5 = Maximum, kein Fortschritt mehr
-  if (soulLevel >= 5 || isLoading || !status || !status.nextLevel) return null;
+  // Soul 1 = Overlay-Wizard, Soul 5 = Maximum
+  if (soulLevel < 2 || soulLevel >= 5 || isLoading || !status || !status.nextLevel) return null;
 
   return (
     <div
