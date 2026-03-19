@@ -141,8 +141,8 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
         navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
       });
       const { latitude, longitude } = pos.coords;
-      // Reverse Geocoding — volle Adresse holen
-      const res = await geocodeLocation(`${longitude},${latitude}`, 'reverse');
+      // Reverse Geocoding — genaue Adresse holen (nicht nur Stadt)
+      const res = await geocodeLocation(`${longitude},${latitude}`, 'reverse', undefined, undefined, 'address');
       if (res.results.length > 0) {
         const place = res.results[0];
         setLocationName(place.place_name);
