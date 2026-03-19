@@ -244,7 +244,7 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
         </div>
 
         {/* Scrollbarer Body */}
-        <div className="flex-1 overflow-y-auto px-5 pb-5 space-y-3">
+        <div className="flex-1 overflow-y-auto scrollbar-gold px-5 pb-5 space-y-3">
 
           {/* ── Cover-Bild Vorschau ── */}
           <div>
@@ -439,7 +439,7 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
             {/* Geocoding-Dropdown */}
             {showGeoDropdown && geoSuggestions.length > 0 && (
               <div
-                className="absolute left-0 right-0 top-full mt-1 z-50 rounded-lg overflow-hidden max-h-[220px] overflow-y-auto"
+                className="absolute left-0 right-0 top-full mt-1 z-50 rounded-lg overflow-hidden max-h-[220px] overflow-y-auto scrollbar-gold"
                 style={{
                   background: 'var(--bg-solid)',
                   border: '1px solid var(--glass-border)',
