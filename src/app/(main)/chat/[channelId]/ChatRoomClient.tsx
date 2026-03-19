@@ -279,18 +279,17 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   }, []);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    // Doppelter rAF: erster wartet auf React-Commit, zweiter auf Layout
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (messagesEndRef.current) {
-          messagesEndRef.current.scrollIntoView({ behavior });
-        } else {
-          // Fallback: Container direkt scrollen
-          const el = scrollContainerRef.current;
-          if (el) el.scrollTop = el.scrollHeight;
-        }
-      });
-    });
+    const doScroll = () => {
+      const el = scrollContainerRef.current;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    };
+    // Mehrere Versuche: sofort, nach rAF und nach 100ms (garantiert nach React-Render)
+    doScroll();
+    requestAnimationFrame(doScroll);
+    setTimeout(doScroll, 100);
     setNewMsgCount(0);
   }, []);
 
