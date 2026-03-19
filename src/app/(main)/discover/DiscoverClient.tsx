@@ -637,15 +637,34 @@ export default function DiscoverClient({ userId }: Props) {
               className="w-full py-3 pl-10 pr-12 text-sm font-body outline-none bg-transparent"
               style={{ color: 'var(--text-h)' }}
             />
-            <button
-              onClick={handleGeolocate}
-              disabled={locating}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200"
-              style={{ color: locating ? 'var(--gold)' : 'var(--text-muted)', background: 'transparent' }}
-              title="Meinen Standort verwenden"
-            >
-              <Icon name="current-location" size={18} />
-            </button>
+            {/* GPS + Ort rechts im Suchfeld */}
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              {locationLabel && !locating && (
+                <span className="flex items-center gap-1 text-[10px] font-label truncate max-w-[140px]" style={{ color: 'var(--gold-text)' }}>
+                  <Icon name="map-pin" size={10} style={{ color: 'var(--gold)' }} />
+                  <span className="truncate">{locationLabel}</span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setLocationLabel(''); localStorage.removeItem('discover_location_label'); }}
+                    className="cursor-pointer hover:opacity-70 transition-opacity flex-shrink-0"
+                    style={{ color: 'var(--text-muted)' }}
+                    title="Standort entfernen"
+                  >
+                    <svg viewBox="0 0 24 24" width={9} height={9} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 6l-12 12" /><path d="M6 6l12 12" />
+                    </svg>
+                  </button>
+                </span>
+              )}
+              <button
+                onClick={handleGeolocate}
+                disabled={locating}
+                className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 flex-shrink-0"
+                style={{ color: locating ? 'var(--gold)' : 'var(--text-muted)', background: 'transparent' }}
+                title="Meinen Standort verwenden"
+              >
+                <Icon name="current-location" size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Segment Tabs (text tabs with gold underline) */}
@@ -676,28 +695,7 @@ export default function DiscoverClient({ userId }: Props) {
           )}
         </div>
 
-        {/* Location Breadcrumb Pill */}
-        {!isSearchActive && locationLabel && (
-          <div className="flex items-center mt-1.5 mb-1">
-            <span
-              className="inline-flex items-center gap-1.5 text-[10px] font-label rounded-full px-3 py-1"
-              style={{ border: '1px solid var(--gold-border)', color: 'var(--gold-text)', background: 'var(--glass-nav)' }}
-            >
-              <Icon name="map-pin" size={10} style={{ color: 'var(--gold)' }} />
-              <span className="truncate max-w-[180px]">{locationLabel}</span>
-              <button
-                onClick={handleGeolocate}
-                className="ml-0.5 cursor-pointer hover:opacity-70 transition-opacity"
-                style={{ color: 'var(--text-muted)' }}
-                title="Standort zuruecksetzen"
-              >
-                <svg viewBox="0 0 24 24" width={10} height={10} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 6l-12 12" /><path d="M6 6l12 12" />
-                </svg>
-              </button>
-            </span>
-          </div>
-        )}
+        {/* Location jetzt oben rechts im Suchfeld integriert */}
 
         {/* Tag Cloud — Floating Bubbles (nur bei Orte/Alle) */}
         {!isSearchActive && (segment === 'orte' || segment === 'alle') && (() => {
