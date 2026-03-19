@@ -33,28 +33,37 @@ function getMessagePreview(channel: ChannelOverview): string {
 interface Props {
   channel: ChannelOverview;
   onClick: () => void;
+  onArchive?: (channelId: string) => void;
   onLeave?: (channelId: string) => void;
 }
 
-export default function ChannelListItem({ channel, onClick, onLeave }: Props) {
+export default function ChannelListItem({ channel, onClick, onArchive, onLeave }: Props) {
   const hasUnread = channel.unread_count > 0;
   const initials = (channel.name ?? '?').slice(0, 1).toUpperCase();
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [showActions, setShowActions] = useState(false);
 
-  const handleLeaveClick = (e: React.MouseEvent) => {
+  const isDirect = channel.type === 'direct';
+
+  const handleXClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowConfirm(true);
+    setShowActions(true);
   };
 
-  const handleConfirmLeave = (e: React.MouseEvent) => {
+  const handleArchive = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowConfirm(false);
+    setShowActions(false);
+    onArchive?.(channel.id);
+  };
+
+  const handleLeave = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowActions(false);
     onLeave?.(channel.id);
   };
 
-  const handleCancelLeave = (e: React.MouseEvent) => {
+  const handleCancel = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowConfirm(false);
+    setShowActions(false);
   };
 
   return (
@@ -122,11 +131,11 @@ export default function ChannelListItem({ channel, onClick, onLeave }: Props) {
           </div>
         </div>
 
-        {/* Loeschen-Button (Hover) */}
-        {onLeave && (
+        {/* X-Button (Hover) */}
+        {(onArchive || onLeave) && (
           <div
             className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-            onClick={handleLeaveClick}
+            onClick={handleXClick}
             role="button"
             tabIndex={-1}
             style={{ padding: '4px' }}
@@ -136,35 +145,55 @@ export default function ChannelListItem({ channel, onClick, onLeave }: Props) {
         )}
       </button>
 
-      {/* Bestaetigungs-Overlay */}
-      {showConfirm && (
+      {/* Aktions-Overlay: Archivieren / Loeschen */}
+      {showActions && (
         <div
           className="absolute inset-0 z-10 flex items-center justify-between px-4 rounded-[14px]"
           style={{ background: 'var(--bg-elevated)', border: '1px solid var(--gold-border-s)' }}
           onClick={(e) => e.stopPropagation()}
         >
           <span className="text-[12px] font-body" style={{ color: 'var(--text-body)' }}>
-            Chat verlassen?
+            Was moechtest du tun?
           </span>
           <div className="flex gap-2">
+            {/* Abbrechen */}
             <button
-              onClick={handleCancelLeave}
-              className="px-3 py-1 rounded-full text-[11px] font-label tracking-[0.05em] uppercase cursor-pointer bg-transparent"
+              onClick={handleCancel}
+              className="px-3 py-1.5 rounded-full text-[10px] font-label tracking-[0.05em] uppercase cursor-pointer bg-transparent"
               style={{ border: '1px solid var(--gold-border-s)', color: 'var(--text-muted)' }}
             >
-              Nein
+              Abbrechen
             </button>
-            <button
-              onClick={handleConfirmLeave}
-              className="px-3 py-1 rounded-full text-[11px] font-label tracking-[0.05em] uppercase cursor-pointer"
-              style={{
-                background: 'linear-gradient(135deg, #C8616180, #C8616140)',
-                color: '#E88',
-                border: '1px solid rgba(200,97,97,0.3)',
-              }}
-            >
-              Verlassen
-            </button>
+
+            {/* Archivieren — immer verfuegbar */}
+            {onArchive && (
+              <button
+                onClick={handleArchive}
+                className="px-3 py-1.5 rounded-full text-[10px] font-label tracking-[0.05em] uppercase cursor-pointer"
+                style={{
+                  background: 'var(--gold-bg)',
+                  color: 'var(--gold-text)',
+                  border: '1px solid var(--gold-border-s)',
+                }}
+              >
+                Archivieren
+              </button>
+            )}
+
+            {/* Loeschen/Verlassen — nur fuer Gruppen-Chats */}
+            {!isDirect && onLeave && (
+              <button
+                onClick={handleLeave}
+                className="px-3 py-1.5 rounded-full text-[10px] font-label tracking-[0.05em] uppercase cursor-pointer"
+                style={{
+                  background: 'rgba(180,60,50,.08)',
+                  color: 'var(--error)',
+                  border: '1px solid var(--error-border)',
+                }}
+              >
+                Verlassen
+              </button>
+            )}
           </div>
         </div>
       )}
