@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { CreateEventData } from '@/types/events';
-import { createEvent, geocodeLocation } from '@/lib/events';
+import { createEvent, geocodeLocation, searchUnsplashImages, triggerUnsplashDownload } from '@/lib/events';
+import type { UnsplashImage } from '@/lib/events';
 import { Icon } from '@/components/ui/Icon';
 import SoDatePicker from '@/components/ui/SoDatePicker';
 import SoTimePicker from '@/components/ui/SoTimePicker';
@@ -35,14 +36,55 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
+  // Cover-Bild
+  const [coverUrl, setCoverUrl] = useState('');
+  const [unsplashResults, setUnsplashResults] = useState<UnsplashImage[]>([]);
+  const [unsplashLoading, setUnsplashLoading] = useState(false);
+  const [selectedUnsplash, setSelectedUnsplash] = useState<UnsplashImage | null>(null);
+  const [showUnsplashPicker, setShowUnsplashPicker] = useState(false);
+  const unsplashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Geocoding
   const [geoSuggestions, setGeoSuggestions] = useState<GeoSuggestion[]>([]);
   const [showGeoDropdown, setShowGeoDropdown] = useState(false);
   const geoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Ort-Eingabe: Debounced Geocoding
-  // Kein erneutes Geocoding wenn bereits Koordinaten gesetzt (= Ort ausgewählt)
+  // ── Unsplash-Vorschlag basierend auf Titel (debounced) ──────
+  const searchUnsplash = useCallback(async (query: string) => {
+    if (query.trim().length < 3) {
+      setUnsplashResults([]);
+      return;
+    }
+    setUnsplashLoading(true);
+    try {
+      const res = await searchUnsplashImages(query, 6);
+      setUnsplashResults(res.results ?? []);
+      // Automatisch erstes Bild als Vorschlag setzen (wenn noch kein Bild gewählt)
+      if (!coverUrl && !selectedUnsplash && res.results?.length > 0) {
+        setSelectedUnsplash(res.results[0]);
+        setCoverUrl(res.results[0].imageUrl);
+      }
+    } catch {
+      setUnsplashResults([]);
+    } finally {
+      setUnsplashLoading(false);
+    }
+  }, [coverUrl, selectedUnsplash]);
+
+  // Debounced Unsplash-Suche wenn Titel sich aendert
+  useEffect(() => {
+    if (unsplashTimer.current) clearTimeout(unsplashTimer.current);
+    if (title.trim().length < 3) return;
+    unsplashTimer.current = setTimeout(() => {
+      searchUnsplash(title);
+    }, 800);
+    return () => {
+      if (unsplashTimer.current) clearTimeout(unsplashTimer.current);
+    };
+  }, [title, searchUnsplash]);
+
+  // ── Geocoding (debounced) ──────────────────────────────────
   useEffect(() => {
     if (geoTimer.current) clearTimeout(geoTimer.current);
     if (locationName.trim().length < 3 || locationLat != null) {
@@ -77,17 +119,20 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
   }, [locationName, locationLat]);
 
   const handleGeoSelect = (geo: GeoSuggestion) => {
-    // Bei POI/Adresse: Kurzname als location_name, volle Adresse als location_address
-    if (geo.feature_type === 'poi' || geo.feature_type === 'address') {
-      setLocationName(geo.text);
-      setLocationAddress(geo.place_name);
-    } else {
-      setLocationName(geo.place_name);
-      setLocationAddress('');
-    }
+    // Volle Adresse immer übernehmen
+    setLocationName(geo.text || geo.place_name.split(',')[0]);
+    setLocationAddress(geo.place_name);
     setLocationLat(geo.lat);
     setLocationLng(geo.lng);
     setShowGeoDropdown(false);
+  };
+
+  const handleSelectUnsplash = (img: UnsplashImage) => {
+    setSelectedUnsplash(img);
+    setCoverUrl(img.imageUrl);
+    setShowUnsplashPicker(false);
+    // Unsplash API Guideline: Download-Event triggern
+    triggerUnsplashDownload(img.downloadUrl).catch(() => {});
   };
 
   const handleSubmit = async () => {
@@ -113,6 +158,7 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
       starts_at: startsAt,
       ends_at: endsAt,
       max_participants: maxParticipants ? parseInt(maxParticipants, 10) : undefined,
+      cover_url: coverUrl || undefined,
     };
 
     setSaving(true);
@@ -169,6 +215,94 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
 
         {/* Scrollbarer Body */}
         <div className="flex-1 overflow-y-auto px-5 pb-5 space-y-3">
+
+          {/* ── Cover-Bild Vorschau ── */}
+          <div>
+            <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
+              Cover-Bild
+            </label>
+            <div
+              className="relative w-full rounded-xl overflow-hidden cursor-pointer group"
+              style={{ height: 140, background: 'var(--glass)' }}
+              onClick={() => setShowUnsplashPicker(!showUnsplashPicker)}
+            >
+              {coverUrl ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={coverUrl}
+                    alt="Event Cover"
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Overlay bei Hover */}
+                  <div
+                    className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ background: 'rgba(0,0,0,0.4)' }}
+                  >
+                    <span className="font-label text-[0.6rem] tracking-[0.1em] uppercase text-white">
+                      Bild aendern
+                    </span>
+                  </div>
+                  {/* Fotograf-Credit */}
+                  {selectedUnsplash && (
+                    <div className="absolute bottom-1 left-2 text-[0.5rem] font-body" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                      Foto: {selectedUnsplash.photographer} / Unsplash
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
+                  <Icon name="photo" size={24} />
+                  <span className="font-label text-[0.55rem] tracking-[0.1em] uppercase">
+                    {unsplashLoading ? 'Suche Bilder ...' : 'Titeleingabe schlaegt Bilder vor'}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Unsplash-Picker (6 Thumbnails) */}
+            {showUnsplashPicker && unsplashResults.length > 0 && (
+              <div className="mt-2">
+                <div className="grid grid-cols-3 gap-1.5">
+                  {unsplashResults.map((img, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSelectUnsplash(img)}
+                      className="relative rounded-lg overflow-hidden cursor-pointer group/thumb"
+                      style={{
+                        height: 64,
+                        border: coverUrl === img.imageUrl ? '2px solid var(--gold)' : '1px solid var(--divider)',
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img.thumbUrl} alt={img.photographer} className="w-full h-full object-cover" />
+                      <div
+                        className="absolute bottom-0 inset-x-0 text-[7px] font-body px-1 py-0.5 truncate"
+                        style={{ background: 'rgba(0,0,0,0.5)', color: 'rgba(255,255,255,0.7)' }}
+                      >
+                        {img.photographer}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[0.5rem] font-body mt-1.5 text-center" style={{ color: 'var(--text-muted)' }}>
+                  Oder eigenes Bild per URL einfuegen:
+                </p>
+                <input
+                  type="url"
+                  value={selectedUnsplash ? '' : coverUrl}
+                  onChange={(e) => {
+                    setCoverUrl(e.target.value);
+                    setSelectedUnsplash(null);
+                  }}
+                  placeholder="https://..."
+                  className="w-full py-1.5 px-3 rounded-[8px] text-xs font-body outline-none mt-1"
+                  style={inputStyle}
+                />
+              </div>
+            )}
+          </div>
+
           {/* Titel */}
           <div>
             <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
@@ -231,7 +365,7 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
           </div>
 
           {/* Ort mit Geocoding */}
-          <div className="relative">
+          <div className="relative" style={{ overflow: 'visible' }}>
             <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
               Ort *
             </label>
@@ -254,21 +388,12 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
               </span>
             )}
 
-            {/* Selektierte Adresse anzeigen */}
-            {locationAddress && locationLat != null && (
-              <p className="text-xs font-body mt-1 truncate" style={{ color: 'var(--text-muted)' }}>
-                {locationAddress}
-              </p>
-            )}
-
             {/* Geocoding-Dropdown */}
             {showGeoDropdown && geoSuggestions.length > 0 && (
               <div
                 className="absolute left-0 right-0 top-full mt-1 z-50 rounded-lg overflow-hidden max-h-[220px] overflow-y-auto"
                 style={{
-                  background: 'var(--glass-nav)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
+                  background: 'var(--bg-solid)',
                   border: '1px solid var(--glass-border)',
                   boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
                 }}
@@ -294,6 +419,23 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
               </div>
             )}
           </div>
+
+          {/* Adresse (editierbar, wird nach Geo-Auswahl befüllt) */}
+          {locationLat != null && (
+            <div>
+              <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
+                Adresse (wird den Teilnehmern angezeigt)
+              </label>
+              <input
+                type="text"
+                value={locationAddress}
+                onChange={(e) => setLocationAddress(e.target.value)}
+                placeholder="z.B. Leopoldstr. 42, 80802 Muenchen"
+                className="w-full py-2.5 px-4 rounded-[8px] text-sm font-body outline-none"
+                style={inputStyle}
+              />
+            </div>
+          )}
 
           {/* Datum */}
           <div>

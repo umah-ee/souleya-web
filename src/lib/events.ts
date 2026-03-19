@@ -135,3 +135,26 @@ export async function geocodeLocation(
     body: JSON.stringify({ query, type, proximity, country }),
   });
 }
+
+// ── Unsplash Bildsuche ──────────────────────────────────────
+export interface UnsplashImage {
+  imageUrl: string;
+  thumbUrl: string;
+  photographer: string;
+  photographerUrl: string;
+  downloadUrl: string;
+}
+
+export async function searchUnsplashImages(query: string, count = 6) {
+  return apiFetch<{ results: UnsplashImage[] }>('/users/unsplash/search', {
+    method: 'POST',
+    body: JSON.stringify({ query, count }),
+  });
+}
+
+export async function triggerUnsplashDownload(downloadUrl: string) {
+  return apiFetch<{ ok: boolean }>('/users/unsplash/download', {
+    method: 'POST',
+    body: JSON.stringify({ download_url: downloadUrl }),
+  });
+}
