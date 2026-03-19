@@ -22,7 +22,7 @@ import ForwardMessageModal from '@/components/chat/ForwardMessageModal';
 import CreateChallengeModal from '@/components/challenges/CreateChallengeModal';
 import { createChallenge } from '@/lib/challenges';
 import type { Challenge } from '@/types/challenges';
-import { fetchEvent } from '@/lib/events';
+import { fetchEvent, joinEvent, leaveEvent } from '@/lib/events';
 import type { SoEvent } from '@/types/events';
 import DiscoverOverlay from '@/components/discover/DiscoverOverlay';
 import dynamic from 'next/dynamic';
@@ -56,6 +56,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [showChallengeModal, setShowChallengeModal] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [overlayEvent, setOverlayEvent] = useState<SoEvent | null>(null);
+  const [eventJoining, setEventJoining] = useState(false);
   const [forwardingMsg, setForwardingMsg] = useState<Message | null>(null);
   const [pendingImages, setPendingImages] = useState<File[]>([]);
   const [pendingImagePreviews, setPendingImagePreviews] = useState<string[]>([]);
@@ -278,8 +279,17 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   }, []);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    // Doppelter rAF: erster wartet auf React-Commit, zweiter auf Layout
     requestAnimationFrame(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior });
+      requestAnimationFrame(() => {
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior });
+        } else {
+          // Fallback: Container direkt scrollen
+          const el = scrollContainerRef.current;
+          if (el) el.scrollTop = el.scrollHeight;
+        }
+      });
     });
     setNewMsgCount(0);
   }, []);
@@ -1030,6 +1040,23 @@ export default function ChatRoomClient({ channelId, user }: Props) {
               type="event"
               event={overlayEvent}
               userId={user?.id ?? null}
+              joining={eventJoining}
+              onJoin={async (id) => {
+                setEventJoining(true);
+                try {
+                  const res = await joinEvent(id);
+                  setOverlayEvent((e) => e ? { ...e, has_joined: true, participants_count: res.participants_count } : e);
+                } catch (err) { console.error(err); }
+                finally { setEventJoining(false); }
+              }}
+              onLeave={async (id) => {
+                setEventJoining(true);
+                try {
+                  const res = await leaveEvent(id);
+                  setOverlayEvent((e) => e ? { ...e, has_joined: false, participants_count: res.participants_count } : e);
+                } catch (err) { console.error(err); }
+                finally { setEventJoining(false); }
+              }}
               onClose={() => setOverlayEvent(null)}
             />
           </div>

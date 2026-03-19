@@ -596,7 +596,7 @@ export default function DiscoverClient({ userId }: Props) {
       <div
         className="absolute top-3 left-4 z-20"
         style={{
-          right: '100px', // Platz fuer UserMenu (Bell + Avatar)
+          right: '120px', // Platz fuer UserMenu (Bell 40 + Avatar 36 + gap 12 + right 16 + Puffer 16)
           ...(isSearchActive ? { position: 'relative', top: 0, left: 0, right: 0, padding: '12px 16px 0' } : {}),
         }}
       >
