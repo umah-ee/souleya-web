@@ -293,7 +293,7 @@ export default function CourseDetailPage() {
       {/* Messages */}
       {success && (
         <div
-          className="mb-4 px-4 py-2 rounded-xl text-center text-sm"
+          className="mb-4 px-4 py-2 rounded-[8px] text-center text-sm"
           style={{ background: 'var(--success-bg, rgba(34,134,58,0.1))', color: 'var(--success)', border: '1px solid rgba(34,134,58,0.2)' }}
         >
           {success}
@@ -301,7 +301,7 @@ export default function CourseDetailPage() {
       )}
       {error && (
         <div
-          className="mb-4 px-4 py-2 rounded-xl text-center text-sm"
+          className="mb-4 px-4 py-2 rounded-[8px] text-center text-sm"
           style={{ background: 'var(--error-bg, rgba(168,84,84,0.1))', color: 'var(--error)', border: '1px solid rgba(168,84,84,0.2)' }}
         >
           {error}
@@ -452,7 +452,7 @@ export default function CourseDetailPage() {
             ]).map((stat) => (
               <div
                 key={stat.label}
-                className="glass-card rounded-xl p-4 text-center"
+                className="glass-card rounded-[8px] p-4 text-center"
                 style={{ background: 'var(--card-bg)' }}
               >
                 <Icon name={stat.icon} size={18} style={{ color: 'var(--gold)', margin: '0 auto 6px' }} />
@@ -667,7 +667,7 @@ export default function CourseDetailPage() {
               onChange={(e) => setAddingModuleTitle(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddModule()}
               placeholder="Neues Modul ..."
-              className="flex-1 py-2.5 px-4 rounded-xl text-sm font-body outline-none"
+              className="flex-1 py-2.5 px-4 rounded-[8px] text-sm font-body outline-none"
               style={inputStyle}
             />
             <button

@@ -20,7 +20,7 @@ export default function ImpressumPage() {
 
       {/* ── Kontakt-Card ── */}
       <div
-        className="rounded-2xl border p-6 mb-10"
+        className="rounded-[8px] border p-6 mb-10"
         style={{
           background: 'var(--glass)',
           backdropFilter: 'blur(20px)',

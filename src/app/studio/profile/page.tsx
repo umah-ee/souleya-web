@@ -110,7 +110,7 @@ export default function StudioProfilePage() {
 
         {/* Profilinfo */}
         {profile && (
-          <div className="glass-card rounded-2xl p-6" style={{ background: 'var(--card-bg)' }}>
+          <div className="glass-card rounded-[8px] p-6" style={{ background: 'var(--card-bg)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
               {profile.avatar_url ? (
                 <img
@@ -139,7 +139,7 @@ export default function StudioProfilePage() {
         )}
 
         {/* Tagline */}
-        <div className="glass-card rounded-2xl p-6" style={{ background: 'var(--card-bg)' }}>
+        <div className="glass-card rounded-[8px] p-6" style={{ background: 'var(--card-bg)' }}>
           <label style={{ display: 'block', fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
             Tagline
           </label>
@@ -161,7 +161,7 @@ export default function StudioProfilePage() {
         </div>
 
         {/* Bio */}
-        <div className="glass-card rounded-2xl p-6" style={{ background: 'var(--card-bg)' }}>
+        <div className="glass-card rounded-[8px] p-6" style={{ background: 'var(--card-bg)' }}>
           <label style={{ display: 'block', fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
             Mentor Bio
           </label>
@@ -184,7 +184,7 @@ export default function StudioProfilePage() {
         </div>
 
         {/* Spezialisierungen */}
-        <div className="glass-card rounded-2xl p-6" style={{ background: 'var(--card-bg)' }}>
+        <div className="glass-card rounded-[8px] p-6" style={{ background: 'var(--card-bg)' }}>
           <label style={{ display: 'block', fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
             Spezialisierungen
           </label>
@@ -259,7 +259,7 @@ export default function StudioProfilePage() {
         </div>
 
         {/* Website */}
-        <div className="glass-card rounded-2xl p-6" style={{ background: 'var(--card-bg)' }}>
+        <div className="glass-card rounded-[8px] p-6" style={{ background: 'var(--card-bg)' }}>
           <label style={{ display: 'block', fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
             Website
           </label>
@@ -280,7 +280,7 @@ export default function StudioProfilePage() {
         </div>
 
         {/* Social Links */}
-        <div className="glass-card rounded-2xl p-6" style={{ background: 'var(--card-bg)' }}>
+        <div className="glass-card rounded-[8px] p-6" style={{ background: 'var(--card-bg)' }}>
           <label style={{ display: 'block', fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 12 }}>
             Social Media
           </label>

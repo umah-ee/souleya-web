@@ -236,18 +236,18 @@ export default function MentorContent() {
           </FadeIn>
 
           <FadeIn className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-            <div className="glass-card rounded-3xl" style={{ padding: 36 }}>
+            <div className="glass-card rounded-[8px]" style={{ padding: 36 }}>
               <p className="font-body text-[17px] leading-[1.8]" style={{ color: 'var(--text-body)' }}>
                 Deine Teilnehmer kommen mit leuchtenden Augen aus deinem Kurs. Voller Energie, bereit für Veränderung.
               </p>
             </div>
-            <div className="glass-card rounded-3xl" style={{ padding: 36 }}>
+            <div className="glass-card rounded-[8px]" style={{ padding: 36 }}>
               <p className="font-body text-[17px] leading-[1.8]" style={{ color: 'var(--text-body)' }}>
                 Dann gehen sie nach Hause. In einen Alltag, in dem niemand versteht was sie gerade erlebt haben. Kein Gesprächspartner, kein Raum.
               </p>
             </div>
             <div
-              className="glass-card rounded-3xl md:col-span-2 text-center"
+              className="glass-card rounded-[8px] md:col-span-2 text-center"
               style={{
                 padding: 36,
                 borderColor: 'var(--gold-border, rgba(200,169,110,0.14))',
@@ -314,7 +314,7 @@ export default function MentorContent() {
               { title: 'Community', desc: 'Chat, Events, Austausch. Deine Teilnehmer bleiben verbunden.' },
               { title: 'Mentoring', desc: 'Du begleitest persönlich. Auf deine Weise, in deinem Rhythmus.' },
             ].map((f) => (
-              <div key={f.title} className="glass-card rounded-3xl text-center" style={{ padding: '28px 24px' }}>
+              <div key={f.title} className="glass-card rounded-[8px] text-center" style={{ padding: '28px 24px' }}>
                 <h3 className="font-heading text-xl mb-2" style={{ color: 'var(--text-h)', fontWeight: 400 }}>
                   {f.title}
                 </h3>
@@ -385,7 +385,7 @@ export default function MentorContent() {
                 arrow: false,
               },
             ].map((card) => (
-              <div key={card.num} className="glass-card rounded-3xl text-center relative" style={{ padding: '36px 28px' }}>
+              <div key={card.num} className="glass-card rounded-[8px] text-center relative" style={{ padding: '36px 28px' }}>
                 <div
                   className="font-heading text-[52px] leading-none mb-4"
                   style={{ color: 'var(--gold)', fontWeight: 400 }}
@@ -463,7 +463,7 @@ export default function MentorContent() {
                 detail: 'Du setzt deine Preise selbst. 80 % gehören dir, direkt via Stripe.',
               },
             ].map((stat) => (
-              <div key={stat.label} className="glass-card rounded-3xl text-center" style={{ padding: '44px 28px' }}>
+              <div key={stat.label} className="glass-card rounded-[8px] text-center" style={{ padding: '44px 28px' }}>
                 <div
                   className="font-heading leading-none mb-3"
                   style={{ fontSize: 'clamp(48px, 6vw, 72px)', color: 'var(--gold)', fontWeight: 400 }}
@@ -487,7 +487,7 @@ export default function MentorContent() {
 
           {/* Detail-Blocks */}
           <FadeIn className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-            <div className="glass-card rounded-3xl" style={{ padding: 40 }}>
+            <div className="glass-card rounded-[8px]" style={{ padding: 40 }}>
               <h3 className="font-heading text-xl mb-5" style={{ color: 'var(--gold)', fontWeight: 400 }}>
                 Für jeden den du mitbringst
               </h3>
@@ -520,7 +520,7 @@ export default function MentorContent() {
               </p>
             </div>
 
-            <div className="glass-card rounded-3xl" style={{ padding: 40 }}>
+            <div className="glass-card rounded-[8px]" style={{ padding: 40 }}>
               <h3 className="font-heading text-xl mb-5" style={{ color: 'var(--gold)', fontWeight: 400 }}>
                 Für deine Kurse &amp; Sessions
               </h3>
@@ -537,7 +537,7 @@ export default function MentorContent() {
 
             {/* Beispielrechnung */}
             <div
-              className="glass-card rounded-3xl md:col-span-2"
+              className="glass-card rounded-[8px] md:col-span-2"
               style={{
                 padding: 44,
                 borderColor: 'var(--gold-border, rgba(200,169,110,0.14))',
@@ -625,7 +625,7 @@ export default function MentorContent() {
               { num: '03', title: 'Community einladen', desc: 'Teile deinen Link. Jeder der kommt, verdient dir ab Tag 1.' },
               { num: '04', title: 'Zusammen wachsen', desc: 'Ab Launch begleitest du – und neue finden dich von selbst.' },
             ].map((step) => (
-              <div key={step.num} className="glass-card rounded-3xl text-center" style={{ padding: '32px 24px' }}>
+              <div key={step.num} className="glass-card rounded-[8px] text-center" style={{ padding: '32px 24px' }}>
                 <div
                   className="font-heading text-[44px] leading-none mb-4"
                   style={{ color: 'var(--gold)', fontWeight: 400 }}
@@ -672,7 +672,7 @@ export default function MentorContent() {
               'Respekt für den Raum anderer – Begegnung, nicht Bühne',
               'Mindestens einen Gratis-Inhalt – damit Besucher erleben was dich ausmacht',
             ].map((text, i) => (
-              <div key={i} className="glass-card rounded-3xl flex items-start gap-4" style={{ padding: '28px 32px' }}>
+              <div key={i} className="glass-card rounded-[8px] flex items-start gap-4" style={{ padding: '28px 32px' }}>
                 <span className="text-[10px] mt-1 flex-shrink-0" style={{ color: 'var(--gold)', opacity: 0.7 }}>
                   ✦
                 </span>

@@ -227,7 +227,7 @@ export default function EditProfilePanel({
     background: 'var(--input-bg)',
     border: '1px solid var(--divider-l)',
     color: 'var(--text-h)',
-    borderRadius: '10px',
+    borderRadius: '8px',
   };
 
   return (
@@ -251,7 +251,7 @@ export default function EditProfilePanel({
           className="flex-1 flex flex-col items-center justify-center cursor-pointer transition-colors"
           style={{
             padding: '16px 12px',
-            borderRadius: '10px',
+            borderRadius: '8px',
             border: '1.5px dashed var(--divider-l)',
             background: 'transparent',
             color: 'var(--text-sec)',
@@ -267,7 +267,7 @@ export default function EditProfilePanel({
           className="flex-1 flex flex-col items-center justify-center cursor-pointer transition-colors"
           style={{
             padding: '16px 12px',
-            borderRadius: '10px',
+            borderRadius: '8px',
             border: '1.5px dashed var(--divider-l)',
             background: 'transparent',
             color: 'var(--text-sec)',

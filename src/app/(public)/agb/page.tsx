@@ -44,7 +44,7 @@ export default function AGBPage() {
 
         {/* Inhaltsverzeichnis */}
         <nav
-          className="rounded-2xl border p-5 mb-10"
+          className="rounded-[8px] border p-5 mb-10"
           style={{
             background: 'var(--glass)',
             backdropFilter: 'blur(20px)',

@@ -771,7 +771,7 @@ export default function DiscoverClient({ userId }: Props) {
             )}
 
             {!searching && searched && searchResults.length === 0 && geoResults.length === 0 && (
-              <div className="text-center py-12 px-4 rounded-2xl" style={{ border: '1px dashed var(--gold-border-s)' }}>
+              <div className="text-center py-12 px-4 rounded-[8px]" style={{ border: '1px dashed var(--gold-border-s)' }}>
                 <p className="font-heading text-xl mb-2" style={{ color: 'var(--gold)' }}>Keine Ergebnisse</p>
                 <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Versuche einen anderen Suchbegriff.</p>
               </div>
@@ -790,7 +790,7 @@ export default function DiscoverClient({ userId }: Props) {
                       <button
                         key={i}
                         onClick={() => handleGeoClick(geo)}
-                        className="w-full flex items-center gap-3 glass-card rounded-2xl p-3 transition-colors cursor-pointer text-left"
+                        className="w-full flex items-center gap-3 glass-card rounded-[8px] p-3 transition-colors cursor-pointer text-left"
                       >
                         <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}>
                           <Icon name="map-pin" size={18} />
@@ -808,7 +808,7 @@ export default function DiscoverClient({ userId }: Props) {
                   {!geoExpanded && hiddenCount > 0 && (
                     <button
                       onClick={() => setGeoExpanded(true)}
-                      className="w-full mt-2 py-2 text-center font-label text-[0.7rem] tracking-[0.12em] uppercase rounded-xl transition-colors cursor-pointer"
+                      className="w-full mt-2 py-2 text-center font-label text-[0.7rem] tracking-[0.12em] uppercase rounded-[8px] transition-colors cursor-pointer"
                       style={{ color: 'var(--gold)', border: '1px dashed var(--gold-border-s)' }}
                     >
                       {hiddenCount} weitere{hiddenCount === 1 ? 'r Ort' : ' Orte'}
@@ -817,7 +817,7 @@ export default function DiscoverClient({ userId }: Props) {
                   {geoExpanded && geoResults.length > GEO_LIMIT && (
                     <button
                       onClick={() => setGeoExpanded(false)}
-                      className="w-full mt-2 py-2 text-center font-label text-[0.7rem] tracking-[0.12em] uppercase rounded-xl transition-colors cursor-pointer"
+                      className="w-full mt-2 py-2 text-center font-label text-[0.7rem] tracking-[0.12em] uppercase rounded-[8px] transition-colors cursor-pointer"
                       style={{ color: 'var(--gold)', border: '1px dashed var(--gold-border-s)' }}
                     >
                       Weniger anzeigen
@@ -839,7 +839,7 @@ export default function DiscoverClient({ userId }: Props) {
                     ? ({ children }: { children: React.ReactNode }) => <Link href={`/u/${user.username}`} className="block">{children}</Link>
                     : ({ children }: { children: React.ReactNode }) => <>{children}</>;
                   return (
-                    <div key={user.id} className="flex items-center gap-3 glass-card rounded-2xl p-4 transition-colors">
+                    <div key={user.id} className="flex items-center gap-3 glass-card rounded-[8px] p-4 transition-colors">
                       <CardWrapper>
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div
@@ -924,7 +924,7 @@ export default function DiscoverClient({ userId }: Props) {
                           <div
                             key={`${reco.type}-${item.id}`}
                             onClick={() => isPlace ? handlePlaceClick(item as Place) : handleEventClick(item as SoEvent)}
-                            className="flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition-transform duration-200 hover:scale-[1.03]"
+                            className="flex-shrink-0 rounded-[8px] overflow-hidden cursor-pointer transition-transform duration-200 hover:scale-[1.03]"
                             style={{
                               width: '160px',
                               border: '1px solid var(--gold-border)',
@@ -966,7 +966,7 @@ export default function DiscoverClient({ userId }: Props) {
 
               {/* Members Empty State */}
               {segment === 'mitglieder' && nearbyUsers.length === 0 && (
-                <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10 w-[90%] max-w-[400px] text-center py-8 px-6 rounded-2xl" style={{ border: '1px dashed var(--gold-border-s)', background: 'var(--glass)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10 w-[90%] max-w-[400px] text-center py-8 px-6 rounded-[8px]" style={{ border: '1px dashed var(--gold-border-s)', background: 'var(--glass)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                   <div className="flex justify-center mb-3">
                     <svg viewBox="0 0 24 24" width={48} height={48} fill="none" stroke="var(--gold)" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
                       <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
@@ -1002,7 +1002,7 @@ export default function DiscoverClient({ userId }: Props) {
           {segment === 'events' && (
             <div className="h-full overflow-y-auto scrollbar-gold pt-36 px-4 pb-20" style={{ background: 'var(--bg-solid)' }}>
               {events.length === 0 ? (
-                <div className="text-center py-12 px-6 rounded-2xl mt-4" style={{ border: '1px dashed var(--gold-border-s)', background: 'var(--glass)' }}>
+                <div className="text-center py-12 px-6 rounded-[8px] mt-4" style={{ border: '1px dashed var(--gold-border-s)', background: 'var(--glass)' }}>
                   <div className="flex justify-center mb-4">
                     <svg viewBox="0 0 24 24" width={48} height={48} fill="none" stroke="var(--gold)" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
@@ -1048,7 +1048,7 @@ export default function DiscoverClient({ userId }: Props) {
           {segment === 'orte' && (
             <div className="h-full overflow-y-auto scrollbar-gold pt-36 px-4 pb-20" style={{ background: 'var(--bg-solid)' }}>
               {places.length === 0 ? (
-                <div className="text-center py-12 px-6 rounded-2xl mt-4" style={{ border: '1px dashed var(--gold-border-s)', background: 'var(--glass)' }}>
+                <div className="text-center py-12 px-6 rounded-[8px] mt-4" style={{ border: '1px dashed var(--gold-border-s)', background: 'var(--glass)' }}>
                   <div className="flex justify-center mb-4">
                     <svg viewBox="0 0 24 24" width={48} height={48} fill="none" stroke="var(--gold)" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
                       <path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />

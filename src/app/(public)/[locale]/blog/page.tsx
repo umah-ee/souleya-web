@@ -89,7 +89,7 @@ export default async function BlogOverviewPage({
       {/* ── Artikelliste ── */}
       {articles.length === 0 ? (
         <div
-          className="text-center py-20 rounded-2xl border"
+          className="text-center py-20 rounded-[8px] border"
           style={{
             background: 'var(--glass)',
             borderColor: 'var(--glass-border)',
@@ -105,7 +105,7 @@ export default async function BlogOverviewPage({
             <Link
               key={article.id}
               href={`/${locale}/blog/${article.slug}`}
-              className="group block rounded-2xl border overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5"
+              className="group block rounded-[8px] border overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5"
               style={{
                 background: 'var(--glass)',
                 backdropFilter: 'blur(20px)',

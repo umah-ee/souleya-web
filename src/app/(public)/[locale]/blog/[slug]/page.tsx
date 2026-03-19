@@ -188,7 +188,7 @@ export default async function ArticlePage({
 
         {/* ── OG Image ── */}
         {article.og_image_url && (
-          <div className="rounded-2xl overflow-hidden mb-10">
+          <div className="rounded-[8px] overflow-hidden mb-10">
             <img
               src={article.og_image_url}
               alt={article.title}
@@ -219,7 +219,7 @@ export default async function ArticlePage({
 
         {/* ── CTA Block ── */}
         <div
-          className="mt-16 p-8 rounded-2xl border text-center"
+          className="mt-16 p-8 rounded-[8px] border text-center"
           style={{
             background: 'var(--glass)',
             backdropFilter: 'blur(20px)',

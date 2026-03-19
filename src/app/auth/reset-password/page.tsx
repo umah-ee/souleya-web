@@ -121,7 +121,7 @@ function ResetPasswordForm() {
           backgroundAttachment: 'fixed',
         }}
       >
-        <div className="glass-card rounded-3xl py-12 px-10 max-w-[420px] w-full text-center">
+        <div className="glass-card rounded-[8px] py-12 px-10 max-w-[420px] w-full text-center">
           <div className="mb-6">
             <svg
               width="48"
@@ -160,7 +160,7 @@ function ResetPasswordForm() {
         backgroundAttachment: 'fixed',
       }}
     >
-      <div className="glass-card rounded-3xl py-12 px-10 max-w-[420px] w-full text-center">
+      <div className="glass-card rounded-[8px] py-12 px-10 max-w-[420px] w-full text-center">
         {/* Enso Logo */}
         <div className="mb-6">
           <svg

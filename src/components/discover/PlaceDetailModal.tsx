@@ -241,7 +241,7 @@ export default function PlaceDetailModal({ place, userId, onClose, onSaveToggle 
         style={{ maxHeight: 'calc(100% - 32px)' }}
       >
         <div
-          className="rounded-[18px] overflow-hidden overflow-y-auto"
+          className="rounded-[8px] overflow-hidden overflow-y-auto"
           style={{
             background: 'var(--bg-solid)',
             border: '1px solid var(--glass-border)',
@@ -324,7 +324,7 @@ export default function PlaceDetailModal({ place, userId, onClose, onSaveToggle 
                 {place.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-[8px] tracking-[1.5px] uppercase px-[9px] py-[3px] rounded-[12px] inline-block"
+                    className="text-[8px] tracking-[1.5px] uppercase px-[9px] py-[3px] rounded-[8px] inline-block"
                     style={{
                       color: 'var(--gold-text)',
                       border: '1px solid var(--gold-border)',
@@ -339,7 +339,7 @@ export default function PlaceDetailModal({ place, userId, onClose, onSaveToggle 
 
             {/* ── Rating Summary ───────────────────── */}
             <div
-              className="glass-card rounded-[14px] p-3.5 flex items-center gap-3 mb-4"
+              className="glass-card rounded-[8px] p-3.5 flex items-center gap-3 mb-4"
             >
               <div className="flex items-center gap-1.5">
                 <StarFilled size={22} />
@@ -421,7 +421,7 @@ export default function PlaceDetailModal({ place, userId, onClose, onSaveToggle 
               {/* ── Review Form (nur eingeloggt) ───── */}
               {userId && (
                 <div
-                  className="glass-card rounded-[14px] p-3.5 mb-4"
+                  className="glass-card rounded-[8px] p-3.5 mb-4"
                 >
                   <div className="text-[11px] mb-2" style={{ color: 'var(--text-muted)' }}>
                     {editingReview ? 'Deine Bewertung bearbeiten' : 'Bewertung schreiben'}
@@ -492,7 +492,7 @@ export default function PlaceDetailModal({ place, userId, onClose, onSaveToggle 
                   {[1, 2, 3].map((i) => (
                     <div
                       key={i}
-                      className="h-[60px] rounded-[12px] animate-pulse"
+                      className="h-[60px] rounded-[8px] animate-pulse"
                       style={{ background: 'var(--glass)' }}
                     />
                   ))}
@@ -506,7 +506,7 @@ export default function PlaceDetailModal({ place, userId, onClose, onSaveToggle 
                   {reviews.map((review) => (
                     <div
                       key={review.id}
-                      className="glass-card rounded-[12px] p-3"
+                      className="glass-card rounded-[8px] p-3"
                     >
                       {/* Author Row */}
                       <div className="flex items-center gap-2 mb-1.5">
@@ -609,7 +609,7 @@ export default function PlaceDetailModal({ place, userId, onClose, onSaveToggle 
                   {[1, 2, 3].map((i) => (
                     <div
                       key={i}
-                      className="aspect-square rounded-[10px] animate-pulse"
+                      className="aspect-square rounded-[8px] animate-pulse"
                       style={{ background: 'var(--glass)' }}
                     />
                   ))}
@@ -623,7 +623,7 @@ export default function PlaceDetailModal({ place, userId, onClose, onSaveToggle 
                   {photos.map((photo) => (
                     <div
                       key={photo.id}
-                      className="aspect-square rounded-[10px] overflow-hidden"
+                      className="aspect-square rounded-[8px] overflow-hidden"
                       style={{
                         border: '1px solid var(--glass-border)',
                       }}

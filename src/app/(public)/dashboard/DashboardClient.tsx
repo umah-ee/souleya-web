@@ -138,7 +138,7 @@ export default function DashboardClient() {
       <div className="grid gap-6 md:grid-cols-2 mb-6">
         {/* ── Seeds Card ── */}
         <div
-          className="rounded-2xl border p-6"
+          className="rounded-[8px] border p-6"
           style={{
             background: 'var(--glass)',
             backdropFilter: 'blur(20px)',
@@ -175,7 +175,7 @@ export default function DashboardClient() {
               {SEED_ACTIONS.map((a) => (
                 <div
                   key={a.label}
-                  className="rounded-xl border p-3 text-center"
+                  className="rounded-[8px] border p-3 text-center"
                   style={{ borderColor: 'var(--glass-border)' }}
                 >
                   <p className="font-heading text-lg italic" style={{ color: 'var(--gold-text)' }}>
@@ -190,7 +190,7 @@ export default function DashboardClient() {
 
         {/* ── Status Card ── */}
         <div
-          className="rounded-2xl border p-6 flex flex-col items-center justify-center text-center"
+          className="rounded-[8px] border p-6 flex flex-col items-center justify-center text-center"
           style={{
             background: 'var(--glass)',
             backdropFilter: 'blur(20px)',
@@ -230,7 +230,7 @@ export default function DashboardClient() {
       {/* ── Referral Card ── */}
       {referralCode && (
         <div
-          className="rounded-2xl border p-6 mb-6"
+          className="rounded-[8px] border p-6 mb-6"
           style={{
             background: 'var(--glass)',
             backdropFilter: 'blur(20px)',
@@ -250,7 +250,7 @@ export default function DashboardClient() {
               type="text"
               readOnly
               value={`${typeof window !== 'undefined' ? window.location.origin : 'https://souleya.com'}/?ref=${referralCode}`}
-              className="flex-1 px-3 py-2 rounded-lg text-xs border"
+              className="flex-1 px-3 py-2 rounded-[8px] text-xs border"
               style={{
                 background: 'var(--bg-input, var(--glass))',
                 borderColor: 'var(--glass-border)',
@@ -259,7 +259,7 @@ export default function DashboardClient() {
             />
             <button
               onClick={handleCopy}
-              className="px-4 py-2 rounded-lg text-xs font-medium transition-colors"
+              className="px-4 py-2 rounded-[8px] text-xs font-medium transition-colors"
               style={{ background: 'var(--gold-bg)', color: 'var(--gold-text)' }}
             >
               {copyText}
@@ -269,7 +269,7 @@ export default function DashboardClient() {
           <div className="flex gap-2">
             <button
               onClick={shareWhatsApp}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium border transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-[8px] text-xs font-medium border transition-colors"
               style={{ borderColor: 'var(--glass-border)', color: 'var(--text-body)' }}
             >
               {/* WhatsApp Icon */}

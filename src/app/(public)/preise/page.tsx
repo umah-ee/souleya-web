@@ -35,7 +35,7 @@ export default function PreisePage() {
 
         {/* Monatlich */}
         <div
-          className="rounded-2xl border p-7 flex flex-col"
+          className="rounded-[8px] border p-7 flex flex-col"
           style={{
             background: 'var(--glass)',
             backdropFilter: 'blur(20px)',
@@ -81,7 +81,7 @@ export default function PreisePage() {
 
         {/* Jährlich – hervorgehoben */}
         <div
-          className="rounded-2xl border p-7 flex flex-col relative overflow-hidden"
+          className="rounded-[8px] border p-7 flex flex-col relative overflow-hidden"
           style={{
             background: 'var(--glass)',
             backdropFilter: 'blur(20px)',
@@ -110,7 +110,7 @@ export default function PreisePage() {
 
           {/* 2 Monate geschenkt Hinweis */}
           <div
-            className="text-center rounded-xl py-3 px-4 mb-5 mt-2"
+            className="text-center rounded-[8px] py-3 px-4 mb-5 mt-2"
             style={{ background: 'var(--gold-bg)' }}
           >
             <p className="font-heading text-lg italic" style={{ color: 'var(--gold-text)' }}>
@@ -202,7 +202,7 @@ export default function PreisePage() {
           ].map(({ q, a }) => (
             <div
               key={q}
-              className="rounded-2xl border p-5"
+              className="rounded-[8px] border p-5"
               style={{
                 background: 'var(--glass)',
                 backdropFilter: 'blur(20px)',

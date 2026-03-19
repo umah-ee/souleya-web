@@ -81,7 +81,7 @@ export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPost
           {/* Card Wrapper — Mockup: glass bg, border, radius 16px */}
           <div
             style={{
-              borderRadius: '16px',
+              borderRadius: '8px',
               background: 'var(--glass)',
               border: '1px solid var(--divider-l)',
               overflow: 'hidden',
@@ -183,7 +183,7 @@ export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPost
 
           <div
             style={{
-              borderRadius: '16px',
+              borderRadius: '8px',
               background: 'var(--glass)',
               border: '1px solid var(--divider-l)',
               overflow: 'hidden',
@@ -241,7 +241,7 @@ export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPost
 
           <div
             style={{
-              borderRadius: '16px',
+              borderRadius: '8px',
               background: 'var(--glass)',
               border: '1px solid var(--divider-l)',
               overflow: 'hidden',
@@ -314,7 +314,7 @@ export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPost
 
           <div
             style={{
-              borderRadius: '16px',
+              borderRadius: '8px',
               background: 'var(--glass)',
               border: '1px solid var(--divider-l)',
               overflow: 'hidden',
@@ -338,7 +338,7 @@ export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPost
                 style={{
                   width: '36px',
                   height: '36px',
-                  borderRadius: '10px',
+                  borderRadius: '8px',
                   background: 'var(--error-bg)',
                   border: '1px solid var(--error-border)',
                 }}
@@ -436,7 +436,7 @@ function CategoryRow({
         style={{
           width: '36px',
           height: '36px',
-          borderRadius: '10px',
+          borderRadius: '8px',
           background: 'var(--glass)',
           border: '1px solid var(--divider-l)',
         }}
@@ -501,7 +501,7 @@ function ToggleRow({
         style={{
           width: '40px',
           height: '22px',
-          borderRadius: '11px',
+          borderRadius: '8px',
           background: checked ? 'var(--gold)' : 'var(--toggle-track)',
         }}
       >

@@ -145,7 +145,7 @@ export default function SoTimePicker({ value, onChange, placeholder = 'Uhrzeit w
 
       {/* Hours Grid */}
       {mode === 'hour' && (
-        <div ref={hoursRef} className="grid grid-cols-4 gap-1 p-2.5 max-h-[200px] overflow-y-auto">
+        <div ref={hoursRef} className="grid grid-cols-4 gap-1 p-2.5 max-h-[200px] overflow-y-auto scrollbar-gold">
           {HOURS.map((h) => {
             const isSelected = h === selectedHour;
             return (

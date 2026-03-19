@@ -68,7 +68,7 @@ export default function UeberUnsClient() {
             {TEAM.map((member) => (
               <div
                 key={member.name}
-                className="rounded-2xl border p-6"
+                className="rounded-[8px] border p-6"
                 style={{
                   background: 'var(--glass)',
                   backdropFilter: 'blur(20px)',
@@ -114,7 +114,7 @@ export default function UeberUnsClient() {
           </h2>
           <div className="grid gap-6 md:grid-cols-2">
             <div
-              className="rounded-2xl border p-6"
+              className="rounded-[8px] border p-6"
               style={{
                 background: 'var(--glass)',
                 backdropFilter: 'blur(20px)',
@@ -132,7 +132,7 @@ export default function UeberUnsClient() {
               </p>
             </div>
             <div
-              className="rounded-2xl border p-6"
+              className="rounded-[8px] border p-6"
               style={{
                 background: 'var(--glass)',
                 backdropFilter: 'blur(20px)',
@@ -165,7 +165,7 @@ export default function UeberUnsClient() {
             ].map(({ title, desc }) => (
               <div
                 key={title}
-                className="rounded-2xl border p-5"
+                className="rounded-[8px] border p-5"
                 style={{
                   background: 'var(--glass)',
                   backdropFilter: 'blur(20px)',
@@ -189,7 +189,7 @@ export default function UeberUnsClient() {
           onClick={() => setLightbox(null)}
         >
           <div
-            className="relative rounded-2xl border overflow-hidden max-w-sm w-full"
+            className="relative rounded-[8px] border overflow-hidden max-w-sm w-full"
             style={{
               background: 'var(--bg-elevated)',
               borderColor: 'var(--glass-border)',
