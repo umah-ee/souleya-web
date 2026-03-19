@@ -165,7 +165,7 @@ export default function AstroSideStack({ birthday }: Props) {
             border: '1px solid var(--glass-border)',
           }}
         >
-          <Icon name="zodiac-aquarius" size={24} style={{ color: 'var(--text-muted)' }} />
+          <Icon name="stars" size={24} style={{ color: 'var(--text-muted)' }} />
           <p className="font-body text-[11px]" style={{ color: 'var(--text-muted)' }}>
             Trage dein Geburtsdatum im Profil ein und erhalte persoenliche Impulse.
           </p>
