@@ -78,9 +78,9 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
           {quote.author}
         </p>
 
-        {/* Actions */}
-        <div className="flex items-center gap-3">
-          {onShare && (
+        {/* Teilen-Button rechts, ueber dem Branding */}
+        {onShare && (
+          <div className="flex justify-end" style={{ marginBottom: '50px' }}>
             <button
               onClick={onShare}
               disabled={shareState !== 'idle'}
@@ -97,20 +97,8 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
               <Icon name="share" size={14} style={{ color: '#fff' }} />
               {shareState === 'shared' ? 'Geteilt' : 'Teilen'}
             </button>
-          )}
-          {onSave && (
-            <button
-              onClick={onSave}
-              className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200"
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.1)',
-              }}
-            >
-              <Icon name={copied ? 'check' : 'heart'} size={16} style={{ color: copied ? 'var(--gold)' : 'rgba(255,255,255,0.6)' }} />
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Souleya Branding am unteren Rand */}
