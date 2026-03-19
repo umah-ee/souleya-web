@@ -11,13 +11,14 @@ interface Props {
   locationLng: number | null;
   interests: string[];
   soulLevel: number;
+  birthday?: string | null;
 }
 
 // ══════════════════════════════════════════════════════════════
 // PULSE DASHBOARD
 // ══════════════════════════════════════════════════════════════
 
-export default function PulseClient({ user, displayName, locationLat, locationLng, interests, soulLevel }: Props) {
+export default function PulseClient({ user, displayName, locationLat, locationLng, interests, soulLevel, birthday }: Props) {
   if (!user) {
     return (
       <div className="text-center py-16" style={{ color: 'var(--text-muted)' }}>
@@ -33,6 +34,7 @@ export default function PulseClient({ user, displayName, locationLat, locationLn
       locationLng={locationLng ?? undefined}
       interests={interests}
       soulLevel={soulLevel}
+      birthday={birthday}
     />
   );
 }

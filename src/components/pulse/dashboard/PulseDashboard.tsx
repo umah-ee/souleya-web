@@ -14,6 +14,7 @@ import WisdomCard from './WisdomCard';
 import ToolkitSection from './ToolkitSection';
 import ChallengeWidget from './ChallengeWidget';
 import NearbyEventsWidget from './NearbyEventsWidget';
+import AstroSideStack from './AstroSideStack';
 
 interface PulseDashboardProps {
   displayName: string;
@@ -21,6 +22,7 @@ interface PulseDashboardProps {
   locationLng?: number;
   interests: string[];
   soulLevel: number;
+  birthday?: string | null;
 }
 
 export default function PulseDashboard({
@@ -29,6 +31,7 @@ export default function PulseDashboard({
   locationLng,
   interests,
   soulLevel,
+  birthday,
 }: PulseDashboardProps) {
   // Automatischer Modus nach Uhrzeit (kein manueller Toggle)
   const mode = useMemo(() => {
@@ -157,14 +160,15 @@ export default function PulseDashboard({
       {/* Activity Bar */}
       <ActivityBar unreadMessages={unreadMessages} newPosts={newPosts} />
 
-      {/* Wisdom Card */}
-      <WisdomCard
-        quote={quote}
-        onShare={handleShareQuote}
-        onSave={handleCopyQuote}
-        shareState={quoteShareState}
-        copied={quoteCopied}
-      />
+      {/* Wisdom Card + Astro Side Stack (2-Spalten-Grid auf Desktop) */}
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4">
+        <WisdomCard
+          quote={quote}
+          onShare={handleShareQuote}
+          shareState={quoteShareState}
+        />
+        <AstroSideStack birthday={birthday} />
+      </div>
 
       {/* Toolkit Section */}
       <ToolkitSection displayName={displayName} />
