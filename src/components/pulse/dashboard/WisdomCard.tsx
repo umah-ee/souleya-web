@@ -80,7 +80,7 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
 
         {/* Teilen-Button rechts, ueber dem Branding */}
         {onShare && (
-          <div className="flex justify-end" style={{ marginBottom: '50px' }}>
+          <div className="flex justify-end" style={{ marginBottom: '30px' }}>
             <button
               onClick={onShare}
               disabled={shareState !== 'idle'}
