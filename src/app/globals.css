@@ -7,47 +7,47 @@
    Aus Style Guide v2.1 – Gold + Dusk × Light + Dark
 ═══════════════════════════════════════════ */
 
-/* ── LIGHT THEME (Default) — Mockup: [data-theme="light"] ── */
+/* ── LIGHT THEME (Default) — Style Guide v2.1 exakt ── */
 :root, [data-theme="light"] {
-  --bg-gradient: linear-gradient(145deg, #F8F6F2 0%, #F5F0EA 50%, #F8F6F2 100%);
-  --bg-solid:    #F8F6F2;
+  --bg-gradient: linear-gradient(145deg, #F5EFE6 0%, #EDE4D3 35%, #D8CFBE 70%, #C9C2B2 100%);
+  --bg-solid:    #EDE4D3;
   --bg-card:     #FFFFFF;
   --bg-elevated: #FFFFFF;
 
-  --gold:          #B8944E;
-  --gold-text:     #8B6914;
-  --gold-deep:     #8B6914;
-  --gold-soft:     rgba(180,150,80, .08);
-  --gold-softer:   rgba(180,150,80, .04);
-  --gold-bg:       rgba(180,150,80, .08);
-  --gold-bg-hover: rgba(180,150,80, .14);
-  --gold-border:   rgba(180,150,80, .16);
-  --gold-border-s: rgba(180,150,80, .10);
-  --gold-glow:     rgba(180,150,80, .15);
+  --gold:          #C8A96E;
+  --gold-text:     #9A7218;
+  --gold-deep:     #7A6014;
+  --gold-soft:     rgba(200,169,110, .08);
+  --gold-softer:   rgba(200,169,110, .04);
+  --gold-bg:       rgba(200,169,110, .12);
+  --gold-bg-hover: rgba(200,169,110, .20);
+  --gold-border:   rgba(200,169,110, .45);
+  --gold-border-s: rgba(200,169,110, .25);
+  --gold-glow:     rgba(200,169,110, .40);
 
-  --text-h:        #1E1810;
-  --text-body:     #4A4038;
-  --text-sec:      #6A6058;
-  --text-muted:    #888078;
+  --text-h:        #1E180C;
+  --text-body:     #3E3020;
+  --text-sec:      #7A6040;
+  --text-muted:    #9A8870;
   --text-on-gold:  #FFFFFF;
 
-  --glass:         rgba(255,255,255, .60);
-  --glass-hover:   rgba(255,255,255, .80);
+  --glass:         rgba(255,255,255, .45);
+  --glass-hover:   rgba(255,255,255, .65);
   --glass-border:  rgba(255,255,255, .75);
-  --glass-shadow:  0 2px 20px rgba(0,0,0,.06);
+  --glass-shadow:  0 4px 20px rgba(139,105,20,.07);
   --glass-inset:   inset 0 1px 0 rgba(255,255,255,.9);
   --glass-blur:    20px;
 
-  --glass-nav:     rgba(248,246,242, .92);
+  --glass-nav:     rgba(255,255,255, .38);
   --glass-nav-b:   rgba(255,255,255, .55);
 
-  --divider:       rgba(0,0,0, .06);
-  --divider-l:     rgba(0,0,0, .06);
+  --divider:       rgba(139,105,20, .15);
+  --divider-l:     rgba(139,105,20, .08);
 
   --img-overlay:   rgba(0,0,0,.55);
-  --avatar-bg:     rgba(180,150,80, .10);
+  --avatar-bg:     rgba(200,169,110, .15);
   --input-bg:      rgba(0,0,0, .03);
-  --toggle-track:  rgba(0,0,0, .10);
+  --toggle-track:  rgba(200,169,110, .12);
 
   --success:       #2D8A56;
   --success-bg:    rgba(45,138,86, .10);
@@ -62,7 +62,7 @@
 
   /* Section Backgrounds */
   --section-warm:      #F5EDE4;
-  --bg-section-warm:   linear-gradient(180deg, #F5EDE4 0%, #F8F6F2 100%);
+  --bg-section-warm:   linear-gradient(180deg, #F5EDE4 0%, #EDE4D3 100%);
 
   /* Primary-Gradient (Buttons, Studio-Icon) */
   --primary-gradient: var(--gold);
@@ -70,58 +70,58 @@
 
   /* Studio-spezifisch */
   --sidebar-bg:      rgba(255,255,255, .30);
-  --sidebar-hover:   rgba(180,150,80, .10);
-  --sidebar-active:  rgba(180,150,80, .15);
+  --sidebar-hover:   rgba(200,169,110, .10);
+  --sidebar-active:  rgba(200,169,110, .15);
   --topbar-bg:       rgba(255,255,255, .35);
   --card-bg:         rgba(255,255,255, .40);
-  --glass-strong:    rgba(255,255,255, .60);
+  --glass-strong:    rgba(255,255,255, .55);
   --warn:            #C47A2A;
   --warn-bg:         rgba(196,122,42, .10);
   --danger:          #A85454;
   --danger-bg:       rgba(168,84,84, .10);
 }
 
-/* ── DARK THEME — Mockup: :root (Gold Dark) ── */
+/* ── DARK THEME — Style Guide v2.1 exakt ── */
 [data-theme="dark"] {
-  --bg-gradient: linear-gradient(160deg, #1E1E1E 0%, #191919 50%, #161616 100%);
-  --bg-solid:    #161616;
+  --bg-gradient: linear-gradient(160deg, #282828 0%, #1E1E1E 50%, #161616 100%);
+  --bg-solid:    #1E1E1E;
   --bg-card:     #1E1E1E;
   --bg-elevated: #242424;
 
   --gold:          #C8A96E;
   --gold-text:     #C8A96E;
-  --gold-deep:     #A8894E;
+  --gold-deep:     #C8A96E;
   --gold-soft:     rgba(200,169,110, .10);
   --gold-softer:   rgba(200,169,110, .06);
   --gold-bg:       rgba(200,169,110, .10);
-  --gold-bg-hover: rgba(200,169,110, .16);
-  --gold-border:   rgba(200,169,110, .14);
-  --gold-border-s: rgba(200,169,110, .10);
-  --gold-glow:     rgba(200,169,110, .25);
+  --gold-bg-hover: rgba(200,169,110, .18);
+  --gold-border:   rgba(200,169,110, .30);
+  --gold-border-s: rgba(200,169,110, .18);
+  --gold-glow:     rgba(200,169,110, .35);
 
-  --text-h:        #F5F0E6;
-  --text-body:     #D0C8B8;
-  --text-sec:      #A09888;
-  --text-muted:    #807870;
-  --text-on-gold:  #1A1714;
+  --text-h:        #F0E8D8;
+  --text-body:     #AAAAAA;
+  --text-sec:      #888888;
+  --text-muted:    #666666;
+  --text-on-gold:  #1A1A1A;
 
-  --glass:         rgba(255,255,255, .04);
-  --glass-hover:   rgba(255,255,255, .07);
-  --glass-border:  rgba(255,255,255, .06);
+  --glass:         rgba(255,255,255, .06);
+  --glass-hover:   rgba(255,255,255, .09);
+  --glass-border:  rgba(255,255,255, .09);
   --glass-shadow:  none;
-  --glass-inset:   inset 0 1px 0 rgba(255,255,255,.04);
+  --glass-inset:   inset 0 1px 0 rgba(255,255,255,.07);
   --glass-blur:    20px;
 
-  --glass-nav:     rgba(22,22,22, .88);
-  --glass-nav-b:   rgba(255,255,255, .06);
+  --glass-nav:     rgba(30,30,30, .88);
+  --glass-nav-b:   rgba(255,255,255, .07);
 
-  --divider:       rgba(255,255,255, .06);
-  --divider-l:     rgba(255,255,255, .06);
+  --divider:       rgba(255,255,255, .08);
+  --divider-l:     rgba(255,255,255, .05);
 
   --img-overlay:   rgba(0,0,0,.65);
-  --avatar-bg:     rgba(200,169,110, .10);
+  --avatar-bg:     rgba(200,169,110, .12);
   --input-bg:      rgba(255,255,255, .04);
-  --toggle-track:  rgba(255,255,255, .10);
+  --toggle-track:  rgba(255,255,255, .06);
 
   --success:       #52B788;
   --success-bg:    rgba(82,183,136, .10);
