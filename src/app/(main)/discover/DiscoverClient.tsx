@@ -594,9 +594,9 @@ export default function DiscoverClient({ userId }: Props) {
     <div className="discover-wrap fixed top-14 md:top-0 bottom-16 md:bottom-0 left-0 right-0 z-10">
       {/* ─── SUCHFELD + SEGMENT-TOGGLE ──────────────────────── */}
       <div
-        className="absolute top-3 left-4 right-4 md:right-[130px] z-10"
+        className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-[80%] max-w-[600px]"
         style={{
-          ...(isSearchActive ? { position: 'relative', top: 0, left: 0, right: 0, padding: '12px 16px 0' } : {}),
+          ...(isSearchActive ? { position: 'relative', top: 0, left: 0, right: 0, transform: 'none', width: '100%', maxWidth: 'none', padding: '12px 16px 0' } : {}),
         }}
       >
         {/* Such-Input */}
