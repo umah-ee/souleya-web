@@ -8,7 +8,6 @@ import { fetchMyChallenges, checkinChallenge } from '@/lib/challenges';
 import { getDailyQuote } from '@/lib/wisdomQuotes';
 import { createPulse } from '@/lib/pulse';
 
-import ModeToggle, { type DashboardMode } from './ModeToggle';
 import GreetingCard from './GreetingCard';
 import ActivityBar from './ActivityBar';
 import WisdomCard from './WisdomCard';
@@ -31,12 +30,11 @@ export default function PulseDashboard({
   interests,
   soulLevel,
 }: PulseDashboardProps) {
-  const [mode, setMode] = useState<DashboardMode>(() => {
+  // Automatischer Modus nach Uhrzeit (kein manueller Toggle)
+  const mode = useMemo(() => {
     const h = new Date().getHours();
-    if (h < 12) return 'morning';
-    if (h < 21) return 'evening';
-    return 'still';
-  });
+    return h >= 5 && h < 17 ? 'morning' : 'evening';
+  }, []);
 
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [nearbyEvents, setNearbyEvents] = useState<SoEvent[]>([]);
@@ -153,11 +151,6 @@ export default function PulseDashboard({
 
   return (
     <div className="space-y-6">
-      {/* Mode Toggle */}
-      <div className="flex justify-center">
-        <ModeToggle mode={mode} onModeChange={setMode} />
-      </div>
-
       {/* Greeting */}
       <GreetingCard displayName={displayName} />
 
