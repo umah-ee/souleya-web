@@ -65,7 +65,7 @@ export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPost
     const supabase = createClient();
     await supabase.auth.signOut();
     onClose();
-    router.push('/login');
+    router.push('/');
   };
 
   const handleBack = () => setSubView('main');
