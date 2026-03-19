@@ -121,6 +121,7 @@ export async function geocodeLocation(
   type: 'forward' | 'reverse' = 'forward',
   proximity?: string,
   country?: string,
+  types?: string,
 ) {
   return apiFetch<{
     results: Array<{
@@ -132,7 +133,7 @@ export async function geocodeLocation(
     }>;
   }>('/users/geocode', {
     method: 'POST',
-    body: JSON.stringify({ query, type, proximity, country }),
+    body: JSON.stringify({ query, type, proximity, country, ...(types ? { types } : {}) }),
   });
 }
 

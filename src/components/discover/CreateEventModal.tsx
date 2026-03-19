@@ -94,7 +94,8 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
     }
     geoTimer.current = setTimeout(async () => {
       try {
-        const res = await geocodeLocation(locationName, 'forward');
+        // Events: Auch POIs, Adressen und Strassen durchsuchen
+        const res = await geocodeLocation(locationName, 'forward', undefined, undefined, 'poi,address,place,locality');
         if (res.results && res.results.length > 0) {
           setGeoSuggestions(res.results.map((r) => ({
             place_name: r.place_name,
@@ -222,7 +223,7 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
               Cover-Bild
             </label>
             <div
-              className="relative w-full rounded-xl overflow-hidden cursor-pointer group"
+              className="relative w-full rounded-[8px] overflow-hidden cursor-pointer group"
               style={{ height: 140, background: 'var(--glass)' }}
               onClick={() => setShowUnsplashPicker(!showUnsplashPicker)}
             >
@@ -388,6 +389,13 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
               </span>
             )}
 
+            {/* Adresse aus Mapbox (read-only Info) */}
+            {locationAddress && locationLat != null && (
+              <p className="text-xs font-body mt-1 truncate" style={{ color: 'var(--text-muted)' }}>
+                {locationAddress}
+              </p>
+            )}
+
             {/* Geocoding-Dropdown */}
             {showGeoDropdown && geoSuggestions.length > 0 && (
               <div
@@ -419,23 +427,6 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
               </div>
             )}
           </div>
-
-          {/* Adresse (editierbar, wird nach Geo-Auswahl befüllt) */}
-          {locationLat != null && (
-            <div>
-              <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
-                Adresse (wird den Teilnehmern angezeigt)
-              </label>
-              <input
-                type="text"
-                value={locationAddress}
-                onChange={(e) => setLocationAddress(e.target.value)}
-                placeholder="z.B. Leopoldstr. 42, 80802 Muenchen"
-                className="w-full py-2.5 px-4 rounded-[8px] text-sm font-body outline-none"
-                style={inputStyle}
-              />
-            </div>
-          )}
 
           {/* Datum */}
           <div>
