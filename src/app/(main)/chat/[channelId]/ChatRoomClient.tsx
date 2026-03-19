@@ -128,6 +128,9 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   }, [channelId, loadReactionsForMessages]);
 
   useEffect(() => {
+    // Reset scroll tracking when channel changes
+    prevMsgCountRef.current = 0;
+    setNewMsgCount(0);
     loadData();
   }, [loadData]);
 
@@ -284,12 +287,14 @@ export default function ChatRoomClient({ channelId, user }: Props) {
       if (el) {
         el.scrollTop = el.scrollHeight;
       }
-      messagesEndRef.current?.scrollIntoView({ behavior });
     };
-    // Mehrere Versuche: sofort, nach rAF und nach 100ms (garantiert nach React-Render)
+    // Mehrere Versuche mit steigenden Delays — DOM braucht Zeit zum Rendern
     doScroll();
     requestAnimationFrame(doScroll);
-    setTimeout(doScroll, 100);
+    setTimeout(doScroll, 50);
+    setTimeout(doScroll, 150);
+    setTimeout(doScroll, 300);
+    setTimeout(doScroll, 600);
     setNewMsgCount(0);
   }, []);
 
