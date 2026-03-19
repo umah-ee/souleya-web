@@ -34,6 +34,11 @@ export async function createEvent(data: CreateEventData): Promise<SoEvent> {
   });
 }
 
+// ── Einzelnes Event laden ────────────────────────────────────
+export async function fetchEvent(eventId: string) {
+  return apiFetch<SoEvent>(`/events/${eventId}`);
+}
+
 // ── Event bearbeiten ────────────────────────────────────────
 export async function updateEvent(eventId: string, data: Partial<CreateEventData>) {
   return apiFetch<SoEvent>(`/events/${eventId}`, {

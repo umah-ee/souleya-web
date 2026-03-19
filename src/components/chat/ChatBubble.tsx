@@ -31,6 +31,8 @@ interface Props {
   onPin?: () => void;
   onForward?: () => void;
   onToggleReaction?: (emoji: string) => void;
+  onEventClick?: (eventId: string) => void;
+  onLinkClick?: (url: string) => boolean | void;
 }
 
 // ── Inline Challenge Embed ────────────────────────────────
@@ -46,6 +48,7 @@ function InlineChallengeEmbed({ challengeId }: { challengeId: string }) {
 export default function ChatBubble({
   message, isOwn, showAuthor, currentUserId, reactions = [],
   isRead, onReply, onEdit, onDelete, onReact, onPin, onForward, onToggleReaction,
+  onEventClick, onLinkClick,
 }: Props) {
   const [showActions, setShowActions] = useState(false);
   const authorName = message.author?.display_name ?? message.author?.username ?? 'Anonym';
@@ -217,7 +220,7 @@ export default function ChatBubble({
                     event_location_name: message.metadata.event_location_name as string | undefined,
                     event_participants_count: message.metadata.event_participants_count as number | undefined,
                   }}
-                  onClick={() => { window.location.href = '/discover'; }}
+                  onClick={() => onEventClick?.(String(message.metadata!.event_id)) ?? undefined}
                 />
               </div>
             )}
@@ -225,7 +228,7 @@ export default function ChatBubble({
             {/* Link-Vorschau */}
             {!!message.metadata?.link_preview && (
               <div className="mt-1.5 -mx-0.5">
-                <LinkPreviewCard preview={message.metadata.link_preview as { url: string; title?: string; description?: string; image?: string; site_name?: string }} />
+                <LinkPreviewCard preview={message.metadata.link_preview as { url: string; title?: string; description?: string; image?: string; site_name?: string }} onClick={onLinkClick} />
               </div>
             )}
 

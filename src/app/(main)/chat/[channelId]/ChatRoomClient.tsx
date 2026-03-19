@@ -22,6 +22,9 @@ import ForwardMessageModal from '@/components/chat/ForwardMessageModal';
 import CreateChallengeModal from '@/components/challenges/CreateChallengeModal';
 import { createChallenge } from '@/lib/challenges';
 import type { Challenge } from '@/types/challenges';
+import { fetchEvent } from '@/lib/events';
+import type { SoEvent } from '@/types/events';
+import DiscoverOverlay from '@/components/discover/DiscoverOverlay';
 import dynamic from 'next/dynamic';
 
 const EmojiPicker = dynamic(() => import('@/components/chat/EmojiPicker'), { ssr: false });
@@ -52,6 +55,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [showSeedsModal, setShowSeedsModal] = useState(false);
   const [showChallengeModal, setShowChallengeModal] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [overlayEvent, setOverlayEvent] = useState<SoEvent | null>(null);
   const [forwardingMsg, setForwardingMsg] = useState<Message | null>(null);
   const [pendingImages, setPendingImages] = useState<File[]>([]);
   const [pendingImagePreviews, setPendingImagePreviews] = useState<string[]>([]);
@@ -262,26 +266,46 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     });
   }, [user?.id]);
 
-  // ── Auto-Scroll (nur bei neuen Nachrichten am Ende) ──────
+  // ── Auto-Scroll (Smart: nur am Ende, sonst Badge) ────────
   const prevMsgCountRef = useRef(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [newMsgCount, setNewMsgCount] = useState(0);
+
+  const isNearBottom = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return true;
+    return el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+  }, []);
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    });
+    setNewMsgCount(0);
+  }, []);
+
   useEffect(() => {
     const prevCount = prevMsgCountRef.current;
     const newCount = messages.length;
     prevMsgCountRef.current = newCount;
 
-    // Nur scrollen wenn Nachrichten am Ende hinzukamen (nicht bei loadOlder/Edit/Reaction)
     if (newCount > prevCount && prevCount > 0) {
       const lastMsg = messages[newCount - 1];
       const prevLastMsg = messages[prevCount - 1];
       // Nur wenn die letzte Nachricht neu ist (nicht bei prepend durch loadOlder)
       if (lastMsg?.id !== prevLastMsg?.id) {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (isNearBottom()) {
+          scrollToBottom('smooth');
+        } else {
+          // User liest aeltere Nachrichten — Badge zeigen statt scrollen
+          setNewMsgCount((c) => c + (newCount - prevCount));
+        }
       }
     } else if (prevCount === 0 && newCount > 0) {
-      // Initialer Load – sofort nach unten
-      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+      // Initialer Load — sofort nach unten (mit rAF fuer DOM-Timing)
+      scrollToBottom('instant');
     }
-  }, [messages]);
+  }, [messages, isNearBottom, scrollToBottom]);
 
   // ── Aeltere Nachrichten laden ─────────────────────────────
   const loadOlderMessages = async () => {
@@ -350,6 +374,32 @@ export default function ChatRoomClient({ channelId, user }: Props) {
       handleSend();
     }
   };
+
+  // ── Event im Overlay oeffnen ──────────────────────────────
+  const handleEventClick = useCallback(async (eventId: string) => {
+    try {
+      const event = await fetchEvent(eventId);
+      setOverlayEvent(event);
+    } catch (e) {
+      console.error('Event laden fehlgeschlagen', e);
+    }
+  }, []);
+
+  // ── Interne Links abfangen ──────────────────────────────────
+  const handleLinkClick = useCallback((url: string): boolean => {
+    try {
+      const u = new URL(url);
+      if (u.hostname === 'souleya.com' || u.hostname === 'www.souleya.com' || u.hostname === 'localhost') {
+        // Event-Link: /discover?eventId=... oder Event-Pfade
+        const eventId = u.searchParams.get('eventId');
+        if (eventId) {
+          handleEventClick(eventId);
+          return true;
+        }
+      }
+    } catch { /* external URL */ }
+    return false;
+  }, [handleEventClick]);
 
   const handleDelete = async (msgId: string) => {
     try {
@@ -607,7 +657,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
       )}
 
       {/* ── Nachrichten ────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto scrollbar-gold px-4 py-4 space-y-1 relative">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto scrollbar-gold px-4 py-4 space-y-1 relative">
         {hasMore && (
           <div className="text-center pb-3">
             <button
@@ -645,11 +695,32 @@ export default function ChatRoomClient({ channelId, user }: Props) {
               onEdit={isOwn && msg.type === 'text' ? () => handleStartEdit(msg) : undefined}
               onDelete={isOwn ? () => handleDelete(msg.id) : undefined}
               onToggleReaction={(emoji) => handleToggleReaction(msg.id, emoji)}
+              onEventClick={handleEventClick}
+              onLinkClick={handleLinkClick}
             />
             </div>
           );
         })}
         <div ref={messagesEndRef} />
+
+        {/* Neue Nachrichten Button */}
+        {newMsgCount > 0 && (
+          <button
+            onClick={() => scrollToBottom('smooth')}
+            className="sticky bottom-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-4 py-2 rounded-full font-label text-[0.65rem] tracking-[0.08em] uppercase cursor-pointer transition-all duration-200 animate-slide-up"
+            style={{
+              background: 'var(--gold)',
+              color: 'var(--text-on-gold)',
+              boxShadow: '0 4px 16px var(--gold-glow, rgba(200,169,110,0.35))',
+              border: 'none',
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12l7 7 7-7" />
+            </svg>
+            {newMsgCount} neue {newMsgCount === 1 ? 'Nachricht' : 'Nachrichten'}
+          </button>
+        )}
 
         {/* Emoji Picker Popover */}
         {emojiPickerMsgId && (
@@ -942,6 +1013,27 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           onClose={() => setForwardingMsg(null)}
           onForwarded={() => setForwardingMsg(null)}
         />
+      )}
+
+      {/* Event Overlay (inline im Chat) */}
+      {overlayEvent && (
+        <div
+          className="fixed inset-0 z-30 flex items-center justify-center"
+          onClick={() => setOverlayEvent(null)}
+          style={{ background: 'rgba(0,0,0,0.5)' }}
+        >
+          <div
+            className="w-full max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <DiscoverOverlay
+              type="event"
+              event={overlayEvent}
+              userId={user?.id ?? null}
+              onClose={() => setOverlayEvent(null)}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

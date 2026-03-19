@@ -10,19 +10,31 @@ interface LinkPreview {
 
 interface Props {
   preview: LinkPreview;
+  onClick?: (url: string) => boolean | void;
 }
 
-export default function LinkPreviewCard({ preview }: Props) {
+export default function LinkPreviewCard({ preview, onClick }: Props) {
   const domain = (() => {
     try { return new URL(preview.url).hostname.replace('www.', ''); }
     catch { return preview.site_name ?? ''; }
   })();
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      const handled = onClick(preview.url);
+      if (handled) {
+        e.preventDefault();
+        return;
+      }
+    }
+  };
 
   return (
     <a
       href={preview.url}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={handleClick}
       className="block mt-1.5 rounded-lg overflow-hidden no-underline transition-opacity hover:opacity-90"
       style={{
         background: 'var(--glass)',

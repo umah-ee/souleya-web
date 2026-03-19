@@ -594,8 +594,11 @@ export default function DiscoverClient({ userId }: Props) {
     <div className="discover-wrap fixed top-14 md:top-0 bottom-16 md:bottom-0 left-0 right-0 z-10">
       {/* ─── SUCHFELD + SEGMENT-TOGGLE ──────────────────────── */}
       <div
-        className="absolute top-3 left-4 right-4 z-20"
-        style={isSearchActive ? { position: 'relative', top: 0, left: 0, right: 0, padding: '12px 16px 0' } : undefined}
+        className="absolute top-3 left-4 z-20"
+        style={{
+          right: '100px', // Platz fuer UserMenu (Bell + Avatar)
+          ...(isSearchActive ? { position: 'relative', top: 0, left: 0, right: 0, padding: '12px 16px 0' } : {}),
+        }}
       >
         {/* Such-Input */}
         <div className="flex gap-2 mb-2">
@@ -605,7 +608,7 @@ export default function DiscoverClient({ userId }: Props) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Souls oder Orte suchen ..."
+              placeholder="Souls oder Orte suchen …"
               className="w-full py-3 px-5 pr-12 backdrop-blur-xl rounded-[8px] text-sm font-body outline-none transition-colors"
               style={{
                 background: 'var(--glass-nav)',
@@ -637,34 +640,31 @@ export default function DiscoverClient({ userId }: Props) {
           </div>
         )}
 
-        {/* Segment Toggle (nur wenn Suche nicht aktiv) */}
+        {/* Segment Toggle — kompakte Pillen unter Suchfeld */}
         {!isSearchActive && (
           <div className="flex gap-1.5 mb-2">
-            {SEGMENTS.map((seg) => (
-              <button
-                key={seg.key}
-                onClick={() => setSegment(seg.key)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-[8px] backdrop-blur-xl text-[0.65rem] tracking-[0.08em] uppercase font-label cursor-pointer transition-all duration-200"
-                style={{
-                  background: segment === seg.key ? 'var(--gold-bg)' : 'var(--glass-nav)',
-                  border: `1px solid ${segment === seg.key ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
-                  color: segment === seg.key ? 'var(--gold-text)' : 'var(--text-muted)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                }}
-              >
-                <Icon name={seg.icon} size={13} />
-                {seg.label}
-                {seg.key === 'mitglieder' && nearbyUsers.length > 0 && (
-                  <span style={{ opacity: 0.7 }}>({nearbyUsers.length})</span>
-                )}
-                {seg.key === 'events' && events.length > 0 && (
-                  <span style={{ opacity: 0.7 }}>({events.length})</span>
-                )}
-                {seg.key === 'orte' && places.length > 0 && (
-                  <span style={{ opacity: 0.7 }}>({places.length})</span>
-                )}
-              </button>
-            ))}
+            {SEGMENTS.map((seg) => {
+              const count = seg.key === 'mitglieder' ? nearbyUsers.length
+                : seg.key === 'events' ? events.length
+                : seg.key === 'orte' ? places.length : 0;
+              return (
+                <button
+                  key={seg.key}
+                  onClick={() => setSegment(seg.key)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-[8px] backdrop-blur-xl text-[0.65rem] tracking-[0.08em] uppercase font-label cursor-pointer transition-all duration-200"
+                  style={{
+                    background: segment === seg.key ? 'var(--gold-bg)' : 'var(--glass-nav)',
+                    border: `1px solid ${segment === seg.key ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
+                    color: segment === seg.key ? 'var(--gold-text)' : 'var(--text-muted)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  }}
+                >
+                  <Icon name={seg.icon} size={13} />
+                  {seg.label}
+                  {count > 0 && <span style={{ opacity: 0.7 }}>({count})</span>}
+                </button>
+              );
+            })}
           </div>
         )}
 
