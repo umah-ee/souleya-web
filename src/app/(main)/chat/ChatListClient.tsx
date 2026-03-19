@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import type { ChannelOverview } from '@/types/chat';
-import { fetchChannels } from '@/lib/chat';
+import { fetchChannels, removeChannelMember } from '@/lib/chat';
 import { Icon } from '@/components/ui/Icon';
 import ChannelListItem from '@/components/chat/ChannelListItem';
 import NewChatModal from '@/components/chat/NewChatModal';
@@ -44,6 +44,16 @@ export default function ChatListClient({ user }: Props) {
   const handleChannelCreated = (channelId: string) => {
     setShowNewChat(false);
     router.push(`/chat/${channelId}`);
+  };
+
+  const handleLeaveChannel = async (channelId: string) => {
+    if (!user) return;
+    try {
+      await removeChannelMember(channelId, user.id);
+      setChannels((prev) => prev.filter((c) => c.id !== channelId));
+    } catch (e) {
+      console.error('Chat verlassen fehlgeschlagen:', e);
+    }
   };
 
   return (
@@ -115,6 +125,7 @@ export default function ChatListClient({ user }: Props) {
               key={channel.id}
               channel={channel}
               onClick={() => router.push(`/chat/${channel.id}`)}
+              onLeave={handleLeaveChannel}
             />
           ))}
         </div>

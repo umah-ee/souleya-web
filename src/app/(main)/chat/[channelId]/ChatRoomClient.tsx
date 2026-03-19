@@ -63,7 +63,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [typingUsers, setTypingUsers] = useState<{ id: string; name: string }[]>([]);
   const [readStatus, setReadStatus] = useState<ReadStatusMember[]>([]);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // messagesEndRef entfernt — column-reverse braucht keinen Scroll-Anker
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const channelRef = useRef<ChannelDetail | null>(null);
@@ -128,7 +128,6 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   }, [channelId, loadReactionsForMessages]);
 
   useEffect(() => {
-    // Reset scroll tracking when channel changes
     prevMsgCountRef.current = 0;
     setNewMsgCount(0);
     loadData();
@@ -270,34 +269,28 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     });
   }, [user?.id]);
 
-  // ── Auto-Scroll (Smart: nur am Ende, sonst Badge) ────────
-  const prevMsgCountRef = useRef(0);
+  // ── Auto-Scroll (column-reverse: Browser zeigt automatisch unten) ────────
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [newMsgCount, setNewMsgCount] = useState(0);
+  const prevMsgCountRef = useRef(0);
 
+  // column-reverse: scrollTop 0 = unten (neueste). Negative scrollTop = oben (aeltere).
   const isNearBottom = useCallback(() => {
     const el = scrollContainerRef.current;
     if (!el) return true;
-    return el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+    // Bei column-reverse: scrollTop nahe 0 = am Ende (unten)
+    return Math.abs(el.scrollTop) < 120;
   }, []);
 
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    const doScroll = () => {
-      const el = scrollContainerRef.current;
-      if (el) {
-        el.scrollTop = el.scrollHeight;
-      }
-    };
-    // Mehrere Versuche mit steigenden Delays — DOM braucht Zeit zum Rendern
-    doScroll();
-    requestAnimationFrame(doScroll);
-    setTimeout(doScroll, 50);
-    setTimeout(doScroll, 150);
-    setTimeout(doScroll, 300);
-    setTimeout(doScroll, 600);
+  const scrollToBottom = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (el) {
+      el.scrollTop = 0; // column-reverse: 0 = unten
+    }
     setNewMsgCount(0);
   }, []);
 
+  // Neue Nachrichten: Badge zeigen wenn User oben scrollt
   useEffect(() => {
     const prevCount = prevMsgCountRef.current;
     const newCount = messages.length;
@@ -306,20 +299,15 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     if (newCount > prevCount && prevCount > 0) {
       const lastMsg = messages[newCount - 1];
       const prevLastMsg = messages[prevCount - 1];
-      // Nur wenn die letzte Nachricht neu ist (nicht bei prepend durch loadOlder)
       if (lastMsg?.id !== prevLastMsg?.id) {
-        if (isNearBottom()) {
-          scrollToBottom('smooth');
-        } else {
-          // User liest aeltere Nachrichten — Badge zeigen statt scrollen
+        if (!isNearBottom()) {
           setNewMsgCount((c) => c + (newCount - prevCount));
         }
+        // Bei column-reverse scrollt der Browser neue Items automatisch rein
+        // wenn der User ganz unten ist (scrollTop ~0)
       }
-    } else if (prevCount === 0 && newCount > 0) {
-      // Initialer Load — sofort nach unten (mit rAF fuer DOM-Timing)
-      scrollToBottom('instant');
     }
-  }, [messages, isNearBottom, scrollToBottom]);
+  }, [messages, isNearBottom]);
 
   // ── Aeltere Nachrichten laden ─────────────────────────────
   const loadOlderMessages = async () => {
@@ -670,24 +658,17 @@ export default function ChatRoomClient({ channelId, user }: Props) {
         />
       )}
 
-      {/* ── Nachrichten ────────────────────────────────────── */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto scrollbar-gold px-4 py-4 space-y-1 relative">
-        {hasMore && (
-          <div className="text-center pb-3">
-            <button
-              onClick={loadOlderMessages}
-              disabled={loadingMore}
-              className="px-4 py-1.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase bg-transparent cursor-pointer transition-colors"
-              style={{ border: '1px solid var(--gold-border-s)', color: 'var(--text-muted)' }}
-            >
-              {loadingMore ? '...' : 'Aeltere laden'}
-            </button>
-          </div>
-        )}
-
-        {messages.map((msg, i) => {
+      {/* ── Nachrichten (column-reverse: neueste unten, Browser startet dort) ── */}
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto scrollbar-gold px-4 py-4 relative"
+        style={{ display: 'flex', flexDirection: 'column-reverse', gap: '4px' }}
+      >
+        {/* In column-reverse: erstes Element = unten. Wir rendern reversed. */}
+        {[...messages].reverse().map((msg, _ri) => {
+          const origIdx = messages.length - 1 - _ri;
           const isOwn = msg.user_id === user?.id;
-          const prevMsg = messages[i - 1];
+          const prevMsg = origIdx > 0 ? messages[origIdx - 1] : undefined;
           const showAuthor = !isOwn && (!prevMsg || prevMsg.user_id !== msg.user_id);
           const msgRead = isOwn && readStatus.some(
             (rs) => new Date(rs.last_read_at) >= new Date(msg.created_at),
@@ -715,12 +696,25 @@ export default function ChatRoomClient({ channelId, user }: Props) {
             </div>
           );
         })}
-        <div ref={messagesEndRef} />
 
-        {/* Neue Nachrichten Button */}
+        {/* "Aeltere laden" Button — ganz oben im Chat (= letztes Element in column-reverse) */}
+        {hasMore && (
+          <div className="text-center py-3">
+            <button
+              onClick={loadOlderMessages}
+              disabled={loadingMore}
+              className="px-4 py-1.5 rounded-full font-label text-[0.65rem] tracking-[0.1em] uppercase bg-transparent cursor-pointer transition-colors"
+              style={{ border: '1px solid var(--gold-border-s)', color: 'var(--text-muted)' }}
+            >
+              {loadingMore ? '...' : 'Aeltere laden'}
+            </button>
+          </div>
+        )}
+
+        {/* Neue Nachrichten Button (sticky) */}
         {newMsgCount > 0 && (
           <button
-            onClick={() => scrollToBottom('smooth')}
+            onClick={() => scrollToBottom()}
             className="sticky bottom-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-4 py-2 rounded-full font-label text-[0.65rem] tracking-[0.08em] uppercase cursor-pointer transition-all duration-200 animate-slide-up"
             style={{
               background: 'var(--gold)',
