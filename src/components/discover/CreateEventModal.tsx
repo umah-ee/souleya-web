@@ -35,6 +35,7 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
   const [maxParticipants, setMaxParticipants] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [detectingLocation, setDetectingLocation] = useState(false);
 
   // Cover-Bild
   const [coverUrl, setCoverUrl] = useState('');
@@ -120,12 +121,40 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
   }, [locationName, locationLat]);
 
   const handleGeoSelect = (geo: GeoSuggestion) => {
-    // Volle Adresse immer übernehmen
-    setLocationName(geo.text || geo.place_name.split(',')[0]);
+    // Volle Adresse ins Eingabefeld (Strasse + Stadt + Land)
+    setLocationName(geo.place_name);
     setLocationAddress(geo.place_name);
     setLocationLat(geo.lat);
     setLocationLng(geo.lng);
     setShowGeoDropdown(false);
+  };
+
+  // GPS-Standort erkennen
+  const handleDetectLocation = async () => {
+    if (!navigator.geolocation) {
+      setError('Standorterkennung wird nicht unterstuetzt.');
+      return;
+    }
+    setDetectingLocation(true);
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
+      });
+      const { latitude, longitude } = pos.coords;
+      // Reverse Geocoding — volle Adresse holen
+      const res = await geocodeLocation(`${longitude},${latitude}`, 'reverse');
+      if (res.results.length > 0) {
+        const place = res.results[0];
+        setLocationName(place.place_name);
+        setLocationAddress(place.place_name);
+        setLocationLat(place.lat);
+        setLocationLng(place.lng);
+      }
+    } catch {
+      setError('Standort konnte nicht erkannt werden.');
+    } finally {
+      setDetectingLocation(false);
+    }
   };
 
   const handleSelectUnsplash = (img: UnsplashImage) => {
@@ -365,36 +394,47 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
             </div>
           </div>
 
-          {/* Ort mit Geocoding */}
+          {/* Ort mit Geocoding + GPS */}
           <div className="relative" style={{ overflow: 'visible' }}>
             <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
               Ort *
             </label>
-            <input
-              type="text"
-              value={locationName}
-              onChange={(e) => {
-                setLocationName(e.target.value);
-                setLocationAddress('');
-                setLocationLat(null);
-                setLocationLng(null);
-              }}
-              placeholder="Adresse, Restaurant oder Ort suchen ..."
-              className="w-full py-2.5 px-4 rounded-[8px] text-sm font-body outline-none"
-              style={inputStyle}
-            />
-            {locationLat != null && (
-              <span className="absolute right-3 top-[26px] text-[0.55rem]" style={{ color: 'var(--success)' }}>
-                <Icon name="map-pin" size={12} />
-              </span>
-            )}
-
-            {/* Adresse aus Mapbox (read-only Info) */}
-            {locationAddress && locationLat != null && (
-              <p className="text-xs font-body mt-1 truncate" style={{ color: 'var(--text-muted)' }}>
-                {locationAddress}
-              </p>
-            )}
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={locationName}
+                  onChange={(e) => {
+                    setLocationName(e.target.value);
+                    setLocationAddress('');
+                    setLocationLat(null);
+                    setLocationLng(null);
+                  }}
+                  placeholder="Adresse oder Ort suchen ..."
+                  className="w-full py-2.5 px-4 pr-8 rounded-[8px] text-sm font-body outline-none"
+                  style={inputStyle}
+                />
+                {locationLat != null && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--success)' }}>
+                    <Icon name="map-pin" size={12} />
+                  </span>
+                )}
+              </div>
+              {/* GPS Button */}
+              <button
+                onClick={handleDetectLocation}
+                disabled={detectingLocation}
+                className="flex-shrink-0 w-10 h-10 rounded-[8px] flex items-center justify-center cursor-pointer transition-colors"
+                style={{ background: 'var(--glass)', border: '1px solid var(--gold-border-s)', color: 'var(--gold)' }}
+                title="Standort erkennen"
+              >
+                {detectingLocation ? (
+                  <span className="text-[0.5rem]">...</span>
+                ) : (
+                  <Icon name="current-location" size={16} />
+                )}
+              </button>
+            </div>
 
             {/* Geocoding-Dropdown */}
             {showGeoDropdown && geoSuggestions.length > 0 && (
@@ -428,38 +468,26 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
             )}
           </div>
 
-          {/* Datum */}
+          {/* Datum + Start + Ende auf einer Zeile */}
           <div>
             <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
-              Datum *
+              Wann *
             </label>
-            <SoDatePicker
-              value={date}
-              onChange={setDate}
-              placeholder="Datum waehlen ..."
-            />
-          </div>
-
-          {/* Zeiten */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
-                Start *
-              </label>
+            <div className="grid grid-cols-[1fr_auto_auto] gap-1.5 items-center">
+              <SoDatePicker
+                value={date}
+                onChange={setDate}
+                placeholder="Datum"
+              />
               <SoTimePicker
                 value={startTime}
                 onChange={setStartTime}
-                placeholder="Startzeit"
+                placeholder="Von"
               />
-            </div>
-            <div>
-              <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
-                Ende
-              </label>
               <SoTimePicker
                 value={endTime}
                 onChange={setEndTime}
-                placeholder="Endzeit"
+                placeholder="Bis"
               />
             </div>
           </div>
