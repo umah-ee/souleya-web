@@ -120,6 +120,9 @@ export default function DiscoverClient({ userId }: Props) {
   const [popularTags, setPopularTags] = useState<string[]>([]);
   const [userInterests, setUserInterests] = useState<string[]>([]);
 
+  // ── Radius ──────────────────────────────────────────────
+  const [radius, setRadius] = useState(25);
+
   const isSearchActive = query.trim().length >= 2;
 
   // ── Profil-Vorlieben + Standort laden ────────────────────────
@@ -151,9 +154,9 @@ export default function DiscoverClient({ userId }: Props) {
   const loadDiscoverData = useCallback(async (lat: number, lng: number) => {
     try {
       const [nearbyRes, eventsRes, placesRes] = await Promise.all([
-        fetchNearbyUsers(lat, lng),
-        fetchEvents({ lat, lng, userId: userId ?? undefined }),
-        fetchNearbyPlaces(lat, lng, undefined, activeTags.length > 0 ? activeTags : undefined),
+        fetchNearbyUsers(lat, lng, radius),
+        fetchEvents({ lat, lng, radius, userId: userId ?? undefined }),
+        fetchNearbyPlaces(lat, lng, radius, activeTags.length > 0 ? activeTags : undefined),
       ]);
       setNearbyUsers(nearbyRes.data);
       const merged = eventsRes.data.map((e) => ({
@@ -172,7 +175,7 @@ export default function DiscoverClient({ userId }: Props) {
     } catch (e) {
       console.error('Discover-Daten laden fehlgeschlagen:', e);
     }
-  }, [userId, activeTags]);
+  }, [userId, activeTags, radius]);
 
   useEffect(() => {
     loadDiscoverData(mapCenter[1], mapCenter[0]);
@@ -205,11 +208,11 @@ export default function DiscoverClient({ userId }: Props) {
     return () => clearTimeout(timer);
   }, [mapCenter, loadDiscoverData]);
 
-  // ── Tags-Aenderung → Reload ───────────────────────────────
+  // ── Tags/Radius-Aenderung → Reload ───────────────────────────────
   useEffect(() => {
     loadDiscoverData(mapCenter[1], mapCenter[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTags]);
+  }, [activeTags, radius]);
 
   // ── Tag Toggle ────────────────────────────────────────────
   const toggleTag = (tag: string) => {
@@ -599,33 +602,40 @@ export default function DiscoverClient({ userId }: Props) {
     { key: 'orte' as Segment, label: 'Orte', icon: 'map-pin' as const },
   ];
 
+
   return (
     <>
     <style>{`@media(min-width:768px){.discover-wrap{left:${collapsed ? 64 : 240}px !important}}`}</style>
     <div className="discover-wrap fixed top-14 md:top-0 bottom-16 md:bottom-0 left-0 right-0 z-10">
-      {/* ─── SUCHFELD + SEGMENT-TOGGLE ──────────────────────── */}
+      {/* ─── INTEGRATED SEARCH + SEGMENT TABS ──────────────── */}
       <div
         className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-[80%] max-w-[600px]"
         style={{
           ...(isSearchActive ? { position: 'relative', top: 0, left: '50%', transform: 'translateX(-50%)', width: '80%', maxWidth: '600px', padding: '12px 0 0' } : {}),
         }}
       >
-        {/* Such-Input */}
-        <div className="flex gap-2 mb-2">
-          <div className="flex-1 relative">
+        {/* Glass Container: Search + Segments */}
+        <div
+          className="rounded-[8px] overflow-hidden backdrop-blur-xl"
+          style={{
+            background: 'var(--glass-nav)',
+            border: '1px solid var(--gold-border-s)',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+          }}
+        >
+          {/* Search Input */}
+          <div className="relative">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}>
+              <Icon name="search" size={16} />
+            </div>
             <input
               ref={searchInputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Souls oder Orte suchen …"
-              className="w-full py-3 px-5 pr-12 backdrop-blur-xl rounded-[8px] text-sm font-body outline-none transition-colors"
-              style={{
-                background: 'var(--glass-nav)',
-                border: '1px solid var(--gold-border-s)',
-                color: 'var(--text-h)',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-              }}
+              className="w-full py-3 pl-10 pr-12 text-sm font-body outline-none bg-transparent"
+              style={{ color: 'var(--text-h)' }}
             />
             <button
               onClick={handleGeolocate}
@@ -637,39 +647,38 @@ export default function DiscoverClient({ userId }: Props) {
               <Icon name="current-location" size={18} />
             </button>
           </div>
-        </div>
 
-        {/* Segment Toggle — kompakte Pillen unter Suchfeld */}
-        {!isSearchActive && (
-          <div className="flex gap-1.5 mb-1">
-            {SEGMENTS.map((seg) => {
-              const count = seg.key === 'mitglieder' ? nearbyUsers.length
-                : seg.key === 'events' ? events.length
-                : seg.key === 'orte' ? places.length : 0;
-              return (
-                <button
-                  key={seg.key}
-                  onClick={() => setSegment(seg.key)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-[8px] backdrop-blur-xl text-[0.65rem] tracking-[0.08em] uppercase font-label cursor-pointer transition-all duration-200"
-                  style={{
-                    background: segment === seg.key ? 'var(--gold-bg)' : 'var(--glass-nav)',
-                    border: `1px solid ${segment === seg.key ? 'var(--gold-border)' : 'var(--gold-border-s)'}`,
-                    color: segment === seg.key ? 'var(--gold-text)' : 'var(--text-muted)',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  }}
-                >
-                  <Icon name={seg.icon} size={13} />
-                  {seg.label}
-                  {count > 0 && <span style={{ opacity: 0.7 }}>({count})</span>}
-                </button>
-              );
-            })}
-          </div>
-        )}
+          {/* Segment Tabs (text tabs with gold underline) */}
+          {!isSearchActive && (
+            <div className="flex" style={{ borderTop: '1px solid var(--divider-l)' }}>
+              {SEGMENTS.map((seg) => {
+                const count = seg.key === 'mitglieder' ? nearbyUsers.length
+                  : seg.key === 'events' ? events.length
+                  : seg.key === 'orte' ? places.length : 0;
+                const isActive = segment === seg.key;
+                return (
+                  <button
+                    key={seg.key}
+                    onClick={() => setSegment(seg.key)}
+                    className="flex-1 py-2 font-label text-[0.55rem] tracking-[0.1em] uppercase cursor-pointer transition-all duration-200 text-center"
+                    style={{
+                      color: isActive ? 'var(--gold-text)' : 'var(--text-muted)',
+                      borderBottom: isActive ? '2px solid var(--gold)' : '2px solid transparent',
+                      background: 'transparent',
+                    }}
+                  >
+                    {seg.label}
+                    {count > 0 && <span style={{ opacity: 0.6 }}>({count})</span>}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         {/* Location Breadcrumb Pill */}
         {!isSearchActive && locationLabel && (
-          <div className="flex items-center mb-1">
+          <div className="flex items-center mt-1.5 mb-1">
             <span
               className="inline-flex items-center gap-1.5 text-[10px] font-label rounded-full px-3 py-1"
               style={{ border: '1px solid var(--gold-border)', color: 'var(--gold-text)', background: 'var(--glass-nav)' }}
@@ -690,37 +699,40 @@ export default function DiscoverClient({ userId }: Props) {
           </div>
         )}
 
-        {/* Tag-Filter — Calm & Curated (nur bei Orte/Alle) */}
+        {/* Tag Cloud — Floating Bubbles (nur bei Orte/Alle) */}
         {!isSearchActive && (segment === 'orte' || segment === 'alle') && (() => {
-          const VISIBLE_COUNT = 6;
+          const MAX_VISIBLE = 10;
+          const allTags = PLACE_TAGS;
           const visibleTags = tagsExpanded
-            ? PLACE_TAGS
-            : [...new Set([...activeTags, ...PLACE_TAGS.slice(0, VISIBLE_COUNT)])].slice(0, Math.max(VISIBLE_COUNT, activeTags.length));
-          const hiddenCount = PLACE_TAGS.length - visibleTags.length;
+            ? allTags
+            : [...new Set([...activeTags, ...allTags.slice(0, MAX_VISIBLE)])].slice(0, Math.max(MAX_VISIBLE, activeTags.length));
+          const hiddenCount = allTags.length - visibleTags.length;
           return (
-            <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
-              {visibleTags.map((tag) => {
+            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 mt-1.5">
+              {visibleTags.map((tag, idx) => {
                 const isActive = activeTags.includes(tag);
                 const isPopular = popularTags.includes(tag);
+                const isUserInterest = userInterests.includes(tag);
+                const isHighlighted = isActive || isUserInterest;
                 return (
                   <button
                     key={tag}
                     onClick={() => toggleTag(tag)}
-                    className="font-label cursor-pointer transition-colors duration-200 inline-flex items-center gap-1"
+                    className="font-label cursor-pointer transition-all duration-200 inline-flex items-center gap-1 rounded-full"
                     style={{
-                      fontSize: '0.6rem',
+                      fontSize: isPopular ? '0.65rem' : '0.55rem',
                       letterSpacing: '0.06em',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      background: isActive ? 'var(--gold-bg)' : isPopular ? 'var(--gold-bg)' : 'transparent',
-                      color: isActive ? 'var(--gold-text)' : isPopular ? 'var(--gold-text)' : 'var(--text-muted)',
-                      borderBottom: isActive ? '1.5px solid var(--gold)' : '1.5px solid transparent',
-                      opacity: isPopular && !isActive ? 0.85 : 1,
+                      padding: isPopular ? '5px 12px' : '4px 10px',
+                      background: isHighlighted ? 'var(--gold-bg)' : 'transparent',
+                      color: isHighlighted ? 'var(--gold-text)' : 'var(--text-muted)',
+                      border: isHighlighted ? '1px solid var(--gold-border)' : '1px solid var(--gold-border-s)',
+                      animation: `tag-float ${2.5 + (idx % 4) * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${(idx % 5) * 0.2}s`,
                     }}
                   >
                     {tag}
                     {isPopular && !isActive && (
-                      <span style={{ fontSize: '0.45rem', color: 'var(--gold)', opacity: 0.7 }}>beliebt</span>
+                      <span style={{ fontSize: '0.4rem', color: 'var(--gold)', opacity: 0.7 }}>beliebt</span>
                     )}
                   </button>
                 );
@@ -728,13 +740,13 @@ export default function DiscoverClient({ userId }: Props) {
               {hiddenCount > 0 && !tagsExpanded && (
                 <button
                   onClick={() => setTagsExpanded(true)}
-                  className="font-label cursor-pointer transition-colors duration-200"
+                  className="font-label cursor-pointer transition-colors duration-200 rounded-full"
                   style={{
-                    fontSize: '0.6rem',
+                    fontSize: '0.55rem',
                     letterSpacing: '0.06em',
-                    padding: '4px 8px',
-                    color: 'var(--text-muted)',
-                    opacity: 0.7,
+                    padding: '4px 10px',
+                    color: 'var(--gold-text)',
+                    border: '1px dashed var(--gold-border-s)',
                   }}
                 >
                   +{hiddenCount}
@@ -743,13 +755,13 @@ export default function DiscoverClient({ userId }: Props) {
               {tagsExpanded && (
                 <button
                   onClick={() => setTagsExpanded(false)}
-                  className="font-label cursor-pointer transition-colors duration-200"
+                  className="font-label cursor-pointer transition-colors duration-200 rounded-full"
                   style={{
-                    fontSize: '0.6rem',
+                    fontSize: '0.55rem',
                     letterSpacing: '0.06em',
-                    padding: '4px 8px',
+                    padding: '4px 10px',
                     color: 'var(--text-muted)',
-                    opacity: 0.7,
+                    border: '1px dashed var(--gold-border-s)',
                   }}
                 >
                   weniger
@@ -896,57 +908,146 @@ export default function DiscoverClient({ userId }: Props) {
                 onPlaceClick={handlePlaceClick}
               />
 
-              {/* "Fuer dich" Recommendations (only in 'alle' segment) */}
-              {segment === 'alle' && userInterests.length > 0 && (() => {
+              {/* Radius Slider */}
+              <div
+                className="absolute z-10 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 rounded-[8px] backdrop-blur-xl"
+                style={{
+                  bottom: segment === 'alle' ? '140px' : '80px',
+                  height: '40px',
+                  maxWidth: '300px',
+                  width: '90%',
+                  background: 'var(--glass)',
+                  border: '1px solid var(--glass-border)',
+                  boxShadow: 'var(--glass-shadow)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  backdropFilter: 'blur(16px)',
+                }}
+              >
+                <span className="text-[9px] font-label tracking-[0.05em] flex-shrink-0" style={{ color: 'var(--text-muted)' }}>5 km</span>
+                <input
+                  type="range"
+                  min={5}
+                  max={50}
+                  step={5}
+                  value={radius}
+                  onChange={(e) => setRadius(Number(e.target.value))}
+                  className="radius-slider flex-1 cursor-pointer"
+                />
+                <span className="text-[9px] font-label tracking-[0.05em] flex-shrink-0" style={{ color: 'var(--text-muted)' }}>50 km</span>
+                <span className="text-[10px] font-label font-medium flex-shrink-0 ml-1" style={{ color: 'var(--gold-text)', minWidth: '32px', textAlign: 'right' }}>{radius} km</span>
+              </div>
+
+              {/* "Fuer dich" Edge Cards Carousel (in 'alle' segment) */}
+              {segment === 'alle' && (() => {
                 const interestsLower = userInterests.map((i) => i.toLowerCase());
-                const matchingPlaces = places.filter((p) =>
-                  p.tags?.some((t) => interestsLower.includes(t.toLowerCase())),
-                );
-                const matchingEvents = events.filter((e) =>
-                  interestsLower.some((i) => e.title.toLowerCase().includes(i) || e.category?.toLowerCase().includes(i)),
-                );
+                const matchingPlaces = userInterests.length > 0
+                  ? places.filter((p) => p.tags?.some((t) => interestsLower.includes(t.toLowerCase())))
+                  : [];
+                const matchingEvents = userInterests.length > 0
+                  ? events.filter((e) => interestsLower.some((i) => e.title.toLowerCase().includes(i) || e.category?.toLowerCase().includes(i)))
+                  : [];
                 type RecoItem = { type: 'place'; data: Place } | { type: 'event'; data: SoEvent };
-                const recos: RecoItem[] = [
+                let recos: RecoItem[] = [
                   ...matchingPlaces.map((p) => ({ type: 'place' as const, data: p })),
                   ...matchingEvents.map((e) => ({ type: 'event' as const, data: e })),
-                ].slice(0, 8);
+                ];
+                // Fallback: show nearest places/events if no interest matches
+                if (recos.length === 0) {
+                  recos = [
+                    ...places.slice(0, 4).map((p) => ({ type: 'place' as const, data: p })),
+                    ...events.slice(0, 4).map((e) => ({ type: 'event' as const, data: e })),
+                  ];
+                }
+                recos = recos.slice(0, 8);
                 if (recos.length === 0) return null;
+
+                const calcDist = (lat: number | undefined | null, lng: number | undefined | null) => {
+                  if (!lat || !lng) return null;
+                  const d = Math.round(
+                    Math.sqrt(
+                      Math.pow((lat - mapCenter[1]) * 111, 2) +
+                      Math.pow((lng - mapCenter[0]) * 111 * Math.cos(mapCenter[1] * Math.PI / 180), 2)
+                    ) * 10
+                  ) / 10;
+                  return d;
+                };
+
+                const hasInterestMatch = userInterests.length > 0 && (matchingPlaces.length > 0 || matchingEvents.length > 0);
+
                 return (
-                  <div className="absolute bottom-20 md:bottom-4 left-0 right-0 z-10 px-3">
-                    <p className="font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1.5 px-1" style={{ color: 'var(--gold-text)' }}>Fuer dich</p>
-                    <div className="overflow-x-auto flex gap-3 pb-2 scrollbar-gold">
-                      {recos.map((reco) => {
-                        const isPlace = reco.type === 'place';
-                        const item = reco.data;
-                        const coverUrl = isPlace ? (item as Place).cover_url : (item as SoEvent).cover_url;
-                        const title = isPlace ? (item as Place).name : (item as SoEvent).title;
-                        return (
-                          <div
-                            key={`${reco.type}-${item.id}`}
-                            onClick={() => isPlace ? handlePlaceClick(item as Place) : handleEventClick(item as SoEvent)}
-                            className="flex-shrink-0 rounded-[8px] overflow-hidden cursor-pointer transition-transform duration-200 hover:scale-[1.03]"
-                            style={{
-                              width: '160px',
-                              border: '1px solid var(--gold-border)',
-                              background: 'var(--glass)',
-                              backdropFilter: 'blur(16px)',
-                              WebkitBackdropFilter: 'blur(16px)',
-                            }}
-                          >
-                            {coverUrl && (
-                              <div className="relative" style={{ height: '80px' }}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={coverUrl} alt="" loading="lazy" className="w-full h-full object-cover block" />
-                                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,.4) 0%, transparent 60%)' }} />
+                  <div
+                    className="absolute bottom-20 md:bottom-4 left-0 right-0 z-10 px-3"
+                  >
+                    <div
+                      className="rounded-[8px] p-3"
+                      style={{
+                        background: 'var(--glass)',
+                        backdropFilter: 'blur(16px)',
+                        WebkitBackdropFilter: 'blur(16px)',
+                        border: '1px solid var(--glass-border)',
+                        boxShadow: 'var(--glass-shadow)',
+                      }}
+                    >
+                      <p className="font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1.5 px-1" style={{ color: 'var(--gold-text)' }}>
+                        {hasInterestMatch ? 'Fuer dich' : 'In der Naehe'}
+                      </p>
+                      <div className="overflow-x-auto flex gap-3 pb-1 scrollbar-gold edge-cards-scroll">
+                        {recos.map((reco) => {
+                          const isPlace = reco.type === 'place';
+                          const item = reco.data;
+                          const coverUrl = isPlace ? (item as Place).cover_url : (item as SoEvent).cover_url;
+                          const title = isPlace ? (item as Place).name : (item as SoEvent).title;
+                          const itemLat = isPlace ? (item as Place).location_lat : (item as SoEvent).location_lat;
+                          const itemLng = isPlace ? (item as Place).location_lng : (item as SoEvent).location_lng;
+                          const dist = calcDist(itemLat, itemLng);
+                          return (
+                            <div
+                              key={`${reco.type}-${item.id}`}
+                              onClick={() => isPlace ? handlePlaceClick(item as Place) : handleEventClick(item as SoEvent)}
+                              className="flex-shrink-0 rounded-[8px] overflow-hidden cursor-pointer transition-transform duration-200 hover:scale-[1.03]"
+                              style={{
+                                width: '160px',
+                                borderTop: '1px solid var(--gold-border)',
+                                borderRight: '1px solid var(--gold-border)',
+                                borderBottom: '1px solid var(--gold-border)',
+                                borderLeft: '2px solid var(--gold)',
+                                background: 'var(--glass)',
+                                backdropFilter: 'blur(16px)',
+                                WebkitBackdropFilter: 'blur(16px)',
+                              }}
+                            >
+                              {coverUrl && (
+                                <div className="relative" style={{ height: '80px' }}>
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={coverUrl} alt="" loading="lazy" className="w-full h-full object-cover block" />
+                                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,.4) 0%, transparent 60%)' }} />
+                                  {dist !== null && (
+                                    <span
+                                      className="absolute bottom-1 right-1 text-[8px] font-label tracking-[0.05em] rounded-full px-1.5 py-0.5"
+                                      style={{ background: 'rgba(0,0,0,0.55)', color: '#fff' }}
+                                    >
+                                      {dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist} km`}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                              <div className="p-2">
+                                <p className="text-[11px] font-heading italic line-clamp-1" style={{ color: 'var(--text-h)' }}>{title}</p>
+                                <div className="flex items-center justify-between mt-0.5">
+                                  <p className="text-[8px] tracking-[0.1em] uppercase font-label" style={{ color: 'var(--gold)' }}>
+                                    {hasInterestMatch ? 'Passt zu dir' : isPlace ? 'Ort' : 'Event'}
+                                  </p>
+                                  {!coverUrl && dist !== null && (
+                                    <span className="text-[8px] font-label" style={{ color: 'var(--text-muted)' }}>
+                                      {dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist} km`}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                            )}
-                            <div className="p-2">
-                              <p className="text-[11px] font-heading italic line-clamp-1" style={{ color: 'var(--text-h)' }}>{title}</p>
-                              <p className="text-[8px] tracking-[0.1em] uppercase font-label mt-0.5" style={{ color: 'var(--gold)' }}>Passt zu dir</p>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 );

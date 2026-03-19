@@ -1105,3 +1105,47 @@ select:focus {
 .wizard-fl-halo {
   animation: wizard-fl-halo 2.5s ease-in-out infinite;
 }
+
+/* ── Tag Cloud Float Animation ───────────────────── */
+@keyframes tag-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+/* ── Radius Slider ───────────────────────────────── */
+.radius-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--gold-border-s);
+  outline: none;
+}
+.radius-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+  border: 2px solid var(--bg-solid);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.radius-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+  border: 2px solid var(--bg-solid);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* ── Scroll Snap for Edge Cards ──────────────────── */
+.edge-cards-scroll {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.edge-cards-scroll > * {
+  scroll-snap-align: start;
+}
