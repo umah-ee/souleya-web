@@ -83,52 +83,205 @@ export default function MapView({ users, events, places = [], center, onMapMove,
   }, []);
 
   // Theme-Wechsel: Mapbox Style live umschalten
+  const [styleLoaded, setStyleLoaded] = useState(0);
   useEffect(() => {
     if (!map.current || !mapReady) return;
     map.current.setStyle(MAP_STYLES[theme]);
+    // After style change, sources/layers are gone — trigger re-render of markers
+    map.current.once('style.load', () => {
+      setStyleLoaded((c) => c + 1);
+    });
   }, [theme, mapReady]);
 
-  // Marker aktualisieren
+  // User-Ref fuer Klick-Handler
+  const usersRef = useRef<MapNearbyUser[]>([]);
+  usersRef.current = users;
+
+  // Cluster-Layers + Unclustered-Marker fuer Users
+  useEffect(() => {
+    if (!map.current || !mapReady) return;
+    const m = map.current;
+
+    // Cleanup: alte Cluster-Layers und -Source entfernen
+    const layersToRemove = ['users-cluster-circles', 'users-cluster-count', 'users-unclustered-point'];
+    layersToRemove.forEach((id) => {
+      if (m.getLayer(id)) m.removeLayer(id);
+    });
+    if (m.getSource('users-cluster')) m.removeSource('users-cluster');
+
+    // Unclustered DOM-Marker entfernen (nur User-Marker)
+    markersRef.current.forEach((marker) => {
+      const el = marker.getElement();
+      if (el.className.includes('souleya-marker-user')) marker.remove();
+    });
+    markersRef.current = markersRef.current.filter((marker) => !marker.getElement().className.includes('souleya-marker-user'));
+
+    if (users.length === 0) return;
+
+    // GeoJSON Source mit Cluster-Optionen
+    m.addSource('users-cluster', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: users.map((u) => ({
+          type: 'Feature' as const,
+          geometry: {
+            type: 'Point' as const,
+            coordinates: [u.location_lng, u.location_lat],
+          },
+          properties: {
+            id: u.id,
+            name: u.display_name || u.username || '',
+            avatar_url: u.avatar_url || '',
+            is_first_light: u.is_first_light,
+          },
+        })),
+      },
+      cluster: true,
+      clusterMaxZoom: 14,
+      clusterRadius: 50,
+    });
+
+    // Cluster circles (gold)
+    m.addLayer({
+      id: 'users-cluster-circles',
+      type: 'circle',
+      source: 'users-cluster',
+      filter: ['has', 'point_count'],
+      paint: {
+        'circle-color': '#C8A96E',
+        'circle-radius': ['step', ['get', 'point_count'], 20, 10, 26, 30, 32],
+        'circle-opacity': 0.85,
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#D4BC8B',
+      },
+    });
+
+    // Cluster count text
+    m.addLayer({
+      id: 'users-cluster-count',
+      type: 'symbol',
+      source: 'users-cluster',
+      filter: ['has', 'point_count'],
+      layout: {
+        'text-field': ['get', 'point_count_abbreviated'],
+        'text-size': 13,
+      },
+      paint: {
+        'text-color': '#FFFFFF',
+      },
+    });
+
+    // Invisible point for unclustered — we use DOM markers for avatars
+    m.addLayer({
+      id: 'users-unclustered-point',
+      type: 'circle',
+      source: 'users-cluster',
+      filter: ['!', ['has', 'point_count']],
+      paint: {
+        'circle-radius': 0,
+        'circle-opacity': 0,
+      },
+    });
+
+    // Click on cluster → zoom in
+    m.on('click', 'users-cluster-circles', (e) => {
+      const features = m.queryRenderedFeatures(e.point, { layers: ['users-cluster-circles'] });
+      if (!features.length) return;
+      const clusterId = features[0].properties?.cluster_id;
+      const source = m.getSource('users-cluster') as mapboxgl.GeoJSONSource;
+      source.getClusterExpansionZoom(clusterId, (err, zoom) => {
+        if (err) return;
+        const geom = features[0].geometry;
+        if (geom.type === 'Point') {
+          m.easeTo({ center: geom.coordinates as [number, number], zoom: zoom ?? 14 });
+        }
+      });
+    });
+
+    // Cursor pointer on clusters
+    m.on('mouseenter', 'users-cluster-circles', () => { m.getCanvas().style.cursor = 'pointer'; });
+    m.on('mouseleave', 'users-cluster-circles', () => { m.getCanvas().style.cursor = ''; });
+
+    // Render unclustered user markers as DOM (for avatars)
+    const renderUnclusteredMarkers = () => {
+      // Remove old unclustered user DOM markers
+      markersRef.current.forEach((marker) => {
+        const el = marker.getElement();
+        if (el.className.includes('souleya-marker-user')) marker.remove();
+      });
+      markersRef.current = markersRef.current.filter((marker) => !marker.getElement().className.includes('souleya-marker-user'));
+
+      const features = m.queryRenderedFeatures({ layers: ['users-unclustered-point'] });
+      features.forEach((feature) => {
+        const props = feature.properties;
+        if (!props?.id) return;
+        const user = usersRef.current.find((u) => u.id === props.id);
+        if (!user) return;
+
+        const initial = (user.display_name ?? user.username ?? '?').slice(0, 1).toUpperCase();
+        const el = document.createElement('div');
+        el.className = 'souleya-marker-user';
+
+        if (user.avatar_url) {
+          el.innerHTML = `<img src="${user.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+        } else {
+          el.innerHTML = `<span style="font-size:14px;font-weight:600;color:var(--text-on-gold);">${initial}</span>`;
+        }
+
+        const borderColor = user.is_first_light ? 'rgba(200,169,110,0.8)' : 'rgba(200,169,110,0.5)';
+        el.style.cssText = `
+          width: 40px; height: 40px; border-radius: 50%;
+          ${user.avatar_url ? '' : 'background: linear-gradient(135deg, var(--gold-deep), var(--gold));'}
+          display: flex; align-items: center; justify-content: center;
+          border: 2.5px solid ${borderColor};
+          cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+          overflow: hidden;
+        `;
+
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onUserClick?.(user);
+        });
+
+        const geom = feature.geometry;
+        if (geom.type === 'Point') {
+          const marker = new mapboxgl.Marker(el)
+            .setLngLat(geom.coordinates as [number, number])
+            .addTo(m);
+          markersRef.current.push(marker);
+        }
+      });
+    };
+
+    // Render on idle and moveend
+    m.on('idle', renderUnclusteredMarkers);
+    m.on('moveend', renderUnclusteredMarkers);
+
+    // Initial render
+    renderUnclusteredMarkers();
+
+    return () => {
+      m.off('idle', renderUnclusteredMarkers);
+      m.off('moveend', renderUnclusteredMarkers);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [users, mapReady, onUserClick, styleLoaded]);
+
+  // Event + Place DOM markers (fewer items, keep as DOM markers)
   useEffect(() => {
     if (!map.current || !mapReady) return;
 
-    // Alte Marker entfernen
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
-
-    // User-Marker (Profilbild oder Initiale)
-    users.forEach((user) => {
-      const initial = (user.display_name ?? user.username ?? '?').slice(0, 1).toUpperCase();
-      const el = document.createElement('div');
-      el.className = 'souleya-marker-user';
-
-      if (user.avatar_url) {
-        el.innerHTML = `<img src="${user.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
-      } else {
-        el.innerHTML = `<span style="font-size:14px;font-weight:600;color:var(--text-on-gold);">${initial}</span>`;
+    // Remove old event + place markers
+    markersRef.current.forEach((marker) => {
+      const el = marker.getElement();
+      if (el.className.includes('souleya-marker-event') || el.className.includes('souleya-marker-place')) {
+        marker.remove();
       }
-
-      const borderColor = user.is_first_light ? 'rgba(200,169,110,0.8)' : 'rgba(200,169,110,0.5)';
-      el.style.cssText = `
-        width: 40px; height: 40px; border-radius: 50%;
-        ${user.avatar_url ? '' : 'background: linear-gradient(135deg, var(--gold-deep), var(--gold));'}
-        display: flex; align-items: center; justify-content: center;
-        border: 2.5px solid ${borderColor};
-        cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        overflow: hidden;
-      `;
-
-      // Klick → Callback statt Popup
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        onUserClick?.(user);
-      });
-
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat([user.location_lng, user.location_lat])
-        .addTo(map.current!);
-
-      markersRef.current.push(marker);
+    });
+    markersRef.current = markersRef.current.filter((marker) => {
+      const cn = marker.getElement().className;
+      return !cn.includes('souleya-marker-event') && !cn.includes('souleya-marker-place');
     });
 
     // Event-Marker (Lila)
@@ -145,7 +298,6 @@ export default function MapView({ users, events, places = [], center, onMapMove,
         cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       `;
 
-      // Klick → Callback statt Popup
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         onEventClick?.(event);
@@ -182,7 +334,8 @@ export default function MapView({ users, events, places = [], center, onMapMove,
 
       markersRef.current.push(marker);
     });
-  }, [users, events, places, mapReady, onUserClick, onEventClick, onPlaceClick]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events, places, mapReady, onEventClick, onPlaceClick, styleLoaded]);
 
   if (!MAPBOX_TOKEN) {
     return (

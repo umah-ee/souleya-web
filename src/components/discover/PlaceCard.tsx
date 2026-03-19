@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { Place } from '@/types/places';
 import { Icon } from '@/components/ui/Icon';
 
@@ -60,6 +61,7 @@ interface Props {
 }
 
 export default function PlaceCard({ place, userId, onSave, onUnsave, saving, onClick }: Props) {
+  const [imgLoaded, setImgLoaded] = useState(false);
   const visibleTags = place.tags.slice(0, 3);
   const extraCount = place.tags.length - 3;
 
@@ -81,11 +83,18 @@ export default function PlaceCard({ place, userId, onSave, onUnsave, saving, onC
       {/* ── Cover Image ──────────────────────── */}
       {place.cover_url && (
         <div className="relative overflow-hidden" style={{ height: '160px' }}>
+          {/* Skeleton placeholder */}
+          {!imgLoaded && (
+            <div className="absolute inset-0 animate-pulse" style={{ background: 'var(--glass-strong)' }} />
+          )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={place.cover_url}
             alt=""
+            loading="lazy"
+            onLoad={() => setImgLoaded(true)}
             className="w-full h-full object-cover block"
+            style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.3s' }}
           />
           {/* Gradient Overlay */}
           <div
@@ -160,14 +169,17 @@ export default function PlaceCard({ place, userId, onSave, onUnsave, saving, onC
           </div>
         )}
 
-        {/* Rating */}
+        {/* Rating + Social Proof */}
         <div className="flex items-center gap-1.5 mb-2">
           <StarRating rating={place.avg_rating} size={13} />
-          <span className="text-[12px]" style={{ color: 'var(--text-h)' }}>
+          <span className="text-[12px] font-medium" style={{ color: 'var(--text-h)' }}>
             {place.avg_rating.toFixed(1)}
           </span>
-          <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-            ({place.reviews_count})
+          <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>·</span>
+          <span className="text-[10px]" style={{ color: 'var(--text-sec)' }}>
+            {place.reviews_count > 0
+              ? `${place.reviews_count} ${place.reviews_count === 1 ? 'Bewertung' : 'Bewertungen'}`
+              : 'Noch keine Bewertungen'}
           </span>
         </div>
 

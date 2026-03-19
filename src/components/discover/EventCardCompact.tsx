@@ -45,7 +45,7 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
 
   return (
     <div
-      className="rounded-[18px] overflow-hidden transition-transform duration-300 hover:-translate-y-[3px]"
+      className="group rounded-[18px] overflow-hidden transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_8px_24px_rgba(200,169,110,0.15)]"
       style={{
         background: 'var(--glass)',
         backdropFilter: 'blur(var(--glass-blur))',
@@ -182,11 +182,16 @@ export default function EventCardCompact({ event, onJoin, onLeave, onShare, onBo
 
             {/* Beschreibung (max 2 Zeilen) */}
             {event.description && (
-              <p className="text-xs line-clamp-2 mt-2.5" style={{ color: 'var(--text-sec)', lineHeight: 1.5 }}>
+              <p className="text-xs line-clamp-2 group-hover:line-clamp-3 mt-2.5 transition-all" style={{ color: 'var(--text-sec)', lineHeight: 1.5 }}>
                 {event.description}
               </p>
             )}
           </div>
+        </div>
+
+        {/* Hover Arrow Indicator */}
+        <div className="flex justify-end mb-1">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-xs" style={{ color: 'var(--gold)' }}>→</span>
         </div>
 
         {/* ── Action Bar ────────────────────────── */}
