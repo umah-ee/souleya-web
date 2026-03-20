@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import HeroSlider from '@/components/public/HeroSlider';
+import TopicHero from '@/components/public/TopicHero';
+import FirstLightDetailSection from '@/components/public/FirstLightDetailSection';
 import JourneySection from '@/components/public/JourneySection';
 import FeaturesGrid from '@/components/public/FeaturesGrid';
 import HowItWorks from '@/components/public/HowItWorks';
@@ -22,7 +23,8 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      <HeroSlider />
+      <TopicHero />
+      <FirstLightDetailSection />
       <JourneySection />
       <FeaturesGrid />
       <HowItWorks />
