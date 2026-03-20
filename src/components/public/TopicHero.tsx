@@ -283,7 +283,6 @@ export default function TopicHero() {
               <div className="th-tcard-ov" />
               <div className="th-tcard-content">
                 <div className="th-tcard-name">{t.name}</div>
-                <div className="th-tcard-sub">5 Unterthemen</div>
               </div>
             </div>
           );

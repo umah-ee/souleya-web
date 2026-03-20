@@ -81,4 +81,4 @@ export const TOPICS: Record<string, Topic> = {
   },
 };
 
-export const TOPIC_ORDER = ['wachstum', 'gesundheit', 'worklife', 'spiritualitaet', 'beziehungen'];
+export const TOPIC_ORDER = ['wachstum', 'gesundheit', 'beziehungen', 'worklife', 'spiritualitaet'];
