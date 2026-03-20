@@ -136,26 +136,27 @@ async function generateCardImage(quote: WisdomQuote, bgUrl: string): Promise<Blo
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
   ctx.fillText(quote.author, padX, y);
 
-  // Branding Bar oben
-  const barH = 64;
-  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  // Branding Bar oben — groesser, Gold
+  const barH = 90;
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
   ctx.fillRect(0, 0, W, barH);
 
-  // Enso-Ring (simplifiziert als Arc) — oben zentriert
-  const ensoX = W / 2 - 60;
+  // Enso-Ring in Gold — oben zentriert, deutlich groesser
+  const ensoR = 22;
+  const ensoX = W / 2 - 80;
   const ensoY = barH / 2;
   ctx.beginPath();
-  ctx.arc(ensoX, ensoY, 14, -Math.PI * 0.15, Math.PI * 1.7);
-  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-  ctx.lineWidth = 3;
+  ctx.arc(ensoX, ensoY, ensoR, -Math.PI * 0.15, Math.PI * 1.7);
+  ctx.strokeStyle = '#C8A96E';
+  ctx.lineWidth = 4.5;
   ctx.lineCap = 'round';
   ctx.stroke();
 
-  // "SOULEYA" Text — groesser
-  ctx.font = '400 24px "Cormorant Garamond", Georgia, serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.letterSpacing = '5px';
-  ctx.fillText('SOULEYA', ensoX + 24, ensoY + 8);
+  // "SOULEYA" Text — Gold, deutlich groesser
+  ctx.font = '400 36px "Cormorant Garamond", Georgia, serif';
+  ctx.fillStyle = '#C8A96E';
+  ctx.letterSpacing = '8px';
+  ctx.fillText('SOULEYA', ensoX + ensoR + 16, ensoY + 12);
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob!), 'image/png', 1);
@@ -227,21 +228,27 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
         }}
       />
 
-      {/* Souleya Branding oben */}
+      {/* Souleya Branding oben — Gold */}
       <div
-        className="absolute top-0 left-0 right-0 flex items-center justify-center gap-2.5 py-3"
+        className="absolute top-0 left-0 right-0 flex items-center justify-center gap-2.5 py-3.5"
         style={{
-          background: 'rgba(0,0,0,0.4)',
+          background: 'rgba(0,0,0,0.45)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
         }}
       >
-        <svg width="24" height="24" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="9" strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15" />
+        <svg width="28" height="28" viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="enso-card-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#A8894E"/>
+              <stop offset="100%" stopColor="#D4BC8B"/>
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="36" fill="none" stroke="url(#enso-card-grad)" strokeWidth="9" strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15" />
         </svg>
         <span
           className="font-heading"
-          style={{ fontSize: '15px', letterSpacing: '4px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}
+          style={{ fontSize: '17px', letterSpacing: '5px', color: '#C8A96E', textTransform: 'uppercase' }}
         >
           Souleya
         </span>
