@@ -178,7 +178,7 @@ export default function TopicHero() {
                   onClick={() => openMorph(i)}
                 >
                   <div className="th-hsd" />
-                  <div className="th-hst">{s.name}</div>
+                  <div className="th-hst" onClick={(e) => { e.stopPropagation(); openMorph(i); }}>{s.name}</div>
                 </div>
               ))}
             </div>
