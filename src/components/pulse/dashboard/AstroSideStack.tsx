@@ -99,7 +99,7 @@ export default function AstroSideStack({ birthday }: Props) {
       {/* Sternzeichen-Karte */}
       {zodiac && (
         <div
-          className="rounded-[8px] p-4 flex flex-col gap-2 relative overflow-hidden flex-1"
+          className="rounded-[8px] p-4 flex flex-col gap-2 relative overflow-hidden h-[204px]"
           style={{
             background: 'var(--glass)',
             backdropFilter: 'blur(20px)',
@@ -132,7 +132,7 @@ export default function AstroSideStack({ birthday }: Props) {
 
       {/* Tageszahl-Karte */}
       <div
-        className="rounded-[8px] p-4 flex flex-col items-center justify-center text-center gap-1 relative overflow-hidden flex-1"
+        className="rounded-[8px] p-4 flex flex-col items-center justify-center text-center gap-1 relative overflow-hidden h-[204px]"
         style={{
           background: 'var(--glass)',
           backdropFilter: 'blur(20px)',
