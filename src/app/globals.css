@@ -905,11 +905,11 @@ select:focus {
 /* ── 4 Topic Cards ── */
 .th-cards-row {
   display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 12px; padding: 20px 36px;
+  gap: 10px; padding: 14px 36px;
 }
 .th-tcard {
   position: relative; border-radius: 8px; overflow: hidden;
-  cursor: pointer; aspect-ratio: 16/9;
+  cursor: pointer; aspect-ratio: 2/1;
   border: 1px solid rgba(200,169,110,.18);
   transition: transform 0.3s;
 }
@@ -978,22 +978,39 @@ select:focus {
 
 /* Light theme overrides for Topic Hero */
 [data-theme="light"] .th-signup-panel {
-  background: rgba(255,255,255,.7);
-  border-color: rgba(168,137,78,.2);
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(32px) saturate(1.4);
+  -webkit-backdrop-filter: blur(32px) saturate(1.4);
+  border-color: rgba(168,137,78,.3);
+  box-shadow: 0 4px 30px rgba(0,0,0,.12);
 }
 [data-theme="light"] .th-signup-panel form input[type="text"] {
-  background: rgba(0,0,0,.04) !important;
-  border-color: rgba(168,137,78,.3) !important;
-  color: var(--text-h) !important;
+  background: rgba(0,0,0,.06) !important;
+  border-color: rgba(168,137,78,.35) !important;
+  color: #2A2216 !important;
 }
 [data-theme="light"] .th-signup-panel form input[type="text"]::placeholder {
-  color: var(--text-muted) !important;
+  color: rgba(90,69,32,.5) !important;
+}
+[data-theme="light"] .th-signup-panel .th-fl-mini-total {
+  color: rgba(90,69,32,.6);
+}
+[data-theme="light"] .th-signup-panel .th-fl-mini-link {
+  color: #7A6030;
+  font-weight: 600;
+}
+[data-theme="light"] .th-signup-panel p {
+  color: #3D2E10 !important;
 }
 [data-theme="light"] .th-hst {
-  background: rgba(255,255,255,.65);
-  border-color: rgba(168,137,78,.2);
-  color: var(--text-h);
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(32px) saturate(1.4);
+  -webkit-backdrop-filter: blur(32px) saturate(1.4);
+  border-color: rgba(168,137,78,.25);
+  color: #2A2216;
   text-shadow: none;
+  font-weight: 600;
+  box-shadow: 0 2px 12px rgba(0,0,0,.1);
 }
 [data-theme="light"] .th-fl-section { color: var(--text-h); }
 [data-theme="light"] .th-fl-headline { color: var(--text-h); }

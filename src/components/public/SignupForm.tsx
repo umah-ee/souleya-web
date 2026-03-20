@@ -239,17 +239,17 @@ export default function SignupForm() {
   /* ── Session-Redirect Button ── */
   if (hasSession) {
     return (
-      <div className="mt-4">
-        <p className="text-sm text-white/70 mb-3">
-          Du bist bereits eingeloggt – klicke auf „Zum Circle" um weiterzumachen.
+      <div className="mt-2 text-right">
+        <p className="text-sm mb-2" style={{ color: 'var(--text-muted, rgba(255,255,255,.7))' }}>
+          Du bist bereits eingeloggt.
         </p>
         <a
           href="/profile"
-          className="inline-block px-8 py-3 rounded-full font-label text-sm font-semibold uppercase tracking-widest transition-all"
+          className="inline-block px-5 py-2 font-label text-xs font-semibold uppercase tracking-wide transition-all"
           style={{
             background: 'linear-gradient(135deg, #A8894E, #C8A96E, #D4BC8B)',
             color: 'var(--dark, #1a1a1a)',
-            boxShadow: '0 0 30px rgba(200,169,110,.3)',
+            borderRadius: '8px',
           }}
         >
           Zum Circle
