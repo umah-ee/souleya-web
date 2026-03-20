@@ -112,7 +112,7 @@ lib/
 | Theme (Light/Dark) | ✅ | `data-theme` Attribut, ThemeProvider |
 | Oeffentliche Seiten (Homepage, Preise, Ueber uns, Blog) | ✅ | Mono-Domain souleya.com |
 | First Light Fortschrittsbalken | ✅ | Zweizonen-Balken (Early 1–200 + First Light 201–500), Enso-Marker, Shimmer, Realtime-Count, dynamisches Messaging |
-| Topic Hero (Themen-Selector) | ✅ | 5 Hauptthemen mit Hotspot-Dots (Glasmorphism), Morph-Navigation, kompaktes Signup-Panel, 4 Topic-Cards, First Light Detail Section mit Compare-Akkordeon. Ersetzt HeroSlider. |
+| Topic Hero (Themen-Selector) | ✅ | 5 Hauptthemen (Wachstum, Gesundheit, Beziehungen, Work-Life, Spiritualitaet) mit Hotspot-Dots (Glasmorphism), Morph-Navigation, Signup-Panel (dunkles Milchglas, Light+Dark identisch), 4 Topic-Cards, eigenstaendige First Light Detail Section mit Compare-Akkordeon. Ersetzt HeroSlider. |
 | ImageGrid + Lightbox | ✅ | Global LightboxProvider (Context + Portal), z-200, Keyboard-Support |
 | Navigation | ✅ | Sidebar default ausgeklappt, Profil oben rechts (EnsoRing), Notification-Bell |
 | Benachrichtigungen | ✅ | NotificationBell mit Dropdown-Panel (Actor-Avatar, Loeschen, Gelesene loeschen, Badge-Pulse-Animation, Settings-Link), Realtime + 30s Polling |
