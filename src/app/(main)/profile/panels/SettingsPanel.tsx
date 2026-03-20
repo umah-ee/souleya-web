@@ -6,6 +6,8 @@ import { useTheme } from '@/components/ThemeProvider';
 import { createClient } from '@/lib/supabase/client';
 import Panel from '@/components/ui/Panel';
 import { Icon, type IconName } from '@/components/ui/Icon';
+import { PasswordInput } from '@/components/auth/PasswordInput';
+import { PasswordStrengthBar } from '@/components/auth/PasswordStrengthBar';
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -15,7 +17,7 @@ interface SettingsPanelProps {
   initialSubView?: 'main' | 'notifications';
 }
 
-type SubView = 'main' | 'appearance' | 'notifications' | 'privacy' | 'account';
+type SubView = 'main' | 'appearance' | 'notifications' | 'privacy' | 'account' | 'password';
 
 /**
  * Settings Panel — exakt nach Mockup
@@ -60,6 +62,48 @@ export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPost
     showCircles: true,
     dataAnalytics: false,
   });
+
+  // Password change state
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwStatus, setPwStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [pwError, setPwError] = useState('');
+
+  const handlePasswordChange = async () => {
+    setPwError('');
+
+    if (newPassword.length < 8) {
+      setPwError('Mindestens 8 Zeichen');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPwError('Die Passwoerter stimmen nicht ueberein.');
+      return;
+    }
+
+    setPwStatus('saving');
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) {
+        setPwError(error.message === 'New password should be different from the old password.'
+          ? 'Das neue Passwort muss sich vom alten unterscheiden.'
+          : 'Das hat leider nicht geklappt. Versuch es nochmal.');
+        setPwStatus('error');
+        return;
+      }
+      setPwStatus('success');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => {
+        setPwStatus('idle');
+        setSubView('account');
+      }, 2000);
+    } catch {
+      setPwError('Das hat leider nicht geklappt. Versuch es nochmal.');
+      setPwStatus('error');
+    }
+  };
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -320,6 +364,44 @@ export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPost
               overflow: 'hidden',
             }}
           >
+            {/* Passwort aendern */}
+            <button
+              onClick={() => { setPwStatus('idle'); setPwError(''); setNewPassword(''); setConfirmPassword(''); setSubView('password'); }}
+              className="w-full flex items-center cursor-pointer transition-colors"
+              style={{
+                gap: '14px',
+                padding: '16px 18px',
+                color: 'var(--text-h)',
+                background: 'transparent',
+                border: 'none',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--glass)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+            >
+              <div
+                className="flex items-center justify-center flex-shrink-0"
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  background: 'var(--glass)',
+                  border: '1px solid var(--divider-l)',
+                }}
+              >
+                <Icon name="lock" size={16} style={{ color: 'var(--text-sec)' }} />
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-h)' }}>
+                  Passwort aendern
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--text-sec)', marginTop: '1px' }}>
+                  Neues Passwort festlegen
+                </div>
+              </div>
+              <Icon name="chevron-right" size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+            </button>
+
+            {/* Abmelden */}
             <button
               onClick={handleLogout}
               className="w-full flex items-center cursor-pointer transition-colors"
@@ -329,6 +411,7 @@ export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPost
                 color: 'var(--error)',
                 background: 'transparent',
                 border: 'none',
+                borderTop: '1px solid var(--divider-l)',
               }}
               onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--error-bg)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
@@ -347,6 +430,77 @@ export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPost
               </div>
               <span style={{ fontSize: '14px', fontWeight: 600 }}>Abmelden</span>
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Passwort aendern Sub-View ─── */}
+      {subView === 'password' && (
+        <div>
+          <SubViewHeader onBack={() => setSubView('account')} title="Passwort aendern" />
+
+          <div className="flex flex-col" style={{ gap: '16px' }}>
+            {/* Neues Passwort */}
+            <div>
+              <SectionLabel>Neues Passwort</SectionLabel>
+              <PasswordInput
+                value={newPassword}
+                onChange={setNewPassword}
+                placeholder="Neues Passwort"
+                disabled={pwStatus === 'saving'}
+              />
+              <div style={{ marginTop: '8px' }}>
+                <PasswordStrengthBar password={newPassword} />
+              </div>
+            </div>
+
+            {/* Passwort bestaetigen */}
+            <div>
+              <SectionLabel>Passwort bestaetigen</SectionLabel>
+              <PasswordInput
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                placeholder="Passwort wiederholen"
+                disabled={pwStatus === 'saving'}
+              />
+            </div>
+
+            {/* Fehlermeldung */}
+            {pwError && (
+              <p className="font-body text-xs" style={{ color: 'var(--error)', margin: 0 }}>
+                {pwError}
+              </p>
+            )}
+
+            {/* Erfolgsmeldung */}
+            {pwStatus === 'success' && (
+              <p className="font-body text-xs" style={{ color: 'var(--success)', margin: 0 }}>
+                Passwort erfolgreich geaendert.
+              </p>
+            )}
+
+            {/* Speichern-Button */}
+            <button
+              onClick={handlePasswordChange}
+              disabled={pwStatus === 'saving' || pwStatus === 'success' || !newPassword || !confirmPassword}
+              className="w-full py-3 rounded-full font-body text-sm font-semibold cursor-pointer transition-all duration-200"
+              style={{
+                background: pwStatus === 'success' ? 'var(--success)' : 'var(--gold)',
+                color: '#fff',
+                border: 'none',
+                opacity: (pwStatus === 'saving' || !newPassword || !confirmPassword) ? 0.5 : 1,
+              }}
+            >
+              {pwStatus === 'saving' ? 'Wird gespeichert \u2026' : pwStatus === 'success' ? 'Gespeichert' : 'Passwort aendern'}
+            </button>
+
+            {/* Hinweis */}
+            <p
+              className="font-body text-center"
+              style={{ fontSize: '11px', color: 'var(--text-muted)', margin: 0 }}
+            >
+              Mindestens 8 Zeichen. Am besten eine Mischung aus Gross- und Kleinbuchstaben, Zahlen und Sonderzeichen.
+            </p>
           </div>
         </div>
       )}
