@@ -229,7 +229,6 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
 
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
-          title: 'Tagesimpuls \u2014 Souleya',
           text: message,
           files: [file],
         });
