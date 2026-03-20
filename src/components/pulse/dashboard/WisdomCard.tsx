@@ -136,26 +136,26 @@ async function generateCardImage(quote: WisdomQuote, bgUrl: string): Promise<Blo
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
   ctx.fillText(quote.author, padX, y);
 
-  // Branding Bar am unteren Rand
-  const barH = 52;
-  ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.fillRect(0, H - barH, W, barH);
+  // Branding Bar oben
+  const barH = 64;
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillRect(0, 0, W, barH);
 
-  // Enso-Ring (simplifiziert als Arc)
-  const ensoX = W / 2 - 48;
-  const ensoY = H - barH / 2;
+  // Enso-Ring (simplifiziert als Arc) — oben zentriert
+  const ensoX = W / 2 - 60;
+  const ensoY = barH / 2;
   ctx.beginPath();
-  ctx.arc(ensoX, ensoY, 11, -Math.PI * 0.15, Math.PI * 1.7);
-  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-  ctx.lineWidth = 2.5;
+  ctx.arc(ensoX, ensoY, 14, -Math.PI * 0.15, Math.PI * 1.7);
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+  ctx.lineWidth = 3;
   ctx.lineCap = 'round';
   ctx.stroke();
 
-  // "SOULEYA" Text
-  ctx.font = '400 18px "Cormorant Garamond", Georgia, serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.letterSpacing = '4px';
-  ctx.fillText('SOULEYA', ensoX + 18, ensoY + 6);
+  // "SOULEYA" Text — groesser
+  ctx.font = '400 24px "Cormorant Garamond", Georgia, serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.letterSpacing = '5px';
+  ctx.fillText('SOULEYA', ensoX + 24, ensoY + 8);
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob!), 'image/png', 1);
@@ -227,6 +227,26 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
         }}
       />
 
+      {/* Souleya Branding oben */}
+      <div
+        className="absolute top-0 left-0 right-0 flex items-center justify-center gap-2.5 py-3"
+        style={{
+          background: 'rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+        }}
+      >
+        <svg width="24" height="24" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="9" strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15" />
+        </svg>
+        <span
+          className="font-heading"
+          style={{ fontSize: '15px', letterSpacing: '4px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}
+        >
+          Souleya
+        </span>
+      </div>
+
       {/* Inhalt am unteren Rand */}
       <div className="absolute inset-0 flex flex-col justify-end p-6">
         {/* Tradition Label */}
@@ -254,7 +274,7 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
         </p>
 
         {/* Teilen-Button */}
-        <div className="flex justify-end" style={{ marginBottom: '30px' }}>
+        <div className="flex justify-end">
           <button
             onClick={handleShareAsCard}
             className="flex items-center gap-1.5 px-4 py-2 rounded-full font-body text-xs font-semibold cursor-pointer transition-all duration-200"
@@ -270,26 +290,6 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
             Teilen
           </button>
         </div>
-      </div>
-
-      {/* Souleya Branding am unteren Rand */}
-      <div
-        className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-2 py-2.5"
-        style={{
-          background: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-        }}
-      >
-        <svg width="20" height="20" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="9" strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15" />
-        </svg>
-        <span
-          className="font-heading"
-          style={{ fontSize: '13px', letterSpacing: '3px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}
-        >
-          Souleya
-        </span>
       </div>
     </div>
   );

@@ -129,8 +129,8 @@ export default function PulseDashboard({
       {/* Activity Bar */}
       <ActivityBar unreadMessages={unreadMessages} newPosts={newPosts} />
 
-      {/* Wisdom Card + Astro Side Stack (2-Spalten-Grid auf Desktop, 40px Gap) */}
-      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr]" style={{ gap: '40px' }}>
+      {/* Wisdom Card + Astro Side Stack (2-Spalten-Grid auf Desktop) */}
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-3">
         <WisdomCard
           quote={quote}
         />
