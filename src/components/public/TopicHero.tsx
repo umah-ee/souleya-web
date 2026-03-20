@@ -21,7 +21,6 @@ export default function TopicHero() {
   const [imgOpacity, setImgOpacity] = useState(1);
   const [flCount, setFlCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(0);
-  const [hasAnimated, setHasAnimated] = useState(false);
 
   // Preload all topic images
   useEffect(() => {
@@ -62,23 +61,10 @@ export default function TopicHero() {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  // Count-up animation
+  // Sync display count directly (no animation needed for mini counter)
   useEffect(() => {
-    if (flCount === 0 || hasAnimated) return;
-    setHasAnimated(true);
-    const duration = 1800;
-    const start = performance.now();
-    let raf: number;
-    function tick(now: number) {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplayCount(Math.round(eased * flCount));
-      if (progress < 1) raf = requestAnimationFrame(tick);
-    }
-    const timer = setTimeout(() => { raf = requestAnimationFrame(tick); }, 400);
-    return () => { clearTimeout(timer); cancelAnimationFrame(raf!); };
-  }, [flCount, hasAnimated]);
+    setDisplayCount(flCount);
+  }, [flCount]);
 
   // Crossfade image helper
   const crossfade = useCallback((src: string) => {
