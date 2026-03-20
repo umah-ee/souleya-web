@@ -13,7 +13,7 @@ import WisdomCard from './WisdomCard';
 import ToolkitSection from './ToolkitSection';
 import ChallengeWidget from './ChallengeWidget';
 import NearbyEventsWidget from './NearbyEventsWidget';
-import AstroSideStack from './AstroSideStack';
+import SideStack from '../sidestack/SideStack';
 
 interface PulseDashboardProps {
   displayName: string;
@@ -134,7 +134,7 @@ export default function PulseDashboard({
         <WisdomCard
           quote={quote}
         />
-        <AstroSideStack birthday={birthday} />
+        <SideStack birthday={birthday} />
       </div>
 
       {/* Toolkit Section */}
