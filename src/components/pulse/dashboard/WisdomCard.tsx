@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import type { WisdomQuote } from '@/lib/wisdomQuotes';
 
@@ -212,32 +212,55 @@ interface Props {
 export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle', copied = false }: Props) {
   const bgImage = getQuoteBackground(quote);
   const cardRef = useRef<HTMLDivElement>(null);
+  const [showShareInput, setShowShareInput] = useState(false);
+  const [shareText, setShareText] = useState('');
+  const [sharing, setSharing] = useState(false);
 
   const handleShareAsCard = useCallback(async () => {
+    setSharing(true);
     try {
       const blob = await generateCardImage(quote, bgImage);
       const file = new File([blob], 'souleya-impuls.png', { type: 'image/png' });
 
+      // Persoenlicher Text + Souleya-Link
+      const message = shareText.trim()
+        ? `${shareText.trim()}\n\nsouleya.com`
+        : `souleya.com`;
+
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           title: 'Tagesimpuls \u2014 Souleya',
-          text: `\u201E${quote.text}\u201C \u2014 ${quote.author}`,
+          text: message,
+          url: 'https://souleya.com',
           files: [file],
         });
+        setShowShareInput(false);
+        setShareText('');
         return;
       }
 
+      // Desktop-Fallback: Bild downloaden + Text in Zwischenablage
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = 'souleya-impuls.png';
       a.click();
       URL.revokeObjectURL(url);
+
+      // Text auch kopieren
+      try {
+        await navigator.clipboard.writeText(message);
+      } catch { /* ignore */ }
+
+      setShowShareInput(false);
+      setShareText('');
     } catch (e) {
       if ((e as DOMException)?.name === 'AbortError') return;
       console.error('Teilen fehlgeschlagen:', e);
+    } finally {
+      setSharing(false);
     }
-  }, [quote, bgImage]);
+  }, [quote, bgImage, shareText]);
 
   return (
     <div
@@ -314,23 +337,83 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
           {quote.author}
         </p>
 
-        {/* Teilen-Button */}
-        <div className="flex justify-end">
-          <button
-            onClick={handleShareAsCard}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-body text-xs font-semibold cursor-pointer transition-all duration-200"
+        {/* Teilen-Bereich */}
+        {!showShareInput ? (
+          <div className="flex justify-end">
+            <button
+              onClick={() => setShowShareInput(true)}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-body text-xs font-semibold cursor-pointer transition-all duration-200"
+              style={{
+                background: 'rgba(255,255,255,0.12)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#fff',
+              }}
+            >
+              <Icon name="share" size={14} style={{ color: '#fff' }} />
+              Teilen
+            </button>
+          </div>
+        ) : (
+          <div
+            className="rounded-[8px] p-3 flex flex-col gap-2.5"
             style={{
-              background: 'rgba(255,255,255,0.12)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              color: '#fff',
+              background: 'rgba(0,0,0,0.4)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.1)',
             }}
           >
-            <Icon name="share" size={14} style={{ color: '#fff' }} />
-            Teilen
-          </button>
-        </div>
+            <textarea
+              value={shareText}
+              onChange={(e) => setShareText(e.target.value)}
+              placeholder="Schreib etwas dazu \u2026"
+              maxLength={200}
+              rows={2}
+              autoFocus
+              className="w-full font-body text-xs rounded-[8px] resize-none outline-none"
+              style={{
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                color: '#fff',
+                padding: '8px 12px',
+              }}
+            />
+            <div className="flex items-center justify-between">
+              <span className="font-body text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                souleya.com wird automatisch angehaengt
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowShareInput(false); setShareText(''); }}
+                  className="px-3 py-1.5 rounded-full font-body text-[11px] cursor-pointer"
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    color: 'rgba(255,255,255,0.6)',
+                  }}
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={handleShareAsCard}
+                  disabled={sharing}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full font-body text-[11px] font-semibold cursor-pointer"
+                  style={{
+                    background: 'var(--gold)',
+                    border: 'none',
+                    color: '#fff',
+                    opacity: sharing ? 0.5 : 1,
+                  }}
+                >
+                  <Icon name="share" size={12} style={{ color: '#fff' }} />
+                  {sharing ? 'Wird geteilt \u2026' : 'Teilen'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
