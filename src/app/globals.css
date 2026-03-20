@@ -859,6 +859,39 @@ select:focus {
 }
 .th-fl-mini-link:hover { opacity: .7; }
 
+/* Urgency teaser above signup form */
+.th-fl-urgency-teaser {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 12px; font-weight: 500; line-height: 1.5;
+  color: rgba(240,232,216,.75);
+  margin-bottom: 10px;
+}
+.th-fl-urgency-teaser strong {
+  color: var(--gold-text, #C8A96E);
+  font-weight: 600;
+}
+
+/* "Was ist First Light?" prominent button */
+.th-fl-firstlight-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 12px;
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--gold-text, #C8A96E);
+  background: rgba(200,169,110,.08);
+  border: 1px solid rgba(200,169,110,.25);
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.th-fl-firstlight-btn:hover {
+  background: rgba(200,169,110,.15);
+  border-color: rgba(200,169,110,.45);
+}
+
 /* ── Morph Navigation ── */
 .th-morph-bar {
   position: absolute; top: 80px; right: 36px; z-index: 15;
@@ -1009,6 +1042,13 @@ select:focus {
 [data-theme="light"] .th-signup-panel .th-fl-mini-link {
   color: var(--gold, #D4BC8B);
   font-weight: 600;
+}
+[data-theme="light"] .th-fl-urgency-teaser {
+  color: rgba(240,232,216,.8);
+}
+[data-theme="light"] .th-fl-firstlight-btn {
+  color: var(--gold, #D4BC8B);
+  border-color: rgba(200,169,110,.3);
 }
 [data-theme="light"] .th-signup-panel p {
   color: #F0E8D8 !important;

@@ -214,6 +214,9 @@ export default function TopicHero() {
 
           {/* ── Compact Signup Panel (bottom-right) ── */}
           <div className="th-signup-panel">
+            <p className="th-fl-urgency-teaser">
+              Sei schnell – sichere dir einen <strong>First Light</strong> Platz und erhalte lebenslange Vorteile.
+            </p>
             <SignupForm />
             <div className="th-fl-mini">
               <div className="th-fl-mini-bar">
@@ -255,10 +258,17 @@ export default function TopicHero() {
                   <span className="th-fl-mini-num">{displayCount}</span>
                   <span className="th-fl-mini-total"> / 500 vergeben</span>
                 </div>
-                <a href="#first-light-detail" className="th-fl-mini-link">
-                  Was ist First Light? ↓
-                </a>
               </div>
+              <a href="#first-light-detail" className="th-fl-firstlight-btn">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 8v4m0 4h.01" />
+                </svg>
+                Was ist First Light?
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <path d="M6 9l6 6l6 -6" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
