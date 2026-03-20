@@ -5,28 +5,48 @@ import { Icon } from '@/components/ui/Icon';
 import type { WisdomQuote } from '@/lib/wisdomQuotes';
 
 // ── Kuratierte Hintergrundbilder (Unsplash) ───────────────────
-// Jedes Zitat bekommt deterministisch ein eigenes passendes Bild.
+// Hell, freundlich, lebendig — keine dunklen/finsteren Bilder.
 const QUOTE_BACKGROUNDS: string[] = [
-  'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&h=1000&fit=crop',
+  // Goldene Stunde ueber Wiese
   'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1510797215324-95aa89f43c33?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1414609245224-afa02bfb3fda?w=800&h=1000&fit=crop',
-  'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=1000&fit=crop',
+  // Tuerkises Meer von oben
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=1000&fit=crop',
+  // Sonnenaufgang ueber Wolken
+  'https://images.unsplash.com/photo-1502481851512-e9e2529b8c7c?w=800&h=1000&fit=crop',
+  // Kirschblueten rosa
   'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=800&h=1000&fit=crop',
+  // Lavendelfeld in der Sonne
+  'https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=800&h=1000&fit=crop',
+  // Sonnenblumenfeld
+  'https://images.unsplash.com/photo-1470509037663-253afd7f0f51?w=800&h=1000&fit=crop',
+  // Bergsee tuerkis
+  'https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=800&h=1000&fit=crop',
+  // Goldener Herbstwald
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop',
+  // Tropischer Strand mit Palmen
+  'https://images.unsplash.com/photo-1476673160081-cf065607f449?w=800&h=1000&fit=crop',
+  // Sonnenuntergang ueber dem Meer
+  'https://images.unsplash.com/photo-1414609245224-afa02bfb3fda?w=800&h=1000&fit=crop',
+  // Wildblumenwiese
+  'https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800&h=1000&fit=crop',
+  // Helle Berglandschaft
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=1000&fit=crop',
+  // Lotus Bluete
+  'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&h=1000&fit=crop',
+  // Nebel ueber gruenem Tal — weich, hell
+  'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=1000&fit=crop',
+  // Warmer Sonnenuntergang Feld
+  'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&h=1000&fit=crop',
+  // Hellgruener Wald mit Licht
+  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=1000&fit=crop',
+  // Pastellfarbener Himmel
+  'https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?w=800&h=1000&fit=crop',
+  // Fruehling Blueten Baum
+  'https://images.unsplash.com/photo-1462275646964-a0e3c11f18a6?w=800&h=1000&fit=crop',
+  // Klarer Bergsee Spiegelung
+  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&h=1000&fit=crop',
+  // Warmes Licht durch Blaetter
+  'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=800&h=1000&fit=crop',
 ];
 
 function getQuoteBackground(quote: WisdomQuote): string {
@@ -51,7 +71,6 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 }
 
 // ── Offizielles Enso-Logo als SVG → Canvas-Image ─────────────
-// Exakt nach Spezifikation: dasharray 196 30, dashoffset 15, Gradient Gold
 function createEnsoSvgUrl(size: number): string {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${size}" height="${size}">
     <defs>
@@ -66,13 +85,11 @@ function createEnsoSvgUrl(size: number): string {
 }
 
 // ── Canvas-basierte Bild-Generierung ──────────────────────────
-// Skalierungsfaktor: Die visuelle Karte ist ~336px breit (maxHeight 420, 4:5).
-// Canvas: 1080px breit → Faktor ~3.2x. Alle Groessen proportional.
 const S = 3.2; // Skalierungsfaktor Display → Canvas
 
 async function generateCardImage(quote: WisdomQuote, bgUrl: string): Promise<Blob> {
   const W = 1080;
-  const H = 1350; // 4:5 Instagram
+  const H = 1350;
 
   const canvas = document.createElement('canvas');
   canvas.width = W;
@@ -88,52 +105,45 @@ async function generateCardImage(quote: WisdomQuote, bgUrl: string): Promise<Blo
   const sy = (bgImg.height - sh) / 2;
   ctx.drawImage(bgImg, sx, sy, sw, sh, 0, 0, W, H);
 
-  // ─ Dunkler Gradient (identisch zur visuellen Karte) ─
+  // ─ Dunkler Gradient (etwas weicher fuer helle Bilder) ─
   const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, 'rgba(0,0,0,0.1)');
-  grad.addColorStop(0.3, 'rgba(0,0,0,0.3)');
-  grad.addColorStop(1, 'rgba(0,0,0,0.75)');
+  grad.addColorStop(0, 'rgba(0,0,0,0.05)');
+  grad.addColorStop(0.4, 'rgba(0,0,0,0.15)');
+  grad.addColorStop(0.7, 'rgba(0,0,0,0.45)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.8)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
-  // ─ Branding Bar oben (py-3.5 = 14px → barH ~56px → ×S) ─
+  // ─ Branding Bar oben ─
   const barH = Math.round(56 * S);
-  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
   ctx.fillRect(0, 0, W, barH);
 
-  // ─ Enso-Logo (offizielles SVG, pixelgenau) ─
-  const ensoSize = Math.round(28 * S); // 28px auf Karte → 90px auf Canvas
+  // ─ Enso-Logo (offizielles SVG) ─
+  const ensoSize = Math.round(28 * S);
   const ensoSvg = await loadImage(createEnsoSvgUrl(ensoSize));
 
-  // "SOULEYA" Text messen fuer Zentrierung
   const textSize = Math.round(17 * S);
   const letterSp = Math.round(5 * S);
   ctx.font = `400 ${textSize}px "Cormorant Garamond", Georgia, serif`;
   ctx.letterSpacing = `${letterSp}px`;
   const textW = ctx.measureText('SOULEYA').width;
-  const gap = Math.round(10 * S); // gap-2.5 = 10px
-  const totalW = ensoSize + gap + textW;
+  const brandGap = Math.round(10 * S);
+  const totalW = ensoSize + brandGap + textW;
   const startX = (W - totalW) / 2;
 
   ctx.drawImage(ensoSvg, startX, (barH - ensoSize) / 2, ensoSize, ensoSize);
 
   ctx.fillStyle = '#C8A96E';
   ctx.textBaseline = 'middle';
-  ctx.fillText('SOULEYA', startX + ensoSize + gap, barH / 2 + 2);
-  ctx.textBaseline = 'alphabetic'; // Reset
+  ctx.fillText('SOULEYA', startX + ensoSize + brandGap, barH / 2 + 2);
+  ctx.textBaseline = 'alphabetic';
 
-  // ─ Inhalt unten (p-6 = 24px → padX) ─
+  // ─ Inhalt unten ─
   const padX = Math.round(24 * S);
   const maxTextW = W - padX * 2;
 
-  // Tradition Label (9px, tracking 0.12em)
-  const tradSize = Math.round(9 * S);
-  ctx.font = `500 ${tradSize}px "Josefin Sans", sans-serif`;
-  ctx.letterSpacing = `${Math.round(1.1 * S)}px`;
-  ctx.fillStyle = '#C8A96E';
-
-  // Position von unten berechnen: Autor + mb-4(16px) + Zitat + mb-2.5(10px) + Label
-  // Dynamisch basierend auf Textlaenge
+  // Zitat-Zeilen berechnen
   const quoteSize = Math.round(22 * S);
   ctx.font = `italic ${quoteSize}px "Cormorant Garamond", Georgia, serif`;
   ctx.letterSpacing = '0px';
@@ -152,18 +162,19 @@ async function generateCardImage(quote: WisdomQuote, bgUrl: string): Promise<Blo
   }
   if (testLine) quoteLines.push(testLine);
 
-  const lineH = Math.round(22 * 1.4 * S); // leading 1.4
+  // Groessen
+  const tradSize = Math.round(9 * S);
   const authorSize = Math.round(12 * S);
-  const mbAutor = Math.round(24 * S); // Abstand nach unten
-  const mtAutor = Math.round(8 * S);  // mt-2
-  const mbTrad = Math.round(10 * S);  // mb-2.5
+  const lineH = Math.round(22 * 1.5 * S); // etwas mehr leading (1.5 statt 1.4)
+  const tradToQuoteGap = Math.round(12 * S);  // Abstand Tradition → Zitat
+  const quoteToAuthorGap = Math.round(12 * S); // Abstand Zitat → Autor
+  const bottomPad = Math.round(32 * S); // Abstand zum unteren Rand
 
-  // Von unten nach oben aufbauen
-  const bottomY = H - mbAutor;
-  const authorY = bottomY;
-  const quoteEndY = authorY - mtAutor - authorSize;
-  const quoteStartY = quoteEndY - (quoteLines.length - 1) * lineH;
-  const tradY = quoteStartY - mbTrad;
+  // Von unten nach oben berechnen
+  const authorY = H - bottomPad;
+  const lastQuoteLineY = authorY - quoteToAuthorGap - authorSize;
+  const firstQuoteLineY = lastQuoteLineY - (quoteLines.length - 1) * lineH;
+  const tradY = firstQuoteLineY - tradToQuoteGap - tradSize;
 
   // Tradition zeichnen
   ctx.font = `500 ${tradSize}px "Josefin Sans", sans-serif`;
@@ -176,13 +187,13 @@ async function generateCardImage(quote: WisdomQuote, bgUrl: string): Promise<Blo
   ctx.letterSpacing = '0px';
   ctx.fillStyle = '#FFFFFF';
   for (let i = 0; i < quoteLines.length; i++) {
-    ctx.fillText(quoteLines[i], padX, quoteStartY + i * lineH);
+    ctx.fillText(quoteLines[i], padX, firstQuoteLineY + i * lineH);
   }
 
   // Autor zeichnen
   ctx.font = `500 ${authorSize}px "Quicksand", sans-serif`;
   ctx.letterSpacing = '0px';
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
   ctx.fillText(quote.author, padX, authorY);
 
   return new Promise((resolve) => {
@@ -243,11 +254,11 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
         className="absolute inset-0 w-full h-full object-cover block"
       />
 
-      {/* Dunkler Gradient-Overlay */}
+      {/* Dunkler Gradient-Overlay (sanfter fuer helle Bilder) */}
       <div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0.75) 100%)',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.45) 70%, rgba(0,0,0,0.8) 100%)',
         }}
       />
 
@@ -255,7 +266,7 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
       <div
         className="absolute top-0 left-0 right-0 flex items-center justify-center gap-2.5 py-3.5"
         style={{
-          background: 'rgba(0,0,0,0.45)',
+          background: 'rgba(0,0,0,0.4)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
         }}
@@ -281,7 +292,7 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
       <div className="absolute inset-0 flex flex-col justify-end p-6">
         {/* Tradition Label */}
         <p
-          className="font-label text-[9px] tracking-[0.12em] uppercase mb-2.5"
+          className="font-label text-[9px] tracking-[0.12em] uppercase mb-3"
           style={{ color: 'var(--gold)' }}
         >
           {quote.tradition}
@@ -289,7 +300,7 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
 
         {/* Zitat */}
         <p
-          className="font-heading italic text-[22px] leading-[1.4]"
+          className="font-heading italic text-[22px] leading-[1.5]"
           style={{ color: '#fff' }}
         >
           &bdquo;{quote.text}&ldquo;
@@ -297,8 +308,8 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
 
         {/* Autor */}
         <p
-          className="font-body text-xs mt-2 mb-4"
-          style={{ color: 'rgba(255,255,255,0.5)' }}
+          className="font-body text-xs mt-3 mb-4"
+          style={{ color: 'rgba(255,255,255,0.55)' }}
         >
           {quote.author}
         </p>
