@@ -231,7 +231,6 @@ export default function WisdomCard({ quote, onShare, onSave, shareState = 'idle'
         await navigator.share({
           title: 'Tagesimpuls \u2014 Souleya',
           text: message,
-          url: 'https://souleya.com',
           files: [file],
         });
         setShowShareInput(false);
