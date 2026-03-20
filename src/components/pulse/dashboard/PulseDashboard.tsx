@@ -130,13 +130,11 @@ export default function PulseDashboard({
       <ActivityBar unreadMessages={unreadMessages} newPosts={newPosts} />
 
       {/* Wisdom Card + Astro Side Stack */}
-      <div className="flex flex-col md:flex-row gap-3 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-[340px_1fr] gap-3 items-start">
         <WisdomCard
           quote={quote}
         />
-        <div className="w-full md:w-auto md:min-w-[200px]">
-          <AstroSideStack birthday={birthday} />
-        </div>
+        <AstroSideStack birthday={birthday} />
       </div>
 
       {/* Toolkit Section */}
