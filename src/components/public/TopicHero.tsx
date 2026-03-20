@@ -21,6 +21,7 @@ export default function TopicHero() {
   const [imgOpacity, setImgOpacity] = useState(1);
   const [flCount, setFlCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(0);
+  const [hasSession, setHasSession] = useState(false);
 
   // Preload all topic images
   useEffect(() => {
@@ -31,6 +32,13 @@ export default function TopicHero() {
         const si = new Image();
         si.src = s.img;
       });
+    });
+  }, []);
+
+  // Session-Check
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) setHasSession(true);
     });
   }, []);
 
@@ -161,7 +169,7 @@ export default function TopicHero() {
               {topic.subs.map((s, i) => (
                 <div
                   key={s.name}
-                  className="th-hs"
+                  className={`th-hs${s.flip ? ' th-hs--flip' : ''}`}
                   style={{
                     left: `${s.x}%`,
                     top: `${s.y}%`,
@@ -212,8 +220,8 @@ export default function TopicHero() {
             </>
           )}
 
-          {/* ── Compact Signup Panel (bottom-right) ── */}
-          <div className="th-signup-panel">
+          {/* ── Compact Signup Panel (bottom-right) – nur für nicht eingeloggte User ── */}
+          {!hasSession && <div className="th-signup-panel">
             <p className="th-fl-urgency-teaser">
               Sei schnell – sichere dir einen <strong>First Light</strong> Platz und erhalte lebenslange Vorteile.
             </p>
@@ -270,7 +278,7 @@ export default function TopicHero() {
                 </svg>
               </a>
             </div>
-          </div>
+          </div>}
         </div>
       </section>
 

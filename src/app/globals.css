@@ -745,6 +745,11 @@ select:focus {
   background: rgba(40,36,30,.65);
   border-color: rgba(200,169,110,.3);
 }
+/* Label öffnet nach links (für Dots auf der rechten Bildseite) */
+.th-hs--flip .th-hst {
+  left: auto;
+  right: calc(100% + 12px);
+}
 
 /* Kernaussagen (on image, bottom-left) */
 .th-kern {
