@@ -6,7 +6,6 @@ import type { Challenge } from '@/types/challenges';
 import { fetchEvents } from '@/lib/events';
 import { fetchMyChallenges, checkinChallenge } from '@/lib/challenges';
 import { getDailyQuote } from '@/lib/wisdomQuotes';
-import { createPulse } from '@/lib/pulse';
 
 import GreetingCard from './GreetingCard';
 import ActivityBar from './ActivityBar';
@@ -46,8 +45,6 @@ export default function PulseDashboard({
 
   // Wisdom quote
   const quote = useMemo(() => getDailyQuote(), []);
-  const [quoteShareState, setQuoteShareState] = useState<'idle' | 'sharing' | 'shared'>('idle');
-  const [quoteCopied, setQuoteCopied] = useState(false);
 
   // Unread counts (placeholder — real values from context/API)
   const [unreadMessages] = useState(0);
@@ -113,35 +110,7 @@ export default function PulseDashboard({
     }
   };
 
-  const handleShareQuote = async () => {
-    setQuoteShareState('sharing');
-    try {
-      await createPulse({
-        content: `\u201E${quote.text}\u201C\n\u2014 ${quote.author} \u00B7 ${quote.tradition}`,
-      });
-      setQuoteShareState('shared');
-      setTimeout(() => setQuoteShareState('idle'), 3000);
-    } catch {
-      setQuoteShareState('idle');
-    }
-  };
-
-  const handleCopyQuote = async () => {
-    const text = `\u201E${quote.text}\u201C \u2014 ${quote.author}\n\nvia Souleya`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ text });
-      } else {
-        await navigator.clipboard.writeText(text);
-        setQuoteCopied(true);
-        setTimeout(() => setQuoteCopied(false), 2500);
-      }
-    } catch {
-      await navigator.clipboard.writeText(text);
-      setQuoteCopied(true);
-      setTimeout(() => setQuoteCopied(false), 2500);
-    }
-  };
+  // Share-Logik ist jetzt direkt in WisdomCard (Canvas-basierte Bild-Generierung)
 
   // ── Render ────────────────────────────────────────────────
   if (loading) {
@@ -160,12 +129,10 @@ export default function PulseDashboard({
       {/* Activity Bar */}
       <ActivityBar unreadMessages={unreadMessages} newPosts={newPosts} />
 
-      {/* Wisdom Card + Astro Side Stack (2-Spalten-Grid auf Desktop) */}
-      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4">
+      {/* Wisdom Card + Astro Side Stack (2-Spalten-Grid auf Desktop, 40px Gap) */}
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr]" style={{ gap: '40px' }}>
         <WisdomCard
           quote={quote}
-          onShare={handleShareQuote}
-          shareState={quoteShareState}
         />
         <AstroSideStack birthday={birthday} />
       </div>
