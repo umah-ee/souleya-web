@@ -32,14 +32,17 @@ export default function BlogPageClient({
   const [search, setSearch] = useState('');
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [sort, setSort] = useState<SortMode>('newest');
+  const [tagsExpanded, setTagsExpanded] = useState(false);
 
-  // Alle Tags aus allen Artikeln sammeln
+  const TAG_PREVIEW_COUNT = 8;
+
+  // Tags nach Views der verknuepften Artikel sortieren (meistgelesen zuerst)
   const allTags = useMemo(() => {
-    const tagCount: Record<string, number> = {};
+    const tagViews: Record<string, number> = {};
     articles.forEach(a => a.tags?.forEach(tag => {
-      tagCount[tag] = (tagCount[tag] || 0) + 1;
+      tagViews[tag] = (tagViews[tag] || 0) + (a.views_count || 0);
     }));
-    return Object.entries(tagCount)
+    return Object.entries(tagViews)
       .sort((a, b) => b[1] - a[1])
       .map(([tag]) => tag);
   }, [articles]);
@@ -189,10 +192,10 @@ export default function BlogPageClient({
           </div>
         </div>
 
-        {/* Tag-Cloud */}
+        {/* Tag-Cloud — erste Zeile + aufklappbar */}
         {allTags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
-            {allTags.map(tag => (
+            {(tagsExpanded ? allTags : allTags.slice(0, TAG_PREVIEW_COUNT)).map(tag => (
               <button
                 key={tag}
                 onClick={() => toggleTag(tag)}
@@ -206,6 +209,15 @@ export default function BlogPageClient({
                 #{tag}
               </button>
             ))}
+            {allTags.length > TAG_PREVIEW_COUNT && (
+              <button
+                onClick={() => setTagsExpanded(!tagsExpanded)}
+                className="text-xs px-2.5 py-1 rounded-full border transition-colors"
+                style={{ borderColor: 'var(--glass-border)', color: 'var(--gold-text)' }}
+              >
+                {tagsExpanded ? (t ? 'Weniger' : 'Less') : `+${allTags.length - TAG_PREVIEW_COUNT} ${t ? 'weitere' : 'more'}`}
+              </button>
+            )}
             {activeTags.length > 0 && (
               <button
                 onClick={() => setActiveTags([])}
