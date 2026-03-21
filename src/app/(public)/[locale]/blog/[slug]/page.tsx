@@ -255,28 +255,108 @@ export default async function ArticlePage({
           locale={locale}
         />
 
-        {/* ── Tags ── */}
+        {/* ── Tags (klickbar → Blog-Filter) ── */}
         {article.tags.length > 0 && (
           <div className="mt-8 flex flex-wrap gap-2">
             {article.tags.map(tag => (
-              <span
+              <Link
                 key={tag}
-                className="text-xs px-3 py-1 rounded-full"
+                href={`/${locale}/blog?tag=${encodeURIComponent(tag)}`}
+                className="text-xs px-3 py-1 rounded-full transition-colors hover:opacity-80"
                 style={{
-                  background: 'var(--glass)',
-                  color: 'var(--text-muted)',
-                  border: '1px solid var(--glass-border)',
+                  background: 'var(--gold-softer)',
+                  color: 'var(--gold-text)',
+                  border: '1px solid var(--gold-border-s)',
                 }}
               >
                 #{tag}
-              </span>
+              </Link>
             ))}
           </div>
         )}
+
+        {/* ── Verwandte Artikel ── */}
+        <RelatedArticles
+          currentSlug={slug}
+          tags={article.tags}
+          category={article.category}
+          locale={locale}
+        />
 
         {/* View-Counter (Client Component) */}
         <ViewCounter articleId={article.id} />
       </article>
     </>
   );
+}
+
+/* ── Verwandte Artikel Sektion ── */
+async function RelatedArticles({
+  currentSlug, tags, category, locale,
+}: {
+  currentSlug: string; tags: string[]; category: string | null; locale: string;
+}) {
+  const t = locale === 'de';
+  let articles: RelatedArticle[] = [];
+
+  try {
+    // Erst nach Tags suchen, dann nach Kategorie
+    const params = new URLSearchParams({ locale, limit: '4' });
+    if (tags.length) params.set('tags', tags.slice(0, 3).join(','));
+    else if (category) params.set('category', category);
+
+    const res = await fetch(`${API_URL}/articles?${params}`, { next: { revalidate: 300 } });
+    if (res.ok) {
+      const data = await res.json();
+      articles = (data.data || []).filter((a: RelatedArticle) => a.slug !== currentSlug).slice(0, 3);
+    }
+  } catch { /* noop */ }
+
+  if (articles.length === 0) return null;
+
+  return (
+    <div className="mt-16 pt-8 border-t" style={{ borderColor: 'var(--divider)' }}>
+      <h3 className="font-serif text-xl italic mb-6" style={{ color: 'var(--text-h)' }}>
+        {t ? 'Das koennte dich auch interessieren' : 'You might also like'}
+      </h3>
+      <div className="grid gap-4 sm:grid-cols-3">
+        {articles.map((a: RelatedArticle) => (
+          <Link
+            key={a.id}
+            href={`/${locale}/blog/${a.slug}`}
+            className="group block rounded-[8px] border overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5"
+            style={{ background: 'var(--glass)', borderColor: 'var(--glass-border)' }}
+          >
+            {a.og_image_url && (
+              <div className="aspect-[2/1] overflow-hidden">
+                <img src={a.og_image_url} alt={a.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+              </div>
+            )}
+            <div className="p-3">
+              <h4 className="font-serif text-sm leading-snug group-hover:text-[var(--gold-text)] transition-colors line-clamp-2" style={{ color: 'var(--text-h)' }}>
+                {a.title}
+              </h4>
+              <div className="flex items-center gap-2 mt-1.5 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                {a.reading_time_min && <span>{a.reading_time_min} Min.</span>}
+                {a.category && <span>· {a.category}</span>}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface RelatedArticle {
+  id: string;
+  slug: string;
+  category: string | null;
+  tags: string[];
+  og_image_url: string | null;
+  views_count: number;
+  published_at: string | null;
+  title: string;
+  excerpt: string;
+  reading_time_min: number | null;
 }
