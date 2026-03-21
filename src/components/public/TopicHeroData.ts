@@ -34,7 +34,7 @@ export const TOPICS: Record<string, Topic> = {
   wachstum: {
     name: 'Persönliches Wachstum',
     tag: 'Wachse über dich hinaus',
-    img: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&h=900&fit=crop',
     subs: [
       {
         name: 'Glaubenssätze auflösen',
@@ -136,7 +136,7 @@ export const TOPICS: Record<string, Topic> = {
   gesundheit: {
     name: 'Gesundheit',
     tag: 'Dein Körper als Zuhause',
-    img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1600&h=900&fit=crop',
     subs: [
       {
         name: 'Nervensystem & Stress',
@@ -238,7 +238,7 @@ export const TOPICS: Record<string, Topic> = {
   worklife: {
     name: 'Work-Life Balance',
     tag: 'Freiheit mit Struktur',
-    img: 'https://images.unsplash.com/photo-1483389127117-b6a2102724ae?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&h=900&fit=crop',
     subs: [
       {
         name: 'Remote Work optimieren',
@@ -340,7 +340,7 @@ export const TOPICS: Record<string, Topic> = {
   spiritualitaet: {
     name: 'Spiritualität',
     tag: 'Tiefe ohne Dogma',
-    img: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=1600&h=900&fit=crop',
     subs: [
       {
         name: 'Meditation & Atemübungen',
@@ -442,7 +442,7 @@ export const TOPICS: Record<string, Topic> = {
   beziehungen: {
     name: 'Beziehungen & Verbindung',
     tag: 'Echte Freundschaften jenseits der Einsamkeit',
-    img: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=1600&h=900&fit=crop',
     subs: [
       {
         name: 'Einsamkeit überwinden',
