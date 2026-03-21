@@ -941,6 +941,155 @@ select:focus {
   text-shadow: 0 1px 8px rgba(0,0,0,.5);
 }
 
+/* ── Floating Immersive Cards ── */
+@keyframes th-from-left {
+  from { opacity: 0; transform: translateY(-55%) translateX(-48px); }
+  to   { opacity: 1; transform: translateY(-55%) translateX(0); }
+}
+@keyframes th-from-right {
+  from { opacity: 0; transform: translateY(-45%) translateX(48px); }
+  to   { opacity: 1; transform: translateY(-45%) translateX(0); }
+}
+
+.th-float-card {
+  position: absolute; z-index: 14;
+  width: 320px;
+  background: #EDE4D3;
+  border: 1px solid rgba(200,169,110,.22);
+  box-shadow: 0 4px 24px rgba(139,105,20,.12), 0 1px 0 rgba(255,255,255,.8) inset;
+  border-radius: 12px;
+  padding: 18px 18px 14px;
+  display: flex; flex-direction: column; gap: 10px;
+  pointer-events: auto;
+}
+.th-card-blog {
+  top: 50%; left: 44px;
+  transform: translateY(-55%);
+  animation: th-from-left .5s cubic-bezier(.4,0,.2,1) both;
+}
+.th-card-talk {
+  top: 50%; right: 44px;
+  transform: translateY(-45%);
+  animation: th-from-right .5s .15s cubic-bezier(.4,0,.2,1) both;
+}
+
+/* Card header row */
+.th-fc-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.th-fc-tag {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase;
+  color: #A8894E; font-weight: 600;
+  background: rgba(168,137,78,.12);
+  border: 1px solid rgba(168,137,78,.2);
+  border-radius: 4px; padding: 3px 7px;
+}
+.th-fc-tag--talk { color: #7B6A52; background: rgba(123,106,82,.08); border-color: rgba(123,106,82,.18); }
+.th-fc-time {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 10px; color: #9A8870;
+}
+.th-fc-members {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 10px; color: #9A8870;
+}
+
+/* Blog card content */
+.th-fc-title {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: 17px; font-weight: 500; line-height: 1.35;
+  color: #1E180C;
+}
+.th-fc-excerpt {
+  font-size: 12px; line-height: 1.55; color: #3E3020;
+}
+.th-fc-cta {
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 10px; letter-spacing: .8px; text-transform: uppercase; font-weight: 600;
+  color: #A8894E;
+  border: 1px solid rgba(168,137,78,.3);
+  border-radius: 9999px; padding: 5px 12px;
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none;
+}
+.th-fc-cta:hover { background: rgba(168,137,78,.1); }
+
+/* Talk card content */
+.th-fc-circle-name {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: 15px; font-weight: 500; color: #1E180C;
+  margin-top: -4px;
+}
+.th-talk-msgs { display: flex; flex-direction: column; gap: 8px; position: relative; }
+.th-talk-msg { display: flex; gap: 8px; align-items: flex-start; }
+.th-talk-msg--blur { opacity: .5; }
+
+.th-talk-avatar {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #C8A96E, #A8894E);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: 13px; color: #fff; font-weight: 500;
+}
+.th-talk-bubble {
+  background: #F5EFE6;
+  border: 1px solid rgba(200,169,110,.18);
+  border-radius: 8px; padding: 7px 10px;
+  flex: 1;
+}
+.th-talk-meta {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 3px;
+}
+.th-talk-name { font-size: 11px; font-weight: 600; color: #1E180C; }
+.th-talk-soul {
+  font-size: 9px; color: #A8894E; font-weight: 600;
+  background: rgba(168,137,78,.1); border-radius: 3px; padding: 1px 5px;
+}
+.th-talk-ts { font-size: 9px; color: #9A8870; margin-left: auto; }
+.th-talk-txt { font-size: 11px; line-height: 1.5; color: #3E3020; }
+
+/* Lock overlay */
+.th-talk-lock {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 70%;
+  display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px;
+}
+.th-talk-lock-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent, rgba(237,228,211,.97));
+  border-radius: 0 0 8px 8px;
+}
+.th-talk-lock-cta {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 6px;
+  color: #7B6A52;
+}
+.th-talk-lock-btn {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 10px; letter-spacing: .8px; text-transform: uppercase; font-weight: 600;
+  color: #A8894E;
+  border: 1px solid rgba(168,137,78,.35);
+  border-radius: 9999px; padding: 5px 12px;
+  background: #EDE4D3;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+.th-talk-lock-btn:hover { background: rgba(168,137,78,.12); }
+
+/* Light theme: floating cards already use sand colors */
+[data-theme="light"] .th-float-card { background: #EDE4D3; }
+[data-theme="light"] .th-talk-bubble { background: #F5EFE6; }
+[data-theme="light"] .th-talk-lock-overlay {
+  background: linear-gradient(180deg, transparent, rgba(237,228,211,.97));
+}
+
+/* Responsive: hide floating cards on small screens */
+@media (max-width: 900px) {
+  .th-float-card { display: none; }
+}
+
 /* ── 4 Topic Cards ── */
 .th-cards-row {
   display: grid; grid-template-columns: repeat(4, 1fr);

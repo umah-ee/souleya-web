@@ -213,15 +213,77 @@ export default function TopicHero() {
                 <span className="th-morph-counter">{morphIdx + 1}/{topic.subs.length}</span>
                 <button className="th-morph-arr" onClick={morphNext}>›</button>
               </div>
+
+              {/* Sub-topic name bottom-left */}
               <div className="th-morph-info">
                 <div className="th-morph-name">{sub.name}</div>
-                <div className="th-morph-desc">{sub.desc}</div>
+              </div>
+
+              {/* Floating Blog Card */}
+              <div className="th-float-card th-card-blog" key={`blog-${activeTopic}-${morphIdx}`}>
+                <div className="th-fc-header">
+                  <span className="th-fc-tag">{sub.blog.cat}</span>
+                  <span className="th-fc-time">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+                    </svg>
+                    {sub.blog.time}
+                  </span>
+                </div>
+                <div className="th-fc-title">{sub.blog.title}</div>
+                <div className="th-fc-excerpt">{sub.blog.excerpt}</div>
+                <a href="/login" className="th-fc-cta">
+                  Weiterlesen
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M13 6l6 6-6 6"/>
+                  </svg>
+                </a>
+              </div>
+
+              {/* Floating Talk Card */}
+              <div className="th-float-card th-card-talk" key={`talk-${activeTopic}-${morphIdx}`}>
+                <div className="th-fc-header">
+                  <span className="th-fc-tag th-fc-tag--talk">Community</span>
+                  <span className="th-fc-members">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/>
+                    </svg>
+                    {sub.members}
+                  </span>
+                </div>
+                <div className="th-fc-circle-name">{sub.circle}</div>
+                <div className="th-talk-msgs">
+                  {sub.msgs.map((msg, mi) => (
+                    <div key={mi} className={`th-talk-msg${mi === sub.msgs.length - 1 ? ' th-talk-msg--blur' : ''}`}>
+                      <div className="th-talk-avatar">
+                        {msg.name.charAt(0)}
+                      </div>
+                      <div className="th-talk-bubble">
+                        <div className="th-talk-meta">
+                          <span className="th-talk-name">{msg.name}</span>
+                          <span className="th-talk-soul">{msg.soul}</span>
+                          <span className="th-talk-ts">{msg.time}</span>
+                        </div>
+                        <div className="th-talk-txt">{msg.txt}</div>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="th-talk-lock">
+                    <div className="th-talk-lock-overlay" />
+                    <div className="th-talk-lock-cta">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+                      </svg>
+                      <a href="/login" className="th-talk-lock-btn">Jetzt mitmachen</a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </>
           )}
 
-          {/* ── Compact Signup Panel (bottom-right) – nur für nicht eingeloggte User ── */}
-          {!hasSession && <div className="th-signup-panel">
+          {/* ── Compact Signup Panel (bottom-right) – nur für nicht eingeloggte User und nicht im Morph-Modus ── */}
+          {!hasSession && !inMorph && <div className="th-signup-panel">
             <p className="th-fl-urgency-teaser">
               Sei schnell – sichere dir einen <strong>First Light</strong> Platz und erhalte lebenslange Vorteile.
             </p>
