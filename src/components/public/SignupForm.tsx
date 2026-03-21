@@ -269,7 +269,7 @@ export default function SignupForm() {
           value={email}
           onChange={(e) => { setEmail(e.target.value); setError(''); }}
           placeholder="Deine E-Mail-Adresse"
-          className="flex-1 px-4 py-3 rounded-lg text-sm border text-white placeholder:text-white/50 focus:outline-none transition-colors"
+          className="flex-1 px-4 py-3 rounded-[8px] text-sm border text-white placeholder:text-white/50 focus:outline-none transition-colors"
 
           style={{
             background: 'rgba(30, 28, 26, 0.85)',

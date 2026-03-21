@@ -1198,24 +1198,59 @@ select:focus {
 /* ── Signup Modal ── */
 .su-modal {
   background: var(--bg-elevated);
+  border-radius: 8px;
 }
-/* Light: Sandton, kein Glass */
+/* Light: Sandton, kein Glass — Form-Elemente hell */
 [data-theme="light"] .su-modal {
   background: #EDE4D3;
   border-color: rgba(200,169,110,.22);
   box-shadow: 0 8px 40px rgba(139,105,20,.15), 0 1px 0 rgba(255,255,255,.8) inset;
 }
+[data-theme="light"] .su-modal form input {
+  background: #F5EFE6 !important;
+  border-color: rgba(200,169,110,.25) !important;
+  color: #1E180C !important;
+  border-radius: 8px !important;
+}
+[data-theme="light"] .su-modal form input::placeholder {
+  color: #9A8870 !important;
+}
+[data-theme="light"] .su-modal form input:focus {
+  border-color: #A8894E !important;
+}
+[data-theme="light"] .su-modal form button[type="submit"] {
+  color: #fff !important;
+  border-radius: 8px !important;
+}
+[data-theme="light"] .su-modal p {
+  color: #3E3020;
+}
+/* Dark: Standard */
 [data-theme="dark"] .su-modal {
   background: var(--bg-elevated);
   border-color: rgba(200,169,110,.18);
 }
+/* Dusk Light */
 [data-color="dusk"][data-theme="light"] .su-modal {
   background: #FEFCFF;
   border-color: rgba(167,139,250,.18);
 }
+[data-color="dusk"][data-theme="light"] .su-modal form input {
+  background: #F8F5FF !important;
+  border-color: rgba(167,139,250,.2) !important;
+  color: #120828 !important;
+}
+[data-color="dusk"][data-theme="light"] .su-modal form input::placeholder {
+  color: #8B7DAA !important;
+}
+/* Dusk Dark */
 [data-color="dusk"][data-theme="dark"] .su-modal {
   background: var(--bg-elevated);
   border-color: rgba(167,139,250,.15);
+}
+/* Fehlermeldung im hellen Modal */
+[data-theme="light"] .su-modal .mt-2\.5 {
+  color: #B43C32 !important;
 }
 
 /* ── 4 Topic Cards ── */
