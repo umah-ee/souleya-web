@@ -22,6 +22,36 @@ export default function TopicHero() {
   const [flCount, setFlCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(0);
   const [hasSession, setHasSession] = useState(false);
+  const [spotLinks, setSpotLinks] = useState<Record<string, { title: string; excerpt: string; category: string; reading_time_min: number; slug: string }>>({});
+
+  // Load spot-links (dynamic blog data)
+  useEffect(() => {
+    async function loadSpotLinks() {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-5821e.up.railway.app';
+        const res = await fetch(`${apiUrl}/articles/spot-links`);
+        if (res.ok) {
+          const data = await res.json();
+          const map: typeof spotLinks = {};
+          for (const link of data) {
+            if (link.article) {
+              map[`${link.topic_index}-${link.subtopic_index}`] = {
+                title: link.article.title,
+                excerpt: link.article.excerpt || '',
+                category: link.article.category || '',
+                reading_time_min: link.article.reading_time_min || 5,
+                slug: link.article.slug,
+              };
+            }
+          }
+          setSpotLinks(map);
+        }
+      } catch {
+        // Fallback to hardcoded data silently
+      }
+    }
+    loadSpotLinks();
+  }, []);
 
   // Preload all topic images
   useEffect(() => {
@@ -220,25 +250,36 @@ export default function TopicHero() {
               </div>
 
               {/* Floating Blog Card */}
-              <div className="th-float-card th-card-blog" key={`blog-${activeTopic}-${morphIdx}`}>
-                <div className="th-fc-header">
-                  <span className="th-fc-tag">{sub.blog.cat}</span>
-                  <span className="th-fc-time">
-                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+              {(() => {
+                const topicIdx = TOPIC_ORDER.indexOf(activeTopic);
+                const dynamicBlog = spotLinks[`${topicIdx}-${morphIdx}`];
+                const blogCat = dynamicBlog?.category || sub.blog.cat;
+                const blogTime = dynamicBlog ? `${dynamicBlog.reading_time_min} Min.` : sub.blog.time;
+                const blogTitle = dynamicBlog?.title || sub.blog.title;
+                const blogExcerpt = dynamicBlog?.excerpt || sub.blog.excerpt;
+                const blogHref = dynamicBlog ? `/blog/${dynamicBlog.slug}` : '/login';
+                return (
+                <div className="th-float-card th-card-blog" key={`blog-${activeTopic}-${morphIdx}`}>
+                  <div className="th-fc-header">
+                    <span className="th-fc-tag">{blogCat}</span>
+                    <span className="th-fc-time">
+                      <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+                      </svg>
+                      {blogTime}
+                    </span>
+                  </div>
+                  <div className="th-fc-title">{blogTitle}</div>
+                  <div className="th-fc-excerpt">{blogExcerpt}</div>
+                  <a href={blogHref} className="th-fc-cta">
+                    Weiterlesen
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M13 6l6 6-6 6"/>
                     </svg>
-                    {sub.blog.time}
-                  </span>
+                  </a>
                 </div>
-                <div className="th-fc-title">{sub.blog.title}</div>
-                <div className="th-fc-excerpt">{sub.blog.excerpt}</div>
-                <a href="/login" className="th-fc-cta">
-                  Weiterlesen
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M13 6l6 6-6 6"/>
-                  </svg>
-                </a>
-              </div>
+                );
+              })()}
 
               {/* Floating Talk Card */}
               <div className="th-float-card th-card-talk" key={`talk-${activeTopic}-${morphIdx}`}>
