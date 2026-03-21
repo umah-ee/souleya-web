@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import SignupForm from './SignupForm';
+import SignupModal from './SignupModal';
+import ArticleOverlay from './ArticleOverlay';
 import { TOPICS, TOPIC_ORDER } from './TopicHeroData';
 
 const supabase = createBrowserClient(
@@ -22,7 +24,9 @@ export default function TopicHero() {
   const [flCount, setFlCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(0);
   const [hasSession, setHasSession] = useState(false);
-  const [spotLinks, setSpotLinks] = useState<Record<string, { title: string; excerpt: string; category: string; reading_time_min: number; slug: string }>>({});
+  const [spotLinks, setSpotLinks] = useState<Record<string, { title: string; excerpt: string; category: string; reading_time_min: number; slug: string; og_image_url?: string }>>({});
+  const [showSignup, setShowSignup] = useState(false);
+  const [overlaySlug, setOverlaySlug] = useState<string | null>(null);
 
   // Load spot-links (dynamic blog data)
   useEffect(() => {
@@ -41,6 +45,7 @@ export default function TopicHero() {
                 category: link.article.category || '',
                 reading_time_min: link.article.reading_time_min || 5,
                 slug: link.article.slug,
+                og_image_url: link.article.og_image_url || undefined,
               };
             }
           }
@@ -125,15 +130,28 @@ export default function TopicHero() {
     crossfade(TOPICS[tid].img);
   }, [inMorph, crossfade]);
 
+  // Helper: Artikel-Bild oder Fallback-Subtopic-Bild
+  const getSpotImage = useCallback((topicId: string, subIdx: number) => {
+    const topicIdx = TOPIC_ORDER.indexOf(topicId);
+    const link = spotLinks[`${topicIdx}-${subIdx}`];
+    let url = link?.og_image_url || TOPICS[topicId].subs[subIdx].img;
+    // Unsplash: hochaufgeloest fuer Fullscreen
+    if (url.includes('images.unsplash.com') && url.includes('w=1080')) {
+      url = url.replace('w=1080', 'w=1920');
+    }
+    return url;
+  }, [spotLinks]);
+
   // Morph functions
   const openMorph = useCallback((idx: number) => {
     setInMorph(true);
     setMorphIdx(idx);
-    crossfade(TOPICS[activeTopic].subs[idx].img);
-  }, [activeTopic, crossfade]);
+    crossfade(getSpotImage(activeTopic, idx));
+  }, [activeTopic, crossfade, getSpotImage]);
 
   const morphBack = useCallback(() => {
     setInMorph(false);
+    setOverlaySlug(null);
     crossfade(TOPICS[activeTopic].img);
   }, [activeTopic, crossfade]);
 
@@ -141,15 +159,15 @@ export default function TopicHero() {
     const subs = TOPICS[activeTopic].subs;
     const next = (morphIdx + 1) % subs.length;
     setMorphIdx(next);
-    crossfade(subs[next].img);
-  }, [activeTopic, morphIdx, crossfade]);
+    crossfade(getSpotImage(activeTopic, next));
+  }, [activeTopic, morphIdx, crossfade, getSpotImage]);
 
   const morphPrev = useCallback(() => {
     const subs = TOPICS[activeTopic].subs;
     const prev = (morphIdx - 1 + subs.length) % subs.length;
     setMorphIdx(prev);
-    crossfade(subs[prev].img);
-  }, [activeTopic, morphIdx, crossfade]);
+    crossfade(getSpotImage(activeTopic, prev));
+  }, [activeTopic, morphIdx, crossfade, getSpotImage]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -257,7 +275,7 @@ export default function TopicHero() {
                 const blogTime = dynamicBlog ? `${dynamicBlog.reading_time_min} Min.` : sub.blog.time;
                 const blogTitle = dynamicBlog?.title || sub.blog.title;
                 const blogExcerpt = dynamicBlog?.excerpt || sub.blog.excerpt;
-                const blogHref = dynamicBlog ? `/blog/${dynamicBlog.slug}` : '/login';
+                const blogSlug = dynamicBlog?.slug;
                 return (
                 <div className="th-float-card th-card-blog" key={`blog-${activeTopic}-${morphIdx}`}>
                   <div className="th-fc-header">
@@ -271,12 +289,12 @@ export default function TopicHero() {
                   </div>
                   <div className="th-fc-title">{blogTitle}</div>
                   <div className="th-fc-excerpt">{blogExcerpt}</div>
-                  <a href={blogHref} className="th-fc-cta">
+                  <button onClick={() => blogSlug ? setOverlaySlug(blogSlug) : setShowSignup(true)} className="th-fc-cta">
                     Weiterlesen
                     <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M5 12h14M13 6l6 6-6 6"/>
                     </svg>
-                  </a>
+                  </button>
                 </div>
                 );
               })()}
@@ -315,7 +333,7 @@ export default function TopicHero() {
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
                       </svg>
-                      <a href="/login" className="th-talk-lock-btn">Jetzt mitmachen</a>
+                      <button onClick={() => hasSession ? window.location.href = '/circles' : setShowSignup(true)} className="th-talk-lock-btn">Jetzt mitmachen</button>
                     </div>
                   </div>
                 </div>
@@ -409,6 +427,18 @@ export default function TopicHero() {
           );
         })}
       </div>
+      {/* Signup Modal */}
+      {showSignup && <SignupModal onClose={() => setShowSignup(false)} />}
+
+      {/* Article Overlay */}
+      {overlaySlug && (
+        <ArticleOverlay
+          slug={overlaySlug}
+          hasSession={hasSession}
+          onClose={() => setOverlaySlug(null)}
+          onSignup={() => setShowSignup(true)}
+        />
+      )}
     </>
   );
 }
