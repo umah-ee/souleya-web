@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, Josefin_Sans, Quicksand } from 'next/font/google';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import Script from 'next/script';
 import ThemeProvider from '@/components/ThemeProvider';
 import LightboxProvider from '@/components/shared/LightboxProvider';
 import AnalyticsProvider from '@/components/AnalyticsProvider';
@@ -48,6 +49,13 @@ export default function RootLayout({
         </ThemeProvider>
         <AnalyticsProvider />
         <SpeedInsights />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-MM58X72XX9" strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-MM58X72XX9');
+        `}</Script>
       </body>
     </html>
   );
