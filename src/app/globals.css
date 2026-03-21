@@ -1195,6 +1195,29 @@ select:focus {
   .th-float-card { display: none; }
 }
 
+/* ── Signup Modal ── */
+.su-modal {
+  background: var(--bg-elevated);
+}
+/* Light: Sandton, kein Glass */
+[data-theme="light"] .su-modal {
+  background: #EDE4D3;
+  border-color: rgba(200,169,110,.22);
+  box-shadow: 0 8px 40px rgba(139,105,20,.15), 0 1px 0 rgba(255,255,255,.8) inset;
+}
+[data-theme="dark"] .su-modal {
+  background: var(--bg-elevated);
+  border-color: rgba(200,169,110,.18);
+}
+[data-color="dusk"][data-theme="light"] .su-modal {
+  background: #FEFCFF;
+  border-color: rgba(167,139,250,.18);
+}
+[data-color="dusk"][data-theme="dark"] .su-modal {
+  background: var(--bg-elevated);
+  border-color: rgba(167,139,250,.15);
+}
+
 /* ── 4 Topic Cards ── */
 .th-cards-row {
   display: grid; grid-template-columns: repeat(4, 1fr);

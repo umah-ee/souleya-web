@@ -211,24 +211,29 @@ export default function TopicHero() {
             </div>
           )}
 
-          {/* Hotspots (hidden during morph) */}
+          {/* Hotspots (hidden during morph, nur wenn Blog-Artikel verknuepft) */}
           {!inMorph && (
             <div className="th-hs-layer">
-              {topic.subs.map((s, i) => (
-                <div
-                  key={s.name}
-                  className={`th-hs${s.flip ? ' th-hs--flip' : ''}`}
-                  style={{
-                    left: `${s.x}%`,
-                    top: `${s.y}%`,
-                    animationDelay: `${200 + i * 120}ms`,
-                  }}
-                  onClick={() => openMorph(i)}
-                >
-                  <div className="th-hsd" />
-                  <div className="th-hst" onClick={(e) => { e.stopPropagation(); openMorph(i); }}>{s.name}</div>
-                </div>
-              ))}
+              {topic.subs.map((s, i) => {
+                const topicIdx = TOPIC_ORDER.indexOf(activeTopic);
+                const hasLink = !!spotLinks[`${topicIdx}-${i}`];
+                if (!hasLink) return null;
+                return (
+                  <div
+                    key={s.name}
+                    className={`th-hs${s.flip ? ' th-hs--flip' : ''}`}
+                    style={{
+                      left: `${s.x}%`,
+                      top: `${s.y}%`,
+                      animationDelay: `${200 + i * 120}ms`,
+                    }}
+                    onClick={() => openMorph(i)}
+                  >
+                    <div className="th-hsd" />
+                    <div className="th-hst" onClick={(e) => { e.stopPropagation(); openMorph(i); }}>{s.name}</div>
+                  </div>
+                );
+              })}
             </div>
           )}
 
