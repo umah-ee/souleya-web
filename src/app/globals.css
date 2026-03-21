@@ -1303,51 +1303,62 @@ select:focus {
   padding-top: 12px;
 }
 
-/* Light theme overrides for Topic Hero */
+/* Light theme overrides for Topic Hero — Sandton, kein Glass */
 [data-theme="light"] .th-signup-panel {
-  background: rgba(40,36,30,.52);
-  backdrop-filter: blur(32px) saturate(1.3);
-  -webkit-backdrop-filter: blur(32px) saturate(1.3);
-  border-color: rgba(200,169,110,.2);
-  box-shadow: 0 4px 30px rgba(0,0,0,.2);
+  background: #EDE4D3;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: rgba(200,169,110,.22);
+  box-shadow: 0 4px 24px rgba(139,105,20,.12), 0 1px 0 rgba(255,255,255,.8) inset;
 }
 [data-theme="light"] .th-signup-panel form input[type="text"] {
-  background: rgba(255,255,255,.1) !important;
-  border-color: rgba(200,169,110,.3) !important;
-  color: #F0E8D8 !important;
+  background: #F5EFE6 !important;
+  border-color: rgba(200,169,110,.25) !important;
+  color: #1E180C !important;
 }
 [data-theme="light"] .th-signup-panel form input[type="text"]::placeholder {
-  color: rgba(200,190,170,.55) !important;
+  color: #9A8870 !important;
 }
 [data-theme="light"] .th-signup-panel .th-fl-mini-total {
-  color: rgba(240,232,216,.6);
+  color: #9A8870;
 }
 [data-theme="light"] .th-signup-panel .th-fl-mini-link {
-  color: var(--gold, #D4BC8B);
+  color: #A8894E;
   font-weight: 600;
 }
 [data-theme="light"] .th-fl-urgency-teaser {
-  color: rgba(240,232,216,.8);
+  color: #3E3020;
+}
+[data-theme="light"] .th-fl-urgency-teaser strong {
+  color: #A8894E;
 }
 [data-theme="light"] .th-fl-firstlight-btn {
-  color: var(--gold, #D4BC8B);
+  color: #A8894E;
   border-color: rgba(200,169,110,.3);
+  background: rgba(168,137,78,.08);
 }
 [data-theme="light"] .th-signup-panel p {
-  color: #F0E8D8 !important;
+  color: #3E3020 !important;
 }
 [data-theme="light"] .th-signup-panel form button[type="submit"] {
-  color: #1a1a1a !important;
+  color: #fff !important;
 }
+[data-theme="light"] .th-signup-panel .th-fl-mini-num {
+  color: #A8894E;
+}
+[data-theme="light"] .th-signup-panel .th-fl-mini-counter {
+  color: #3E3020;
+}
+/* Light: Hotspot Labels — auch Sandton */
 [data-theme="light"] .th-hst {
-  background: rgba(40,36,30,.55);
-  backdrop-filter: blur(28px) saturate(1.2);
-  -webkit-backdrop-filter: blur(28px) saturate(1.2);
-  border-color: rgba(200,169,110,.2);
-  color: #F0E8D8;
-  text-shadow: 0 1px 4px rgba(0,0,0,.4);
+  background: #EDE4D3;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: rgba(200,169,110,.25);
+  color: #1E180C;
+  text-shadow: none;
   font-weight: 500;
-  box-shadow: 0 2px 12px rgba(0,0,0,.2);
+  box-shadow: 0 2px 12px rgba(139,105,20,.1);
 }
 [data-theme="light"] .th-fl-section { color: var(--text-h); }
 [data-theme="light"] .th-fl-section::before { background: var(--bg, #FAF6F0); }

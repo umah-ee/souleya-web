@@ -24,7 +24,7 @@ export default function TopicHero() {
   const [flCount, setFlCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(0);
   const [hasSession, setHasSession] = useState(false);
-  const [spotLinks, setSpotLinks] = useState<Record<string, { title: string; excerpt: string; category: string; reading_time_min: number; slug: string; og_image_url?: string }>>({});
+  const [spotLinks, setSpotLinks] = useState<Record<string, { title: string; excerpt: string; category: string; reading_time_min: number; slug: string; og_image_url?: string; label?: string }>>({});
   const [showSignup, setShowSignup] = useState(false);
   const [overlaySlug, setOverlaySlug] = useState<string | null>(null);
 
@@ -46,6 +46,7 @@ export default function TopicHero() {
                 reading_time_min: link.article.reading_time_min || 5,
                 slug: link.article.slug,
                 og_image_url: link.article.og_image_url || undefined,
+                label: link.label || undefined,
               };
             }
           }
@@ -216,8 +217,9 @@ export default function TopicHero() {
             <div className="th-hs-layer">
               {topic.subs.map((s, i) => {
                 const topicIdx = TOPIC_ORDER.indexOf(activeTopic);
-                const hasLink = !!spotLinks[`${topicIdx}-${i}`];
-                if (!hasLink) return null;
+                const link = spotLinks[`${topicIdx}-${i}`];
+                if (!link) return null;
+                const label = link.label || s.name;
                 return (
                   <div
                     key={s.name}
@@ -230,7 +232,7 @@ export default function TopicHero() {
                     onClick={() => openMorph(i)}
                   >
                     <div className="th-hsd" />
-                    <div className="th-hst" onClick={(e) => { e.stopPropagation(); openMorph(i); }}>{s.name}</div>
+                    <div className="th-hst" onClick={(e) => { e.stopPropagation(); openMorph(i); }}>{label}</div>
                   </div>
                 );
               })}
