@@ -93,15 +93,22 @@ export default function VideoCallOverlay({
   }, [remoteStream]);
 
   // Call beendet → onEnd Callback
+  const onEndCalledRef = useRef(false);
   useEffect(() => {
-    if (callState === 'ended') {
+    if (callState === 'ended' && !onEndCalledRef.current) {
+      onEndCalledRef.current = true;
+      console.log('[VideoCallOverlay] callState=ended, rufe onEnd auf mit duration:', duration);
       onEnd(duration);
     }
   }, [callState, duration, onEnd]);
 
   const handleEndCall = () => {
+    console.log('[VideoCallOverlay] Auflegen geklickt, duration:', duration);
+    if (!onEndCalledRef.current) {
+      onEndCalledRef.current = true;
+      onEnd(duration);
+    }
     endCall();
-    // onEnd wird automatisch via useEffect aufgerufen wenn callState → 'ended'
   };
 
   const hasRemoteVideo = remoteStream?.getVideoTracks().some(t => t.enabled) ?? false;

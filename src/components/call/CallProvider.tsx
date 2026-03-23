@@ -177,6 +177,8 @@ export default function CallProvider({ children }: { children: React.ReactNode }
     const incoming = isIncoming;
     const calleeId = activeCalleeIdRef.current;
 
+    console.log('[Call] handleEnd aufgerufen:', { duration, chId, vid, incoming, calleeId });
+
     // Cancel-Signal an Callee senden (falls noch klingelt)
     if (calleeId) {
       sendCancelToCallee(calleeId);
@@ -184,12 +186,16 @@ export default function CallProvider({ children }: { children: React.ReactNode }
 
     if (chId) {
       if (duration > 0) {
-        // Erfolgreiches Gespraech → System-Message mit Dauer
+        console.log('[Call] Erfolgreiches Gespraech → endCallMessage');
         await endCallMessage(chId, duration, vid).catch((e) => console.warn('[Call] endCallMessage fehler:', e));
       } else if (!incoming) {
-        // Caller hat aufgelegt ohne Verbindung → Verpasster Anruf
+        console.log('[Call] Verpasster Anruf → missedCallNotification');
         await missedCallNotification(chId, vid).catch((e) => console.warn('[Call] missedCall fehler:', e));
+      } else {
+        console.log('[Call] Incoming call ended ohne Duration — kein API Call');
       }
+    } else {
+      console.warn('[Call] Kein activeChannelId!');
     }
 
     setActiveRoom(null);
