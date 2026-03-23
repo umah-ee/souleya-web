@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useCurrentProfile } from '@/hooks/useCurrentProfile';
 import VideoCallOverlay from '@/components/shared/VideoCallOverlay';
 import IncomingCallOverlay from '@/components/chat/IncomingCallOverlay';
-import { endCallMessage } from '@/lib/chat';
+import { endCallMessage, missedCallNotification } from '@/lib/chat';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
 // ── Context ───────────────────────────────────────────────
@@ -171,15 +171,21 @@ export default function CallProvider({ children }: { children: React.ReactNode }
     if (activeCalleeIdRef.current) {
       sendCancelToCallee(activeCalleeIdRef.current);
     }
-    if (activeChannelId && duration > 0) {
-      await endCallMessage(activeChannelId, duration, activeVideo).catch(() => {});
+    if (activeChannelId) {
+      if (duration > 0) {
+        // Erfolgreiches Gespraech → System-Message mit Dauer
+        await endCallMessage(activeChannelId, duration, activeVideo).catch(() => {});
+      } else if (!isIncoming) {
+        // Caller hat aufgelegt ohne Verbindung → Verpasster Anruf
+        await missedCallNotification(activeChannelId, activeVideo).catch(() => {});
+      }
     }
     setActiveRoom(null);
     setActiveChannelId(null);
     setActivePartner(null);
     setIsIncoming(false);
     activeCalleeIdRef.current = null;
-  }, [activeChannelId, activeVideo, sendCancelToCallee]);
+  }, [activeChannelId, activeVideo, isIncoming, sendCancelToCallee]);
 
   return (
     <CallContext.Provider value={{ isInCall: !!activeRoom, startOutgoingCall }}>

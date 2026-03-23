@@ -25,9 +25,12 @@ const TYPE_ICONS: Record<string, string> = {
   chat_message: 'message-circle',
   event_reminder: 'calendar',
   incoming_call: 'phone',
+  missed_call: 'phone-off',
   f2f_call_started: 'video',
   f2f_booking_request: 'calendar-event',
 };
+
+const CALL_TYPES = new Set(['incoming_call', 'missed_call', 'f2f_call_started']);
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
@@ -195,6 +198,25 @@ export default function NotificationBell() {
                       <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
                         {n.body}
                       </p>
+                    )}
+                    {/* Call-Aktionsbuttons */}
+                    {CALL_TYPES.has(n.type) && n.link && (
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); router.push(n.link!); setOpen(false); }}
+                          className="flex items-center gap-1 border-none cursor-pointer"
+                          style={{ padding: '2px 8px', borderRadius: 9999, fontSize: 9, letterSpacing: '0.5px', background: 'var(--gold-bg)', color: 'var(--gold-text)', border: '1px solid var(--gold-border-s)' }}
+                        >
+                          <Icon name="message-circle" size={10} /> Chat
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); router.push(n.link!); setOpen(false); }}
+                          className="flex items-center gap-1 border-none cursor-pointer"
+                          style={{ padding: '2px 8px', borderRadius: 9999, fontSize: 9, letterSpacing: '0.5px', background: 'var(--glass)', color: 'var(--text-sec)', border: '1px solid var(--glass-border)' }}
+                        >
+                          <Icon name="phone" size={10} /> Zurueckrufen
+                        </button>
+                      </div>
                     )}
                     <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>
                       {timeAgo(n.created_at)}

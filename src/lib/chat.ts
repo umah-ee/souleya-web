@@ -286,3 +286,10 @@ export async function endCallMessage(channelId: string, durationSeconds: number,
     body: JSON.stringify({ duration_seconds: durationSeconds, video }),
   });
 }
+
+export async function missedCallNotification(channelId: string, video = false) {
+  return apiFetch(`/chat/channels/${channelId}/call-missed`, {
+    method: 'POST',
+    body: JSON.stringify({ video }),
+  });
+}
