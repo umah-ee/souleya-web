@@ -110,30 +110,34 @@ export default function VideoCallOverlay({
       className="fixed inset-0 z-[200] flex flex-col"
       style={{ background: '#1a1a1a' }}
     >
-      {/* ── Remote Video / Avatar Fallback ──────────────── */}
+      {/* ── Video-Bereich ─────────────────────────────── */}
       <div className="flex-1 relative flex items-center justify-center overflow-hidden">
-        {hasRemoteVideo ? (
-          <video
-            ref={remoteVideoRef}
-            autoPlay
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        ) : (
+        {/* Remote Video — immer im DOM, sichtbar nur wenn Video-Tracks da */}
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ display: hasRemoteVideo ? 'block' : 'none' }}
+        />
+
+        {/* Avatar Fallback wenn kein Remote-Video */}
+        {!hasRemoteVideo && callState === 'connected' && (
           <div className="flex flex-col items-center gap-4">
-            {/* Remote Video als Hidden (fuer Audio) */}
-            <video ref={remoteVideoRef} autoPlay playsInline className="hidden" />
-            {/* EnsoRing als Avatar */}
-            <div className="relative" style={{ width: 160, height: 160 }}>
-              <EnsoRing
-                size="profile-large"
-                soulLevel={partnerSoulLevel}
-                isFirstLight={isFirstLight}
-                isMentor={partnerSoulLevel >= 5}
-              >
-                {partnerAvatar && <img src={partnerAvatar} alt="" className="w-full h-full rounded-full object-cover" />}
-              </EnsoRing>
-            </div>
+            <EnsoRing
+              size="profile-large"
+              soulLevel={partnerSoulLevel}
+              isFirstLight={isFirstLight}
+              isMentor={partnerSoulLevel >= 5}
+            >
+              {partnerAvatar ? (
+                <img src={partnerAvatar} alt="" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <div className="w-full h-full rounded-full flex items-center justify-center" style={{ background: 'rgba(200,169,110,.15)' }}>
+                  <Icon name="user" size={40} style={{ color: '#C8A96E' }} />
+                </div>
+              )}
+            </EnsoRing>
             <span style={{ fontSize: 20, fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', color: '#F0E8D8' }}>
               {partnerName}
             </span>
@@ -173,24 +177,21 @@ export default function VideoCallOverlay({
           </div>
         )}
 
-        {/* ── Lokales Video (Bild-in-Bild) ─────────────── */}
-        {hasLocalVideo && (
-          <div
-            className="absolute rounded-[8px] overflow-hidden shadow-lg"
-            style={{ bottom: 100, right: 20, width: 160, height: 120, border: '2px solid rgba(200,169,110,.3)' }}
-          >
-            <video
-              ref={localVideoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover"
-              style={{ transform: 'scaleX(-1)' }}
-            />
-          </div>
-        )}
-        {/* Hidden local video fuer Audio-Only */}
-        {!hasLocalVideo && <video ref={localVideoRef} autoPlay playsInline muted className="hidden" />}
+        {/* ── Lokales Video (Bild-in-Bild) — immer im DOM ── */}
+        <video
+          ref={localVideoRef}
+          autoPlay
+          playsInline
+          muted
+          className="absolute rounded-[8px] overflow-hidden shadow-lg"
+          style={{
+            bottom: 100, right: 20, width: 160, height: 120,
+            border: '2px solid rgba(200,169,110,.3)',
+            objectFit: 'cover',
+            transform: 'scaleX(-1)',
+            display: hasLocalVideo ? 'block' : 'none',
+          }}
+        />
       </div>
 
       {/* ── Header (Name + Timer) ──────────────────────── */}
