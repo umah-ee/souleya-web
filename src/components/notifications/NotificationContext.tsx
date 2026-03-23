@@ -94,11 +94,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         fetchUnreadCount(),
         fetchNotifications(1, 20),
       ]);
+      console.log('[Notifications] Geladen:', countRes.count, 'ungelesen,', notifRes.data?.length, 'total');
       setUnreadCount(countRes.count);
-      setNotifications(notifRes.data);
+      setNotifications(notifRes.data ?? []);
       lastUpdatedRef.current = Date.now();
-    } catch {
-      // silent — API-Modul existiert evtl. noch nicht
+    } catch (err) {
+      console.warn('[Notifications] Fehler beim Laden:', err);
     } finally {
       isFetchingRef.current = false;
       setIsLoading(false);
@@ -158,21 +159,39 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   // Supabase Realtime — neue Notifications
   useEffect(() => {
     const supabase = createClient();
-    const channel = supabase
-      .channel('notifications-realtime')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications' },
-        () => {
-          lastUpdatedRef.current = 0;
-          refreshNotifications();
-          playSingingBowlSound();
-        },
-      )
-      .subscribe();
+
+    // User-ID fuer Filter holen
+    supabase.auth.getUser().then(({ data }) => {
+      const uid = data.user?.id;
+      if (!uid) return;
+
+      const channel = supabase
+        .channel('notifications-realtime')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${uid}` },
+          (payload) => {
+            console.log('[Notifications] Neue Notification empfangen:', payload.new);
+            lastUpdatedRef.current = 0;
+            refreshNotifications();
+            playSingingBowlSound();
+          },
+        )
+        .subscribe((status) => {
+          console.log('[Notifications] Realtime Status:', status);
+        });
+
+      // Cleanup in closure speichern
+      (window as any).__notifChannel = channel;
+    });
 
     return () => {
-      supabase.removeChannel(channel);
+      const ch = (window as any).__notifChannel;
+      if (ch) {
+        const supabase2 = createClient();
+        supabase2.removeChannel(ch);
+        delete (window as any).__notifChannel;
+      }
     };
   }, [refreshNotifications]);
 
