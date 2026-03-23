@@ -271,3 +271,18 @@ export async function uploadChatImage(file: File, userId: string): Promise<strin
 
   return publicUrl;
 }
+
+// ── Video/Audio Calls ─────────────────────────────────────────
+export async function initiateCall(channelId: string, video = false) {
+  return apiFetch<{ roomId: string; channelId: string; video: boolean }>(
+    `/chat/channels/${channelId}/call`,
+    { method: 'POST', body: JSON.stringify({ video }) },
+  );
+}
+
+export async function endCallMessage(channelId: string, durationSeconds: number, video = false) {
+  return apiFetch(`/chat/channels/${channelId}/call-end`, {
+    method: 'POST',
+    body: JSON.stringify({ duration_seconds: durationSeconds, video }),
+  });
+}

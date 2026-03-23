@@ -231,6 +231,14 @@ export async function updateBookingStatus(id: string, status: string): Promise<F
   return apiFetch(`/studio/f2f/bookings/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
 }
 
+export async function startF2FCall(bookingId: string): Promise<F2FBooking> {
+  return apiFetch(`/studio/f2f/bookings/${bookingId}/start-call`, { method: 'POST' });
+}
+
+export async function completeF2FBooking(bookingId: string, rating?: number, comment?: string): Promise<F2FBooking> {
+  return apiFetch(`/studio/f2f/bookings/${bookingId}/complete`, { method: 'PATCH', body: JSON.stringify({ rating, comment }) });
+}
+
 // ── Finanzen ───────────────────────────────────────────────
 export async function fetchFinanceOverview(): Promise<FinanceOverview> {
   return withDemo(() => apiFetch('/studio/finance/overview'), DEMO_FINANCE);
