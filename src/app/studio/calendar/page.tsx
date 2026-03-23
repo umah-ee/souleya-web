@@ -92,9 +92,12 @@ export default function CalendarPage() {
       ]);
 
       const slots: F2FSlot[] = slotsRes.status === 'fulfilled' ? slotsRes.value : [];
-      const bookings: F2FBooking[] = bookingsRes.status === 'fulfilled' ? (bookingsRes.value as { data: F2FBooking[] }).data ?? bookingsRes.value as F2FBooking[] : [];
-      const courses: Course[] = coursesRes.status === 'fulfilled' ? (coursesRes.value as { data: Course[] }).data ?? [] : [];
-      const events: SoEvent[] = eventsRes.status === 'fulfilled' ? (eventsRes.value as { data: SoEvent[] }).data ?? eventsRes.value as SoEvent[] : [];
+      const bookingsRaw = bookingsRes.status === 'fulfilled' ? bookingsRes.value : { data: [] };
+      const bookings: F2FBooking[] = (bookingsRaw as unknown as { data: F2FBooking[] }).data ?? [];
+      const coursesRaw = coursesRes.status === 'fulfilled' ? coursesRes.value : { data: [] };
+      const courses: Course[] = (coursesRaw as unknown as { data: Course[] }).data ?? [];
+      const eventsRaw = eventsRes.status === 'fulfilled' ? eventsRes.value : { data: [] };
+      const events: SoEvent[] = (eventsRaw as unknown as { data: SoEvent[] }).data ?? [];
 
       const bookingMap = new Map<string, F2FBooking>();
       for (const b of bookings) {
