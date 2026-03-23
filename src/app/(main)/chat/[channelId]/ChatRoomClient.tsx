@@ -19,6 +19,9 @@ import CreatePollForm from '@/components/chat/CreatePollForm';
 import SeedsTransferModal from '@/components/chat/SeedsTransferModal';
 import MessageSearch from '@/components/chat/MessageSearch';
 import ForwardMessageModal from '@/components/chat/ForwardMessageModal';
+import VideoCallOverlay from '@/components/shared/VideoCallOverlay';
+import IncomingCallOverlay from '@/components/chat/IncomingCallOverlay';
+import { initiateCall, endCallMessage } from '@/lib/chat';
 import CreateChallengeModal from '@/components/challenges/CreateChallengeModal';
 import { createChallenge } from '@/lib/challenges';
 import type { Challenge } from '@/types/challenges';
@@ -63,6 +66,10 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [typingUsers, setTypingUsers] = useState<{ id: string; name: string }[]>([]);
   const [readStatus, setReadStatus] = useState<ReadStatusMember[]>([]);
+  // Call State
+  const [activeCallRoom, setActiveCallRoom] = useState<string | null>(null);
+  const [activeCallVideo, setActiveCallVideo] = useState(false);
+  const [incomingCall, setIncomingCall] = useState<{ roomId: string; callerName: string; callerAvatar?: string | null; video: boolean } | null>(null);
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -643,6 +650,40 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           </div>
         </div>
 
+        {/* Call Buttons (nur Direct Channels) */}
+        {channel.type === 'direct' && (
+          <>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await initiateCall(channelId, false);
+                  setActiveCallRoom(res.roomId);
+                  setActiveCallVideo(false);
+                } catch { /* ignore */ }
+              }}
+              className="p-1.5 cursor-pointer shrink-0"
+              style={{ color: 'var(--text-muted)' }}
+              title="Audioanruf"
+            >
+              <Icon name="phone" size={18} />
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await initiateCall(channelId, true);
+                  setActiveCallRoom(res.roomId);
+                  setActiveCallVideo(true);
+                } catch { /* ignore */ }
+              }}
+              className="p-1.5 cursor-pointer shrink-0"
+              style={{ color: 'var(--text-muted)' }}
+              title="Videoanruf"
+            >
+              <Icon name="video" size={18} />
+            </button>
+          </>
+        )}
+
         <button
           onClick={() => setShowSearch((s) => !s)}
           className="p-1.5 cursor-pointer shrink-0"
@@ -1033,6 +1074,41 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           message={forwardingMsg}
           onClose={() => setForwardingMsg(null)}
           onForwarded={() => setForwardingMsg(null)}
+        />
+      )}
+
+      {/* Active Call Overlay */}
+      {activeCallRoom && (() => {
+        const partner = channel?.members.find((m) => m.user_id !== user?.id);
+        return (
+          <VideoCallOverlay
+            roomId={activeCallRoom}
+            partnerId={partner?.user_id ?? ''}
+            partnerName={partner?.profile.display_name ?? 'Unbekannt'}
+            partnerAvatar={partner?.profile.avatar_url}
+            partnerSoulLevel={partner?.profile.soul_level}
+            isFirstLight={partner?.profile.is_first_light}
+            initialVideo={activeCallVideo}
+            onEnd={async (dur) => {
+              await endCallMessage(channelId, dur, activeCallVideo).catch(() => {});
+              setActiveCallRoom(null);
+            }}
+          />
+        );
+      })()}
+
+      {/* Incoming Call Overlay */}
+      {incomingCall && (
+        <IncomingCallOverlay
+          callerName={incomingCall.callerName}
+          callerAvatar={incomingCall.callerAvatar}
+          isVideo={incomingCall.video}
+          onAccept={() => {
+            setActiveCallRoom(incomingCall.roomId);
+            setActiveCallVideo(incomingCall.video);
+            setIncomingCall(null);
+          }}
+          onReject={() => setIncomingCall(null)}
         />
       )}
 

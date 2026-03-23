@@ -5,6 +5,7 @@ import { Icon } from '@/components/ui/Icon';
 import { fetchF2FPricings, fetchF2FBookings, createF2FPricing, deleteF2FPricing, updateBookingStatus } from '@/lib/studio';
 import type { F2FPricing, F2FBooking } from '@/types/studio';
 import VideoCallOverlay from '@/components/shared/VideoCallOverlay';
+import F2FReviewModal from '@/components/studio/F2FReviewModal';
 
 // ── Typen ─────────────────────────────────────────────────
 type Tab = 'upcoming' | 'past';
@@ -25,6 +26,7 @@ export default function F2FPage() {
 
   // Video-Call
   const [activeCall, setActiveCall] = useState<{ bookingId: string; partnerName: string; partnerAvatar?: string | null } | null>(null);
+  const [reviewCall, setReviewCall] = useState<{ bookingId: string; partnerName: string; duration: number } | null>(null);
 
   // ── Daten laden ─────────────────────────────────────────
   const loadData = useCallback(async () => {
@@ -96,8 +98,11 @@ export default function F2FPage() {
 
   const handleCallEnd = async (duration: number) => {
     if (activeCall) {
-      await updateBookingStatus(activeCall.bookingId, 'completed').catch(() => {});
-      loadData();
+      setReviewCall({
+        bookingId: activeCall.bookingId,
+        partnerName: activeCall.partnerName,
+        duration,
+      });
     }
     setActiveCall(null);
   };
@@ -340,6 +345,17 @@ export default function F2FPage() {
           partnerAvatar={activeCall.partnerAvatar}
           initialVideo={true}
           onEnd={handleCallEnd}
+        />
+      )}
+
+      {/* ── Bewertungs-Modal nach Call ──────────────────── */}
+      {reviewCall && (
+        <F2FReviewModal
+          bookingId={reviewCall.bookingId}
+          mentorName={reviewCall.partnerName}
+          duration={reviewCall.duration}
+          onClose={() => { setReviewCall(null); loadData(); }}
+          onSubmitted={() => { setReviewCall(null); loadData(); }}
         />
       )}
     </div>
