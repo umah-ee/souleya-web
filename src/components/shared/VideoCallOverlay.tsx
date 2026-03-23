@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import { useWebRTC } from '@/hooks/useWebRTC';
 import { useCurrentProfile } from '@/hooks/useCurrentProfile';
+import { useRingtone } from '@/hooks/useRingtone';
 import EnsoRing from '@/components/ui/EnsoRing';
 
 interface Props {
@@ -56,6 +57,9 @@ export default function VideoCallOverlay({
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [hasStarted, setHasStarted] = useState(false);
 
+  // Ausgehender Klingelton (nur Caller, nur waehrend Ringing)
+  useRingtone(!isIncoming && callState === 'ringing' ? 'outgoing' : null);
+
   // Auto-Start fuer Caller
   useEffect(() => {
     if (!isIncoming && !hasStarted && userId) {
@@ -64,13 +68,12 @@ export default function VideoCallOverlay({
     }
   }, [isIncoming, hasStarted, userId, startCall, initialVideo]);
 
-  // Auto-Answer fuer Callee
+  // Auto-Answer fuer Callee — wartet bis Offer eingetroffen ist
   useEffect(() => {
-    if (isIncoming && !hasStarted && userId) {
-      setHasStarted(true);
+    if (isIncoming && incomingOffer && userId) {
       answerCall();
     }
-  }, [isIncoming, hasStarted, userId, answerCall]);
+  }, [isIncoming, incomingOffer, userId, answerCall]);
 
   // Local Video Stream zuweisen
   useEffect(() => {

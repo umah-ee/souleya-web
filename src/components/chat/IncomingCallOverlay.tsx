@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import EnsoRing from '@/components/ui/EnsoRing';
+import { useRingtone } from '@/hooks/useRingtone';
 
 interface Props {
   callerName: string;
@@ -24,6 +25,9 @@ export default function IncomingCallOverlay({
   onReject,
 }: Props) {
   const [elapsed, setElapsed] = useState(0);
+
+  // Klingelton
+  useRingtone('incoming');
 
   // 30s Timeout → auto-reject
   useEffect(() => {
