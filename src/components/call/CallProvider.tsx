@@ -165,26 +165,41 @@ export default function CallProvider({ children }: { children: React.ReactNode }
     setIncoming(null);
   }, []);
 
-  // ── Call beenden ────────────────────────────────────────
+  // ── Call beenden (mit Ref um Doppelaufruf zu verhindern) ──
+  const endingRef = useRef(false);
   const handleEnd = useCallback(async (duration: number) => {
+    // Doppelaufruf verhindern (onEnd kann via Button + useEffect kommen)
+    if (endingRef.current) return;
+    endingRef.current = true;
+
+    const chId = activeChannelId;
+    const vid = activeVideo;
+    const incoming = isIncoming;
+    const calleeId = activeCalleeIdRef.current;
+
     // Cancel-Signal an Callee senden (falls noch klingelt)
-    if (activeCalleeIdRef.current) {
-      sendCancelToCallee(activeCalleeIdRef.current);
+    if (calleeId) {
+      sendCancelToCallee(calleeId);
     }
-    if (activeChannelId) {
+
+    if (chId) {
       if (duration > 0) {
         // Erfolgreiches Gespraech → System-Message mit Dauer
-        await endCallMessage(activeChannelId, duration, activeVideo).catch(() => {});
-      } else if (!isIncoming) {
+        await endCallMessage(chId, duration, vid).catch((e) => console.warn('[Call] endCallMessage fehler:', e));
+      } else if (!incoming) {
         // Caller hat aufgelegt ohne Verbindung → Verpasster Anruf
-        await missedCallNotification(activeChannelId, activeVideo).catch(() => {});
+        await missedCallNotification(chId, vid).catch((e) => console.warn('[Call] missedCall fehler:', e));
       }
     }
+
     setActiveRoom(null);
     setActiveChannelId(null);
     setActivePartner(null);
     setIsIncoming(false);
     activeCalleeIdRef.current = null;
+
+    // Reset nach kurzem Delay damit der naechste Call funktioniert
+    setTimeout(() => { endingRef.current = false; }, 500);
   }, [activeChannelId, activeVideo, isIncoming, sendCancelToCallee]);
 
   return (

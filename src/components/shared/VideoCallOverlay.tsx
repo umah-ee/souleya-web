@@ -101,7 +101,7 @@ export default function VideoCallOverlay({
 
   const handleEndCall = () => {
     endCall();
-    onEnd(duration);
+    // onEnd wird automatisch via useEffect aufgerufen wenn callState → 'ended'
   };
 
   const hasRemoteVideo = remoteStream?.getVideoTracks().some(t => t.enabled) ?? false;
