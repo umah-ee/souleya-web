@@ -207,14 +207,14 @@ export default function NotificationBell() {
                     {CALL_TYPES.has(n.type) && n.link && (
                       <div className="flex items-center gap-2 mt-1.5">
                         <button
-                          onClick={(e) => { e.stopPropagation(); router.push(n.link!); setOpen(false); }}
+                          onClick={(e) => { e.stopPropagation(); setOpen(false); setTimeout(() => router.push(n.link!), 50); }}
                           className="flex items-center gap-1 border-none cursor-pointer"
                           style={{ padding: '2px 8px', borderRadius: 9999, fontSize: 9, letterSpacing: '0.5px', background: 'var(--gold-bg)', color: 'var(--gold-text)', border: '1px solid var(--gold-border-s)' }}
                         >
                           <Icon name="message-circle" size={10} /> Chat
                         </button>
                         <button
-                          onClick={(e) => { e.stopPropagation(); router.push(n.link!); setOpen(false); }}
+                          onClick={(e) => { e.stopPropagation(); setOpen(false); setTimeout(() => router.push(n.link! + '?action=call'), 50); }}
                           className="flex items-center gap-1 border-none cursor-pointer"
                           style={{ padding: '2px 8px', borderRadius: 9999, fontSize: 9, letterSpacing: '0.5px', background: 'var(--glass)', color: 'var(--text-sec)', border: '1px solid var(--glass-border)' }}
                         >

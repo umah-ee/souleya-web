@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import type { ChannelDetail, Message, ReactionSummary, ReadStatusMember } from '@/types/chat';
 import {
@@ -40,6 +40,7 @@ interface Props {
 
 export default function ChatRoomClient({ channelId, user }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [channel, setChannel] = useState<ChannelDetail | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -262,6 +263,36 @@ export default function ChatRoomClient({ channelId, user }: Props) {
       presenceChannelRef.current = null;
     };
   }, [channelId, user?.id]);
+
+  // ── Auto-Call wenn ?action=call (Zurueckrufen aus Notification) ──
+  const autoCallTriggered = useRef(false);
+  useEffect(() => {
+    if (autoCallTriggered.current) return;
+    if (searchParams.get('action') !== 'call') return;
+    if (!channel || channel.type !== 'direct' || !user?.id) return;
+
+    autoCallTriggered.current = true;
+    const partner = channel.members.find((m) => m.user_id !== user.id);
+    if (!partner) return;
+
+    const partnerData = {
+      id: partner.user_id,
+      name: partner.profile.display_name ?? partner.profile.username ?? 'Unbekannt',
+      avatar: partner.profile.avatar_url,
+      soulLevel: partner.profile.soul_level,
+      isFirstLight: partner.profile.is_first_light,
+    };
+
+    // Call initiieren nach kurzem Delay (Channel muss geladen sein)
+    setTimeout(async () => {
+      try {
+        const res = await initiateCall(channelId, false);
+        startOutgoingCall(channelId, res.roomId, false, partnerData, partner.user_id);
+        // Query-Param entfernen
+        router.replace(`/chat/${channelId}`);
+      } catch { /* ignore */ }
+    }, 500);
+  }, [channel, user?.id, searchParams, channelId, startOutgoingCall, router]);
 
   const trackTyping = useCallback((isTyping: boolean) => {
     const ch = presenceChannelRef.current;
