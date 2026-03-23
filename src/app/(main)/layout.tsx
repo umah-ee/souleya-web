@@ -8,6 +8,7 @@ import { NotificationProvider } from '@/components/notifications/NotificationCon
 import { SidebarProvider } from '@/components/layout/SidebarContext';
 import DynamicMain from '@/components/layout/DynamicMain';
 import PreLaunchOverlay from '@/components/layout/PreLaunchOverlay';
+import CallProvider from '@/components/call/CallProvider';
 import { createClient } from '@/lib/supabase/server';
 
 const isPreLaunch = process.env.NEXT_PUBLIC_PRE_LAUNCH === 'true';
@@ -42,6 +43,7 @@ export default async function MainLayout({
     <AuthGuard>
       <UnreadProvider>
         <NotificationProvider>
+        <CallProvider>
         <SidebarProvider>
           <div className="min-h-screen font-body">
             {/* Desktop Sidebar */}
@@ -67,6 +69,7 @@ export default async function MainLayout({
             {showPreLaunch && <PreLaunchOverlay />}
           </div>
         </SidebarProvider>
+        </CallProvider>
         </NotificationProvider>
       </UnreadProvider>
     </AuthGuard>

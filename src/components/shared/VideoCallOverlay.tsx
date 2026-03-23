@@ -136,12 +136,30 @@ export default function VideoCallOverlay({
           </div>
         )}
 
-        {/* ── Status-Anzeige ───────────────────────────── */}
+        {/* ── Status-Anzeige (pulsierender EnsoRing) ──── */}
         {callState !== 'connected' && (
-          <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,.6)' }}>
-            <div className="text-center">
-              <div className="mb-4" style={{ width: 48, height: 48, margin: '0 auto', border: '3px solid rgba(200,169,110,.4)', borderTopColor: '#C8A96E', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              <p style={{ fontSize: 14, color: '#F0E8D8' }}>
+          <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,.7)' }}>
+            <div className="flex flex-col items-center gap-4">
+              <div style={{ animation: 'callPulse 2s ease-in-out infinite' }}>
+                <EnsoRing
+                  size="profile-large"
+                  soulLevel={partnerSoulLevel}
+                  isFirstLight={isFirstLight}
+                  isMentor={partnerSoulLevel >= 5}
+                >
+                  {partnerAvatar ? (
+                    <img src={partnerAvatar} alt="" className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full rounded-full flex items-center justify-center" style={{ background: 'rgba(200,169,110,.15)' }}>
+                      <Icon name="user" size={40} style={{ color: '#C8A96E' }} />
+                    </div>
+                  )}
+                </EnsoRing>
+              </div>
+              <span style={{ fontSize: 18, fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', color: '#F0E8D8' }}>
+                {partnerName}
+              </span>
+              <p style={{ fontSize: 13, color: 'rgba(240,232,216,.6)' }}>
                 {callState === 'connecting' && 'Verbindung wird aufgebaut …'}
                 {callState === 'ringing' && (isIncoming ? 'Eingehender Anruf …' : 'Klingelt …')}
                 {callState === 'idle' && 'Vorbereitung …'}
@@ -235,8 +253,12 @@ export default function VideoCallOverlay({
         </button>
       </div>
 
-      {/* Spin-Animation */}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes callPulse {
+          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(200,169,110,0)); }
+          50% { transform: scale(1.06); filter: drop-shadow(0 0 24px rgba(200,169,110,.35)); }
+        }
+      `}</style>
     </div>
   );
 }

@@ -49,6 +49,7 @@ export function useWebRTC({ roomId, userId, enabled = true }: UseWebRTCOptions):
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const ringingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startedAtRef = useRef<number>(0);
   const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
   const wantVideoRef = useRef(false);
@@ -58,6 +59,7 @@ export function useWebRTC({ roomId, userId, enabled = true }: UseWebRTCOptions):
   // ── Aufräumen ───────────────────────────────────────────
   const cleanup = useCallback(() => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    if (ringingTimeoutRef.current) { clearTimeout(ringingTimeoutRef.current); ringingTimeoutRef.current = null; }
     if (pcRef.current) { pcRef.current.close(); pcRef.current = null; }
     if (localStream) { localStream.getTracks().forEach(t => t.stop()); }
     setLocalStream(null);
@@ -106,6 +108,8 @@ export function useWebRTC({ roomId, userId, enabled = true }: UseWebRTCOptions):
       if (pc.connectionState === 'connected') {
         setCallState('connected');
         startTimer();
+        // Ringing-Timeout clearen
+        if (ringingTimeoutRef.current) { clearTimeout(ringingTimeoutRef.current); ringingTimeoutRef.current = null; }
       } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
         setCallState('ended');
       }
@@ -212,7 +216,15 @@ export function useWebRTC({ roomId, userId, enabled = true }: UseWebRTCOptions):
     });
 
     setCallState('ringing');
-  }, [getMedia, createPC, userId]);
+
+    // 30s Timeout — keine Antwort
+    ringingTimeoutRef.current = setTimeout(() => {
+      if (pcRef.current?.connectionState !== 'connected') {
+        setCallState('ended');
+        cleanup();
+      }
+    }, 30_000);
+  }, [getMedia, createPC, userId, cleanup]);
 
   // ── Call annehmen (Callee) ──────────────────────────────
   const answerCall = useCallback(async () => {
