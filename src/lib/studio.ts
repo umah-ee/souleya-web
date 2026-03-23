@@ -239,6 +239,30 @@ export async function completeF2FBooking(bookingId: string, rating?: number, com
   return apiFetch(`/studio/f2f/bookings/${bookingId}/complete`, { method: 'PATCH', body: JSON.stringify({ rating, comment }) });
 }
 
+// ── Client F2F Buchung (oeffentlich) ──────────────────────
+export async function fetchMentorPricing(mentorId: string): Promise<F2FPricing[]> {
+  return apiFetch(`/f2f/mentors/${mentorId}/pricing`);
+}
+
+export async function fetchMentorSlots(mentorId: string, fromDate?: string): Promise<F2FSlot[]> {
+  const params = new URLSearchParams();
+  if (fromDate) params.set('from_date', fromDate);
+  const qs = params.toString();
+  return apiFetch(`/f2f/mentors/${mentorId}/slots${qs ? `?${qs}` : ''}`);
+}
+
+export async function bookF2FSlot(slotId: string, pricingId: string, topic?: string): Promise<F2FBooking> {
+  return apiFetch('/f2f/book', { method: 'POST', body: JSON.stringify({ slot_id: slotId, pricing_id: pricingId, topic }) });
+}
+
+export async function fetchMyF2FBookings(options?: { status?: string; page?: number }): Promise<{ data: F2FBooking[]; total: number; hasMore: boolean }> {
+  const params = new URLSearchParams();
+  if (options?.status) params.set('status', options.status);
+  if (options?.page) params.set('page', String(options.page));
+  const qs = params.toString();
+  return apiFetch(`/f2f/my-bookings${qs ? `?${qs}` : ''}`);
+}
+
 // ── Finanzen ───────────────────────────────────────────────
 export async function fetchFinanceOverview(): Promise<FinanceOverview> {
   return withDemo(() => apiFetch('/studio/finance/overview'), DEMO_FINANCE);

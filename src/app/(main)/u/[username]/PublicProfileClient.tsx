@@ -18,6 +18,7 @@ import ProfileStudioCard from '../../profile/components/ProfileStudioCard';
 import ProfileInterests from '../../profile/components/ProfileInterests';
 import ProfileStats from '../../profile/components/ProfileStats';
 import PulseCard from '@/components/pulse/PulseCard';
+import F2FBookingCard from '@/components/profile/F2FBookingCard';
 
 interface Props {
   username: string;
@@ -306,6 +307,17 @@ export default function PublicProfileClient({ username }: Props) {
 
         {/* ─── Coach Studio Card (nur Mentoren) ─── */}
         <ProfileStudioCard profile={profile} />
+
+        {/* ─── F2F Buchung (nur bei Mentoren, nicht eigenes Profil) ─── */}
+        {profile.is_mentor && profile.id !== currentUserId && (
+          <div className="px-6 mt-4">
+            <F2FBookingCard
+              mentorId={profile.id}
+              mentorName={profile.display_name ?? profile.username ?? 'Mentor'}
+              currentUserId={currentUserId}
+            />
+          </div>
+        )}
 
         {/* ─── Interest Tags ─── */}
         <ProfileInterests profile={profile} />
