@@ -365,31 +365,49 @@ export default function F2FPage() {
                         {(() => {
                           const cs = getCallStatus(b);
                           return (
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex flex-col items-end gap-1.5">
                               {/* Status Badge */}
                               <span style={{
                                 padding: '3px 8px', borderRadius: 6, fontSize: 9, letterSpacing: '1px', textTransform: 'uppercase',
                                 background: b.status === 'confirmed' ? 'var(--success-bg)' : 'var(--gold-bg)',
                                 color: b.status === 'confirmed' ? 'var(--success)' : 'var(--gold-text)',
                               }}>{b.status === 'confirmed' ? 'Bestaetigt' : 'Ausstehend'}</span>
-                              {/* Call Buttons */}
-                              {cs.canCall ? (
-                                <>
-                                  <button onClick={() => handleStartCall(b, true)} className="border-none cursor-pointer flex items-center gap-1" style={{
-                                    padding: '5px 12px', borderRadius: 9999, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
-                                    background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))', color: 'var(--text-on-gold)',
-                                  }}>
-                                    <Icon name="video" size={12} /> Video
-                                  </button>
-                                  <button onClick={() => handleStartCall(b, false)} className="border-none cursor-pointer flex items-center gap-1" style={{
-                                    padding: '5px 10px', borderRadius: 9999, fontSize: 10,
-                                    background: 'var(--glass)', color: 'var(--text-sec)', border: `1px solid ${border}`,
-                                  }}>
-                                    <Icon name="phone" size={12} />
-                                  </button>
-                                </>
-                              ) : cs.label && (
-                                <span style={{ fontSize: 9, color: 'var(--text-muted)', fontStyle: 'italic' }}>{cs.label}</span>
+                              {/* Call Buttons — immer sichtbar */}
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => cs.canCall && handleStartCall(b, true)}
+                                  disabled={!cs.canCall}
+                                  className="border-none cursor-pointer flex items-center gap-1"
+                                  style={{
+                                    padding: '6px 14px', borderRadius: 9999, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
+                                    background: cs.canCall ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))' : 'var(--glass)',
+                                    color: cs.canCall ? 'var(--text-on-gold)' : 'var(--text-muted)',
+                                    opacity: cs.canCall ? 1 : 0.5,
+                                    border: cs.canCall ? 'none' : `1px solid var(--glass-border)`,
+                                  }}
+                                >
+                                  <Icon name="video" size={12} /> Video
+                                </button>
+                                <button
+                                  onClick={() => cs.canCall && handleStartCall(b, false)}
+                                  disabled={!cs.canCall}
+                                  className="border-none cursor-pointer flex items-center gap-1"
+                                  style={{
+                                    padding: '6px 10px', borderRadius: 9999, fontSize: 10,
+                                    background: 'var(--glass)', color: cs.canCall ? 'var(--text-sec)' : 'var(--text-muted)',
+                                    border: `1px solid ${cs.canCall ? border : 'var(--glass-border)'}`,
+                                    opacity: cs.canCall ? 1 : 0.5,
+                                  }}
+                                >
+                                  <Icon name="phone" size={12} />
+                                </button>
+                              </div>
+                              {/* Countdown — prominenter */}
+                              {!cs.canCall && cs.label && (
+                                <div className="flex items-center gap-1" style={{ fontSize: 11, color: 'var(--gold-text)' }}>
+                                  <Icon name="clock" size={11} style={{ color: 'var(--gold)' }} />
+                                  {cs.label}
+                                </div>
                               )}
                             </div>
                           );
