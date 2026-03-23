@@ -95,7 +95,11 @@ export type IconName =
   | 'checks'
   | 'arrow-forward-up'
   | 'bell-off'
-  | 'player-pause';
+  | 'player-pause'
+  | 'phone'
+  | 'phone-off'
+  | 'microphone-off'
+  | 'video-off';
 
 const paths: Record<IconName, React.ReactNode> = {
   home: (
@@ -665,6 +669,31 @@ const paths: Record<IconName, React.ReactNode> = {
     <>
       <path d="M6 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
       <path d="M14 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+    </>
+  ),
+  'phone': (
+    <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
+  ),
+  'phone-off': (
+    <>
+      <path d="M3 21l18 -18" />
+      <path d="M5.111 5.1a16 16 0 0 0 13.812 13.812m1.077 -2.912l0 4a2 2 0 0 1 -2 2a16 16 0 0 1 -7.574 -2.065m-4.839 -3.26a15.91 15.91 0 0 1 -2.587 -8.675a2 2 0 0 1 2 -2h4l2 5l-2.5 1.5" />
+    </>
+  ),
+  'microphone-off': (
+    <>
+      <path d="M3 3l18 18" />
+      <path d="M9 9v3a3 3 0 0 0 5.12 2.12m.88 -3.12v-5a3 3 0 0 0 -6 0" />
+      <path d="M5 10a7 7 0 0 0 10.846 5.846m2 -2a6.97 6.97 0 0 0 1.154 -3.846" />
+      <path d="M8 21h8" />
+      <path d="M12 17v4" />
+    </>
+  ),
+  'video-off': (
+    <>
+      <path d="M3 3l18 18" />
+      <path d="M15 11v-1l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -.675 .946m-2.32 -1.328l-3.005 -1.5" />
+      <path d="M10 6h3a2 2 0 0 1 2 2v3m0 4v1a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-7a2 2 0 0 1 2 -2" />
     </>
   ),
 };
