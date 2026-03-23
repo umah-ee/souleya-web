@@ -87,10 +87,13 @@ export function useWebRTC({ roomId, userId, enabled = true }: UseWebRTCOptions):
     setRemoteStream(remote);
 
     pc.ontrack = (ev) => {
+      console.log('[WebRTC] ontrack — Track empfangen:', ev.track.kind, 'enabled:', ev.track.enabled, 'streams:', ev.streams.length);
       ev.streams[0]?.getTracks().forEach(track => remote.addTrack(track));
       // Fallback: direkt den Track hinzufuegen
       if (!ev.streams[0]) remote.addTrack(ev.track);
-      setRemoteStream(new MediaStream(remote.getTracks()));
+      const newStream = new MediaStream(remote.getTracks());
+      console.log('[WebRTC] Remote Stream aktualisiert — Audio:', newStream.getAudioTracks().length, 'Video:', newStream.getVideoTracks().length);
+      setRemoteStream(newStream);
     };
 
     // ICE Candidates senden
@@ -121,21 +124,27 @@ export function useWebRTC({ roomId, userId, enabled = true }: UseWebRTCOptions):
 
   // ── Media holen ─────────────────────────────────────────
   const getMedia = useCallback(async (video: boolean) => {
+    console.log('[WebRTC] getMedia aufgerufen, video:', video);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: video ? { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } : false,
       });
+      console.log('[WebRTC] Media erhalten — Audio-Tracks:', stream.getAudioTracks().length, 'Video-Tracks:', stream.getVideoTracks().length);
       setLocalStream(stream);
       return stream;
     } catch (err) {
+      console.warn('[WebRTC] getUserMedia fehlgeschlagen:', err);
       // Fallback: nur Audio wenn Video fehlschlaegt
       if (video) {
         try {
+          console.log('[WebRTC] Fallback auf Audio-only');
           const audioOnly = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
           setLocalStream(audioOnly);
           return audioOnly;
-        } catch { /* kein Mikrofon verfuegbar */ }
+        } catch (e2) {
+          console.warn('[WebRTC] Auch Audio fehlgeschlagen:', e2);
+        }
       }
       // Leerer Stream als Fallback (Empfang geht trotzdem)
       const empty = new MediaStream();
