@@ -70,6 +70,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
   const [activeCallRoom, setActiveCallRoom] = useState<string | null>(null);
   const [activeCallVideo, setActiveCallVideo] = useState(false);
   const [incomingCall, setIncomingCall] = useState<{ roomId: string; callerName: string; callerAvatar?: string | null; video: boolean } | null>(null);
+  const [isIncomingCall, setIsIncomingCall] = useState(false);
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -263,6 +264,29 @@ export default function ChatRoomClient({ channelId, user }: Props) {
     return () => {
       supabase.removeChannel(presenceCh);
       presenceChannelRef.current = null;
+    };
+  }, [channelId, user?.id]);
+
+  // ── Incoming Call Listener (Supabase Broadcast) ───────────
+  useEffect(() => {
+    if (!user?.id) return;
+    const supabase = createClient();
+    const callCh = supabase.channel(`call-signal:${channelId}`);
+
+    callCh
+      .on('broadcast', { event: 'incoming_call' }, ({ payload }) => {
+        if (payload.callerId === user.id) return; // eigenen Call ignorieren
+        setIncomingCall({
+          roomId: payload.roomId,
+          callerName: payload.callerName ?? 'Jemand',
+          callerAvatar: payload.callerAvatar ?? null,
+          video: payload.video ?? false,
+        });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(callCh);
     };
   }, [channelId, user?.id]);
 
@@ -657,8 +681,18 @@ export default function ChatRoomClient({ channelId, user }: Props) {
               onClick={async () => {
                 try {
                   const res = await initiateCall(channelId, false);
+                  // Broadcast an Callee senden
+                  const supabase = createClient();
+                  const callCh = supabase.channel(`call-signal:${channelId}`);
+                  await callCh.subscribe();
+                  await callCh.send({ type: 'broadcast', event: 'incoming_call', payload: {
+                    roomId: res.roomId, callerId: user?.id, callerName: channel.members.find(m => m.user_id === user?.id)?.profile.display_name ?? 'Jemand',
+                    callerAvatar: channel.members.find(m => m.user_id === user?.id)?.profile.avatar_url, video: false,
+                  }});
+                  supabase.removeChannel(callCh);
                   setActiveCallRoom(res.roomId);
                   setActiveCallVideo(false);
+                  setIsIncomingCall(false);
                 } catch { /* ignore */ }
               }}
               className="p-1.5 cursor-pointer shrink-0"
@@ -671,8 +705,18 @@ export default function ChatRoomClient({ channelId, user }: Props) {
               onClick={async () => {
                 try {
                   const res = await initiateCall(channelId, true);
+                  // Broadcast an Callee senden
+                  const supabase = createClient();
+                  const callCh = supabase.channel(`call-signal:${channelId}`);
+                  await callCh.subscribe();
+                  await callCh.send({ type: 'broadcast', event: 'incoming_call', payload: {
+                    roomId: res.roomId, callerId: user?.id, callerName: channel.members.find(m => m.user_id === user?.id)?.profile.display_name ?? 'Jemand',
+                    callerAvatar: channel.members.find(m => m.user_id === user?.id)?.profile.avatar_url, video: true,
+                  }});
+                  supabase.removeChannel(callCh);
                   setActiveCallRoom(res.roomId);
                   setActiveCallVideo(true);
+                  setIsIncomingCall(false);
                 } catch { /* ignore */ }
               }}
               className="p-1.5 cursor-pointer shrink-0"
@@ -1089,9 +1133,11 @@ export default function ChatRoomClient({ channelId, user }: Props) {
             partnerSoulLevel={partner?.profile.soul_level}
             isFirstLight={partner?.profile.is_first_light}
             initialVideo={activeCallVideo}
+            isIncoming={isIncomingCall}
             onEnd={async (dur) => {
               await endCallMessage(channelId, dur, activeCallVideo).catch(() => {});
               setActiveCallRoom(null);
+              setIsIncomingCall(false);
             }}
           />
         );
@@ -1106,6 +1152,7 @@ export default function ChatRoomClient({ channelId, user }: Props) {
           onAccept={() => {
             setActiveCallRoom(incomingCall.roomId);
             setActiveCallVideo(incomingCall.video);
+            setIsIncomingCall(true);
             setIncomingCall(null);
           }}
           onReject={() => setIncomingCall(null)}
