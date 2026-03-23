@@ -41,7 +41,7 @@ export default function IncomingCallOverlay({
         {/* Pulsierender EnsoRing */}
         <div style={{ animation: 'callPulse 2s ease-in-out infinite' }}>
           <EnsoRing
-            size={140}
+            size="profile-large"
             soulLevel={callerSoulLevel}
             isFirstLight={isFirstLight}
             isMentor={callerSoulLevel >= 5}

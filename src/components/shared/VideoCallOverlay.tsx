@@ -122,7 +122,7 @@ export default function VideoCallOverlay({
             {/* EnsoRing als Avatar */}
             <div className="relative" style={{ width: 160, height: 160 }}>
               <EnsoRing
-                size={160}
+                size="profile-large"
                 soulLevel={partnerSoulLevel}
                 isFirstLight={isFirstLight}
                 isMentor={partnerSoulLevel >= 5}
