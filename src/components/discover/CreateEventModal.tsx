@@ -244,7 +244,7 @@ export default function CreateEventModal({ onClose, onCreated }: Props) {
         </div>
 
         {/* Scrollbarer Body */}
-        <div className="flex-1 overflow-y-auto scrollbar-gold px-5 pb-64 space-y-3">
+        <div className="flex-1 overflow-y-auto scrollbar-gold px-5 pb-5 space-y-3">
 
           {/* ── Cover-Bild Vorschau ── */}
           <div>

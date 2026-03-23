@@ -34,12 +34,15 @@ export default function SoTimePicker({ value, onChange, placeholder = 'Uhrzeit w
     value ? parseInt(value.split(':')[1], 10) : null,
   );
 
-  // Position berechnen
+  // Position berechnen — oeffnet nach oben wenn unten nicht genug Platz
+  const PICKER_HEIGHT = 260;
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openAbove = spaceBelow < PICKER_HEIGHT && rect.top > PICKER_HEIGHT;
     setPos({
-      top: rect.bottom + 4,
+      top: openAbove ? rect.top - PICKER_HEIGHT - 4 : rect.bottom + 4,
       left: rect.left,
       width: Math.max(rect.width, 200),
     });

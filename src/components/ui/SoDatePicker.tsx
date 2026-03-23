@@ -55,12 +55,15 @@ export default function SoDatePicker({ value, onChange, placeholder = 'Datum wae
   const [viewYear, setViewYear] = useState(selectedDate?.getFullYear() ?? now.getFullYear());
   const [viewMonth, setViewMonth] = useState(selectedDate?.getMonth() ?? now.getMonth());
 
-  // Position berechnen
+  // Position berechnen — oeffnet nach oben wenn unten nicht genug Platz
+  const CALENDAR_HEIGHT = 320;
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openAbove = spaceBelow < CALENDAR_HEIGHT && rect.top > CALENDAR_HEIGHT;
     setPos({
-      top: rect.bottom + 4,
+      top: openAbove ? rect.top - CALENDAR_HEIGHT - 4 : rect.bottom + 4,
       left: rect.left,
       width: Math.max(rect.width, 300),
     });
