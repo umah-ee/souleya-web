@@ -1,0 +1,241 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { Icon } from '@/components/ui/Icon';
+import { useWebRTC } from '@/hooks/useWebRTC';
+import { useCurrentProfile } from '@/hooks/useCurrentProfile';
+import EnsoRing from '@/components/shared/EnsoRing';
+
+interface Props {
+  roomId: string;
+  partnerId: string;
+  partnerName: string;
+  partnerAvatar?: string | null;
+  partnerSoulLevel?: number;
+  isFirstLight?: boolean;
+  initialVideo: boolean;
+  isIncoming?: boolean; // true = Callee, false = Caller
+  onEnd: (duration: number) => void;
+}
+
+function formatDuration(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+export default function VideoCallOverlay({
+  roomId,
+  partnerId,
+  partnerName,
+  partnerAvatar,
+  partnerSoulLevel = 1,
+  isFirstLight = false,
+  initialVideo,
+  isIncoming = false,
+  onEnd,
+}: Props) {
+  const { profile } = useCurrentProfile();
+  const userId = profile?.id ?? '';
+
+  const {
+    localStream,
+    remoteStream,
+    callState,
+    isMuted,
+    isVideoOff,
+    duration,
+    startCall,
+    answerCall,
+    endCall,
+    toggleMute,
+    toggleVideo,
+  } = useWebRTC({ roomId, userId, enabled: true });
+
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const [hasStarted, setHasStarted] = useState(false);
+
+  // Auto-Start fuer Caller
+  useEffect(() => {
+    if (!isIncoming && !hasStarted && userId) {
+      setHasStarted(true);
+      startCall(initialVideo);
+    }
+  }, [isIncoming, hasStarted, userId, startCall, initialVideo]);
+
+  // Auto-Answer fuer Callee
+  useEffect(() => {
+    if (isIncoming && !hasStarted && userId) {
+      setHasStarted(true);
+      answerCall();
+    }
+  }, [isIncoming, hasStarted, userId, answerCall]);
+
+  // Local Video Stream zuweisen
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream;
+    }
+  }, [localStream]);
+
+  // Remote Video Stream zuweisen
+  useEffect(() => {
+    if (remoteVideoRef.current && remoteStream) {
+      remoteVideoRef.current.srcObject = remoteStream;
+    }
+  }, [remoteStream]);
+
+  // Call beendet → onEnd Callback
+  useEffect(() => {
+    if (callState === 'ended') {
+      onEnd(duration);
+    }
+  }, [callState, duration, onEnd]);
+
+  const handleEndCall = () => {
+    endCall();
+    onEnd(duration);
+  };
+
+  const hasRemoteVideo = remoteStream?.getVideoTracks().some(t => t.enabled) ?? false;
+  const hasLocalVideo = localStream?.getVideoTracks().some(t => t.enabled && !isVideoOff) ?? false;
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] flex flex-col"
+      style={{ background: '#1a1a1a' }}
+    >
+      {/* ── Remote Video / Avatar Fallback ──────────────── */}
+      <div className="flex-1 relative flex items-center justify-center overflow-hidden">
+        {hasRemoteVideo ? (
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="flex flex-col items-center gap-4">
+            {/* Remote Video als Hidden (fuer Audio) */}
+            <video ref={remoteVideoRef} autoPlay playsInline className="hidden" />
+            {/* EnsoRing als Avatar */}
+            <div className="relative" style={{ width: 160, height: 160 }}>
+              <EnsoRing
+                size={160}
+                soulLevel={partnerSoulLevel}
+                isFirstLight={isFirstLight}
+                isMentor={partnerSoulLevel >= 5}
+                avatarUrl={partnerAvatar}
+              />
+            </div>
+            <span style={{ fontSize: 20, fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', color: '#F0E8D8' }}>
+              {partnerName}
+            </span>
+          </div>
+        )}
+
+        {/* ── Status-Anzeige ───────────────────────────── */}
+        {callState !== 'connected' && (
+          <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,.6)' }}>
+            <div className="text-center">
+              <div className="mb-4" style={{ width: 48, height: 48, margin: '0 auto', border: '3px solid rgba(200,169,110,.4)', borderTopColor: '#C8A96E', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              <p style={{ fontSize: 14, color: '#F0E8D8' }}>
+                {callState === 'connecting' && 'Verbindung wird aufgebaut …'}
+                {callState === 'ringing' && (isIncoming ? 'Eingehender Anruf …' : 'Klingelt …')}
+                {callState === 'idle' && 'Vorbereitung …'}
+                {callState === 'ended' && 'Anruf beendet'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── Lokales Video (Bild-in-Bild) ─────────────── */}
+        {hasLocalVideo && (
+          <div
+            className="absolute rounded-[8px] overflow-hidden shadow-lg"
+            style={{ bottom: 100, right: 20, width: 160, height: 120, border: '2px solid rgba(200,169,110,.3)' }}
+          >
+            <video
+              ref={localVideoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover"
+              style={{ transform: 'scaleX(-1)' }}
+            />
+          </div>
+        )}
+        {/* Hidden local video fuer Audio-Only */}
+        {!hasLocalVideo && <video ref={localVideoRef} autoPlay playsInline muted className="hidden" />}
+      </div>
+
+      {/* ── Header (Name + Timer) ──────────────────────── */}
+      <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 py-4" style={{ background: 'linear-gradient(rgba(0,0,0,.6), transparent)' }}>
+        <div className="flex items-center gap-3">
+          {partnerAvatar ? (
+            <img src={partnerAvatar} alt="" className="rounded-full" style={{ width: 36, height: 36, objectFit: 'cover' }} />
+          ) : (
+            <div className="rounded-full flex items-center justify-center" style={{ width: 36, height: 36, background: 'rgba(200,169,110,.2)' }}>
+              <Icon name="user" size={18} style={{ color: '#C8A96E' }} />
+            </div>
+          )}
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 500, color: '#F0E8D8' }}>{partnerName}</div>
+            <div style={{ fontSize: 11, color: 'rgba(240,232,216,.6)' }}>
+              {callState === 'connected' ? `${initialVideo ? 'Videoanruf' : 'Audioanruf'} · ${formatDuration(duration)}` : callState === 'ringing' ? 'Verbindet …' : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Steuerleiste ───────────────────────────────── */}
+      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-4 py-6" style={{ background: 'linear-gradient(transparent, rgba(0,0,0,.7))' }}>
+        {/* Mute */}
+        <button
+          onClick={toggleMute}
+          className="border-none cursor-pointer flex items-center justify-center transition-all duration-200"
+          style={{
+            width: 52, height: 52, borderRadius: '50%',
+            background: isMuted ? 'rgba(220,50,50,.8)' : 'rgba(255,255,255,.12)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+          }}
+        >
+          <Icon name={isMuted ? 'microphone-off' : 'microphone'} size={22} style={{ color: '#F0E8D8' }} />
+        </button>
+
+        {/* Video Toggle */}
+        {initialVideo && (
+          <button
+            onClick={toggleVideo}
+            className="border-none cursor-pointer flex items-center justify-center transition-all duration-200"
+            style={{
+              width: 52, height: 52, borderRadius: '50%',
+              background: isVideoOff ? 'rgba(220,50,50,.8)' : 'rgba(255,255,255,.12)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+            }}
+          >
+            <Icon name={isVideoOff ? 'video-off' : 'video'} size={22} style={{ color: '#F0E8D8' }} />
+          </button>
+        )}
+
+        {/* Auflegen */}
+        <button
+          onClick={handleEndCall}
+          className="border-none cursor-pointer flex items-center justify-center transition-all duration-200"
+          style={{
+            width: 64, height: 52, borderRadius: 26,
+            background: 'linear-gradient(135deg, #DC3232, #B02020)',
+          }}
+        >
+          <Icon name="phone-off" size={24} style={{ color: '#fff' }} />
+        </button>
+      </div>
+
+      {/* Spin-Animation */}
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
