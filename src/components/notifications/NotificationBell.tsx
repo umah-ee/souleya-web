@@ -63,9 +63,13 @@ export default function NotificationBell() {
   }, [open]);
 
   const handleItemClick = async (id: string, link: string | null, isRead: boolean) => {
+    console.log('[NotificationBell] Klick auf Notification:', { id, link, isRead });
     if (!isRead) await markAsRead(id);
-    if (link) router.push(link);
     setOpen(false);
+    if (link) {
+      // Kleiner Delay damit das Panel zuerst schliesst
+      setTimeout(() => router.push(link), 50);
+    }
   };
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
@@ -105,7 +109,7 @@ export default function NotificationBell() {
       {/* Dropdown Panel */}
       {open && (
         <div
-          className="absolute right-0 top-full mt-2 w-[360px] rounded-2xl overflow-hidden"
+          className="absolute right-0 top-full mt-2 w-[360px] rounded-[8px] overflow-hidden z-[150]"
           style={{
             background: 'var(--bg-elevated)',
             border: '1px solid var(--glass-border)',
