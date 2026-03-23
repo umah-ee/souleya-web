@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import EnsoRing from '@/components/ui/EnsoRing';
 import { useRingtone } from '@/hooks/useRingtone';
+import { createClient } from '@/lib/supabase/client';
 
 interface Props {
   callerName: string;
@@ -11,6 +12,7 @@ interface Props {
   callerSoulLevel?: number;
   isFirstLight?: boolean;
   isVideo: boolean;
+  roomId?: string; // WebRTC Room ID — lauscht auf call_end
   onAccept: () => void;
   onReject: () => void;
 }
@@ -21,6 +23,7 @@ export default function IncomingCallOverlay({
   callerSoulLevel = 1,
   isFirstLight = false,
   isVideo,
+  roomId,
   onAccept,
   onReject,
 }: Props) {
@@ -35,6 +38,24 @@ export default function IncomingCallOverlay({
     const timeout = setTimeout(() => onReject(), 30_000);
     return () => { clearInterval(timer); clearTimeout(timeout); };
   }, [onReject]);
+
+  // Lausche auf call_end / call_cancelled auf dem WebRTC-Channel UND Inbox
+  useEffect(() => {
+    if (!roomId) return;
+    const supabase = createClient();
+
+    // WebRTC Signaling Channel — Caller sendet call_end hier
+    const callCh = supabase.channel(`call:${roomId}`);
+    callCh
+      .on('broadcast', { event: 'call_end' }, () => {
+        onReject(); // Caller hat aufgelegt
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(callCh);
+    };
+  }, [roomId, onReject]);
 
   return (
     <div

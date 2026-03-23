@@ -193,6 +193,7 @@ export default function CallProvider({ children }: { children: React.ReactNode }
           callerSoulLevel={incoming.callerSoulLevel}
           isFirstLight={incoming.isFirstLight}
           isVideo={incoming.video}
+          roomId={incoming.roomId}
           onAccept={handleAccept}
           onReject={handleReject}
         />
