@@ -19,7 +19,6 @@ interface CallPartner {
 
 interface CallContextValue {
   isInCall: boolean;
-  /** Caller ruft startOutgoingCall auf um den Callee zu benachrichtigen + Call-UI zu oeffnen */
   startOutgoingCall: (channelId: string, roomId: string, video: boolean, partner: CallPartner, calleeId: string) => void;
 }
 
@@ -37,6 +36,7 @@ export default function CallProvider({ children }: { children: React.ReactNode }
   const [activeVideo, setActiveVideo] = useState(false);
   const [activePartner, setActivePartner] = useState<CallPartner | null>(null);
   const [isIncoming, setIsIncoming] = useState(false);
+  const activeCalleeIdRef = useRef<string | null>(null);
 
   // Incoming Call
   const [incoming, setIncoming] = useState<{
@@ -52,20 +52,16 @@ export default function CallProvider({ children }: { children: React.ReactNode }
 
   const inboxRef = useRef<RealtimeChannel | null>(null);
 
-  // ── Einen einzigen persoenlichen Call-Inbox-Channel ─────
-  // Jeder User lauscht auf `call-inbox:{eigene userId}`
-  // Der Caller sendet an `call-inbox:{callee userId}`
+  // ── Persoenlicher Call-Inbox-Channel ────────────────────
   useEffect(() => {
     if (!userId) return;
     const supabase = createClient();
-
     const inbox = supabase.channel(`call-inbox:${userId}`);
     inboxRef.current = inbox;
 
     inbox
       .on('broadcast', { event: 'incoming_call' }, ({ payload }) => {
         if (payload.callerId === userId) return;
-
         setIncoming({
           roomId: payload.roomId,
           channelId: payload.channelId,
@@ -86,6 +82,11 @@ export default function CallProvider({ children }: { children: React.ReactNode }
           });
         }
       })
+      .on('broadcast', { event: 'call_cancelled' }, ({ payload }) => {
+        // Caller hat aufgelegt bevor wir angenommen haben
+        if (payload.callerId === userId) return;
+        setIncoming(null);
+      })
       .subscribe();
 
     // Browser Notification Berechtigung anfragen
@@ -99,32 +100,37 @@ export default function CallProvider({ children }: { children: React.ReactNode }
     };
   }, [userId]);
 
+  // ── Helper: Cancel-Signal an Callee senden ──────────────
+  const sendCancelToCallee = useCallback((calleeId: string) => {
+    const supabase = createClient();
+    const ch = supabase.channel(`call-inbox:${calleeId}`);
+    ch.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        ch.send({ type: 'broadcast', event: 'call_cancelled', payload: { callerId: userId } });
+        setTimeout(() => supabase.removeChannel(ch), 2000);
+      }
+    });
+  }, [userId]);
+
   // ── Outgoing Call (Caller) ──────────────────────────────
   const startOutgoingCall = useCallback((channelId: string, roomId: string, video: boolean, partner: CallPartner, calleeId: string) => {
-    // Broadcast an den Call-Inbox des Callees senden
+    activeCalleeIdRef.current = calleeId;
+
+    // Broadcast an den Call-Inbox des Callees
     const supabase = createClient();
     const calleeCh = supabase.channel(`call-inbox:${calleeId}`);
-
     calleeCh.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
-        // Mehrfach senden fuer Zuverlaessigkeit
         const payload = {
-          roomId,
-          channelId,
-          callerId: userId,
+          roomId, channelId, callerId: userId,
           callerName: profile?.display_name ?? 'Jemand',
           callerAvatar: profile?.avatar_url ?? null,
           callerSoulLevel: profile?.soul_level,
           isFirstLight: profile?.is_first_light,
           video,
         };
-
         calleeCh.send({ type: 'broadcast', event: 'incoming_call', payload });
-        // Nochmal nach 1s fuer Sicherheit
-        setTimeout(() => {
-          calleeCh.send({ type: 'broadcast', event: 'incoming_call', payload });
-        }, 1000);
-        // Channel nach 3s aufraumen
+        setTimeout(() => calleeCh.send({ type: 'broadcast', event: 'incoming_call', payload }), 1000);
         setTimeout(() => supabase.removeChannel(calleeCh), 3000);
       }
     });
@@ -161,14 +167,19 @@ export default function CallProvider({ children }: { children: React.ReactNode }
 
   // ── Call beenden ────────────────────────────────────────
   const handleEnd = useCallback(async (duration: number) => {
-    if (activeChannelId) {
+    // Cancel-Signal an Callee senden (falls noch klingelt)
+    if (activeCalleeIdRef.current) {
+      sendCancelToCallee(activeCalleeIdRef.current);
+    }
+    if (activeChannelId && duration > 0) {
       await endCallMessage(activeChannelId, duration, activeVideo).catch(() => {});
     }
     setActiveRoom(null);
     setActiveChannelId(null);
     setActivePartner(null);
     setIsIncoming(false);
-  }, [activeChannelId, activeVideo]);
+    activeCalleeIdRef.current = null;
+  }, [activeChannelId, activeVideo, sendCancelToCallee]);
 
   return (
     <CallContext.Provider value={{ isInCall: !!activeRoom, startOutgoingCall }}>

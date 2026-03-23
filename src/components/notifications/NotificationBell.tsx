@@ -24,6 +24,9 @@ const TYPE_ICONS: Record<string, string> = {
   pulse_comment: 'message',
   chat_message: 'message-circle',
   event_reminder: 'calendar',
+  incoming_call: 'phone',
+  f2f_call_started: 'video',
+  f2f_booking_request: 'calendar-event',
 };
 
 export default function NotificationBell() {
