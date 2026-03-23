@@ -126,8 +126,9 @@ export default function VideoCallOverlay({
                 soulLevel={partnerSoulLevel}
                 isFirstLight={isFirstLight}
                 isMentor={partnerSoulLevel >= 5}
-                avatarUrl={partnerAvatar}
-              />
+              >
+                {partnerAvatar && <img src={partnerAvatar} alt="" className="w-full h-full rounded-full object-cover" />}
+              </EnsoRing>
             </div>
             <span style={{ fontSize: 20, fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', color: '#F0E8D8' }}>
               {partnerName}

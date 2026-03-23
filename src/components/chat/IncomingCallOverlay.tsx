@@ -45,8 +45,9 @@ export default function IncomingCallOverlay({
             soulLevel={callerSoulLevel}
             isFirstLight={isFirstLight}
             isMentor={callerSoulLevel >= 5}
-            avatarUrl={callerAvatar}
-          />
+          >
+            {callerAvatar && <img src={callerAvatar} alt="" className="w-full h-full rounded-full object-cover" />}
+          </EnsoRing>
         </div>
 
         {/* Name */}
