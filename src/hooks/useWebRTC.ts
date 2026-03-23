@@ -53,6 +53,7 @@ export function useWebRTC({ roomId, userId, enabled = true }: UseWebRTCOptions):
   const startedAtRef = useRef<number>(0);
   const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
   const wantVideoRef = useRef(false);
+  const pendingOfferRef = useRef<RTCSessionDescriptionInit | null>(null);
 
   const supabase = createClient();
 
@@ -161,6 +162,7 @@ export function useWebRTC({ roomId, userId, enabled = true }: UseWebRTCOptions):
         if (payload.from === userId) return;
         const pc = pcRef.current;
         if (!pc) return;
+        pendingOfferRef.current = null; // Offer wurde beantwortet
         await pc.setRemoteDescription(new RTCSessionDescription(payload.answer));
         // Queued ICE Candidates anwenden
         for (const c of pendingCandidatesRef.current) {
@@ -187,7 +189,30 @@ export function useWebRTC({ roomId, userId, enabled = true }: UseWebRTCOptions):
         setCallState('ended');
         cleanup();
       })
-      .subscribe();
+      .on('broadcast', { event: 'peer_ready' }, ({ payload }) => {
+        if (payload.from === userId) return;
+        // Callee ist bereit — Offer erneut senden falls wir Caller sind
+        if (pendingOfferRef.current) {
+          channelRef.current?.send({
+            type: 'broadcast',
+            event: 'sdp_offer',
+            payload: { offer: pendingOfferRef.current, video: wantVideoRef.current, from: userId },
+          });
+        }
+      })
+      .subscribe(async (status) => {
+        // Wenn erfolgreich subscribed, signalisiere Bereitschaft
+        if (status === 'SUBSCRIBED') {
+          // Kurz warten damit der Channel stabil ist
+          setTimeout(() => {
+            ch.send({
+              type: 'broadcast',
+              event: 'peer_ready',
+              payload: { from: userId },
+            });
+          }, 500);
+        }
+      });
 
     return () => {
       supabase.removeChannel(ch);
@@ -208,6 +233,9 @@ export function useWebRTC({ roomId, userId, enabled = true }: UseWebRTCOptions):
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
+
+    // Offer speichern fuer Re-Send bei peer_ready
+    pendingOfferRef.current = offer;
 
     channelRef.current?.send({
       type: 'broadcast',
