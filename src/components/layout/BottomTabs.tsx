@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { useUnread } from '@/components/chat/UnreadContext';
+import { useCurrentProfile } from '@/hooks/useCurrentProfile';
 
 const tabs: { href: string; icon: IconName; label: string }[] = [
   { href: '/pulse', icon: 'sparkles', label: 'Pulse' },
@@ -20,6 +21,8 @@ const moreItems: { href: string; icon: IconName; label: string }[] = [
 export default function BottomTabs() {
   const pathname = usePathname();
   const { totalUnread } = useUnread();
+  const { profile } = useCurrentProfile();
+  const showStudio = profile?.soul_level != null && profile.soul_level >= 4;
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
@@ -44,8 +47,8 @@ export default function BottomTabs() {
 
   return (
     <div ref={moreRef} className="md:hidden">
-      {/* Flyout-Menue oberhalb der Tabs */}
-      {moreOpen && (
+      {/* Flyout-Menue oberhalb der Tabs — nur fuer Level 4+ */}
+      {showStudio && moreOpen && (
         <div
           className="fixed bottom-[72px] right-3 rounded-[8px] overflow-hidden"
           style={{
@@ -122,8 +125,8 @@ export default function BottomTabs() {
           );
         })}
 
-        {/* (+) Mehr-Button an letzter Stelle – wie ein normaler Tab ohne Rahmen */}
-        <button
+        {/* (+) Mehr-Button — nur fuer Level 4+ */}
+        {showStudio && <button
           onClick={() => setMoreOpen(!moreOpen)}
           className="flex flex-col items-center justify-center flex-1 h-full transition-colors duration-200 cursor-pointer"
           style={{ color: isMoreActive || moreOpen ? 'var(--gold-text)' : 'var(--text-muted)' }}
@@ -140,7 +143,7 @@ export default function BottomTabs() {
           <span className="text-[9px] font-label uppercase tracking-[2px] -mt-0.5">
             Mehr
           </span>
-        </button>
+        </button>}
       </nav>
     </div>
   );

@@ -8,6 +8,7 @@ import { useTheme } from '@/components/ThemeProvider';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { useUnread } from '@/components/chat/UnreadContext';
 import { useSidebar } from './SidebarContext';
+import { useCurrentProfile } from '@/hooks/useCurrentProfile';
 
 const navItems: { href: string; icon: IconName; label: string }[] = [
   { href: '/pulse', icon: 'sparkles', label: 'Pulse' },
@@ -26,6 +27,8 @@ export default function Sidebar() {
   const { theme, toggleTheme } = useTheme();
   const { totalUnread, refreshUnread } = useUnread();
   const { collapsed, toggle } = useSidebar();
+  const { profile } = useCurrentProfile();
+  const showStudio = profile?.soul_level != null && profile.soul_level >= 4;
 
   // Unread-Count beim Mount laden
   useEffect(() => {
@@ -150,8 +153,8 @@ export default function Sidebar() {
           );
         })}
 
-        {/* Weitere Nav-Items (Studio etc.) — direkt als regulaere Items */}
-        {moreItems.map((item) => {
+        {/* Weitere Nav-Items (Studio etc.) — nur fuer Level 4+ */}
+        {showStudio && moreItems.map((item) => {
           const active = pathname.startsWith(item.href);
           return (
             <Link

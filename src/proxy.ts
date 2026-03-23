@@ -71,7 +71,7 @@ export async function proxy(request: NextRequest) {
     // Ein einziger DB-Query fuer Onboarding + Pre-Launch Check
     const { data: profile } = await supabase
       .from('profiles')
-      .select('onboarding_completed_at, is_admin, is_beta_tester')
+      .select('onboarding_completed_at, is_admin, is_beta_tester, soul_level')
       .eq('id', user.id)
       .single();
 
@@ -88,6 +88,11 @@ export async function proxy(request: NextRequest) {
       if (!isAllowed && !profile?.is_admin && !profile?.is_beta_tester) {
         return NextResponse.redirect(new URL('/profile', request.url));
       }
+    }
+
+    // Studio-Guard: nur Level 4+ (Zen Master / Soul Mentor) oder Admins
+    if (pathname.startsWith('/studio') && !profile?.is_admin && (profile?.soul_level ?? 0) < 4) {
+      return NextResponse.redirect(new URL('/pulse', request.url));
     }
   }
 
