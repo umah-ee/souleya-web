@@ -116,12 +116,27 @@ export function useWebRTC({ roomId, userId, enabled = true }: UseWebRTCOptions):
 
   // ── Media holen ─────────────────────────────────────────
   const getMedia = useCallback(async (video: boolean) => {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: video ? { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } : false,
-    });
-    setLocalStream(stream);
-    return stream;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: video ? { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } : false,
+      });
+      setLocalStream(stream);
+      return stream;
+    } catch (err) {
+      // Fallback: nur Audio wenn Video fehlschlaegt
+      if (video) {
+        try {
+          const audioOnly = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          setLocalStream(audioOnly);
+          return audioOnly;
+        } catch { /* kein Mikrofon verfuegbar */ }
+      }
+      // Leerer Stream als Fallback (Empfang geht trotzdem)
+      const empty = new MediaStream();
+      setLocalStream(empty);
+      return empty;
+    }
   }, []);
 
   // ── Signaling Channel subscriben ────────────────────────
