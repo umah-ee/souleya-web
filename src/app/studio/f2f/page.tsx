@@ -155,19 +155,36 @@ export default function F2FPage() {
     return b.status === 'completed' || (slotTime && slotTime < now);
   }).sort((a, b) => new Date(b.slot?.starts_at ?? 0).getTime() - new Date(a.slot?.starts_at ?? 0).getTime());
 
-  const canStartCall = (booking: F2FBooking) => {
-    if (!booking.slot?.starts_at) return false;
-    const diff = Math.abs(Date.now() - new Date(booking.slot.starts_at).getTime());
-    return diff < 15 * 60 * 1000 && booking.status === 'confirmed';
+  const getCallStatus = (booking: F2FBooking): { canCall: boolean; label: string } => {
+    if (booking.status !== 'confirmed') return { canCall: false, label: 'Nicht bestaetigt' };
+    if (!booking.slot?.starts_at) return { canCall: false, label: '' };
+    const diff = new Date(booking.slot.starts_at).getTime() - Date.now();
+    if (diff > 60 * 60 * 1000) {
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      return { canCall: false, label: `In ${h} Std ${m} Min` };
+    }
+    if (diff > 15 * 60 * 1000) {
+      const m = Math.floor(diff / 60000);
+      return { canCall: false, label: `In ${m} Min` };
+    }
+    if (diff > -60 * 60 * 1000) {
+      return { canCall: true, label: 'Jetzt starten' };
+    }
+    return { canCall: false, label: 'Abgelaufen' };
   };
 
-  const handleStartCall = (booking: F2FBooking) => {
+  const handleStartCall = (booking: F2FBooking, video: boolean) => {
     setActiveCall({
       bookingId: booking.id,
       partnerName: booking.client?.display_name ?? 'Teilnehmer',
       partnerAvatar: booking.client?.avatar_url,
     });
+    // Video-Flag speichern fuer Overlay
+    setActiveCallVideo(video);
   };
+
+  const [activeCallVideo, setActiveCallVideo] = useState(true);
 
   const handleCallEnd = async (duration: number) => {
     if (activeCall) {
@@ -345,19 +362,38 @@ export default function F2FPage() {
                   <div className="flex-shrink-0 flex items-center gap-2">
                     {!isPast && (
                       <>
-                        <span style={{
-                          padding: '3px 8px', borderRadius: 6, fontSize: 9, letterSpacing: '1px', textTransform: 'uppercase',
-                          background: b.status === 'confirmed' ? 'var(--success-bg)' : 'var(--gold-bg)',
-                          color: b.status === 'confirmed' ? 'var(--success)' : 'var(--gold-text)',
-                        }}>{b.status === 'confirmed' ? 'Bestaetigt' : 'Ausstehend'}</span>
-                        {canStartCall(b) && (
-                          <button onClick={() => handleStartCall(b)} className="border-none cursor-pointer flex items-center gap-1" style={{
-                            padding: '6px 14px', borderRadius: 9999, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
-                            background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))', color: 'var(--text-on-gold)',
-                          }}>
-                            <Icon name="video" size={12} /> Session starten
-                          </button>
-                        )}
+                        {(() => {
+                          const cs = getCallStatus(b);
+                          return (
+                            <div className="flex items-center gap-1.5">
+                              {/* Status Badge */}
+                              <span style={{
+                                padding: '3px 8px', borderRadius: 6, fontSize: 9, letterSpacing: '1px', textTransform: 'uppercase',
+                                background: b.status === 'confirmed' ? 'var(--success-bg)' : 'var(--gold-bg)',
+                                color: b.status === 'confirmed' ? 'var(--success)' : 'var(--gold-text)',
+                              }}>{b.status === 'confirmed' ? 'Bestaetigt' : 'Ausstehend'}</span>
+                              {/* Call Buttons */}
+                              {cs.canCall ? (
+                                <>
+                                  <button onClick={() => handleStartCall(b, true)} className="border-none cursor-pointer flex items-center gap-1" style={{
+                                    padding: '5px 12px', borderRadius: 9999, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
+                                    background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))', color: 'var(--text-on-gold)',
+                                  }}>
+                                    <Icon name="video" size={12} /> Video
+                                  </button>
+                                  <button onClick={() => handleStartCall(b, false)} className="border-none cursor-pointer flex items-center gap-1" style={{
+                                    padding: '5px 10px', borderRadius: 9999, fontSize: 10,
+                                    background: 'var(--glass)', color: 'var(--text-sec)', border: `1px solid ${border}`,
+                                  }}>
+                                    <Icon name="phone" size={12} />
+                                  </button>
+                                </>
+                              ) : cs.label && (
+                                <span style={{ fontSize: 9, color: 'var(--text-muted)', fontStyle: 'italic' }}>{cs.label}</span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </>
                     )}
                     {isPast && (
@@ -513,7 +549,7 @@ export default function F2FPage() {
           partnerId=""
           partnerName={activeCall.partnerName}
           partnerAvatar={activeCall.partnerAvatar}
-          initialVideo={true}
+          initialVideo={activeCallVideo}
           onEnd={handleCallEnd}
         />
       )}

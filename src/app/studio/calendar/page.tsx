@@ -7,6 +7,7 @@ import { fetchMyEvents } from '@/lib/events';
 import type { F2FSlot, F2FBooking, Course } from '@/types/studio';
 import type { SoEvent } from '@/types/events';
 import CreateEventModal from '@/components/discover/CreateEventModal';
+import VideoCallOverlay from '@/components/shared/VideoCallOverlay';
 
 // ── Typen ─────────────────────────────────────────────────
 type CalendarItemType = 'event' | 'course' | 'f2f';
@@ -75,6 +76,7 @@ export default function CalendarPage() {
   const [showCreateChoice, setShowCreateChoice] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<CalendarItem | null>(null);
+  const [calendarCall, setCalendarCall] = useState<{ roomId: string; partnerName: string; partnerAvatar?: string | null; video: boolean } | null>(null);
 
   // ── Daten laden ─────────────────────────────────────────
   const loadData = useCallback(async () => {
@@ -214,6 +216,27 @@ export default function CalendarPage() {
   };
 
   // ── F2F Slot loeschen ──────────────────────────────────
+  // ── F2F Call starten (Kalender) ──────────────────────────
+  const canStartF2FCall = (item: CalendarItem): boolean => {
+    if (item.type !== 'f2f' || item.status !== 'booked') return false;
+    const diff = Math.abs(Date.now() - item.startsAt.getTime());
+    return diff < 60 * 60 * 1000; // ±1 Stunde
+  };
+
+  const handleCalendarCall = (item: CalendarItem, video: boolean) => {
+    const raw = item.raw as (F2FSlot & { booking?: F2FBooking });
+    const clientName = raw.booking?.client?.display_name ?? item.title;
+    const clientAvatar = raw.booking?.client?.avatar_url ?? null;
+    const bookingId = raw.booking?.id ?? item.id;
+    setCalendarCall({
+      roomId: `f2f-${bookingId}`,
+      partnerName: clientName,
+      partnerAvatar: clientAvatar,
+      video,
+    });
+    setSelectedItem(null);
+  };
+
   const handleDeleteSlot = async (item: CalendarItem) => {
     if (item.type !== 'f2f') return;
     if (!confirm('Termin loeschen?')) return;
@@ -497,6 +520,16 @@ export default function CalendarPage() {
                         </div>
                       )}
                       {/* Aktionen */}
+                      {canStartF2FCall(item) && (
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <button onClick={(e) => { e.stopPropagation(); handleCalendarCall(item, true); }} className="border-none cursor-pointer flex items-center gap-1" style={{ padding: '4px 10px', borderRadius: 9999, fontSize: 9, letterSpacing: '0.5px', textTransform: 'uppercase', background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))', color: 'var(--text-on-gold)' }}>
+                            <Icon name="video" size={10} /> Video
+                          </button>
+                          <button onClick={(e) => { e.stopPropagation(); handleCalendarCall(item, false); }} className="border-none cursor-pointer flex items-center gap-1" style={{ padding: '4px 8px', borderRadius: 9999, fontSize: 9, background: 'var(--glass)', color: secText, border: `1px solid ${borderColor}` }}>
+                            <Icon name="phone" size={10} />
+                          </button>
+                        </div>
+                      )}
                       {item.type === 'f2f' && item.status !== 'booked' && (
                         <button
                           onClick={(e) => { e.stopPropagation(); handleDeleteSlot(item); }}
@@ -646,7 +679,25 @@ export default function CalendarPage() {
               {/* Subtitle / Status */}
               <p style={{ fontSize: 12, color: secText }}>{selectedItem.subtitle}</p>
               {/* Aktionen */}
-              <div className="flex gap-2 mt-4">
+              <div className="flex gap-2 mt-4 flex-wrap">
+                {canStartF2FCall(selectedItem) && (
+                  <>
+                    <button
+                      onClick={() => handleCalendarCall(selectedItem, true)}
+                      className="border-none cursor-pointer flex items-center gap-1.5"
+                      style={{ padding: '8px 16px', borderRadius: 9999, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase', background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))', color: 'var(--text-on-gold)' }}
+                    >
+                      <Icon name="video" size={12} /> Video starten
+                    </button>
+                    <button
+                      onClick={() => handleCalendarCall(selectedItem, false)}
+                      className="border-none cursor-pointer flex items-center gap-1.5"
+                      style={{ padding: '8px 14px', borderRadius: 9999, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase', background: 'var(--glass)', color: secText, border: `1px solid ${borderColor}` }}
+                    >
+                      <Icon name="phone" size={12} /> Audio
+                    </button>
+                  </>
+                )}
                 {selectedItem.type === 'f2f' && selectedItem.status !== 'booked' && (
                   <button
                     onClick={() => { handleDeleteSlot(selectedItem); setSelectedItem(null); }}
@@ -667,6 +718,18 @@ export default function CalendarPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Video Call Overlay (Kalender) ──────────────────── */}
+      {calendarCall && (
+        <VideoCallOverlay
+          roomId={calendarCall.roomId}
+          partnerId=""
+          partnerName={calendarCall.partnerName}
+          partnerAvatar={calendarCall.partnerAvatar}
+          initialVideo={calendarCall.video}
+          onEnd={() => { setCalendarCall(null); loadData(); }}
+        />
       )}
     </div>
   );
