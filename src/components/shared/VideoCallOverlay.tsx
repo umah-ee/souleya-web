@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import { useWebRTC } from '@/hooks/useWebRTC';
 import { useCurrentProfile } from '@/hooks/useCurrentProfile';
-import EnsoRing from '@/components/shared/EnsoRing';
+import EnsoRing from '@/components/ui/EnsoRing';
 
 interface Props {
   roomId: string;

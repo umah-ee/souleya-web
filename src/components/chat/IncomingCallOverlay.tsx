@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
-import EnsoRing from '@/components/shared/EnsoRing';
+import EnsoRing from '@/components/ui/EnsoRing';
 
 interface Props {
   callerName: string;
