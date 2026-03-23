@@ -243,7 +243,7 @@ export default function F2FPage() {
           <div className="flex flex-col gap-3">
             {(tab === 'upcoming' ? upcomingBookings : pastBookings).length === 0 ? (
               <div className="glass-card rounded-[8px] p-8 text-center" style={{ background: cardBg }}>
-                <Icon name={tab === 'upcoming' ? 'calendar-event' : 'history'} size={36} style={{ color: 'var(--text-muted)', margin: '0 auto 8px' }} />
+                <Icon name={tab === 'upcoming' ? 'calendar-event' : 'clock'} size={36} style={{ color: 'var(--text-muted)', margin: '0 auto 8px' }} />
                 <p style={{ fontSize: 12, color: 'var(--text-sec)', fontStyle: 'italic' }}>
                   {tab === 'upcoming' ? 'Keine kommenden Sessions.' : 'Noch keine vergangenen Sessions.'}
                 </p>
