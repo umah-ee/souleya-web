@@ -51,6 +51,7 @@ export default function VideoCallOverlay({
     endCall,
     toggleMute,
     toggleVideo,
+    incomingOffer,
   } = useWebRTC({ roomId, userId, enabled: true });
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
