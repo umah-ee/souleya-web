@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import {
   fetchF2FPricings, fetchF2FBookings, createF2FPricing, deleteF2FPricing,
-  createF2FSlot, updateBookingStatus,
+  createF2FSession, updateBookingStatus,
 } from '@/lib/studio';
 import { searchUsers } from '@/lib/users';
 import type { F2FPricing, F2FBooking } from '@/types/studio';
@@ -122,10 +122,13 @@ export default function F2FPage() {
     setSavingCreate(true);
     try {
       const starts_at = new Date(`${createDate}T${createTime}`).toISOString();
-      // Slot erstellen
-      await createF2FSlot({ starts_at, duration_minutes: createDuration });
-      // TODO: Booking mit Client erstellen (wenn API Endpoint existiert)
-      // Fuer jetzt: Slot erstellt, Mentor kann Client manuell einladen
+      await createF2FSession({
+        client_id: createClient.id,
+        starts_at,
+        duration_minutes: createDuration,
+        price_cents: createPrice ? Math.round(parseFloat(createPrice) * 100) : 0,
+        topic: createTopic || undefined,
+      });
       setShowCreate(false);
       setCreateClient(null);
       setCreateDate('');
@@ -134,7 +137,9 @@ export default function F2FPage() {
       setCreatePrice('');
       setClientSearch('');
       loadData();
-    } catch { /* ignore */ }
+    } catch (err) {
+      console.warn('[F2F] Session erstellen fehlgeschlagen:', err);
+    }
     setSavingCreate(false);
   };
 

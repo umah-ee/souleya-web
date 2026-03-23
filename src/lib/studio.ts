@@ -231,6 +231,16 @@ export async function updateBookingStatus(id: string, status: string): Promise<F
   return apiFetch(`/studio/f2f/bookings/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
 }
 
+export async function createF2FSession(data: {
+  client_id: string;
+  starts_at: string;
+  duration_minutes: number;
+  price_cents: number;
+  topic?: string;
+}): Promise<F2FBooking> {
+  return apiFetch('/studio/f2f/sessions', { method: 'POST', body: JSON.stringify(data) });
+}
+
 export async function startF2FCall(bookingId: string): Promise<F2FBooking> {
   return apiFetch(`/studio/f2f/bookings/${bookingId}/start-call`, { method: 'POST' });
 }
