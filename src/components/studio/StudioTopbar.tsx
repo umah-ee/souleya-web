@@ -1,10 +1,10 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Icon } from '@/components/ui/Icon';
 import { useTheme } from '@/components/ThemeProvider';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -20,26 +20,41 @@ const PAGE_TITLES: Record<string, string> = {
 
 export default function StudioTopbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const [avatar, setAvatar] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const [unread, setUnread] = useState(0);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Avatar laden
+  // Avatar + Name laden
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
         supabase
           .from('profiles')
-          .select('avatar_url')
+          .select('avatar_url, display_name')
           .eq('id', data.user.id)
           .single()
           .then(({ data: p }) => {
             if (p?.avatar_url) setAvatar(p.avatar_url);
+            if (p?.display_name) setDisplayName(p.display_name);
           });
       }
     });
   }, []);
+
+  // Dropdown schliessen bei Klick ausserhalb
+  useEffect(() => {
+    if (!showMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setShowMenu(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showMenu]);
 
   // Finde den passenden Titel
   const title = Object.entries(PAGE_TITLES).find(
@@ -110,25 +125,73 @@ export default function StudioTopbar() {
         <Icon name="message-circle" size={18} style={{ color: 'var(--text-sec)' }} />
       </Link>
 
-      {/* Profile Avatar → normales Profil */}
-      <Link
-        href="/profile"
-        className="flex items-center justify-center no-underline overflow-hidden transition-all duration-200"
-        style={{
-          ...btnStyle,
-          background: avatar ? 'transparent' : 'var(--glass)',
-          border: '1px solid var(--glass-border)',
-        }}
-        onMouseEnter={(e) => { if (!avatar) e.currentTarget.style.background = 'var(--gold-bg-hover)'; }}
-        onMouseLeave={(e) => { if (!avatar) e.currentTarget.style.background = 'var(--glass)'; }}
-        title="Mein Profil"
-      >
-        {avatar ? (
-          <img src={avatar} alt="" className="w-full h-full object-cover" style={{ borderRadius: 8 }} />
-        ) : (
-          <Icon name="user" size={18} style={{ color: 'var(--text-sec)' }} />
+      {/* Profile Avatar mit Dropdown */}
+      <div className="relative" ref={menuRef}>
+        <button
+          onClick={() => setShowMenu(s => !s)}
+          className="flex items-center justify-center cursor-pointer overflow-hidden transition-all duration-200 border-none"
+          style={{
+            ...btnStyle,
+            background: avatar ? 'transparent' : 'var(--glass)',
+            border: showMenu ? '1.5px solid var(--gold)' : '1px solid var(--glass-border)',
+          }}
+          title="Mein Profil"
+        >
+          {avatar ? (
+            <img src={avatar} alt="" className="w-full h-full object-cover" style={{ borderRadius: 8 }} />
+          ) : (
+            <Icon name="user" size={18} style={{ color: 'var(--text-sec)' }} />
+          )}
+        </button>
+
+        {showMenu && (
+          <div
+            className="absolute right-0 top-full mt-2 w-[200px] rounded-[8px] overflow-hidden z-[100]"
+            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', boxShadow: '0 8px 32px rgba(0,0,0,.15)' }}
+          >
+            {/* User Info */}
+            <div className="px-3 py-2.5" style={{ borderBottom: '1px solid var(--divider-l)' }}>
+              <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-h)' }}>{displayName ?? 'Mein Profil'}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Mentor</div>
+            </div>
+            {/* Links */}
+            <div className="py-1">
+              <button
+                onClick={() => { setShowMenu(false); window.open('/profile', '_blank'); }}
+                className="w-full flex items-center gap-2 px-3 py-2 border-none cursor-pointer text-left"
+                style={{ background: 'transparent', fontSize: 11, color: 'var(--text-sec)' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--glass)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+              >
+                <Icon name="user" size={14} style={{ color: 'var(--text-muted)' }} /> Profil ansehen
+              </button>
+              <button
+                onClick={() => { setShowMenu(false); router.push('/pulse'); }}
+                className="w-full flex items-center gap-2 px-3 py-2 border-none cursor-pointer text-left"
+                style={{ background: 'transparent', fontSize: 11, color: 'var(--text-sec)' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--glass)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+              >
+                <Icon name="arrow-left" size={14} style={{ color: 'var(--text-muted)' }} /> Zurueck zur Community
+              </button>
+              <button
+                onClick={async () => {
+                  setShowMenu(false);
+                  const supabase = createClient();
+                  await supabase.auth.signOut();
+                  router.push('/login');
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 border-none cursor-pointer text-left"
+                style={{ background: 'transparent', fontSize: 11, color: 'var(--danger)' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--glass)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+              >
+                <Icon name="logout" size={14} /> Abmelden
+              </button>
+            </div>
+          </div>
         )}
-      </Link>
+      </div>
     </header>
   );
 }

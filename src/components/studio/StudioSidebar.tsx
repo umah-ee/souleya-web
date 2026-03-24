@@ -14,11 +14,11 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', icon: 'layout-dashboard', href: '/studio' },
+  { label: 'Circle', icon: 'users-group', href: '/studio/circle' },
+  { label: 'Kalender', icon: 'calendar-event', href: '/studio/calendar' },
   { label: 'Kurse', icon: 'school', href: '/studio/courses' },
   { label: 'Content', icon: 'library', href: '/studio/content' },
-  { label: 'Kalender', icon: 'calendar-event', href: '/studio/calendar' },
   { label: 'Face2Face', icon: 'video', href: '/studio/f2f' },
-  { label: 'Circle', icon: 'users-group', href: '/studio/circle' },
   { label: 'Finanzen', icon: 'wallet', href: '/studio/finance' },
   { label: 'Analytics', icon: 'chart-line', href: '/studio/analytics' },
 ];
