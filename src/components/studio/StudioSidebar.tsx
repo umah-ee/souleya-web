@@ -13,7 +13,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', icon: 'layout-dashboard', href: '/studio' },
+  // { label: 'Dashboard', icon: 'layout-dashboard', href: '/studio' },
   { label: 'Circle', icon: 'users-group', href: '/studio/circle' },
   { label: 'Kalender', icon: 'calendar-event', href: '/studio/calendar' },
   { label: 'Kurse', icon: 'school', href: '/studio/courses' },

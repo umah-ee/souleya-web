@@ -157,6 +157,30 @@ export default function ContentPage() {
   };
 
   // ── Delete ──────────────────────────────────────────────
+  // ── Thumbnail Upload per Drag&Drop auf Karte ────────────
+  const [thumbDragItem, setThumbDragItem] = useState<string | null>(null);
+
+  const handleThumbnailDrop = async (e: React.DragEvent, itemId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setThumbDragItem(null);
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const ext = file.name.split('.').pop() ?? 'jpg';
+    const path = `thumbnails/${user.id}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('media-items').upload(path, file, { contentType: file.type });
+    if (error) return;
+
+    const { data: { publicUrl } } = supabase.storage.from('media-items').getPublicUrl(path);
+    await updateMediaItem(itemId, { thumbnail_url: publicUrl }).catch(() => {});
+    loadData();
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm('Medium loeschen?')) return;
     await deleteMediaItem(id).catch(() => {});
@@ -297,12 +321,24 @@ export default function ContentPage() {
                 onMouseEnter={() => setHoverItem(item.id)}
                 onMouseLeave={() => setHoverItem(null)}
               >
-                {/* Thumbnail / Preview */}
-                <div className="relative" style={{ height: 120, background: 'var(--glass)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {/* Thumbnail / Preview — Drag&Drop fuer Kopfgrafik */}
+                <div
+                  className="relative"
+                  style={{
+                    height: 140, background: 'var(--glass)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: thumbDragItem === item.id ? '2px dashed var(--gold)' : 'none',
+                  }}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setThumbDragItem(item.id); }}
+                  onDragLeave={(e) => { e.stopPropagation(); setThumbDragItem(null); }}
+                  onDrop={(e) => handleThumbnailDrop(e, item.id)}
+                >
                   {item.thumbnail_url ? (
                     <img src={item.thumbnail_url} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <Icon name={(TYPE_ICONS[item.content_type] ?? 'file-text') as any} size={36} style={{ color }} />
+                    <div className="flex flex-col items-center gap-1">
+                      <Icon name={(TYPE_ICONS[item.content_type] ?? 'file-text') as any} size={32} style={{ color }} />
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>Bild hierher ziehen</span>
+                    </div>
                   )}
                   {/* Typ-Badge */}
                   <span className="absolute top-2 left-2" style={{ padding: '2px 8px', borderRadius: 4, fontSize: 8, letterSpacing: '0.5px', textTransform: 'uppercase', background: `${color}22`, color, fontWeight: 500 }}>
