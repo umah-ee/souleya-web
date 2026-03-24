@@ -5,6 +5,8 @@ import { Icon } from '@/components/ui/Icon';
 import { fetchMediaItems, createMediaItem, updateMediaItem, deleteMediaItem } from '@/lib/studio';
 import type { MediaItem, CreateMediaData } from '@/types/studio';
 import { createClient } from '@/lib/supabase/client';
+import MediaPlayerModal from '@/components/studio/MediaPlayerModal';
+import MiniAudioPlayer from '@/components/studio/MiniAudioPlayer';
 
 // ── Konstanten ────────────────────────────────────────────
 type ViewMode = 'grid' | 'list';
@@ -32,6 +34,10 @@ export default function ContentPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Media Player
+  const [playerItem, setPlayerItem] = useState<MediaItem | null>(null);
+  const [miniPlayerItem, setMiniPlayerItem] = useState<MediaItem | null>(null);
 
   // Edit Modal
   const [editItem, setEditItem] = useState<MediaItem | null>(null);
@@ -158,6 +164,14 @@ export default function ContentPage() {
   };
 
   // ── Helpers ─────────────────────────────────────────────
+  // ── Verwandte Inhalte (gleiche Tags) ─────────────────────
+  const getRelated = (item: MediaItem): MediaItem[] => {
+    if (!item.tags?.length) return [];
+    return items
+      .filter(i => i.id !== item.id && i.tags?.some(t => item.tags?.includes(t)))
+      .slice(0, 4);
+  };
+
   const formatSize = (bytes: number | null) => {
     if (!bytes) return '';
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
@@ -277,8 +291,9 @@ export default function ContentPage() {
             return (
               <div
                 key={item.id}
-                className="glass-card rounded-[8px] overflow-hidden transition-all duration-200 relative"
+                className="glass-card rounded-[8px] overflow-hidden transition-all duration-200 relative cursor-pointer"
                 style={{ background: cardBg, border: `1px solid ${border}`, transform: hoverItem === item.id ? 'translateY(-2px)' : 'none' }}
+                onClick={() => setPlayerItem(item)}
                 onMouseEnter={() => setHoverItem(item.id)}
                 onMouseLeave={() => setHoverItem(null)}
               >
@@ -302,13 +317,13 @@ export default function ContentPage() {
                   {/* Hover Aktionen */}
                   {hoverItem === item.id && (
                     <div className="absolute inset-0 flex items-center justify-center gap-2" style={{ background: 'rgba(0,0,0,.5)' }}>
-                      <button onClick={() => openEdit(item)} className="border-none cursor-pointer rounded-full flex items-center justify-center" style={{ width: 32, height: 32, background: 'rgba(255,255,255,.15)', backdropFilter: 'blur(8px)' }}>
+                      <button onClick={(e) => { e.stopPropagation(); openEdit(item); }} className="border-none cursor-pointer rounded-full flex items-center justify-center" style={{ width: 32, height: 32, background: 'rgba(255,255,255,.15)', backdropFilter: 'blur(8px)' }}>
                         <Icon name="edit" size={14} style={{ color: '#fff' }} />
                       </button>
-                      <button onClick={() => window.open(item.file_url, '_blank')} className="border-none cursor-pointer rounded-full flex items-center justify-center" style={{ width: 32, height: 32, background: 'rgba(255,255,255,.15)', backdropFilter: 'blur(8px)' }}>
+                      <button onClick={(e) => { e.stopPropagation(); window.open(item.file_url, '_blank'); }} className="border-none cursor-pointer rounded-full flex items-center justify-center" style={{ width: 32, height: 32, background: 'rgba(255,255,255,.15)', backdropFilter: 'blur(8px)' }}>
                         <Icon name="share" size={14} style={{ color: '#fff' }} />
                       </button>
-                      <button onClick={() => handleDelete(item.id)} className="border-none cursor-pointer rounded-full flex items-center justify-center" style={{ width: 32, height: 32, background: 'rgba(220,50,50,.3)', backdropFilter: 'blur(8px)' }}>
+                      <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }} className="border-none cursor-pointer rounded-full flex items-center justify-center" style={{ width: 32, height: 32, background: 'rgba(220,50,50,.3)', backdropFilter: 'blur(8px)' }}>
                         <Icon name="trash" size={14} style={{ color: '#fff' }} />
                       </button>
                     </div>
@@ -359,8 +374,9 @@ export default function ContentPage() {
             return (
               <div
                 key={item.id}
-                className="glass-card rounded-[8px] p-3 flex items-center gap-3 transition-all duration-200 group"
+                className="glass-card rounded-[8px] p-3 flex items-center gap-3 transition-all duration-200 group cursor-pointer"
                 style={{ background: cardBg, border: `1px solid ${border}` }}
+                onClick={() => setPlayerItem(item)}
               >
                 {/* Icon */}
                 <div className="flex-shrink-0 flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15` }}>
@@ -396,13 +412,13 @@ export default function ContentPage() {
                 </div>
                 {/* Aktionen */}
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                  <button onClick={() => openEdit(item)} className="border-none cursor-pointer p-1.5 rounded-[4px]" style={{ background: 'var(--glass)' }}>
+                  <button onClick={(e) => { e.stopPropagation(); openEdit(item); }} className="border-none cursor-pointer p-1.5 rounded-[4px]" style={{ background: 'var(--glass)' }}>
                     <Icon name="edit" size={12} style={{ color: 'var(--text-muted)' }} />
                   </button>
-                  <button onClick={() => window.open(item.file_url, '_blank')} className="border-none cursor-pointer p-1.5 rounded-[4px]" style={{ background: 'var(--glass)' }}>
+                  <button onClick={(e) => { e.stopPropagation(); window.open(item.file_url, '_blank'); }} className="border-none cursor-pointer p-1.5 rounded-[4px]" style={{ background: 'var(--glass)' }}>
                     <Icon name="share" size={12} style={{ color: 'var(--text-muted)' }} />
                   </button>
-                  <button onClick={() => handleDelete(item.id)} className="border-none cursor-pointer p-1.5 rounded-[4px]" style={{ background: 'var(--glass)' }}>
+                  <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }} className="border-none cursor-pointer p-1.5 rounded-[4px]" style={{ background: 'var(--glass)' }}>
                     <Icon name="trash" size={12} style={{ color: 'var(--danger)' }} />
                   </button>
                 </div>
@@ -461,6 +477,26 @@ export default function ContentPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Media Player Modal ─────────────────────────── */}
+      {playerItem && (
+        <MediaPlayerModal
+          item={playerItem}
+          onClose={() => setPlayerItem(null)}
+          onPlayInMini={(item) => { setMiniPlayerItem(item); setPlayerItem(null); }}
+          relatedItems={getRelated(playerItem)}
+          onSelectRelated={(r) => setPlayerItem(r)}
+        />
+      )}
+
+      {/* ── Mini Audio Player (persistent) ─────────────── */}
+      {miniPlayerItem && (
+        <MiniAudioPlayer
+          item={miniPlayerItem}
+          onClose={() => setMiniPlayerItem(null)}
+          onExpand={() => { setPlayerItem(miniPlayerItem); setMiniPlayerItem(null); }}
+        />
       )}
     </div>
   );
