@@ -13,11 +13,9 @@ const PAGE_TITLES: Record<string, string> = {
   '/studio/content': 'Content & Mediathek',
   '/studio/calendar': 'Kalender',
   '/studio/f2f': 'Face2Face',
-  '/studio/participants': 'Teilnehmer',
+  '/studio/circle': 'Circle',
   '/studio/finance': 'Finanzen',
   '/studio/analytics': 'Analytics',
-  '/studio/messages': 'Nachrichten',
-  '/studio/profile': 'Profil & Branding',
 };
 
 export default function StudioTopbar() {
@@ -102,36 +100,28 @@ export default function StudioTopbar() {
 
       {/* Notifications Bell */}
       <Link
-        href="/studio/messages"
+        href="/chat"
         className="relative flex items-center justify-center no-underline transition-all duration-200"
         style={btnStyle}
         onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--gold-bg-hover)'; }}
         onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--glass)'; }}
-        title="Nachrichten"
+        title="Chat"
       >
-        <Icon name="bell" size={18} style={{ color: 'var(--text-sec)' }} />
-        {unread > 0 && (
-          <span
-            className="absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center rounded-full text-[8px] font-label px-1"
-            style={{ background: 'var(--gold)', color: 'var(--text-on-gold)' }}
-          >
-            {unread > 9 ? '9+' : unread}
-          </span>
-        )}
+        <Icon name="message-circle" size={18} style={{ color: 'var(--text-sec)' }} />
       </Link>
 
-      {/* Profile Avatar */}
+      {/* Profile Avatar → normales Profil */}
       <Link
-        href="/studio/profile"
+        href="/profile"
         className="flex items-center justify-center no-underline overflow-hidden transition-all duration-200"
         style={{
           ...btnStyle,
           background: avatar ? 'transparent' : 'var(--glass)',
-          border: pathname === '/studio/profile' ? '1.5px solid var(--gold)' : '1px solid var(--glass-border)',
+          border: '1px solid var(--glass-border)',
         }}
         onMouseEnter={(e) => { if (!avatar) e.currentTarget.style.background = 'var(--gold-bg-hover)'; }}
         onMouseLeave={(e) => { if (!avatar) e.currentTarget.style.background = 'var(--glass)'; }}
-        title="Profil & Branding"
+        title="Mein Profil"
       >
         {avatar ? (
           <img src={avatar} alt="" className="w-full h-full object-cover" style={{ borderRadius: 8 }} />
