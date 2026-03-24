@@ -21,7 +21,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Circle', icon: 'users-group', href: '/studio/circle' },
   { label: 'Finanzen', icon: 'wallet', href: '/studio/finance' },
   { label: 'Analytics', icon: 'chart-line', href: '/studio/analytics' },
-  { label: 'Nachrichten', icon: 'mail', href: '/studio/messages' },
   { label: 'Profil', icon: 'id-badge', href: '/studio/profile' },
 ];
 
