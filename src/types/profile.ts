@@ -15,6 +15,11 @@ export interface Profile {
   is_first_light: boolean;
   is_admin: boolean;
   is_mentor: boolean;
+  mentor_bio: string | null;
+  mentor_tagline: string | null;
+  specializations: string[];
+  mentor_website: string | null;
+  mentor_social: Record<string, string>;
   seeds_balance: number;
   connections_count: number;
   pulses_count: number;
@@ -41,6 +46,11 @@ export interface UpdateProfileData {
   interests?: string[];
   birthday?: string;
   posts_visibility?: 'public' | 'circle';
+  mentor_bio?: string;
+  mentor_tagline?: string;
+  specializations?: string[];
+  mentor_website?: string;
+  mentor_social?: Record<string, string>;
 }
 
 export const SOUL_LEVEL_NAMES: Record<number, string> = {

@@ -17,6 +17,7 @@ import ProfileBanner from './components/ProfileBanner';
 import ProfileIdentity from './components/ProfileIdentity';
 import ProfileBio from './components/ProfileBio';
 import ProfileStudioCard from './components/ProfileStudioCard';
+import ProfileMentorSection from './components/ProfileMentorSection';
 import ProfileInterests from './components/ProfileInterests';
 import ProfileStats from './components/ProfileStats';
 import SoulProgressCard from '@/components/profile/SoulProgressCard';
@@ -174,8 +175,13 @@ export default function ProfileClient() {
         {/* ─── Bio + Location + Member-Since ─── */}
         <ProfileBio profile={profile} />
 
-        {/* ─── Coach Studio Card (nur Mentoren) ─── */}
-        <ProfileStudioCard profile={profile} />
+        {/* ─── Mentor-Sektion (nur Mentoren, einklappbar) ─── */}
+        <ProfileMentorSection profile={profile} onUpdate={async (data) => {
+          try {
+            const updated = await updateProfile(data);
+            setProfile(updated);
+          } catch { /* ignore */ }
+        }} />
 
         {/* ─── Interest Tags ─── */}
         <ProfileInterests profile={profile} />
