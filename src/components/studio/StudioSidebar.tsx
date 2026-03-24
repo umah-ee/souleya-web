@@ -18,7 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Content', icon: 'library', href: '/studio/content' },
   { label: 'Kalender', icon: 'calendar-event', href: '/studio/calendar' },
   { label: 'Face2Face', icon: 'video', href: '/studio/f2f' },
-  { label: 'Teilnehmer', icon: 'users-group', href: '/studio/participants' },
+  { label: 'Circle', icon: 'users-group', href: '/studio/circle' },
   { label: 'Finanzen', icon: 'wallet', href: '/studio/finance' },
   { label: 'Analytics', icon: 'chart-line', href: '/studio/analytics' },
   { label: 'Nachrichten', icon: 'mail', href: '/studio/messages' },
