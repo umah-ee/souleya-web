@@ -136,7 +136,7 @@ export const TOPICS: Record<string, Topic> = {
   gesundheit: {
     name: 'Gesundheit',
     tag: 'Dein Körper als Zuhause',
-    img: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1706267701238-b4d69fc8f640?w=1600&h=900&fit=crop',
     subs: [
       {
         name: 'Nervensystem & Stress',
@@ -340,7 +340,7 @@ export const TOPICS: Record<string, Topic> = {
   spiritualitaet: {
     name: 'Spiritualität',
     tag: 'Tiefe ohne Dogma',
-    img: 'https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1597682886233-61b9023db181?w=1600&h=900&fit=crop',
     subs: [
       {
         name: 'Meditation & Atemübungen',

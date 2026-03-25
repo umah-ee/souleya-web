@@ -38,6 +38,12 @@ const UNSPLASH_CREDITS: Record<string, UnsplashCredit> = {
 
   // TopicHero – Beziehungen & Verbindung
   'photo-1758524945869-24a53c8cbc1e': { name: 'Vitaly Gariev', username: 'silverkblack' },
+
+  // TopicHero – Spiritualität
+  'photo-1597682886233-61b9023db181': { name: 'Frames For Your Heart', username: 'framesforyourheart' },
+
+  // TopicHero – Gesundheit
+  'photo-1706267701238-b4d69fc8f640': { name: 'Mockuuups', username: 'mockuuups' },
 };
 
 /**
