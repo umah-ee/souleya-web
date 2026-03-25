@@ -442,7 +442,7 @@ export const TOPICS: Record<string, Topic> = {
   beziehungen: {
     name: 'Beziehungen & Verbindung',
     tag: 'Echte Freundschaften jenseits der Einsamkeit',
-    img: 'https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1758524945869-24a53c8cbc1e?w=1600&h=900&fit=crop',
     subs: [
       {
         name: 'Einsamkeit überwinden',
