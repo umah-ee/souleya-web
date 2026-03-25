@@ -37,7 +37,7 @@ const UNSPLASH_CREDITS: Record<string, UnsplashCredit> = {
   'photo-1497436072909-60f360e1d4b1': { name: 'Luca Bravo', username: 'lucabravo' },
 
   // TopicHero – Beziehungen & Verbindung
-  'photo-1758524945869-24a53c8cbc1e': { name: 'Vitaly Gariev', username: 'vitalygariev' },
+  'photo-1758524945869-24a53c8cbc1e': { name: 'Vitaly Gariev', username: 'silverkblack' },
 };
 
 /**
