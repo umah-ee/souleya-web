@@ -117,7 +117,7 @@ export default function TopicHero() {
     setImgOpacity(0);
     setTimeout(() => {
       setImgSrc(src);
-    }, 150);
+    }, 500);
   }, []);
 
   const handleImgLoad = useCallback(() => {
@@ -188,7 +188,7 @@ export default function TopicHero() {
     if (inMorph || sliderPaused) return;
     const timer = setInterval(() => {
       setSliderIdx(prev => (prev + 1) % TOPICS[activeTopic].subs.length);
-    }, 5000);
+    }, 8000);
     return () => clearInterval(timer);
   }, [inMorph, sliderPaused, activeTopic]);
 
