@@ -27,6 +27,8 @@ export default function TopicHero() {
   const [spotLinks, setSpotLinks] = useState<Record<string, { title: string; excerpt: string; category: string; reading_time_min: number; slug: string; og_image_url?: string; label?: string }>>({});
   const [showSignup, setShowSignup] = useState(false);
   const [overlaySlug, setOverlaySlug] = useState<string | null>(null);
+  const [sliderIdx, setSliderIdx] = useState(0);
+  const [sliderPaused, setSliderPaused] = useState(false);
 
   // Load spot-links (dynamic blog data)
   useEffect(() => {
@@ -181,6 +183,29 @@ export default function TopicHero() {
     return () => document.removeEventListener('keydown', handler);
   }, [inMorph, morphBack, morphNext, morphPrev]);
 
+  // Auto-Rotation Timer (5s)
+  useEffect(() => {
+    if (inMorph || sliderPaused) return;
+    const timer = setInterval(() => {
+      setSliderIdx(prev => (prev + 1) % TOPICS[activeTopic].subs.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [inMorph, sliderPaused, activeTopic]);
+
+  // Bild-Crossfade bei Slider-Wechsel
+  useEffect(() => {
+    if (!inMorph) {
+      const sub = TOPICS[activeTopic].subs[sliderIdx];
+      if (sub) crossfade(sub.img);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sliderIdx]);
+
+  // Reset slider when topic changes
+  useEffect(() => {
+    setSliderIdx(0);
+  }, [activeTopic]);
+
   const topic = TOPICS[activeTopic];
   const sub = topic.subs[morphIdx];
 
@@ -196,9 +221,10 @@ export default function TopicHero() {
       <section id="anmeldung" className="th-hero">
         <div className="th-hero-img-wrap">
           <img
+            key={`hero-${sliderIdx}-${activeTopic}`}
             src={imgSrc}
             alt=""
-            className="th-hero-img"
+            className={`th-hero-img${!inMorph ? ' th-hero-img-zoom' : ''}`}
             style={{ opacity: imgOpacity }}
             onLoad={handleImgLoad}
           />
@@ -212,28 +238,33 @@ export default function TopicHero() {
             </div>
           )}
 
-          {/* Hotspots (hidden during morph, nur wenn Blog-Artikel verknuepft) */}
+          {/* Slider-Tab-Leiste (ersetzt Hotspot-Dots) */}
           {!inMorph && (
-            <div className="th-hs-layer">
+            <div
+              className="th-slider-bar"
+              onMouseEnter={() => setSliderPaused(true)}
+              onMouseLeave={() => setSliderPaused(false)}
+            >
               {topic.subs.map((s, i) => {
                 const topicIdx = TOPIC_ORDER.indexOf(activeTopic);
                 const link = spotLinks[`${topicIdx}-${i}`];
-                if (!link) return null;
-                const label = link.label || s.name;
+                const label = link?.label || s.name;
                 return (
-                  <div
+                  <button
                     key={s.name}
-                    className={`th-hs${s.flip ? ' th-hs--flip' : ''}`}
-                    style={{
-                      left: `${s.x}%`,
-                      top: `${s.y}%`,
-                      animationDelay: `${200 + i * 120}ms`,
+                    className={`th-slider-tab${sliderIdx === i ? ' th-slider-tab--active' : ''}`}
+                    onClick={() => {
+                      setSliderIdx(i);
+                      if (link) openMorph(i);
                     }}
-                    onClick={() => openMorph(i)}
                   >
-                    <div className="th-hsd" />
-                    <div className="th-hst" onClick={(e) => { e.stopPropagation(); openMorph(i); }}>{label}</div>
-                  </div>
+                    <span className="th-slider-tab-name">{label}</span>
+                    {sliderIdx === i && (
+                      <div className="th-slider-progress" key={`progress-${i}-${activeTopic}`}>
+                        <div className="th-slider-progress-fill" />
+                      </div>
+                    )}
+                  </button>
                 );
               })}
             </div>
