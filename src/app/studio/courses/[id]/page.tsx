@@ -503,6 +503,35 @@ export default function CourseDetailPage() {
               </div>
             ))}
           </div>
+
+          {/* Kurs-Circle (Feature 8) */}
+          <div className="glass-card rounded-[8px] p-5" style={{ background: 'var(--card-bg)' }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-label mb-1" style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                  Kurs-Community
+                </h3>
+                <p style={{ fontSize: 12, color: 'var(--text-sec)' }}>
+                  Diskussionsforum fuer Teilnehmer — Fragen, Austausch und Announcements.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  // TODO: Auto-create course channel via API
+                  showSuccess('Kurs-Community wird erstellt …');
+                }}
+                className="flex items-center gap-2 cursor-pointer border-none transition-all"
+                style={{
+                  padding: '10px 20px', borderRadius: 9999,
+                  background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                  color: 'var(--text-on-gold)', fontSize: 11, letterSpacing: '1px', textTransform: 'uppercase', whiteSpace: 'nowrap',
+                }}
+              >
+                <Icon name="messages" size={14} />
+                Community oeffnen
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1121,6 +1150,73 @@ export default function CourseDetailPage() {
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Zertifikat (Feature 9) */}
+          <div className="glass-card rounded-[8px] p-5" style={{ background: 'var(--card-bg)' }}>
+            <h3 className="font-label mb-3" style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+              Abschluss-Zertifikat
+            </h3>
+            <p style={{ fontSize: 12, color: 'var(--text-sec)', marginBottom: 12 }}>
+              Teilnehmer erhalten nach 100% Abschluss ein PDF-Zertifikat mit Souleya-Branding.
+            </p>
+            <div className="flex items-center gap-3 mb-3">
+              <button
+                className="cursor-pointer border-none transition-all"
+                style={{
+                  padding: '4px 14px', borderRadius: 16, fontSize: 10,
+                  background: 'var(--gold-bg)', color: 'var(--gold-text)',
+                  border: '1px solid var(--gold-border-s)',
+                }}
+              >
+                Aktiviert
+              </button>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                Zertifikat wird automatisch bei 100% Abschluss angeboten
+              </span>
+            </div>
+
+            {/* Zertifikat-Vorschau */}
+            <div
+              className="rounded-[8px] p-6 text-center relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(200,169,110,.08), rgba(200,169,110,.03))',
+                border: '2px solid rgba(200,169,110,.2)',
+                minHeight: 180,
+              }}
+            >
+              {/* Dekoratives Enso */}
+              <div style={{ position: 'absolute', top: 12, left: 12, opacity: 0.08 }}>
+                <svg viewBox="0 0 100 100" width="60" height="60">
+                  <circle cx="50" cy="50" r="36" fill="none" stroke="var(--gold)" strokeWidth="8" strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15" />
+                </svg>
+              </div>
+              <div style={{ position: 'absolute', bottom: 12, right: 12, opacity: 0.08 }}>
+                <svg viewBox="0 0 100 100" width="60" height="60">
+                  <circle cx="50" cy="50" r="36" fill="none" stroke="var(--gold)" strokeWidth="8" strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15" />
+                </svg>
+              </div>
+
+              <div style={{ fontSize: 8, letterSpacing: '4px', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 8 }}>
+                Souleya Zertifikat
+              </div>
+              <div className="font-heading text-lg italic" style={{ color: 'var(--text-h)', marginBottom: 4 }}>
+                {course.title}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-sec)', marginBottom: 16 }}>
+                Erfolgreich abgeschlossen von
+              </div>
+              <div className="font-heading text-xl italic" style={{ color: 'var(--gold-text)', marginBottom: 16 }}>
+                [Teilnehmername]
+              </div>
+              <div style={{ width: 60, height: 1, background: 'var(--gold)', margin: '0 auto 12px', opacity: 0.3 }} />
+              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+                {new Date().toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </div>
+            </div>
+            <p style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 8, textAlign: 'center', fontStyle: 'italic' }}>
+              Vorschau — Das Zertifikat wird als PDF mit Souleya-Branding generiert
+            </p>
           </div>
 
           {/* Speichern + Loeschen */}
