@@ -40,11 +40,11 @@ const DEMO_ANALYTICS = {
 
 const LESSON_TYPES: { key: string; label: string; icon: IconName }[] = [
   { key: 'video', label: 'Video', icon: 'video' },
-  { key: 'audio', label: 'Audio', icon: 'music' },
+  { key: 'audio', label: 'Audio', icon: 'microphone' },
   { key: 'pdf', label: 'PDF', icon: 'file-text' },
-  { key: 'text', label: 'Text', icon: 'align-left' },
-  { key: 'live', label: 'Live', icon: 'broadcast' },
-  { key: 'quiz', label: 'Quiz', icon: 'list-check' },
+  { key: 'text', label: 'Text', icon: 'edit' },
+  { key: 'live', label: 'Live', icon: 'player-play' },
+  { key: 'quiz', label: 'Quiz', icon: 'check' },
 ];
 
 type Tab = 'overview' | 'curriculum' | 'participants' | 'reviews' | 'analytics' | 'settings';
@@ -527,7 +527,7 @@ export default function CourseDetailPage() {
                   color: 'var(--text-on-gold)', fontSize: 11, letterSpacing: '1px', textTransform: 'uppercase', whiteSpace: 'nowrap',
                 }}
               >
-                <Icon name="messages" size={14} />
+                <Icon name="message-circle" size={14} />
                 Community oeffnen
               </button>
             </div>
@@ -589,7 +589,7 @@ export default function CourseDetailPage() {
                       onClick={(e) => { e.stopPropagation(); const n = [...modules]; [n[mi-1],n[mi]] = [n[mi],n[mi-1]]; setModules(n); updateModule(mod.id, { sort_order: mi - 1 }).catch(()=>{}); updateModule(modules[mi-1].id, { sort_order: mi }).catch(()=>{}); }}
                       className="cursor-pointer border-none" style={{ background: 'none', padding: 3 }} title="Nach oben"
                     >
-                      <Icon name="chevron-up" size={12} style={{ color: 'var(--text-muted)' }} />
+                      <Icon name="chevron-right" size={12} style={{ color: 'var(--text-muted)', transform: 'rotate(-90deg)' }} />
                     </button>
                   )}
                   {mi < modules.length - 1 && (
@@ -917,10 +917,10 @@ export default function CourseDetailPage() {
           {/* KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {([
-              { label: 'Einschreibungen', value: DEMO_ANALYTICS.enrollmentsThisMonth, sub: `+${DEMO_ANALYTICS.enrollmentsThisMonth - DEMO_ANALYTICS.enrollmentsLastMonth} vs. letzter Monat`, icon: 'user-plus' as IconName },
+              { label: 'Einschreibungen', value: DEMO_ANALYTICS.enrollmentsThisMonth, sub: `+${DEMO_ANALYTICS.enrollmentsThisMonth - DEMO_ANALYTICS.enrollmentsLastMonth} vs. letzter Monat`, icon: 'users' as IconName },
               { label: 'Abschlussrate', value: `${DEMO_ANALYTICS.completionRate}%`, sub: 'Durchschnitt', icon: 'trophy' as IconName },
               { label: 'Ø pro Lektion', value: `${DEMO_ANALYTICS.avgTimePerLesson} Min`, sub: 'Verweildauer', icon: 'clock' as IconName },
-              { label: 'Umsatz/Monat', value: `${(DEMO_ANALYTICS.revenueThisMonth / 100).toFixed(0)} €`, sub: 'Aktueller Monat', icon: 'coin' as IconName },
+              { label: 'Umsatz/Monat', value: `${(DEMO_ANALYTICS.revenueThisMonth / 100).toFixed(0)} €`, sub: 'Aktueller Monat', icon: 'wallet' as IconName },
             ]).map((kpi) => (
               <div key={kpi.label} className="glass-card rounded-[8px] p-4 text-center" style={{ background: 'var(--card-bg)' }}>
                 <Icon name={kpi.icon} size={18} style={{ color: 'var(--gold)', margin: '0 auto 6px' }} />
@@ -1057,8 +1057,8 @@ export default function CourseDetailPage() {
             <div className="flex gap-2 mb-4">
               {([
                 { key: 0, label: 'Kostenlos', icon: 'gift' as IconName },
-                { key: -1, label: 'Einmalkauf', icon: 'coin' as IconName },
-                { key: -2, label: 'Seeds', icon: 'leaf' as IconName },
+                { key: -1, label: 'Einmalkauf', icon: 'wallet' as IconName },
+                { key: -2, label: 'Seeds', icon: 'seedling' as IconName },
               ]).map((pm) => {
                 const isActive = pm.key === 0 ? (form.price_cents ?? 0) === 0 : pm.key === -1 ? (form.price_cents ?? 0) > 0 : false;
                 return (
