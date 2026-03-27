@@ -756,8 +756,9 @@ select:focus {
 /* ═══ Slider-Tab-Leiste (ersetzt Hotspot-Dots) ═══ */
 .th-slider-bar {
   position: absolute;
-  top: 100px;
-  left: 36px;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 8;
   display: flex;
   gap: 3px;
