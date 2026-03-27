@@ -7,14 +7,47 @@ import {
   fetchCourse, updateCourse, deleteCourse,
   fetchModules, createModule, updateModule, deleteModule,
   createLesson, updateLesson, deleteLesson,
+  fetchEnrollments,
 } from '@/lib/studio';
 import type {
   Course, CourseModule, CourseLesson, UpdateCourseData,
-  CourseCategory, CourseStatus,
+  CourseCategory, CourseStatus, Enrollment,
 } from '@/types/studio';
 import type { IconName } from '@/components/ui/Icon';
 
-type Tab = 'overview' | 'curriculum' | 'settings';
+// ── Demo-Daten fuer Bewertungen + Analytics ──────────────────
+const DEMO_REVIEWS = [
+  { id: 'r1', userName: 'Lisa M.', rating: 5, comment: 'Der beste Kurs den ich je gemacht habe. Sehr strukturiert und liebevoll aufbereitet.', date: '2026-03-15', avatar: null },
+  { id: 'r2', userName: 'Max K.', rating: 4, comment: 'Sehr gut erklaert, die Atem-Uebungen haben mir besonders geholfen.', date: '2026-03-12', avatar: null },
+  { id: 'r3', userName: 'Sarah L.', rating: 5, comment: 'Wunderschoen gestaltet und sehr tiefgehend. Danke!', date: '2026-03-08', avatar: null },
+  { id: 'r4', userName: 'Tom B.', rating: 5, comment: 'Ich habe so viel gelernt. Die Live-Sessions waren der Hammer.', date: '2026-02-28', avatar: null },
+  { id: 'r5', userName: 'Julia W.', rating: 3, comment: 'Guter Inhalt, aber Modul 3 war etwas zu lang.', date: '2026-02-20', avatar: null },
+];
+
+const DEMO_ANALYTICS = {
+  enrollmentsThisMonth: 12,
+  enrollmentsLastMonth: 8,
+  completionRate: 68,
+  avgTimePerLesson: 14, // Minuten
+  dropoffModules: [
+    { name: 'Modul 1', percent: 100 },
+    { name: 'Modul 2', percent: 82 },
+    { name: 'Modul 3', percent: 61 },
+    { name: 'Modul 4', percent: 45 },
+  ],
+  revenueThisMonth: 89400, // Cent
+};
+
+const LESSON_TYPES: { key: string; label: string; icon: IconName }[] = [
+  { key: 'video', label: 'Video', icon: 'video' },
+  { key: 'audio', label: 'Audio', icon: 'music' },
+  { key: 'pdf', label: 'PDF', icon: 'file-text' },
+  { key: 'text', label: 'Text', icon: 'align-left' },
+  { key: 'live', label: 'Live', icon: 'broadcast' },
+  { key: 'quiz', label: 'Quiz', icon: 'list-check' },
+];
+
+type Tab = 'overview' | 'curriculum' | 'participants' | 'reviews' | 'analytics' | 'settings';
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Entwurf',
@@ -70,15 +103,19 @@ export default function CourseDetailPage() {
   const [addingModuleTitle, setAddingModuleTitle] = useState('');
   const [addingLessonToModule, setAddingLessonToModule] = useState<string | null>(null);
   const [addingLessonTitle, setAddingLessonTitle] = useState('');
+  const [addingLessonType, setAddingLessonType] = useState('text');
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
 
   const loadCourse = useCallback(async () => {
     try {
-      const [c, m] = await Promise.all([
+      const [c, m, e] = await Promise.all([
         fetchCourse(courseId),
         fetchModules(courseId),
+        fetchEnrollments(courseId).catch(() => ({ data: [], total: 0 })),
       ]);
       setCourse(c);
       setModules(m);
+      setEnrollments(Array.isArray(e) ? e : (e as any)?.data ?? []);
       setForm({
         title: c.title,
         description: c.description ?? '',
@@ -195,7 +232,7 @@ export default function CourseDetailPage() {
     try {
       const lesson = await createLesson(moduleId, {
         title: addingLessonTitle.trim(),
-        content_type: 'text',
+        content_type: addingLessonType,
       });
       setModules((prev) =>
         prev.map((m) =>
@@ -362,11 +399,14 @@ export default function CourseDetailPage() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-1 mb-6" style={{ borderBottom: '1px solid var(--divider-l)' }}>
+      <div className="flex gap-1 mb-6 overflow-x-auto scrollbar-gold" style={{ borderBottom: '1px solid var(--divider-l)' }}>
         {([
           { key: 'overview' as Tab, label: 'Uebersicht', icon: 'info' as IconName },
-          { key: 'curriculum' as Tab, label: `Curriculum (${modules.length} Module, ${totalLessons} Lektionen)`, icon: 'book' as IconName },
-          { key: 'settings' as Tab, label: 'Einstellungen', icon: 'edit' as IconName },
+          { key: 'curriculum' as Tab, label: `Curriculum (${modules.length})`, icon: 'book' as IconName },
+          { key: 'participants' as Tab, label: 'Teilnehmer', icon: 'users' as IconName },
+          { key: 'reviews' as Tab, label: 'Bewertungen', icon: 'star' as IconName },
+          { key: 'analytics' as Tab, label: 'Analytics', icon: 'chart-bar' as IconName },
+          { key: 'settings' as Tab, label: 'Einstellungen', icon: 'settings' as IconName },
         ]).map((tab) => (
           <button
             key={tab.key}
@@ -514,11 +554,27 @@ export default function CourseDetailPage() {
                 <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                   {mod.lessons?.length ?? 0} Lektionen
                 </span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5">
+                  {mi > 0 && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); const n = [...modules]; [n[mi-1],n[mi]] = [n[mi],n[mi-1]]; setModules(n); updateModule(mod.id, { sort_order: mi - 1 }).catch(()=>{}); updateModule(modules[mi-1].id, { sort_order: mi }).catch(()=>{}); }}
+                      className="cursor-pointer border-none" style={{ background: 'none', padding: 3 }} title="Nach oben"
+                    >
+                      <Icon name="chevron-up" size={12} style={{ color: 'var(--text-muted)' }} />
+                    </button>
+                  )}
+                  {mi < modules.length - 1 && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); const n = [...modules]; [n[mi],n[mi+1]] = [n[mi+1],n[mi]]; setModules(n); updateModule(mod.id, { sort_order: mi + 1 }).catch(()=>{}); updateModule(modules[mi+1].id, { sort_order: mi }).catch(()=>{}); }}
+                      className="cursor-pointer border-none" style={{ background: 'none', padding: 3 }} title="Nach unten"
+                    >
+                      <Icon name="chevron-down" size={12} style={{ color: 'var(--text-muted)' }} />
+                    </button>
+                  )}
                   <button
                     onClick={(e) => { e.stopPropagation(); setEditingModuleId(mod.id); setEditValue(mod.title); }}
                     className="cursor-pointer border-none"
-                    style={{ background: 'none', padding: 4 }}
+                    style={{ background: 'none', padding: 3 }}
                     title="Umbenennen"
                   >
                     <Icon name="pencil" size={12} style={{ color: 'var(--text-muted)' }} />
@@ -526,7 +582,7 @@ export default function CourseDetailPage() {
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDeleteModule(mod.id); }}
                     className="cursor-pointer border-none"
-                    style={{ background: 'none', padding: 4 }}
+                    style={{ background: 'none', padding: 3 }}
                     title="Loeschen"
                   >
                     <Icon name="trash" size={12} style={{ color: 'var(--danger, #A85454)' }} />
@@ -620,30 +676,50 @@ export default function CourseDetailPage() {
 
                   {/* Add Lesson */}
                   {addingLessonToModule === mod.id ? (
-                    <div className="flex items-center gap-2 py-2">
-                      <input
-                        autoFocus
-                        value={addingLessonTitle}
-                        onChange={(e) => setAddingLessonTitle(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleAddLesson(mod.id)}
-                        placeholder="Lektion-Titel ..."
-                        className="flex-1 py-1.5 px-3 rounded text-sm font-body outline-none"
-                        style={inputStyle}
-                      />
-                      <button
-                        onClick={() => handleAddLesson(mod.id)}
-                        className="cursor-pointer border-none"
-                        style={{ padding: '4px 12px', borderRadius: 8, background: 'var(--gold-bg)', color: 'var(--gold-text)', fontSize: 11 }}
-                      >
-                        Hinzufuegen
-                      </button>
-                      <button
-                        onClick={() => { setAddingLessonToModule(null); setAddingLessonTitle(''); }}
-                        className="cursor-pointer border-none"
-                        style={{ background: 'none', padding: 4, color: 'var(--text-muted)' }}
-                      >
-                        <Icon name="x" size={14} />
-                      </button>
+                    <div className="py-2 space-y-2">
+                      <div className="flex gap-1 flex-wrap">
+                        {LESSON_TYPES.map((lt) => (
+                          <button
+                            key={lt.key}
+                            onClick={() => setAddingLessonType(lt.key)}
+                            className="flex items-center gap-1 cursor-pointer border-none transition-all"
+                            style={{
+                              padding: '4px 10px', borderRadius: 8, fontSize: 9, letterSpacing: '0.5px',
+                              background: addingLessonType === lt.key ? 'var(--gold-bg)' : 'var(--glass)',
+                              color: addingLessonType === lt.key ? 'var(--gold-text)' : 'var(--text-muted)',
+                              border: `1px solid ${addingLessonType === lt.key ? 'var(--gold-border-s)' : 'var(--glass-border)'}`,
+                            }}
+                          >
+                            <Icon name={lt.icon} size={10} />
+                            {lt.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          autoFocus
+                          value={addingLessonTitle}
+                          onChange={(e) => setAddingLessonTitle(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleAddLesson(mod.id)}
+                          placeholder="Lektion-Titel ..."
+                          className="flex-1 py-1.5 px-3 rounded-[8px] text-sm font-body outline-none"
+                          style={inputStyle}
+                        />
+                        <button
+                          onClick={() => handleAddLesson(mod.id)}
+                          className="cursor-pointer border-none"
+                          style={{ padding: '4px 12px', borderRadius: 8, background: 'var(--gold-bg)', color: 'var(--gold-text)', fontSize: 11 }}
+                        >
+                          Hinzufuegen
+                        </button>
+                        <button
+                          onClick={() => { setAddingLessonToModule(null); setAddingLessonTitle(''); setAddingLessonType('text'); }}
+                          className="cursor-pointer border-none"
+                          style={{ background: 'none', padding: 4, color: 'var(--text-muted)' }}
+                        >
+                          <Icon name="x" size={14} />
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <button
@@ -686,6 +762,173 @@ export default function CourseDetailPage() {
             >
               + Modul
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Tab: Teilnehmer ───────────────────────────────── */}
+      {activeTab === 'participants' && (
+        <div className="max-w-3xl space-y-4">
+          <div className="glass-card rounded-[8px] p-5" style={{ background: 'var(--card-bg)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-label" style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                {enrollments.length} Teilnehmer
+              </h3>
+            </div>
+            {enrollments.length === 0 ? (
+              <div className="text-center py-8">
+                <Icon name="users" size={32} style={{ color: 'var(--text-muted)', margin: '0 auto 8px' }} />
+                <p style={{ fontSize: 13, color: 'var(--text-sec)', fontStyle: 'italic' }}>Noch keine Teilnehmer eingeschrieben.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {enrollments.map((e) => (
+                  <div key={e.id} className="flex items-center gap-3 py-2.5" style={{ borderBottom: '1px solid var(--divider-l)' }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'var(--glass)', border: '1px solid var(--glass-border)' }}>
+                      {e.user?.avatar_url ? (
+                        <img src={e.user.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        <Icon name="user" size={14} style={{ color: 'var(--text-muted)' }} />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <span style={{ fontSize: 13, color: 'var(--text-h)' }}>{e.user?.display_name ?? 'Unbekannt'}</span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                          {e.status === 'completed' ? 'Abgeschlossen' : e.status === 'paused' ? 'Pausiert' : 'Aktiv'}
+                        </span>
+                        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+                          Seit {new Date(e.enrolled_at).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Fortschrittsbalken */}
+                    <div className="flex items-center gap-2" style={{ minWidth: 120 }}>
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--glass)' }}>
+                        <div className="h-full rounded-full transition-all" style={{ width: `${e.progress_percent}%`, background: e.progress_percent === 100 ? 'var(--success)' : 'linear-gradient(90deg, var(--gold-deep), var(--gold))' }} />
+                      </div>
+                      <span style={{ fontSize: 11, color: e.progress_percent === 100 ? 'var(--success)' : 'var(--gold-text)', fontWeight: 500, minWidth: 32, textAlign: 'right' }}>
+                        {e.progress_percent}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Tab: Bewertungen ───────────────────────────────── */}
+      {activeTab === 'reviews' && (
+        <div className="max-w-3xl space-y-4">
+          {/* Rating Overview */}
+          <div className="glass-card rounded-[8px] p-5" style={{ background: 'var(--card-bg)' }}>
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <div style={{ fontSize: 36, fontWeight: 500, color: 'var(--gold-text)' }}>
+                  {course.rating_avg > 0 ? course.rating_avg.toFixed(1) : '–'}
+                </div>
+                <div className="flex gap-0.5 justify-center my-1">
+                  {[1,2,3,4,5].map((s) => (
+                    <Icon key={s} name="star" size={14} style={{ color: s <= Math.round(course.rating_avg) ? 'var(--gold)' : 'var(--glass-border)' }} />
+                  ))}
+                </div>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{course.rating_count} Bewertungen</span>
+              </div>
+              <div className="flex-1 space-y-1">
+                {[5,4,3,2,1].map((star) => {
+                  const count = DEMO_REVIEWS.filter((r) => r.rating === star).length;
+                  const pct = DEMO_REVIEWS.length > 0 ? (count / DEMO_REVIEWS.length) * 100 : 0;
+                  return (
+                    <div key={star} className="flex items-center gap-2">
+                      <span style={{ fontSize: 11, color: 'var(--text-muted)', minWidth: 12 }}>{star}</span>
+                      <Icon name="star" size={10} style={{ color: 'var(--gold)' }} />
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--glass)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: 'linear-gradient(90deg, var(--gold-deep), var(--gold))' }} />
+                      </div>
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)', minWidth: 20, textAlign: 'right' }}>{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Reviews List */}
+          <div className="space-y-2">
+            {DEMO_REVIEWS.map((review) => (
+              <div key={review.id} className="glass-card rounded-[8px] p-4" style={{ background: 'var(--card-bg)' }}>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'var(--glass)', border: '1px solid var(--glass-border)' }}>
+                    <Icon name="user" size={12} style={{ color: 'var(--text-muted)' }} />
+                  </div>
+                  <div className="flex-1">
+                    <span style={{ fontSize: 13, color: 'var(--text-h)', fontWeight: 500 }}>{review.userName}</span>
+                    <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 8 }}>
+                      {new Date(review.date).toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
+                  <div className="flex gap-0.5">
+                    {[1,2,3,4,5].map((s) => (
+                      <Icon key={s} name="star" size={11} style={{ color: s <= review.rating ? 'var(--gold)' : 'var(--glass-border)' }} />
+                    ))}
+                  </div>
+                </div>
+                <p style={{ fontSize: 13, lineHeight: '1.6', color: 'var(--text-sec)' }}>{review.comment}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Tab: Analytics ──────────────────────────────────── */}
+      {activeTab === 'analytics' && (
+        <div className="max-w-3xl space-y-4">
+          {/* KPIs */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {([
+              { label: 'Einschreibungen', value: DEMO_ANALYTICS.enrollmentsThisMonth, sub: `+${DEMO_ANALYTICS.enrollmentsThisMonth - DEMO_ANALYTICS.enrollmentsLastMonth} vs. letzter Monat`, icon: 'user-plus' as IconName },
+              { label: 'Abschlussrate', value: `${DEMO_ANALYTICS.completionRate}%`, sub: 'Durchschnitt', icon: 'trophy' as IconName },
+              { label: 'Ø pro Lektion', value: `${DEMO_ANALYTICS.avgTimePerLesson} Min`, sub: 'Verweildauer', icon: 'clock' as IconName },
+              { label: 'Umsatz/Monat', value: `${(DEMO_ANALYTICS.revenueThisMonth / 100).toFixed(0)} €`, sub: 'Aktueller Monat', icon: 'coin' as IconName },
+            ]).map((kpi) => (
+              <div key={kpi.label} className="glass-card rounded-[8px] p-4 text-center" style={{ background: 'var(--card-bg)' }}>
+                <Icon name={kpi.icon} size={18} style={{ color: 'var(--gold)', margin: '0 auto 6px' }} />
+                <div style={{ fontSize: 20, fontWeight: 500, color: 'var(--text-h)' }}>{kpi.value}</div>
+                <div style={{ fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', marginTop: 2 }}>{kpi.label}</div>
+                <div style={{ fontSize: 10, color: 'var(--gold-text)', marginTop: 2 }}>{kpi.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Abbruchpunkte */}
+          <div className="glass-card rounded-[8px] p-5" style={{ background: 'var(--card-bg)' }}>
+            <h3 className="font-label mb-4" style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+              Abbruchpunkte — Wo brechen Teilnehmer ab?
+            </h3>
+            <div className="space-y-3">
+              {DEMO_ANALYTICS.dropoffModules.map((m, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <span style={{ fontSize: 12, color: 'var(--text-sec)', minWidth: 80 }}>{m.name}</span>
+                  <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--glass)' }}>
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${m.percent}%`,
+                        background: m.percent > 70 ? 'var(--success)' : m.percent > 40 ? 'linear-gradient(90deg, var(--gold-deep), var(--gold))' : 'var(--danger, #A85454)',
+                      }}
+                    />
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 500, color: m.percent > 70 ? 'var(--success)' : m.percent > 40 ? 'var(--gold-text)' : 'var(--danger, #A85454)', minWidth: 36, textAlign: 'right' }}>
+                    {m.percent}%
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 12, fontStyle: 'italic' }}>
+              Tipp: Modul 3 und 4 haben hohe Abbruchraten. Pruefe ob sie zu lang oder zu komplex sind.
+            </p>
           </div>
         </div>
       )}
@@ -777,31 +1020,49 @@ export default function CourseDetailPage() {
             </div>
           </div>
 
-          {/* Preis */}
+          {/* Preis & Preismodell */}
           <div className="glass-card rounded-[8px] p-5" style={{ background: 'var(--card-bg)' }}>
-            <h3
-              className="font-label mb-4"
-              style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}
-            >
-              Preis & Teilnehmer
+            <h3 className="font-label mb-4" style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+              Preismodell
             </h3>
+            <div className="flex gap-2 mb-4">
+              {([
+                { key: 0, label: 'Kostenlos', icon: 'gift' as IconName },
+                { key: -1, label: 'Einmalkauf', icon: 'coin' as IconName },
+                { key: -2, label: 'Seeds', icon: 'leaf' as IconName },
+              ]).map((pm) => {
+                const isActive = pm.key === 0 ? (form.price_cents ?? 0) === 0 : pm.key === -1 ? (form.price_cents ?? 0) > 0 : false;
+                return (
+                  <button
+                    key={pm.key}
+                    onClick={() => pm.key === 0 ? setForm((f) => ({ ...f, price_cents: 0 })) : undefined}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full cursor-pointer border-none transition-all"
+                    style={{
+                      fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
+                      background: isActive ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))' : 'transparent',
+                      color: isActive ? 'var(--text-on-gold)' : 'var(--text-muted)',
+                      border: isActive ? 'none' : '1px solid var(--divider)',
+                    }}
+                  >
+                    <Icon name={pm.icon} size={12} />
+                    {pm.label}
+                  </button>
+                );
+              })}
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
-                  Preis (Cent)
-                </label>
+                <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>Preis (€)</label>
                 <input
                   type="number"
-                  value={form.price_cents ?? 0}
-                  onChange={(e) => setForm((f) => ({ ...f, price_cents: parseInt(e.target.value) || 0 }))}
+                  value={form.price_cents ? (form.price_cents / 100).toFixed(0) : '0'}
+                  onChange={(e) => setForm((f) => ({ ...f, price_cents: Math.round(parseFloat(e.target.value || '0') * 100) }))}
                   className="w-full py-2.5 px-4 rounded-[8px] text-sm font-body outline-none"
                   style={inputStyle}
                 />
               </div>
               <div>
-                <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
-                  Max. Teilnehmer
-                </label>
+                <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>Max. Teilnehmer</label>
                 <input
                   type="number"
                   value={form.max_participants ?? ''}
@@ -811,19 +1072,55 @@ export default function CourseDetailPage() {
                   style={inputStyle}
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Drip Content */}
+          <div className="glass-card rounded-[8px] p-5" style={{ background: 'var(--card-bg)' }}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-label" style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                Drip Content — Zeitgesteuerte Freischaltung
+              </h3>
+              <button
+                onClick={() => setForm((f) => ({ ...f, drip_interval: f.drip_interval ? '' : '7 days' }))}
+                className="cursor-pointer border-none"
+                style={{
+                  padding: '4px 12px', borderRadius: 16, fontSize: 10,
+                  background: form.drip_interval ? 'var(--gold-bg)' : 'var(--glass)',
+                  color: form.drip_interval ? 'var(--gold-text)' : 'var(--text-muted)',
+                  border: `1px solid ${form.drip_interval ? 'var(--gold-border-s)' : 'var(--glass-border)'}`,
+                }}
+              >
+                {form.drip_interval ? 'Aktiv' : 'Deaktiviert'}
+              </button>
+            </div>
+            {form.drip_interval && (
               <div>
                 <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
-                  Drip Interval
+                  Intervall zwischen Modulen
                 </label>
-                <input
-                  value={form.drip_interval ?? ''}
-                  onChange={(e) => setForm((f) => ({ ...f, drip_interval: e.target.value }))}
-                  placeholder="z.B. 7 days"
-                  className="w-full py-2.5 px-4 rounded-[8px] text-sm font-body outline-none"
-                  style={inputStyle}
-                />
+                <div className="flex gap-2">
+                  {['3 days', '7 days', '14 days', '30 days'].map((iv) => (
+                    <button
+                      key={iv}
+                      onClick={() => setForm((f) => ({ ...f, drip_interval: iv }))}
+                      className="flex-1 py-2 rounded-full cursor-pointer border-none transition-all"
+                      style={{
+                        fontSize: 10,
+                        background: form.drip_interval === iv ? 'var(--gold-bg)' : 'transparent',
+                        color: form.drip_interval === iv ? 'var(--gold-text)' : 'var(--text-muted)',
+                        border: form.drip_interval === iv ? '1px solid var(--gold-border-s)' : '1px solid var(--divider)',
+                      }}
+                    >
+                      {iv.replace(' days', ' Tage')}
+                    </button>
+                  ))}
+                </div>
+                <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, fontStyle: 'italic' }}>
+                  Module werden nacheinander freigeschaltet — Modul 2 wird {form.drip_interval?.replace(' days', ' Tage')} nach Einschreibung verfuegbar.
+                </p>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Speichern + Loeschen */}
