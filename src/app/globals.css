@@ -796,32 +796,7 @@ select:focus {
   position: relative;
   z-index: 1;
 }
-.th-slider-progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: rgba(200,169,110,.15);
-}
-.th-slider-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #A8894E, #D4BC8B);
-  animation: th-progress 8s linear forwards;
-}
-@keyframes th-progress {
-  from { width: 0%; }
-  to { width: 100%; }
-}
-
-/* Ken-Burns-Effekt auf Hero-Bild */
-.th-hero-img-zoom {
-  animation: th-ken-burns 8s ease-in-out forwards;
-}
-@keyframes th-ken-burns {
-  from { transform: scale(1.0); }
-  to { transform: scale(1.03); }
-}
+/* Progress-Bar und Ken-Burns entfernt — kein Auto-Slider mehr */
 
 /* Light-Theme */
 [data-theme="light"] .th-slider-tab {
