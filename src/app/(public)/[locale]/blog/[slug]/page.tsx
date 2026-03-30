@@ -32,6 +32,8 @@ interface ArticleData {
   seo_keywords: string[];
   reading_time_min: number | null;
   available_locales: string[];
+  locale_slug: string;
+  locale_slugs: Record<string, string>;
 }
 
 async function getArticle(slug: string, locale: string): Promise<ArticleData | null> {
@@ -77,9 +79,12 @@ export async function generateMetadata({
       images: article.og_image_url ? [article.og_image_url] : undefined,
     },
     alternates: {
-      canonical: `https://souleya.com/${locale}/blog/${slug}`,
+      canonical: `https://souleya.com/${locale}/blog/${article.locale_slug || slug}`,
       languages: Object.fromEntries(
-        (article.available_locales ?? []).map(l => [l, `/${l}/blog/${slug}`]),
+        (article.available_locales ?? []).map(l => [
+          l,
+          `/${l}/blog/${article.locale_slugs?.[l] || slug}`,
+        ]),
       ),
     },
   };
@@ -96,7 +101,7 @@ export default async function ArticlePage({
   if (!article) notFound();
 
   const t = locale === 'de';
-  const articleUrl = `https://souleya.com/${locale}/blog/${slug}`;
+  const articleUrl = `https://souleya.com/${locale}/blog/${article.locale_slug || slug}`;
 
   // JSON-LD Structured Data
   const jsonLd = {
@@ -171,7 +176,7 @@ export default async function ArticlePage({
               {article.available_locales.map(l => (
                 <Link
                   key={l}
-                  href={`/${l}/blog/${slug}`}
+                  href={`/${l}/blog/${article.locale_slugs?.[l] || slug}`}
                   className="text-xs px-2.5 py-1 rounded-md border transition-colors"
                   style={{
                     borderColor: l === locale ? 'var(--gold)' : 'var(--glass-border)',

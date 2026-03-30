@@ -84,30 +84,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Published Artikel dynamisch laden
+  // Published Artikel dynamisch laden (beide Locales fuer locale-spezifische Slugs)
   try {
-    const res = await fetch(`${API_URL}/articles?limit=50`, {
-      next: { revalidate: 3600 },
-    });
+    const [deRes, enRes] = await Promise.all([
+      fetch(`${API_URL}/articles?locale=de&limit=50`, { next: { revalidate: 3600 } }),
+      fetch(`${API_URL}/articles?locale=en&limit=50`, { next: { revalidate: 3600 } }),
+    ]);
 
-    if (res.ok) {
-      const { data: articles } = await res.json();
+    if (deRes.ok) {
+      const { data: deArticles } = await deRes.json();
+      for (const article of deArticles) {
+        entries.push({
+          url: `https://souleya.com/de/blog/${article.locale_slug || article.slug}`,
+          lastModified: article.updated_at ? new Date(article.updated_at) : new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.8,
+        });
+      }
+    }
 
-      for (const article of articles) {
-        entries.push(
-          {
-            url: `https://souleya.com/de/blog/${article.slug}`,
-            lastModified: article.updated_at ? new Date(article.updated_at) : new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.8,
-          },
-          {
-            url: `https://souleya.com/en/blog/${article.slug}`,
-            lastModified: article.updated_at ? new Date(article.updated_at) : new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.7,
-          },
-        );
+    if (enRes.ok) {
+      const { data: enArticles } = await enRes.json();
+      for (const article of enArticles) {
+        entries.push({
+          url: `https://souleya.com/en/blog/${article.locale_slug || article.slug}`,
+          lastModified: article.updated_at ? new Date(article.updated_at) : new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.7,
+        });
       }
     }
   } catch {
