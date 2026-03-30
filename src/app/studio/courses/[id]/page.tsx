@@ -987,7 +987,7 @@ export default function CourseDetailPage() {
               + Modul
             </button>
           </div>
-        </div>{/* End left column */}
+        </div>
 
         {/* Right: Detail Panel */}
         {selectedLesson && (
@@ -1173,7 +1173,7 @@ export default function CourseDetailPage() {
             </div>
           </div>
         )}
-        </div>{/* End flex row */}
+        </div>
       )}
 
       {/* ── Tab: Teilnehmer ───────────────────────────────── */}

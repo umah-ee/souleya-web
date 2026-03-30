@@ -291,7 +291,6 @@ export default function CoursesPage() {
                 Abbrechen
               </button>
             </div>
-          </div>
         </div>
       )}
 
