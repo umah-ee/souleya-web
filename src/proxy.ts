@@ -96,6 +96,11 @@ export async function proxy(request: NextRequest) {
       }
     }
 
+    // Admin-Guard: nur Admins duerfen /admin/* Seiten oeffnen
+    if (pathname.startsWith('/admin') && !profile?.is_admin) {
+      return NextResponse.redirect(new URL('/pulse', request.url));
+    }
+
     // Studio-Guard: nur Level 4+ (Zen Master / Soul Mentor) oder Admins
     if (pathname.startsWith('/studio') && !profile?.is_admin && (profile?.soul_level ?? 0) < 4) {
       return NextResponse.redirect(new URL('/pulse', request.url));

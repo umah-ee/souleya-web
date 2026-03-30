@@ -4,6 +4,10 @@
 
 html { scroll-behavior: smooth; }
 
+/* ── eBook CTA Animations ─────────────────────── */
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
+
 /* ═══════════════════════════════════════════
    SOULEYA THEME SYSTEM
    Aus Style Guide v2.2 – Gold × Light + Dark
