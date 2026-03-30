@@ -9,13 +9,13 @@ import FaqAccordion from '@/components/public/FaqAccordion';
 import CtaFinal from '@/components/public/CtaFinal';
 
 export const metadata: Metadata = {
-  title: 'Souleya – Deine Community für Wachstum',
+  title: 'Souleya – Community für persönliches Wachstum, Gesundheit & Spiritualität',
   description:
-    'Souleya ist die Community-Plattform für persönliches Wachstum, Gesundheit und Spiritualität. Werde First Light und sei von Anfang an dabei.',
+    'Souleya ist deine App für persönliche Weiterentwicklung, Spiritualität, Mentoring & echte Community – mit Circles, Kursen und Events. Jetzt kostenlos registrieren.',
   openGraph: {
-    title: 'Souleya – Wachstum kennt kein Ende',
+    title: 'Souleya – Community für persönliches Wachstum, Gesundheit & Spiritualität',
     description:
-      'Die Community für persönliches Wachstum, Gesundheit und Spiritualität. Sichere dir jetzt deinen First Light Platz.',
+      'Deine App für persönliche Weiterentwicklung, Spiritualität, Mentoring & echte Community – mit Circles, Kursen und Events.',
     url: 'https://souleya.com',
   },
 };

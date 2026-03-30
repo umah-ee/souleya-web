@@ -13,12 +13,12 @@ export default function JourneySection() {
             >
               Erkennst du dich wieder?
             </span>
-            <blockquote
+            <h2
               className="font-heading text-xl italic mb-4 leading-relaxed"
               style={{ color: 'var(--text-h)' }}
             >
               „Die Inspiration verblasst, weil die Verbindung fehlt."
-            </blockquote>
+            </h2>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text-body)' }}>
               So viele Menschen öffnen sich in Workshops, Retreats oder im Mentoring für neue
               Wege, für Heilung, für Bewusstsein. Sie wachsen, fühlen sich getragen – und gehen
@@ -37,17 +37,17 @@ export default function JourneySection() {
             >
               Dann bist du hier genau richtig.
             </span>
-            <blockquote
+            <h2
               className="font-heading text-xl italic mb-4 leading-relaxed"
               style={{ color: 'var(--text-h)' }}
             >
               „Damit dein Weg nicht nach dem Workshop endet, sondern dort erst richtig beginnt."
-            </blockquote>
+            </h2>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text-body)' }}>
-              Unsere Plattform schafft einen Ort, an dem du nicht wieder alleine gehst. Ein
-              lebendiges Feld aus Gleichgesinnten, aus Unterstützung, aus echtem Miteinander.
-              Für Menschen, die Spiritualität und Gesundheit nicht nur lernen, sondern leben
-              wollen – gemeinsam.
+              Souleya ist die Community-App für persönliches Wachstum, Spiritualität und
+              mentale Gesundheit. Ein lebendiges Feld aus Gleichgesinnten, aus Unterstützung,
+              aus echtem Miteinander – mit Meditation, Yoga, Breathwork und Mentoring.
+              Für Menschen, die nicht nur lernen, sondern leben wollen – gemeinsam.
             </p>
           </div>
         </FadeUp>

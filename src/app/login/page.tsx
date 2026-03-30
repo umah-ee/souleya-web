@@ -8,6 +8,8 @@ import { logActivity } from '@/lib/activity';
 
 const OTP_LENGTH = 8;
 
+// noindex wird über login/layout.tsx gesetzt (Server Component)
+
 export default function LoginPage() {
   return (
     <Suspense>

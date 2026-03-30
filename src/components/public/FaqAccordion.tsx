@@ -5,11 +5,15 @@ import { useState } from 'react';
 const FAQ_ITEMS = [
   {
     q: 'Was genau ist Souleya?',
-    a: 'Souleya ist eine App für Menschen, die sich für persönliche Entwicklung, Gesundheit und Spiritualität interessieren. Du findest dort Gleichgesinnte (Circles), kannst Kurse bei Mentoren buchen (Studio) und an echten Treffen vor Ort teilnehmen (Events). Alles in einer App statt auf zehn verschiedenen Plattformen.',
+    a: 'Souleya ist eine Community-Plattform und App für persönliches Wachstum, Gesundheit und Spiritualität. Du findest dort Gleichgesinnte in thematischen Circles – etwa für Meditation, Yoga, Breathwork oder Achtsamkeit. Im Studio buchst du Kurse und 1:1-Sessions bei erfahrenen Mentoren. Bei Events triffst du deine Community im echten Leben. Alles in einer App statt auf zehn verschiedenen Plattformen.',
+  },
+  {
+    q: 'Für wen ist Souleya gedacht?',
+    a: 'Souleya ist für alle, die sich persönlich weiterentwickeln möchten – ob Meditation, mentale Gesundheit, Yoga, Ernährung oder Spiritualität. Egal ob du gerade erst anfängst oder schon tief in deiner Praxis bist: Bei Souleya findest du Menschen, die den gleichen Weg gehen, und Mentoren, die dich begleiten.',
   },
   {
     q: 'Was ist First Light?',
-    a: 'First Light ist ein permanenter Status für die ersten 1.000 Menschen, die sich vor dem Launch registrieren. Du startest auf VIP-Level 2 (Awakened Soul), bekommst einen einzigartigen Enso-Ring um dein Profilbild und kannst schon vor dem Launch Seeds sammeln. Dieser Status wird nach dem Launch nie wieder vergeben.',
+    a: 'First Light ist ein permanenter Status für die ersten 500 Menschen, die sich vor dem Launch registrieren. Du startest auf einem höheren Soul Level, bekommst einen einzigartigen Lichtpunkt am Enso-Ring deines Profils und kannst schon vor dem Launch Seeds sammeln. Dieser Status wird nach dem Launch nie wieder vergeben.',
   },
   {
     q: 'Was sind Seeds?',
@@ -21,11 +25,11 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Kostet die Anmeldung etwas?',
-    a: 'Nein. Die Registrierung ist kostenlos. Du gibst nur deine E-Mail-Adresse an und bist dabei. Nach dem Launch wird es ein Membership-Modell geben – aber als First Light hast du von Anfang an Vorteile.',
+    a: 'Nein. Die Registrierung ist kostenlos. Du gibst nur deine E-Mail-Adresse an und bist dabei. Nach dem Launch gibt es ein Membership-Modell (ab 20 € im Monat) – aber als First Light hast du von Anfang an Vorteile.',
   },
   {
-    q: 'Wie kann ich vorab Seeds verdienen?',
-    a: 'Nach der Registrierung erhältst du Zugang zu deinem Dashboard mit einem persönlichen Empfehlungs-Link. Lade Freunde ein und verdiene Seeds, die du später in Kurse tauschen kannst.',
+    q: 'Was unterscheidet Souleya von anderen Plattformen?',
+    a: 'Souleya vereint Community, Mentoring und Events an einem Ort. Statt dich nach einem Workshop oder Retreat allein zu lassen, bleibt die Verbindung bestehen. Circles für den Austausch, Studio für tieferes Lernen, Events für echte Begegnungen – eine Plattform, die persönliches Wachstum, Spiritualität und mentale Gesundheit ganzheitlich verbindet.',
   },
 ];
 

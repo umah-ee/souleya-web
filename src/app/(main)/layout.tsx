@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Sidebar from '@/components/layout/Sidebar';
 import BottomTabs from '@/components/layout/BottomTabs';
 import MobileHeader from '@/components/layout/MobileHeader';
@@ -10,6 +11,10 @@ import DynamicMain from '@/components/layout/DynamicMain';
 import PreLaunchOverlay from '@/components/layout/PreLaunchOverlay';
 import CallProvider from '@/components/call/CallProvider';
 import { createClient } from '@/lib/supabase/server';
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 const isPreLaunch = process.env.NEXT_PUBLIC_PRE_LAUNCH === 'true';
 

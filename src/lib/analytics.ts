@@ -110,8 +110,15 @@ export function analyticsBeforeSend(event: any) {
 // ── Custom Event Tracking ──
 // Alle Events hier zentralisieren fuer einheitliche Benennung.
 
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
+
 /**
  * Signup abgeschlossen (Magic Link verifiziert)
+ * Feuert sowohl Vercel Analytics als auch Google Analytics sign_up Event.
  */
 export function trackSignup(source?: string) {
   const utm = getStoredUtm();
@@ -120,6 +127,16 @@ export function trackSignup(source?: string) {
     medium: utm?.utm_medium || 'none',
     campaign: utm?.utm_campaign || 'none',
   });
+
+  // Google Analytics Conversion-Event
+  if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+    window.gtag('event', 'sign_up', {
+      method: 'magic_link',
+      event_category: 'engagement',
+      ...(utm?.utm_source ? { campaign_source: utm.utm_source } : {}),
+      ...(utm?.utm_campaign ? { campaign_name: utm.utm_campaign } : {}),
+    });
+  }
 }
 
 /**

@@ -7,6 +7,7 @@ const FEATURES = [
     image: 'https://images.unsplash.com/photo-1722963220475-979db2dbf216?w=600&h=400&fit=crop',
     label: 'Community',
     heading: 'Circles',
+    alt: 'Menschen in einer Gemeinschaft – Circles für Meditation, Yoga und Achtsamkeit',
     description:
       'Thematische Gruppen für Meditation, Ernährung, Yoga, Breathwork und mehr. Gemeinsam wachsen – in deinem Tempo, in einer Gemeinschaft, die dich trägt.',
   },
@@ -14,6 +15,7 @@ const FEATURES = [
     image: 'https://images.unsplash.com/photo-1593811167562-9cef47bfc4d7?w=600&h=400&fit=crop',
     label: 'Wissen',
     heading: 'Studio',
+    alt: 'Mentoring und Kurse – persönliche Weiterentwicklung mit erfahrenen Mentoren',
     description:
       'Kurse und 1:1-Sessions von erfahrenen Mentoren. Lerne in deinem Tempo – von Mindset über innere Balance bis hin zu tiefem persönlichem Wachstum.',
   },
@@ -21,6 +23,7 @@ const FEATURES = [
     image: 'https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=600&h=400&fit=crop',
     label: 'Begegnung',
     heading: 'Events',
+    alt: 'Community-Events und Treffen – echte Begegnungen für persönliches Wachstum',
     description:
       'Vom Bildschirm ins echte Leben: Ein Ort für neue Begegnungen und vertraute Kontakte. Komm einfach so, wie du bist und spüre: Ich gehe diesen Weg nicht allein.',
   },
@@ -59,7 +62,7 @@ export default function FeaturesGrid() {
                 <div className="aspect-[3/2] overflow-hidden relative">
                   <img
                     src={f.image}
-                    alt={f.heading}
+                    alt={f.alt}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                     loading="lazy"
                   />

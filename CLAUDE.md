@@ -43,7 +43,12 @@ app/
 │   ├── page.tsx         # Homepage (Hero, Features, First Light, FAQ)
 │   ├── preise/          # Preisseite (20 €/Monat, 200 €/Jahr)
 │   ├── ueber-uns/       # Ueber-uns mit Team-Fotos + Lightbox
+│   ├── was-ist-souleya/ # SEO-Landingpage (~1000 Woerter)
+│   ├── circles/         # SEO-Landingpage Circles (Community-Gruppen)
+│   ├── studio/          # SEO-Landingpage Studio (Kurse & Mentoring)
+│   ├── events/          # SEO-Landingpage Events (Retreats & Workshops)
 │   ├── blog/            # Blog
+│   ├── mentor/          # Mentor-Akquise
 │   ├── impressum/       # Impressum
 │   ├── datenschutz/     # Datenschutz
 │   └── agb/             # AGB
@@ -110,14 +115,18 @@ lib/
 | Profil | ✅ | Avatar, Banner (300px, Crop-Modal), GPS, Interest-Tags, Badges, EnsoRing v3 (Mockup-konform) |
 | Öffentliches Profil `/u/:username` | ✅ | |
 | Theme (Light/Dark) | ✅ | `data-theme` Attribut, ThemeProvider |
-| Oeffentliche Seiten (Homepage, Preise, Ueber uns, Blog) | ✅ | Mono-Domain souleya.com |
+| Oeffentliche Seiten | ✅ | Homepage, Preise, Ueber uns, Blog, Impressum, Datenschutz, AGB, Mentor, Was ist Souleya, Circles, Studio, Events, Willkommen |
+| SEO | ✅ | robots.ts, erweiterte Sitemap, noindex auf Auth/Dashboard, keyword-orientierte Titles/Descriptions, H1-Hierarchie, ALT-Attribute, GA Conversion-Tracking (`sign_up` Event) |
 | First Light Fortschrittsbalken | ✅ | Zweizonen-Balken (Early 1–200 + First Light 201–500), Enso-Marker, Shimmer, Realtime-Count, dynamisches Messaging |
 | Topic Hero (Themen-Selector) | ✅ | 5 Hauptthemen (Wachstum, Gesundheit, Beziehungen, Work-Life, Spiritualitaet) mit Hotspot-Dots (Glasmorphism), Morph-Navigation, Signup-Panel (dunkles Milchglas, Light+Dark identisch), 4 Topic-Cards, eigenstaendige First Light Detail Section mit Compare-Akkordeon. Ersetzt HeroSlider. |
 | ImageGrid + Lightbox | ✅ | Global LightboxProvider (Context + Portal), z-200, Keyboard-Support |
 | Navigation | ✅ | Sidebar default ausgeklappt, Profil oben rechts (EnsoRing), Notification-Bell |
 | Benachrichtigungen | ✅ | NotificationBell mit Dropdown-Panel (Actor-Avatar, Loeschen, Gelesene loeschen, Badge-Pulse-Animation, Settings-Link), Realtime + 30s Polling |
 | Soul Level System | ✅ | OnboardingWizard (Soul 1→2/3, Fullscreen-Overlay, Inline-Steps: Avatar/Bio/Interests/Location/Birthday; Early 1–200 → Level 3), SoulProgressCard (ab Level 2), LevelUpModal (Konfetti), Event Reviews, Sichtbarkeits-Algorithmus (Events + Pulse), Mentor-Voting, Level-Badges im Feed |
-| Studio | ⏳ | Nur UI-Platzhalter |
+| Studio | ✅ | Dashboard, Kurse, Content/Mediathek (Player), Kalender (Wochenansicht), F2F (Video/Audio-Calls, Client-Buchung), Circle, Finanzen (Transaktionen) |
+| WebRTC Calls | ✅ | useWebRTC Hook, VideoCallOverlay, IncomingCallOverlay, CallProvider (global), useRingtone, Chat-Calls + F2F-Calls |
+| Blog SEO | ✅ | Longtail Keywords, Spot-Verknuepfung, Tag-Filter, Featured Hero |
+| Mentor-Profil | ✅ | ProfileMentorSection (einklappbar, Gold-Header, Inline-Edit) im normalen Profil |
 | Analytics | ⏳ | Nur UI-Platzhalter |
 
 ---
@@ -125,11 +134,12 @@ lib/
 ## Mono-Domain: souleya.com
 
 Seit Maerz 2026 laeuft **alles** ueber `souleya.com`:
-- Oeffentliche Seiten: `/`, `/preise`, `/ueber-uns`, `/blog`, `/impressum`, `/datenschutz`, `/agb`
-- Auth: `/login`, `/auth/`
+- Oeffentliche Seiten: `/`, `/preise`, `/ueber-uns`, `/blog`, `/impressum`, `/datenschutz`, `/agb`, `/mentor`, `/was-ist-souleya`, `/circles`, `/studio`, `/events`
+- Auth: `/login`, `/auth/`, `/willkommen` (noindex, Conversion-Tracking)
 - App: `/pulse`, `/discover`, `/circles`, `/chat`, `/profile`
+- SEO: `robots.ts` (App-Routen blockiert), `sitemap.ts` (alle oeffentlichen Seiten + Blog-Artikel), noindex auf `/login`, `/auth/*`, `(main)/*`
 
-`circle.souleya.com` wurde komplett entfernt (nicht nur Redirect, sondern geloescht). Die alte Landing Page (`Dev/landing/`) dient nur noch als Design-Referenz.
+`circle.souleya.com` wurde komplett entfernt (nicht nur Redirect, sondern geloescht). Die alte Landing Page wurde geloescht (ZIP-Backup vorhanden).
 
 ---
 

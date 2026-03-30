@@ -27,9 +27,14 @@ const quicksand = Quicksand({
 });
 
 export const metadata: Metadata = {
-  title: 'Souleya – Deine Community für Wachstum',
-  description: 'Community-Plattform für Spiritualität, Gesundheit und persönliche Entwicklung.',
+  title: {
+    default: 'Souleya – Community für persönliches Wachstum, Gesundheit & Spiritualität',
+    template: '%s | Souleya',
+  },
+  description:
+    'Souleya ist deine App für persönliche Weiterentwicklung, Spiritualität, Mentoring & echte Community – mit Circles, Kursen und Events.',
   icons: { icon: '/icon.svg' },
+  metadataBase: new URL('https://souleya.com'),
 };
 
 export default function RootLayout({

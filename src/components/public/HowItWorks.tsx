@@ -29,7 +29,7 @@ export default function HowItWorks() {
           <div className="rounded-2xl overflow-hidden relative group">
             <img
               src="https://images.unsplash.com/photo-1525026198548-4baa812f1183?w=600&h=800&fit=crop"
-              alt="Menschen in der Community"
+              alt="Souleya Community – Menschen auf dem Weg zu persönlichem Wachstum"
               className="w-full h-auto object-cover photo-gold-wash"
               loading="lazy"
             />

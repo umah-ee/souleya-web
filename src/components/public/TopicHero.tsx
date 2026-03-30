@@ -198,7 +198,7 @@ export default function TopicHero() {
         <div className="th-hero-img-wrap">
           <img
             src={imgSrc}
-            alt=""
+            alt={`${topic.name} – Community für persönliches Wachstum bei Souleya`}
             className="th-hero-img"
             style={{ opacity: imgOpacity }}
             onLoad={handleImgLoad}
@@ -208,7 +208,7 @@ export default function TopicHero() {
           {/* Topic info (hidden during morph) */}
           {!inMorph && (
             <div className="th-hero-info">
-              <div className="th-hero-name">{topic.name}</div>
+              <h1 className="th-hero-name">{topic.name}</h1>
               <div className="th-hero-tag">{topic.tag}</div>
             </div>
           )}

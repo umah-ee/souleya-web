@@ -212,8 +212,9 @@ export default function SignupForm() {
     setVerifying(true);
     setOtpError('');
 
-    // Redirect to verify endpoint (sets server-side session cookies)
-    window.location.href = `/api/auth/verify?next=/profile&email=${encodeURIComponent(pendingEmail)}&otp=${encodeURIComponent(code)}`;
+    // Neue User → /willkommen (Conversion-Tracking), Returning → /profile
+    const nextPath = isReturning ? '/profile' : '/willkommen';
+    window.location.href = `/api/auth/verify?next=${nextPath}&email=${encodeURIComponent(pendingEmail)}&otp=${encodeURIComponent(code)}`;
   };
 
   /* ── Resend ── */
