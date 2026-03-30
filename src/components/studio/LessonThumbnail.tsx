@@ -18,11 +18,11 @@ const SIZE_MAP = {
 
 const TYPE_CONFIG: Record<string, { icon: IconName; color: string; label: string }> = {
   video: { icon: 'player-play', color: 'var(--gold)', label: 'Video' },
-  audio: { icon: 'wave-sine' as IconName, color: 'var(--gold)', label: 'Audio' },
+  audio: { icon: 'microphone' as IconName, color: 'var(--gold)', label: 'Audio' },
   pdf: { icon: 'file-text', color: '#D44638', label: 'PDF' },
-  text: { icon: 'align-left' as IconName, color: 'var(--text-sec)', label: 'Text' },
-  live: { icon: 'broadcast' as IconName, color: '#E53935', label: 'Live' },
-  quiz: { icon: 'checkbox' as IconName, color: 'var(--gold)', label: 'Quiz' },
+  text: { icon: 'edit' as IconName, color: 'var(--text-sec)', label: 'Text' },
+  live: { icon: 'player-play' as IconName, color: '#E53935', label: 'Live' },
+  quiz: { icon: 'check' as IconName, color: 'var(--gold)', label: 'Quiz' },
 };
 
 export default function LessonThumbnail({ contentType, contentUrl, title, size = 'sm' }: LessonThumbnailProps) {
@@ -70,7 +70,7 @@ export default function LessonThumbnail({ contentType, contentUrl, title, size =
     return (
       <div style={{ ...baseStyle, background: 'var(--glass)', border: '1px solid var(--glass-border)' }}>
         <div style={{ textAlign: 'center' }}>
-          <Icon name="wave-sine" size={iconSize} style={{ color: config.color }} />
+          <Icon name="microphone" size={iconSize} style={{ color: config.color }} />
           {size !== 'sm' && (
             <div style={{ fontSize: 7, color: 'var(--text-muted)', marginTop: 2, maxWidth: w - 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {title.slice(0, 20)}
@@ -133,7 +133,7 @@ export default function LessonThumbnail({ contentType, contentUrl, title, size =
         border: '1.5px dashed var(--gold-border-s)',
       }}
     >
-      <Icon name="cloud-upload" size={iconSize} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
+      <Icon name="arrow-forward-up" size={iconSize} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
     </div>
   );
 }

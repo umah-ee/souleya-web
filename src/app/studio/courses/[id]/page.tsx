@@ -864,7 +864,7 @@ export default function CourseDetailPage() {
                         }}
                         title={lesson.content_url ? 'Datei ersetzen' : 'Datei hochladen'}
                       >
-                        <Icon name="upload" size={11} style={{ color: lesson.content_url ? 'var(--text-muted)' : 'var(--gold-text)' }} />
+                        <Icon name="arrow-forward-up" size={11} style={{ color: lesson.content_url ? 'var(--text-muted)' : 'var(--gold-text)' }} />
                         {!lesson.content_url && (
                           <span style={{ fontSize: 8, color: 'var(--gold-text)', letterSpacing: '0.5px' }}>Upload</span>
                         )}
@@ -1064,7 +1064,7 @@ export default function CourseDetailPage() {
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleLessonDrop(e, selectedLesson.lesson.id, selectedLesson.moduleId)}
               >
-                <Icon name="cloud-upload" size={32} style={{ color: 'var(--gold)', margin: '0 auto 8px' }} />
+                <Icon name="arrow-forward-up" size={32} style={{ color: 'var(--gold)', margin: '0 auto 8px' }} />
                 <div style={{ fontSize: 12, color: 'var(--text-sec)', marginBottom: 4 }}>
                   Datei hierher ziehen
                 </div>
@@ -1085,7 +1085,7 @@ export default function CourseDetailPage() {
                   fontSize: 10, color: 'var(--text-muted)',
                 }}
               >
-                <Icon name="upload" size={12} />
+                <Icon name="arrow-forward-up" size={12} />
                 Datei ersetzen
               </button>
             )}
