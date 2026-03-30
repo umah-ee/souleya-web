@@ -37,6 +37,10 @@ export default function CoursesPage() {
   const [creating, setCreating] = useState(searchParams.get('create') === '1');
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState<CourseCategory>('online');
+  const [newDescription, setNewDescription] = useState('');
+  const [newPrice, setNewPrice] = useState('');
+  const [newMaxParticipants, setNewMaxParticipants] = useState('');
+  const [newCoverUrl, setNewCoverUrl] = useState('');
   const [saving, setSaving] = useState(false);
 
   const loadCourses = async () => {
@@ -76,9 +80,20 @@ export default function CoursesPage() {
     if (!newTitle.trim()) return;
     setSaving(true);
     try {
-      const course = await createCourse({ title: newTitle.trim(), category: newCategory });
+      const course = await createCourse({
+        title: newTitle.trim(),
+        category: newCategory,
+        description: newDescription.trim() || undefined,
+        price_cents: newPrice ? Math.round(parseFloat(newPrice) * 100) : undefined,
+        max_participants: newMaxParticipants ? parseInt(newMaxParticipants) : undefined,
+        cover_url: newCoverUrl || undefined,
+      });
       setCreating(false);
       setNewTitle('');
+      setNewDescription('');
+      setNewPrice('');
+      setNewMaxParticipants('');
+      setNewCoverUrl('');
       router.replace('/studio/courses');
       router.push(`/studio/courses/${course.id}`);
     } catch {
@@ -137,46 +152,134 @@ export default function CoursesPage() {
       {/* Create Form */}
       {creating && (
         <div className="glass-card rounded-[8px] p-5 mb-6" style={{ background: 'var(--card-bg)', border: '1.5px solid var(--gold-border)' }}>
-          <h3 style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 12 }}>
+          <h3 style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 16 }}>
             Neuen Kurs erstellen
           </h3>
-          <div className="flex flex-col gap-3">
-            <input
-              autoFocus
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-              placeholder="Kurs-Titel eingeben..."
-              className="w-full py-2.5 px-4 text-sm font-body outline-none"
-              style={inputStyle}
-            />
-            <div className="flex gap-2">
-              {(['online', 'offline', 'recurring', 'live'] as CourseCategory[]).map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setNewCategory(cat)}
-                  className="border-none cursor-pointer transition-all duration-200"
-                  style={{
-                    padding: '6px 14px', borderRadius: 8, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
-                    background: newCategory === cat ? 'var(--gold-bg)' : 'var(--glass)',
-                    color: newCategory === cat ? 'var(--gold-text)' : 'var(--text-muted)',
-                    border: newCategory === cat ? '1px solid var(--gold-border-s)' : '1px solid var(--glass-border)',
-                  }}
-                >
-                  {CATEGORY_LABELS[cat]}
-                </button>
-              ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left: Cover */}
+            <div>
+              <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
+                Cover-Bild (optional)
+              </label>
+              {newCoverUrl ? (
+                <div className="relative rounded-[8px] overflow-hidden" style={{ height: 160 }}>
+                  <img src={newCoverUrl} alt="" className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => setNewCoverUrl('')}
+                    className="absolute top-2 right-2 cursor-pointer border-none"
+                    style={{ width: 24, height: 24, borderRadius: 12, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <Icon name="x" size={12} style={{ color: '#fff' }} />
+                  </button>
+                </div>
+              ) : (
+                <div className="rounded-[8px] p-6 text-center" style={{ border: '2px dashed var(--gold-border-s)', background: 'var(--glass)' }}>
+                  <Icon name="photo" size={28} style={{ color: 'var(--text-muted)', margin: '0 auto 8px' }} />
+                  <div style={{ fontSize: 11, color: 'var(--text-sec)', marginBottom: 8 }}>Cover-URL einfuegen</div>
+                  <input
+                    value={newCoverUrl}
+                    onChange={(e) => setNewCoverUrl(e.target.value)}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full py-2 px-3 rounded-[8px] text-xs font-body outline-none"
+                    style={inputStyle}
+                  />
+                </div>
+              )}
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleCreate}
-                disabled={saving || !newTitle.trim()}
-                className="border-none cursor-pointer transition-all duration-200"
-                style={{
-                  padding: '10px 24px', borderRadius: 9999, fontSize: 11, letterSpacing: '1px', textTransform: 'uppercase',
-                  background: newTitle.trim() ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))' : 'var(--glass)',
-                  color: newTitle.trim() ? 'var(--text-on-gold)' : 'var(--text-muted)',
-                }}
+
+            {/* Right: Fields */}
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
+                  Titel *
+                </label>
+                <input
+                  autoFocus
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                  placeholder="z.B. Achtsamkeit im Alltag"
+                  className="w-full py-2.5 px-4 text-sm font-body outline-none"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
+                  Beschreibung
+                </label>
+                <textarea
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  rows={3}
+                  placeholder="Worum geht es in deinem Kurs?"
+                  className="w-full py-2.5 px-4 text-sm font-body outline-none resize-none"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
+                  Kategorie
+                </label>
+                <div className="flex gap-2">
+                  {(['online', 'offline', 'recurring', 'live'] as CourseCategory[]).map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setNewCategory(cat)}
+                      className="border-none cursor-pointer transition-all duration-200"
+                      style={{
+                        padding: '6px 14px', borderRadius: 8, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
+                        background: newCategory === cat ? 'var(--gold-bg)' : 'var(--glass)',
+                        color: newCategory === cat ? 'var(--gold-text)' : 'var(--text-muted)',
+                        border: newCategory === cat ? '1px solid var(--gold-border-s)' : '1px solid var(--glass-border)',
+                      }}
+                    >
+                      {CATEGORY_LABELS[cat]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
+                    Preis (€)
+                  </label>
+                  <input
+                    type="number"
+                    value={newPrice}
+                    onChange={(e) => setNewPrice(e.target.value)}
+                    placeholder="0 = kostenlos"
+                    className="w-full py-2.5 px-4 text-sm font-body outline-none"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
+                    Max. Teilnehmer
+                  </label>
+                  <input
+                    type="number"
+                    value={newMaxParticipants}
+                    onChange={(e) => setNewMaxParticipants(e.target.value)}
+                    placeholder="Unbegrenzt"
+                    className="w-full py-2.5 px-4 text-sm font-body outline-none"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={handleCreate}
+              disabled={saving || !newTitle.trim()}
+              className="border-none cursor-pointer transition-all duration-200"
+              style={{
+                padding: '10px 24px', borderRadius: 9999, fontSize: 11, letterSpacing: '1px', textTransform: 'uppercase',
+                background: newTitle.trim() ? 'linear-gradient(135deg, var(--gold-deep), var(--gold))' : 'var(--glass)',
+                color: newTitle.trim() ? 'var(--text-on-gold)' : 'var(--text-muted)',
+              }}
               >
                 {saving ? 'Wird erstellt...' : 'Kurs erstellen'}
               </button>

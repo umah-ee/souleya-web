@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Icon } from '@/components/ui/Icon';
 import {
@@ -14,6 +14,8 @@ import type {
   CourseCategory, CourseStatus, Enrollment,
 } from '@/types/studio';
 import type { IconName } from '@/components/ui/Icon';
+import LessonThumbnail from '@/components/studio/LessonThumbnail';
+import { createClient } from '@/lib/supabase/client';
 
 // ── Demo-Daten fuer Bewertungen + Analytics ──────────────────
 const DEMO_REVIEWS = [
@@ -105,6 +107,19 @@ export default function CourseDetailPage() {
   const [addingLessonTitle, setAddingLessonTitle] = useState('');
   const [addingLessonType, setAddingLessonType] = useState('text');
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+
+  // Upload + Detail-Panel
+  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
+  const [uploadingLessonId, setUploadingLessonId] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [dragOverLessonId, setDragOverLessonId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadTargetLessonRef = useRef<{ lessonId: string; moduleId: string; contentType: string } | null>(null);
+
+  // Detail-Panel State
+  const [detailForm, setDetailForm] = useState<{ title: string; description: string; duration_minutes: number; is_preview: boolean }>({
+    title: '', description: '', duration_minutes: 0, is_preview: false,
+  });
 
   const loadCourse = useCallback(async () => {
     try {
@@ -297,6 +312,130 @@ export default function CourseDetailPage() {
     } catch {}
   };
 
+  // ── Lesson Upload ───────────────────────────────────────
+  const ACCEPT_MAP: Record<string, string> = {
+    video: 'video/*',
+    audio: 'audio/*',
+    pdf: '.pdf',
+    text: '.txt,.md,.html',
+    quiz: '',
+    live: '',
+  };
+
+  const handleLessonUpload = async (file: File, lessonId: string, moduleId: string) => {
+    setUploadingLessonId(lessonId);
+    setUploadProgress(10);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Nicht eingeloggt');
+
+      const ext = file.name.split('.').pop() ?? 'bin';
+      const path = `${user.id}/${courseId}/${lessonId}-${Date.now()}.${ext}`;
+      setUploadProgress(30);
+
+      const { error: uploadError } = await supabase.storage
+        .from('media-items')
+        .upload(path, file, { contentType: file.type, upsert: true });
+
+      if (uploadError) throw uploadError;
+      setUploadProgress(80);
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media-items')
+        .getPublicUrl(path);
+
+      await updateLesson(lessonId, { content_url: publicUrl });
+      setUploadProgress(100);
+
+      // Modul-State updaten
+      setModules((prev) =>
+        prev.map((m) =>
+          m.id === moduleId
+            ? { ...m, lessons: (m.lessons ?? []).map((l) => l.id === lessonId ? { ...l, content_url: publicUrl } : l) }
+            : m,
+        ),
+      );
+      showSuccess('Datei hochgeladen');
+    } catch (err) {
+      setError('Upload fehlgeschlagen');
+    } finally {
+      setUploadingLessonId(null);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const target = uploadTargetLessonRef.current;
+    if (file && target) {
+      handleLessonUpload(file, target.lessonId, target.moduleId);
+    }
+    e.target.value = '';
+  };
+
+  const triggerUpload = (lessonId: string, moduleId: string, contentType: string) => {
+    uploadTargetLessonRef.current = { lessonId, moduleId, contentType };
+    if (fileInputRef.current) {
+      fileInputRef.current.accept = ACCEPT_MAP[contentType] || '*/*';
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleLessonDrop = (e: React.DragEvent, lessonId: string, moduleId: string) => {
+    e.preventDefault();
+    setDragOverLessonId(null);
+    const file = e.dataTransfer.files[0];
+    if (file) handleLessonUpload(file, lessonId, moduleId);
+  };
+
+  // ── Detail Panel ──────────────────────────────────────
+  const selectedLesson = (() => {
+    if (!selectedLessonId) return null;
+    for (const m of modules) {
+      const l = m.lessons?.find((l) => l.id === selectedLessonId);
+      if (l) return { lesson: l, moduleId: m.id };
+    }
+    return null;
+  })();
+
+  const handleSaveDetail = async () => {
+    if (!selectedLesson) return;
+    setSaving(true);
+    try {
+      const updated = await updateLesson(selectedLesson.lesson.id, {
+        title: detailForm.title,
+        description: detailForm.description,
+        duration_seconds: detailForm.duration_minutes * 60,
+        is_preview: detailForm.is_preview,
+      });
+      setModules((prev) =>
+        prev.map((m) =>
+          m.id === selectedLesson.moduleId
+            ? { ...m, lessons: (m.lessons ?? []).map((l) => l.id === selectedLesson.lesson.id ? { ...l, ...updated } : l) }
+            : m,
+        ),
+      );
+      showSuccess('Lektion gespeichert');
+    } catch {
+      setError('Speichern fehlgeschlagen');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Sync detail form when selection changes
+  useEffect(() => {
+    if (selectedLesson) {
+      setDetailForm({
+        title: selectedLesson.lesson.title,
+        description: (selectedLesson.lesson as any).description ?? '',
+        duration_minutes: Math.floor((selectedLesson.lesson.duration_seconds ?? 0) / 60),
+        is_preview: selectedLesson.lesson.is_preview,
+      });
+    }
+  }, [selectedLessonId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Render ───────────────────────────────────────────────
   if (loading) {
     return <p style={{ color: 'var(--text-muted)', fontSize: 14, textAlign: 'center', paddingTop: 60 }}>Lade Kurs...</p>;
@@ -344,6 +483,9 @@ export default function CourseDetailPage() {
           {error}
         </div>
       )}
+
+      {/* Hidden file input for lesson uploads */}
+      <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileSelect} />
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
@@ -430,7 +572,7 @@ export default function CourseDetailPage() {
 
       {/* ── Tab: Uebersicht ──────────────────────────────── */}
       {activeTab === 'overview' && (
-        <div className="space-y-4 max-w-2xl">
+        <div className="space-y-4">
           {/* Cover */}
           {course.cover_url && (
             <div className="rounded-[8px] overflow-hidden" style={{ height: 200 }}>
@@ -537,7 +679,9 @@ export default function CourseDetailPage() {
 
       {/* ── Tab: Curriculum ──────────────────────────────── */}
       {activeTab === 'curriculum' && (
-        <div className="max-w-2xl space-y-3">
+        <div className="flex gap-6" style={{ alignItems: 'flex-start' }}>
+        {/* Left: Module + Lessons */}
+        <div className="flex-1 min-w-0 space-y-3">
           {modules.length === 0 && (
             <div className="glass-card rounded-[8px] p-8 text-center" style={{ background: 'var(--card-bg)' }}>
               <Icon name="book" size={32} style={{ color: 'var(--text-muted)', margin: '0 auto 12px' }} />
@@ -634,9 +778,41 @@ export default function CourseDetailPage() {
                   {(mod.lessons ?? []).map((lesson, li) => (
                     <div
                       key={lesson.id}
-                      className="flex items-center gap-3 py-2.5"
-                      style={{ borderBottom: li < (mod.lessons?.length ?? 0) - 1 ? '1px solid var(--divider-l)' : 'none' }}
+                      className="flex items-center gap-3 py-2.5 transition-all cursor-pointer"
+                      style={{
+                        borderBottom: li < (mod.lessons?.length ?? 0) - 1 ? '1px solid var(--divider-l)' : 'none',
+                        border: dragOverLessonId === lesson.id ? '2px dashed var(--gold)' : undefined,
+                        borderRadius: dragOverLessonId === lesson.id ? 8 : undefined,
+                        padding: dragOverLessonId === lesson.id ? '8px' : undefined,
+                        background: selectedLessonId === lesson.id ? 'var(--gold-bg)' : undefined,
+                      }}
+                      onClick={() => setSelectedLessonId(lesson.id === selectedLessonId ? null : lesson.id)}
+                      onDragOver={(e) => { e.preventDefault(); setDragOverLessonId(lesson.id); }}
+                      onDragLeave={() => setDragOverLessonId(null)}
+                      onDrop={(e) => handleLessonDrop(e, lesson.id, mod.id)}
                     >
+                      {/* Thumbnail */}
+                      <div style={{ position: 'relative' }}>
+                        <LessonThumbnail
+                          contentType={lesson.content_type}
+                          contentUrl={lesson.content_url}
+                          title={lesson.title}
+                          size="sm"
+                        />
+                        {uploadingLessonId === lesson.id && (
+                          <div style={{
+                            position: 'absolute', bottom: 0, left: 0, right: 0, height: 3,
+                            borderRadius: '0 0 8px 8px', overflow: 'hidden',
+                            background: 'var(--glass)',
+                          }}>
+                            <div style={{
+                              height: '100%', width: `${uploadProgress}%`,
+                              background: 'linear-gradient(90deg, var(--gold-deep), var(--gold))',
+                              transition: 'width 0.3s',
+                            }} />
+                          </div>
+                        )}
+                      </div>
                       <span style={{ fontSize: 10, color: 'var(--text-muted)', minWidth: 32 }}>
                         {mi + 1}.{li + 1}
                       </span>
@@ -647,6 +823,7 @@ export default function CourseDetailPage() {
                           onChange={(e) => setEditValue(e.target.value)}
                           onBlur={() => handleSaveLessonTitle(lesson.id, mod.id)}
                           onKeyDown={(e) => e.key === 'Enter' && handleSaveLessonTitle(lesson.id, mod.id)}
+                          onClick={(e) => e.stopPropagation()}
                           className="flex-1 py-1 px-2 rounded text-sm font-body outline-none"
                           style={inputStyle}
                         />
@@ -654,7 +831,7 @@ export default function CourseDetailPage() {
                         <span
                           className="flex-1 text-sm"
                           style={{ color: 'var(--text-sec)' }}
-                          onDoubleClick={() => { setEditingLessonId(lesson.id); setEditValue(lesson.title); }}
+                          onDoubleClick={(e) => { e.stopPropagation(); setEditingLessonId(lesson.id); setEditValue(lesson.title); }}
                         >
                           {lesson.title}
                         </span>
@@ -674,8 +851,26 @@ export default function CourseDetailPage() {
                           {Math.floor(lesson.duration_seconds / 60)}:{String(lesson.duration_seconds % 60).padStart(2, '0')}
                         </span>
                       )}
+                      {/* Upload Button */}
                       <button
-                        onClick={() => handleTogglePreview(lesson.id, mod.id, lesson.is_preview)}
+                        onClick={(e) => { e.stopPropagation(); triggerUpload(lesson.id, mod.id, lesson.content_type); }}
+                        className="cursor-pointer border-none transition-all"
+                        style={{
+                          background: lesson.content_url ? 'none' : 'var(--gold-bg)',
+                          padding: lesson.content_url ? 2 : '2px 8px',
+                          borderRadius: 8,
+                          border: lesson.content_url ? 'none' : '1px solid var(--gold-border-s)',
+                          display: 'flex', alignItems: 'center', gap: 3,
+                        }}
+                        title={lesson.content_url ? 'Datei ersetzen' : 'Datei hochladen'}
+                      >
+                        <Icon name="upload" size={11} style={{ color: lesson.content_url ? 'var(--text-muted)' : 'var(--gold-text)' }} />
+                        {!lesson.content_url && (
+                          <span style={{ fontSize: 8, color: 'var(--gold-text)', letterSpacing: '0.5px' }}>Upload</span>
+                        )}
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleTogglePreview(lesson.id, mod.id, lesson.is_preview); }}
                         className="cursor-pointer border-none"
                         style={{ background: 'none', padding: 2 }}
                         title={lesson.is_preview ? 'Vorschau deaktivieren' : 'Als Vorschau markieren'}
@@ -687,14 +882,14 @@ export default function CourseDetailPage() {
                         />
                       </button>
                       <button
-                        onClick={() => { setEditingLessonId(lesson.id); setEditValue(lesson.title); }}
+                        onClick={(e) => { e.stopPropagation(); setEditingLessonId(lesson.id); setEditValue(lesson.title); }}
                         className="cursor-pointer border-none"
                         style={{ background: 'none', padding: 2 }}
                       >
                         <Icon name="pencil" size={11} style={{ color: 'var(--text-muted)' }} />
                       </button>
                       <button
-                        onClick={() => handleDeleteLesson(lesson.id, mod.id)}
+                        onClick={(e) => { e.stopPropagation(); handleDeleteLesson(lesson.id, mod.id); }}
                         className="cursor-pointer border-none"
                         style={{ background: 'none', padding: 2 }}
                       >
@@ -792,12 +987,198 @@ export default function CourseDetailPage() {
               + Modul
             </button>
           </div>
-        </div>
+        </div>{/* End left column */}
+
+        {/* Right: Detail Panel */}
+        {selectedLesson && (
+          <div
+            className="glass-card rounded-[8px] p-5 space-y-4"
+            style={{
+              width: 380, flexShrink: 0, position: 'sticky', top: 16,
+              background: 'var(--card-bg)', border: '1px solid var(--glass-border)',
+            }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <h3 className="font-label" style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                Lektion bearbeiten
+              </h3>
+              <button
+                onClick={() => setSelectedLessonId(null)}
+                className="cursor-pointer border-none"
+                style={{ background: 'none', padding: 2 }}
+              >
+                <Icon name="x" size={16} style={{ color: 'var(--text-muted)' }} />
+              </button>
+            </div>
+
+            {/* Large Thumbnail / Preview */}
+            {selectedLesson.lesson.content_url ? (
+              <div className="rounded-[8px] overflow-hidden" style={{ background: '#000' }}>
+                {selectedLesson.lesson.content_type === 'video' && (
+                  <video
+                    src={selectedLesson.lesson.content_url}
+                    controls
+                    className="w-full"
+                    style={{ maxHeight: 200 }}
+                  />
+                )}
+                {selectedLesson.lesson.content_type === 'audio' && (
+                  <div className="p-4" style={{ background: 'var(--glass)' }}>
+                    <audio src={selectedLesson.lesson.content_url} controls className="w-full" />
+                  </div>
+                )}
+                {selectedLesson.lesson.content_type === 'pdf' && (
+                  <div className="p-4 text-center" style={{ background: 'var(--glass)' }}>
+                    <Icon name="file-text" size={32} style={{ color: '#D44638', margin: '0 auto 8px' }} />
+                    <a
+                      href={selectedLesson.lesson.content_url}
+                      target="_blank"
+                      rel="noopener"
+                      style={{ fontSize: 11, color: 'var(--gold-text)', textDecoration: 'underline' }}
+                    >
+                      PDF oeffnen
+                    </a>
+                  </div>
+                )}
+                {!['video', 'audio', 'pdf'].includes(selectedLesson.lesson.content_type) && (
+                  <div className="p-4 text-center" style={{ background: 'var(--glass)' }}>
+                    <LessonThumbnail
+                      contentType={selectedLesson.lesson.content_type}
+                      contentUrl={selectedLesson.lesson.content_url}
+                      title={selectedLesson.lesson.title}
+                      size="lg"
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Upload Zone */
+              <div
+                className="rounded-[8px] text-center py-8 cursor-pointer transition-all"
+                style={{
+                  border: '2px dashed var(--gold-border-s)',
+                  background: 'var(--glass)',
+                }}
+                onClick={() => triggerUpload(selectedLesson.lesson.id, selectedLesson.moduleId, selectedLesson.lesson.content_type)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => handleLessonDrop(e, selectedLesson.lesson.id, selectedLesson.moduleId)}
+              >
+                <Icon name="cloud-upload" size={32} style={{ color: 'var(--gold)', margin: '0 auto 8px' }} />
+                <div style={{ fontSize: 12, color: 'var(--text-sec)', marginBottom: 4 }}>
+                  Datei hierher ziehen
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+                  oder klicken zum Auswaehlen
+                </div>
+              </div>
+            )}
+
+            {/* Replace file button if already uploaded */}
+            {selectedLesson.lesson.content_url && (
+              <button
+                onClick={() => triggerUpload(selectedLesson.lesson.id, selectedLesson.moduleId, selectedLesson.lesson.content_type)}
+                className="w-full flex items-center justify-center gap-2 cursor-pointer border-none transition-all"
+                style={{
+                  padding: '8px', borderRadius: 8,
+                  background: 'var(--glass)', border: '1px solid var(--glass-border)',
+                  fontSize: 10, color: 'var(--text-muted)',
+                }}
+              >
+                <Icon name="upload" size={12} />
+                Datei ersetzen
+              </button>
+            )}
+
+            {/* Form Fields */}
+            <div>
+              <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
+                Titel
+              </label>
+              <input
+                value={detailForm.title}
+                onChange={(e) => setDetailForm((f) => ({ ...f, title: e.target.value }))}
+                className="w-full py-2 px-3 rounded-[8px] text-sm font-body outline-none"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
+                Beschreibung
+              </label>
+              <textarea
+                value={detailForm.description}
+                onChange={(e) => setDetailForm((f) => ({ ...f, description: e.target.value }))}
+                rows={3}
+                className="w-full py-2 px-3 rounded-[8px] text-sm font-body outline-none resize-none"
+                style={inputStyle}
+                placeholder="Optional: Beschreibe diese Lektion ..."
+              />
+            </div>
+            <div>
+              <label className="block font-label text-[0.6rem] tracking-[0.15em] uppercase mb-1" style={{ color: 'var(--text-muted)' }}>
+                Dauer (Minuten)
+              </label>
+              <input
+                type="number"
+                value={detailForm.duration_minutes || ''}
+                onChange={(e) => setDetailForm((f) => ({ ...f, duration_minutes: parseInt(e.target.value) || 0 }))}
+                placeholder="z.B. 15"
+                className="w-full py-2 px-3 rounded-[8px] text-sm font-body outline-none"
+                style={inputStyle}
+              />
+            </div>
+
+            {/* Preview Toggle */}
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={detailForm.is_preview}
+                onChange={(e) => setDetailForm((f) => ({ ...f, is_preview: e.target.checked }))}
+                style={{ accentColor: 'var(--gold)' }}
+              />
+              <span style={{ fontSize: 11, color: 'var(--text-sec)' }}>Als Vorschau markieren (kostenlos sichtbar)</span>
+            </label>
+
+            {/* Actions */}
+            <div className="flex gap-2">
+              <button
+                onClick={handleSaveDetail}
+                disabled={saving}
+                className="flex-1 py-2.5 rounded-full cursor-pointer border-none transition-all"
+                style={{
+                  background: saving ? 'var(--gold-bg)' : 'linear-gradient(135deg, var(--gold-deep), var(--gold))',
+                  color: saving ? 'var(--text-muted)' : 'var(--text-on-gold)',
+                  fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
+                }}
+              >
+                {saving ? 'Speichert ...' : 'Speichern'}
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm('Lektion wirklich loeschen?')) {
+                    handleDeleteLesson(selectedLesson.lesson.id, selectedLesson.moduleId);
+                    setSelectedLessonId(null);
+                  }
+                }}
+                className="flex items-center justify-center cursor-pointer border-none"
+                style={{
+                  width: 40, height: 40, borderRadius: 20,
+                  background: 'var(--glass)', border: '1px solid var(--glass-border)',
+                }}
+                title="Lektion loeschen"
+              >
+                <Icon name="trash" size={14} style={{ color: 'var(--danger, #A85454)' }} />
+              </button>
+            </div>
+          </div>
+        )}
+        </div>{/* End flex row */}
       )}
 
       {/* ── Tab: Teilnehmer ───────────────────────────────── */}
       {activeTab === 'participants' && (
-        <div className="max-w-3xl space-y-4">
+        <div className="space-y-4">
           <div className="glass-card rounded-[8px] p-5" style={{ background: 'var(--card-bg)' }}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-label" style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
@@ -850,7 +1231,7 @@ export default function CourseDetailPage() {
 
       {/* ── Tab: Bewertungen ───────────────────────────────── */}
       {activeTab === 'reviews' && (
-        <div className="max-w-3xl space-y-4">
+        <div className="space-y-4">
           {/* Rating Overview */}
           <div className="glass-card rounded-[8px] p-5" style={{ background: 'var(--card-bg)' }}>
             <div className="flex items-center gap-6">
@@ -913,7 +1294,7 @@ export default function CourseDetailPage() {
 
       {/* ── Tab: Analytics ──────────────────────────────────── */}
       {activeTab === 'analytics' && (
-        <div className="max-w-3xl space-y-4">
+        <div className="space-y-4">
           {/* KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {([
@@ -964,7 +1345,7 @@ export default function CourseDetailPage() {
 
       {/* ── Tab: Einstellungen ───────────────────────────── */}
       {activeTab === 'settings' && (
-        <div className="max-w-2xl space-y-4">
+        <div className="space-y-4">
           {/* Status */}
           <div className="glass-card rounded-[8px] p-5" style={{ background: 'var(--card-bg)' }}>
             <h3
