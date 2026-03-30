@@ -15,7 +15,6 @@ const config: Config = {
           text: 'var(--gold-text)',
           deep: 'var(--gold-deep)',
         },
-        // Dusk Accent-Farben (fallen in Gold auf --gold zurueck)
         accent2: 'var(--accent-2, var(--gold))',
         accent3: 'var(--accent-3, var(--warning))',
         th: {

@@ -1,13 +1,13 @@
 'use client';
 
 import { useId } from 'react';
-import { useTheme } from '@/components/ThemeProvider';
+
 
 // ══════════════════════════════════════════════════════════════
 // SOULEYA ENSO RING – Soul Level System v3
 // Level 1–5 mit progressiv schliessendem Kreis
 // First Light (Halo + Kern) + Mentor-Kompassstern
-// Farbschema-aware: Gold + Dusk
+// Gold Farbschema
 // Quelle: Mockups/Souleya_EnsoRing_Levels.html
 // ══════════════════════════════════════════════════════════════
 
@@ -23,18 +23,10 @@ const LEVEL_CONFIG: Record<number, { dasharray: string }> = {
 
 // ── Farbschema-Konfiguration ─────────────────────────────────
 const COLOR_CONFIG = {
-  gold: {
-    gradientStart: '#A8894E',
-    gradientEnd: '#D4BC8B',
-    glowColor: '#D4BC8B',
-    dotColor: '#D4BC8B',
-  },
-  dusk: {
-    gradientStart: '#8B5CF6',
-    gradientEnd: '#F472B6',
-    glowColor: '#A78BFA',
-    dotColor: '#A78BFA',
-  },
+  gradientStart: '#A8894E',
+  gradientEnd: '#D4BC8B',
+  glowColor: '#D4BC8B',
+  dotColor: '#D4BC8B',
 } as const;
 
 // ── Groessen-Varianten ───────────────────────────────────────
@@ -70,11 +62,10 @@ export default function EnsoRing({
   className = '',
 }: EnsoRingProps) {
   const uid = useId();
-  const { colorScheme } = useTheme();
   const level = Math.max(1, Math.min(5, soulLevel));
   const config = LEVEL_CONFIG[level] ?? LEVEL_CONFIG[1];
   const { svgSize, avatarSize, avatarOffset } = SIZE_CONFIG[size];
-  const colors = COLOR_CONFIG[colorScheme] ?? COLOR_CONFIG.gold;
+  const colors = COLOR_CONFIG;
   const gradientId = `enso-g${uid}`;
   const flGlowId = `fl-glow${uid}`;
   const mentorGlowId = `mentor-glow${uid}`;

@@ -30,7 +30,7 @@ type SubView = 'main' | 'appearance' | 'notifications' | 'privacy' | 'account' |
  */
 export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPostsVisibilityChange, initialSubView }: SettingsPanelProps) {
   const router = useRouter();
-  const { theme, colorScheme, toggleTheme, setColorScheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [subView, setSubView] = useState<SubView>(initialSubView ?? 'main');
 
   // Sync mit initialSubView wenn Panel geoeffnet wird
@@ -199,24 +199,6 @@ export default function SettingsPanel({ isOpen, onClose, postsVisibility, onPost
             </div>
           </div>
 
-          {/* Color Scheme Toggle (Gold/Dusk) */}
-          <div>
-            <SectionLabel>Farbschema</SectionLabel>
-            <div className="flex" style={{ gap: '8px' }}>
-              <ToggleChip
-                label="Gold"
-                active={colorScheme === 'gold'}
-                onClick={() => setColorScheme('gold')}
-                color="#C8A96E"
-              />
-              <ToggleChip
-                label="Dusk"
-                active={colorScheme === 'dusk'}
-                onClick={() => setColorScheme('dusk')}
-                color="#A78BFA"
-              />
-            </div>
-          </div>
         </div>
       )}
 

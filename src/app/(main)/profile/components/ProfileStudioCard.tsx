@@ -13,7 +13,7 @@ interface ProfileStudioCardProps {
  * Studio Card — exakt nach Mockup
  *
  * Padding 20px 24px, radius 24px, gap 16px
- * Background: 3-Stop gold gradient (dusk: lavender/rose via CSS override)
+ * Background: 3-Stop gold gradient
  * ::before Orb (radial-gradient)
  * Icon: 44px, radius 14px, gradient BG + box-shadow
  * Title: 19px Cormorant Garamond italic 600
