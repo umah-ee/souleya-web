@@ -29,19 +29,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: 'https://souleya.com/circles',
+      url: 'https://souleya.com/features/circles',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
-      url: 'https://souleya.com/studio',
+      url: 'https://souleya.com/features/studio',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
-      url: 'https://souleya.com/events',
+      url: 'https://souleya.com/features/events',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,

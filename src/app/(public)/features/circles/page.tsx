@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Circles – Community-Gruppen bei Souleya',
     description:
       'Thematische Gruppen für Meditation, Yoga, Breathwork und mehr. Finde Gleichgesinnte und wachse gemeinsam.',
-    url: 'https://souleya.com/circles',
+    url: 'https://souleya.com/features/circles',
   },
 };
 
@@ -155,8 +155,8 @@ export default function CirclesPage() {
         </Link>
         <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs" style={{ color: 'var(--text-muted)' }}>
           <Link href="/was-ist-souleya" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Was ist Souleya?</Link>
-          <Link href="/studio" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Studio</Link>
-          <Link href="/events" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Events</Link>
+          <Link href="/features/studio" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Studio</Link>
+          <Link href="/features/events" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Events</Link>
           <Link href="/preise" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Preise</Link>
         </div>
       </section>

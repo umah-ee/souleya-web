@@ -135,19 +135,19 @@ export default function WasIstSouleyaPage() {
           <FeatureCard
             title="Circles"
             text="Thematische Community-Gruppen für Meditation, Yoga, Breathwork, Ernährung und mehr. Tausche dich mit Gleichgesinnten aus, teile Erfahrungen und wachse gemeinsam – in deinem Tempo."
-            href="/circles"
+            href="/features/circles"
             linkText="Mehr über Circles"
           />
           <FeatureCard
             title="Studio"
             text="Online-Kurse und 1:1-Sessions mit erfahrenen Mentoren. Von geführten Meditationen über Coaching für mentale Gesundheit bis hin zu Intensiv-Workshops für persönliche Transformation."
-            href="/studio"
+            href="/features/studio"
             linkText="Mehr über Studio"
           />
           <FeatureCard
             title="Events"
             text="Vom Bildschirm ins echte Leben: Meditationsabende, Yoga-Sessions, Breathwork-Workshops und Retreats in deiner Nähe. Community-Treffen, die echte Verbindungen schaffen."
-            href="/events"
+            href="/features/events"
             linkText="Mehr über Events"
           />
         </div>
@@ -274,9 +274,9 @@ export default function WasIstSouleyaPage() {
         <div className="mt-8 flex flex-wrap justify-center gap-4 text-xs" style={{ color: 'var(--text-muted)' }}>
           <Link href="/preise" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Preise</Link>
           <Link href="/ueber-uns" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Über uns</Link>
-          <Link href="/circles" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Circles</Link>
-          <Link href="/studio" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Studio</Link>
-          <Link href="/events" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Events</Link>
+          <Link href="/features/circles" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Circles</Link>
+          <Link href="/features/studio" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Studio</Link>
+          <Link href="/features/events" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Events</Link>
         </div>
       </section>
     </div>

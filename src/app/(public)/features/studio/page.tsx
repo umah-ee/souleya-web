@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Studio – Kurse & Mentoring bei Souleya',
     description:
       'Online-Kurse und 1:1-Sessions für persönliches Wachstum – von Meditation über Coaching bis Breathwork.',
-    url: 'https://souleya.com/studio',
+    url: 'https://souleya.com/features/studio',
   },
 };
 
@@ -169,8 +169,8 @@ export default function StudioPage() {
         </Link>
         <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs" style={{ color: 'var(--text-muted)' }}>
           <Link href="/was-ist-souleya" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Was ist Souleya?</Link>
-          <Link href="/circles" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Circles</Link>
-          <Link href="/events" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Events</Link>
+          <Link href="/features/circles" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Circles</Link>
+          <Link href="/features/events" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Events</Link>
           <Link href="/preise" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Preise</Link>
         </div>
       </section>

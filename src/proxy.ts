@@ -6,7 +6,7 @@ const PUBLIC_ROUTES = [
   '/', '/login', '/auth/', '/api/',
   '/de/blog', '/en/blog', '/blog',
   '/impressum', '/datenschutz', '/agb', '/preise', '/ueber-uns', '/mentor', '/wisdom/',
-  '/was-ist-souleya', '/circles', '/studio', '/events',
+  '/was-ist-souleya', '/features/',
   '/u/',
 ];
 

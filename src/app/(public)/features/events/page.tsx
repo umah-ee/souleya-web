@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Events – Treffen & Workshops bei Souleya',
     description:
       'Meditationsabende, Yoga-Sessions, Retreats und Workshops für persönliches Wachstum in deiner Nähe.',
-    url: 'https://souleya.com/events',
+    url: 'https://souleya.com/features/events',
   },
 };
 
@@ -170,8 +170,8 @@ export default function EventsPage() {
         </Link>
         <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs" style={{ color: 'var(--text-muted)' }}>
           <Link href="/was-ist-souleya" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Was ist Souleya?</Link>
-          <Link href="/circles" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Circles</Link>
-          <Link href="/studio" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Studio</Link>
+          <Link href="/features/circles" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Circles</Link>
+          <Link href="/features/studio" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Studio</Link>
           <Link href="/preise" className="hover:underline" style={{ color: 'var(--gold-text)' }}>Preise</Link>
         </div>
       </section>

@@ -44,9 +44,9 @@ app/
 │   ├── preise/          # Preisseite (20 €/Monat, 200 €/Jahr)
 │   ├── ueber-uns/       # Ueber-uns mit Team-Fotos + Lightbox
 │   ├── was-ist-souleya/ # SEO-Landingpage (~1000 Woerter)
-│   ├── circles/         # SEO-Landingpage Circles (Community-Gruppen)
-│   ├── studio/          # SEO-Landingpage Studio (Kurse & Mentoring)
-│   ├── events/          # SEO-Landingpage Events (Retreats & Workshops)
+│   ├── features/circles/ # SEO-Landingpage Circles (Community-Gruppen)
+│   ├── features/studio/  # SEO-Landingpage Studio (Kurse & Mentoring)
+│   ├── features/events/  # SEO-Landingpage Events (Retreats & Workshops)
 │   ├── blog/            # Blog
 │   ├── mentor/          # Mentor-Akquise
 │   ├── impressum/       # Impressum
@@ -134,7 +134,7 @@ lib/
 ## Mono-Domain: souleya.com
 
 Seit Maerz 2026 laeuft **alles** ueber `souleya.com`:
-- Oeffentliche Seiten: `/`, `/preise`, `/ueber-uns`, `/blog`, `/impressum`, `/datenschutz`, `/agb`, `/mentor`, `/was-ist-souleya`, `/circles`, `/studio`, `/events`
+- Oeffentliche Seiten: `/`, `/preise`, `/ueber-uns`, `/blog`, `/impressum`, `/datenschutz`, `/agb`, `/mentor`, `/was-ist-souleya`, `/features/circles`, `/features/studio`, `/features/events`
 - Auth: `/login`, `/auth/`, `/willkommen` (noindex, Conversion-Tracking)
 - App: `/pulse`, `/discover`, `/circles`, `/chat`, `/profile`
 - SEO: `robots.ts` (App-Routen blockiert), `sitemap.ts` (alle oeffentlichen Seiten + Blog-Artikel), noindex auf `/login`, `/auth/*`, `(main)/*`
