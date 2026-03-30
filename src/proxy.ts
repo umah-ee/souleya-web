@@ -18,6 +18,11 @@ export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
   const { pathname } = request.nextUrl;
 
+  // ── Next.js generierte Dateien: immer oeffentlich ──
+  if (pathname === '/sitemap.xml' || pathname === '/robots.txt') {
+    return supabaseResponse;
+  }
+
   // ── Blog Locale-Redirect: /blog → /de/blog ──
   if (pathname === '/blog' || pathname.startsWith('/blog/')) {
     const slug = pathname.replace('/blog', '');
