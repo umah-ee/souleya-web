@@ -54,6 +54,7 @@ async function getArticle(slug: string, locale: string): Promise<ArticleData | n
 
 interface EbookData {
   id: string;
+  article_id: string;
   status: string;
   content: { title?: string; subtitle?: string; chapters?: unknown[] };
   cover_url: string | null;
@@ -151,6 +152,7 @@ export default async function ArticlePage({
   // Load eBook data (only published ebooks with CTA enabled)
   const ebook = await getEbook(slug);
   const showEbookCta = ebook?.cta_enabled ?? false;
+  const ebookArticleId = ebook?.article_id ?? article.id;
 
   // Split content for inline CTA placement
   let contentBefore = article.content;
@@ -286,7 +288,7 @@ export default async function ArticlePage({
         {/* ── eBook Inline CTA (between content parts) ── */}
         {showEbookCta && ebook && ebook.cta_position !== 'end_only' && (
           <EbookCTA
-            articleId={article.id}
+            articleId={ebookArticleId}
             coverUrl={ebook.cover_url ?? undefined}
             headline={ebook.cta_headline ?? undefined}
             description={ebook.cta_description ?? undefined}
@@ -312,7 +314,7 @@ export default async function ArticlePage({
         {/* ── eBook Flip Preview (if available) ── */}
         {showEbookCta && ebook && ebook.preview_urls?.length > 0 && (
           <EbookFlipPreview
-            articleId={article.id}
+            articleId={ebookArticleId}
             coverUrl={ebook.cover_url ?? ''}
             previewUrls={ebook.preview_urls}
           />
@@ -321,7 +323,7 @@ export default async function ArticlePage({
         {/* ── eBook CTA at end (always shown if enabled, even for end_only) ── */}
         {showEbookCta && ebook && ebook.cta_position === 'end_only' && (
           <EbookCTA
-            articleId={article.id}
+            articleId={ebookArticleId}
             coverUrl={ebook.cover_url ?? undefined}
             headline={ebook.cta_headline ?? undefined}
             description={ebook.cta_description ?? undefined}
@@ -365,7 +367,7 @@ export default async function ArticlePage({
         {/* ── eBook Sticky Footer ── */}
         {showEbookCta && ebook?.cta_show_sticky_footer && (
           <EbookStickyFooter
-            articleId={article.id}
+            articleId={ebookArticleId}
             headline={ebook.cta_headline ?? undefined}
           />
         )}
@@ -373,7 +375,7 @@ export default async function ArticlePage({
         {/* ── eBook Exit-Intent Popup ── */}
         {showEbookCta && ebook?.cta_show_exit_intent && (
           <EbookExitIntent
-            articleId={article.id}
+            articleId={ebookArticleId}
             coverUrl={ebook.cover_url ?? undefined}
             headline={ebook.cta_headline ?? undefined}
             description={ebook.cta_description ?? undefined}
