@@ -38,23 +38,72 @@ export default function UeberUnsClient() {
           </p>
         </div>
 
-        {/* ── Geschichte ── */}
+        {/* ── Warum Souleya ── */}
         <section className="mb-14">
           <h2 className="font-heading text-2xl italic mb-4" style={{ color: 'var(--text-h)' }}>
             Warum Souleya?
           </h2>
           <div className="space-y-4 text-sm leading-relaxed" style={{ color: 'var(--text-body)' }}>
             <p>
-              Du kennst das Gefühl: Du warst auf einem wunderbaren Retreat, einem Workshop oder
-              einer Meditations-Session. Es war intensiv, berührend, transformierend. Und dann?
-              Du fährst nach Hause und die Verbindung – zu den Menschen, zur Energie, zum Gelernten
-              – löst sich langsam auf.
+              <strong style={{ color: 'var(--text-h)' }}>Hand aufs Herz:</strong><br />
+              Wann hast du zuletzt ein Gespräch geführt,
+              das dich danach wirklich aufgetankt hat?
             </p>
             <p>
-              Genau dieses Problem wollen wir lösen. Souleya ist der Ort, an dem die Verbindung
-              bleibt. Wo du Gleichgesinnte findest, die den gleichen Weg gehen. Wo du von Mentoren
-              lernst, die dich wirklich verstehen. Und wo du deine Reise in deinem Tempo gehen
-              kannst – begleitet von einer Community, die dich trägt.
+              Nicht das höfliche „Wie geht's – gut, danke."<br />
+              Nicht Smalltalk über das Wetter oder den Job.<br />
+              Sondern ein Gespräch, nach dem du denkst:<br />
+              <em style={{ color: 'var(--gold-text)' }}>Genau das hat mir gefehlt.</em>
+            </p>
+            <p>
+              Wir leben in einer Zeit, in der wir für alles eine Lösung haben.
+              Wir optimieren unsere Ernährung, lesen über Mindset,
+              tracken unseren Schlaf, meditieren für mehr Balance.
+            </p>
+            <p>
+              Und trotzdem schleicht sich abends manchmal ein Gedanke ein,
+              den kaum jemand laut ausspricht:<br />
+              <em style={{ color: 'var(--text-h)' }}>Ich mache das alles –
+              aber warum fühlt es sich trotzdem so leer an?</em>
+            </p>
+            <p>
+              Das ist kein persönliches Versagen.<br />
+              Das ist eine kollektive Erschöpfung.<br />
+              Wir sind perfekt vernetzt – und trotzdem zu oft ungesehen.
+            </p>
+            <p>
+              Wir sind Steffi und Andreas, und wir kennen dieses Gefühl.<br />
+              Deshalb haben wir Souleya gegründet.
+            </p>
+          </div>
+
+          {/* Statement */}
+          <div
+            className="my-10 py-6 px-4 text-center rounded-[8px] border"
+            style={{
+              background: 'var(--glass)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              borderColor: 'var(--glass-border)',
+            }}
+          >
+            <p
+              className="font-label text-sm md:text-base font-medium uppercase tracking-wide leading-relaxed"
+              style={{ color: 'var(--gold-text)' }}
+            >
+              Souleya ist kein weiterer Podcast. Kein weiteres Buch.
+            </p>
+          </div>
+
+          <div className="space-y-4 text-sm leading-relaxed" style={{ color: 'var(--text-body)' }}>
+            <p>
+              Souleya ist ein Ort – für Menschen, die echte Begegnungen
+              mit Gleichgesinnten suchen. Keine Standard-Ratschläge.
+              Keine Oberflächlichkeit. Echte Resonanz.
+            </p>
+            <p style={{ color: 'var(--text-h)' }}>
+              Du musst deinen Weg nicht alleine gehen.<br />
+              <strong>Willkommen bei Souleya.</strong>
             </p>
           </div>
         </section>
