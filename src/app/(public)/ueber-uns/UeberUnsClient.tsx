@@ -45,35 +45,13 @@ export default function UeberUnsClient() {
           </h2>
           <div className="space-y-4 text-sm leading-relaxed" style={{ color: 'var(--text-body)' }}>
             <p>
-              <strong style={{ color: 'var(--text-h)' }}>Hand aufs Herz:</strong><br />
-              Wann hast du zuletzt ein Gespräch geführt,
-              das dich danach wirklich aufgetankt hat?
+              <strong style={{ color: 'var(--text-h)' }}>Hand aufs Herz:</strong> Wann hast du zuletzt ein Gespräch geführt, das dich danach wirklich aufgetankt hat? Nicht das höfliche „Wie geht's – gut, danke." Nicht Smalltalk über das Wetter oder den Job. Sondern ein Gespräch, nach dem du denkst: <em style={{ color: 'var(--gold-text)' }}>Genau das hat mir gefehlt.</em>
             </p>
             <p>
-              Nicht das höfliche „Wie geht's – gut, danke."<br />
-              Nicht Smalltalk über das Wetter oder den Job.<br />
-              Sondern ein Gespräch, nach dem du denkst:<br />
-              <em style={{ color: 'var(--gold-text)' }}>Genau das hat mir gefehlt.</em>
+              Wir leben in einer Zeit, in der wir für alles eine Lösung haben. Wir optimieren unsere Ernährung, lesen über Mindset, tracken unseren Schlaf, meditieren für mehr Balance. Und trotzdem schleicht sich abends manchmal ein Gedanke ein, den kaum jemand laut ausspricht: <em style={{ color: 'var(--text-h)' }}>Ich mache das alles – aber warum fühlt es sich trotzdem so leer an?</em>
             </p>
             <p>
-              Wir leben in einer Zeit, in der wir für alles eine Lösung haben.
-              Wir optimieren unsere Ernährung, lesen über Mindset,
-              tracken unseren Schlaf, meditieren für mehr Balance.
-            </p>
-            <p>
-              Und trotzdem schleicht sich abends manchmal ein Gedanke ein,
-              den kaum jemand laut ausspricht:<br />
-              <em style={{ color: 'var(--text-h)' }}>Ich mache das alles –
-              aber warum fühlt es sich trotzdem so leer an?</em>
-            </p>
-            <p>
-              Das ist kein persönliches Versagen.<br />
-              Das ist eine kollektive Erschöpfung.<br />
-              Wir sind perfekt vernetzt – und trotzdem zu oft ungesehen.
-            </p>
-            <p>
-              Wir sind Steffi und Andreas, und wir kennen dieses Gefühl.<br />
-              Deshalb haben wir Souleya gegründet.
+              Das ist kein persönliches Versagen. Das ist eine kollektive Erschöpfung. Wir sind perfekt vernetzt – und trotzdem zu oft ungesehen. Wir sind Steffi und Andreas, und wir kennen dieses Gefühl. Deshalb haben wir Souleya gegründet.
             </p>
           </div>
 
@@ -97,13 +75,13 @@ export default function UeberUnsClient() {
 
           <div className="space-y-4 text-sm leading-relaxed" style={{ color: 'var(--text-body)' }}>
             <p>
-              Souleya ist ein Ort – für Menschen, die echte Begegnungen
-              mit Gleichgesinnten suchen. Keine Standard-Ratschläge.
-              Keine Oberflächlichkeit. Echte Resonanz.
+              Souleya ist eine Brücke – zu Menschen, die den gleichen Weg gehen wie du. Zu Freunden, die du noch nicht kennst. Zu Wegbegleitern, die dich verstehen, ohne dass du dich erklären musst.
+            </p>
+            <p>
+              Wir starten digital, damit du findest, was zählt. Aber das Ziel ist immer das Echte: ein Gespräch bei einem Tee, ein gemeinsamer Spaziergang, ein Retreat, das dein Leben verändert. Nicht noch ein Feed voller Filter und Perfektion – sondern Begegnungen, die man nicht liken muss, weil man sie spürt.
             </p>
             <p style={{ color: 'var(--text-h)' }}>
-              Du musst deinen Weg nicht alleine gehen.<br />
-              <strong>Willkommen bei Souleya.</strong>
+              Du musst deinen Weg nicht alleine gehen. <strong>Willkommen bei Souleya.</strong>
             </p>
           </div>
         </section>
