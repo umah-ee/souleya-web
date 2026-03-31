@@ -24,24 +24,24 @@ export default function EbookCTA({ articleId, coverUrl, headline, description, p
         marginBottom: 16,
       }}>
         <span style={{
-          display: 'inline-block', padding: '4px 14px', borderRadius: 16,
+          display: 'inline-block', padding: '5px 18px', borderRadius: 18,
           background: 'linear-gradient(135deg, #A8894E, #D4BC8B)', color: '#fff',
-          fontSize: 12, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase',
+          fontSize: 15, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase',
           flexShrink: 0,
         }}>
           Gratis
         </span>
         <span style={{
-          fontSize: 11, letterSpacing: '1.5px', textTransform: 'uppercase',
-          color: 'var(--gold-text)', fontWeight: 500, flexShrink: 0,
+          fontSize: 18, letterSpacing: '1.5px', textTransform: 'uppercase',
+          color: 'var(--gold-text)', fontWeight: 600, flexShrink: 0,
         }}>
           Kostenloses eBook
         </span>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)', textDecoration: 'line-through', flexShrink: 0 }}>
+        <span style={{ fontSize: 18, color: 'var(--text-muted)', textDecoration: 'line-through', flexShrink: 0 }}>
           19,90 &euro;
         </span>
         <span style={{
-          fontSize: 16, fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontSize: 22, fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontWeight: 400, fontStyle: 'italic', color: 'var(--text-h)',
           flex: 1, minWidth: 0,
         }}>
