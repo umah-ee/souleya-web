@@ -523,14 +523,21 @@ select:focus {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .th-hero-img-wrap { height: 60vh; min-height: 400px; }
   .th-slider-bar {
-    left: 12px; top: 80px;
-    gap: 2px;
+    left: 12px; right: 12px; top: 12px;
+    transform: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: 6px;
+    flex-wrap: nowrap;
   }
-  .th-slider-tab { font-size: 8px; padding: 4px 8px; }
+  .th-slider-bar::-webkit-scrollbar { display: none; }
+  .th-slider-tab { font-size: 11px; padding: 8px 14px; white-space: nowrap; flex-shrink: 0; }
 }
 @media (max-width: 480px) {
-  .th-slider-tab { font-size: 7px; padding: 3px 6px; }
+  .th-slider-tab { font-size: 10px; padding: 7px 12px; }
 }
 
 /* Kernaussagen (on image, bottom-left) */
@@ -1122,18 +1129,13 @@ select:focus {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .th-signup-panel {
-    width: calc(100% - 40px) !important;
-    right: 20px !important;
-    bottom: 20px !important;
-    padding: 16px 16px 14px;
-  }
+  .th-signup-panel { display: none !important; }
   .th-cards-row { grid-template-columns: repeat(2, 1fr); padding: 12px 20px; }
   .th-fl-section { padding: 56px 20px 44px; }
-  .th-kern { left: 20px; bottom: 28px; }
+  .th-kern { left: 20px; bottom: 20px; }
   .th-morph-info { left: 20px; }
   .th-morph-bar { right: 20px; }
-  .th-hero-info { left: 20px; }
+  .th-hero-info { left: 20px; top: 60px; }
 }
 
 /* ══════════════════════════════════
