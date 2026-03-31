@@ -4,6 +4,10 @@ import { notFound } from 'next/navigation';
 import { ViewCounter } from './ViewCounter';
 import { ShareButtons } from './ShareButtons';
 import PhotoCredit from '@/components/shared/PhotoCredit';
+import EbookCTA from '@/components/public/ebook/EbookCTA';
+import EbookStickyFooter from '@/components/public/ebook/EbookStickyFooter';
+import EbookExitIntent from '@/components/public/ebook/EbookExitIntent';
+import EbookFlipPreview from '@/components/public/ebook/EbookFlipPreview';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
@@ -46,6 +50,47 @@ async function getArticle(slug: string, locale: string): Promise<ArticleData | n
   } catch {
     return null;
   }
+}
+
+interface EbookData {
+  id: string;
+  status: string;
+  content: { title?: string; subtitle?: string; chapters?: unknown[] };
+  cover_url: string | null;
+  pdf_url: string | null;
+  page_count: number | null;
+  preview_urls: string[];
+  cta_enabled: boolean;
+  cta_position: string;
+  cta_show_sticky_footer: boolean;
+  cta_show_exit_intent: boolean;
+  cta_headline: string | null;
+  cta_description: string | null;
+}
+
+async function getEbook(slug: string): Promise<EbookData | null> {
+  try {
+    const res = await fetch(`${API_URL}/articles/slug/${slug}/ebook`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || !data.id || data.status !== 'published') return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/** Split HTML content at roughly a fraction point (by paragraph count) */
+function splitContent(html: string, fraction: number): [string, string] {
+  // Split by closing paragraph tags
+  const parts = html.split('</p>');
+  if (parts.length < 3) return [html, ''];
+  const splitIndex = Math.max(1, Math.round(parts.length * fraction));
+  const before = parts.slice(0, splitIndex).join('</p>') + '</p>';
+  const after = parts.slice(splitIndex).join('</p>');
+  return [before, after];
 }
 
 export async function generateMetadata({
@@ -102,6 +147,22 @@ export default async function ArticlePage({
 
   const t = locale === 'de';
   const articleUrl = `https://souleya.com/${locale}/blog/${article.locale_slug || slug}`;
+
+  // Load eBook data (only published ebooks with CTA enabled)
+  const ebook = await getEbook(slug);
+  const showEbookCta = ebook?.cta_enabled ?? false;
+
+  // Split content for inline CTA placement
+  let contentBefore = article.content;
+  let contentAfter = '';
+  if (showEbookCta && ebook) {
+    const fraction = ebook.cta_position === 'after_half' ? 0.5
+      : ebook.cta_position === 'end_only' ? 1
+      : 0.33;
+    if (fraction < 1) {
+      [contentBefore, contentAfter] = splitContent(article.content, fraction);
+    }
+  }
 
   // JSON-LD Structured Data
   const jsonLd = {
@@ -209,7 +270,7 @@ export default async function ArticlePage({
           </div>
         )}
 
-        {/* ── Content ── */}
+        {/* ── Content (Part 1) ── */}
         <div
           className="prose prose-lg max-w-none
             prose-headings:font-serif prose-headings:text-[var(--text-h)]
@@ -219,39 +280,105 @@ export default async function ArticlePage({
             prose-strong:text-[var(--text-h)]
             prose-li:text-[var(--text-body)]
           "
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          dangerouslySetInnerHTML={{ __html: contentBefore }}
         />
 
-        {/* ── CTA Block ── */}
-        <div
-          className="mt-16 p-8 rounded-[8px] border text-center"
-          style={{
-            background: 'var(--glass)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderColor: 'var(--glass-border)',
-          }}
-        >
-          <h3 className="font-serif text-xl italic mb-2" style={{ color: 'var(--text-h)' }}>
-            {article.cta_type === 'signup'
-              ? (t ? 'Werde Teil unserer Community' : 'Join our community')
-              : (t ? 'Jetzt kostenlos beitreten' : 'Join for free')}
-          </h3>
-          <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
-            {t
-              ? 'Verbinde dich mit Gleichgesinnten, finde Mentoren und wachse – an einem Ort.'
-              : 'Connect with like-minded people, find mentors and grow – all in one place.'}
-          </p>
-          <a
-            href="https://souleya.com"
-            className="inline-block px-8 py-3 rounded-full text-sm font-medium transition-transform hover:scale-105"
-            style={{ background: 'var(--gold)', color: '#fff' }}
+        {/* ── eBook Inline CTA (between content parts) ── */}
+        {showEbookCta && ebook && ebook.cta_position !== 'end_only' && (
+          <EbookCTA
+            articleId={article.id}
+            coverUrl={ebook.cover_url ?? undefined}
+            headline={ebook.cta_headline ?? undefined}
+            description={ebook.cta_description ?? undefined}
+            pageCount={ebook.page_count ?? undefined}
+          />
+        )}
+
+        {/* ── Content (Part 2, after CTA) ── */}
+        {contentAfter && (
+          <div
+            className="prose prose-lg max-w-none
+              prose-headings:font-serif prose-headings:text-[var(--text-h)]
+              prose-p:text-[var(--text-body)] prose-p:leading-relaxed
+              prose-a:text-[var(--gold-text)] prose-a:no-underline hover:prose-a:underline
+              prose-blockquote:border-l-[var(--gold)] prose-blockquote:text-[var(--text-muted)]
+              prose-strong:text-[var(--text-h)]
+              prose-li:text-[var(--text-body)]
+            "
+            dangerouslySetInnerHTML={{ __html: contentAfter }}
+          />
+        )}
+
+        {/* ── eBook Flip Preview (if available) ── */}
+        {showEbookCta && ebook && ebook.preview_urls?.length > 0 && (
+          <EbookFlipPreview
+            articleId={article.id}
+            coverUrl={ebook.cover_url ?? ''}
+            previewUrls={ebook.preview_urls}
+          />
+        )}
+
+        {/* ── eBook CTA at end (always shown if enabled, even for end_only) ── */}
+        {showEbookCta && ebook && ebook.cta_position === 'end_only' && (
+          <EbookCTA
+            articleId={article.id}
+            coverUrl={ebook.cover_url ?? undefined}
+            headline={ebook.cta_headline ?? undefined}
+            description={ebook.cta_description ?? undefined}
+            pageCount={ebook.page_count ?? undefined}
+          />
+        )}
+
+        {/* ── Standard CTA Block (shown when no eBook) ── */}
+        {!showEbookCta && (
+          <div
+            className="mt-16 p-8 rounded-[8px] border text-center"
+            style={{
+              background: 'var(--glass)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              borderColor: 'var(--glass-border)',
+            }}
           >
-            {article.cta_type === 'signup'
-              ? (t ? 'Jetzt registrieren' : 'Sign Up Now')
-              : (t ? 'Kostenlos starten' : 'Get Started Free')}
-          </a>
-        </div>
+            <h3 className="font-serif text-xl italic mb-2" style={{ color: 'var(--text-h)' }}>
+              {article.cta_type === 'signup'
+                ? (t ? 'Werde Teil unserer Community' : 'Join our community')
+                : (t ? 'Jetzt kostenlos beitreten' : 'Join for free')}
+            </h3>
+            <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
+              {t
+                ? 'Verbinde dich mit Gleichgesinnten, finde Mentoren und wachse – an einem Ort.'
+                : 'Connect with like-minded people, find mentors and grow – all in one place.'}
+            </p>
+            <a
+              href="https://souleya.com"
+              className="inline-block px-8 py-3 rounded-full text-sm font-medium transition-transform hover:scale-105"
+              style={{ background: 'var(--gold)', color: '#fff' }}
+            >
+              {article.cta_type === 'signup'
+                ? (t ? 'Jetzt registrieren' : 'Sign Up Now')
+                : (t ? 'Kostenlos starten' : 'Get Started Free')}
+            </a>
+          </div>
+        )}
+
+        {/* ── eBook Sticky Footer ── */}
+        {showEbookCta && ebook?.cta_show_sticky_footer && (
+          <EbookStickyFooter
+            articleId={article.id}
+            headline={ebook.cta_headline ?? undefined}
+          />
+        )}
+
+        {/* ── eBook Exit-Intent Popup ── */}
+        {showEbookCta && ebook?.cta_show_exit_intent && (
+          <EbookExitIntent
+            articleId={article.id}
+            coverUrl={ebook.cover_url ?? undefined}
+            headline={ebook.cta_headline ?? undefined}
+            description={ebook.cta_description ?? undefined}
+          />
+        )}
 
         {/* ── Share Buttons ── */}
         <ShareButtons
