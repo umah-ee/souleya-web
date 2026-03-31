@@ -4,7 +4,6 @@ import FirstLightDetailSection from '@/components/public/FirstLightDetailSection
 import JourneySection from '@/components/public/JourneySection';
 import FeaturesGrid from '@/components/public/FeaturesGrid';
 import HowItWorks from '@/components/public/HowItWorks';
-import FirstLightSection from '@/components/public/FirstLightSection';
 import FaqAccordion from '@/components/public/FaqAccordion';
 import CtaFinal from '@/components/public/CtaFinal';
 
@@ -28,7 +27,6 @@ export default function HomePage() {
       <JourneySection />
       <FeaturesGrid />
       <HowItWorks />
-      <FirstLightSection />
       <FaqAccordion />
       <CtaFinal />
     </>
