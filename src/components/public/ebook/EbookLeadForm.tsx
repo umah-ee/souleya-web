@@ -79,7 +79,7 @@ export default function EbookLeadForm({ articleId, source, onSuccess, compact }:
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: compact ? 6 : 8 }}>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: compact ? 6 : 10 }}>
       <input
         type="email"
         placeholder="Deine E-Mail-Adresse"
@@ -87,10 +87,10 @@ export default function EbookLeadForm({ articleId, source, onSuccess, compact }:
         onChange={(e) => setEmail(e.target.value)}
         required
         style={{
-          padding: compact ? '6px 10px' : '8px 14px', borderRadius: 8,
+          padding: compact ? '8px 12px' : '12px 16px', borderRadius: 8,
           border: error ? '1px solid #c44' : '1px solid var(--glass-border)',
           background: 'var(--glass)', color: 'var(--text-body)',
-          fontSize: compact ? 11 : 13, outline: 'none',
+          fontSize: compact ? 13 : 15, outline: 'none',
         }}
       />
       {!compact && (
@@ -100,9 +100,9 @@ export default function EbookLeadForm({ articleId, source, onSuccess, compact }:
           value={name}
           onChange={(e) => setName(e.target.value)}
           style={{
-            padding: '8px 14px', borderRadius: 8,
+            padding: '12px 16px', borderRadius: 8,
             border: '1px solid var(--glass-border)', background: 'var(--glass)',
-            color: 'var(--text-body)', fontSize: 13, outline: 'none',
+            color: 'var(--text-body)', fontSize: 15, outline: 'none',
           }}
         />
       )}
@@ -111,11 +111,16 @@ export default function EbookLeadForm({ articleId, source, onSuccess, compact }:
         type="submit"
         disabled={loading}
         style={{
-          padding: compact ? '6px 14px' : '10px 20px', borderRadius: 20,
+          padding: compact ? '10px 18px' : '14px 24px', borderRadius: 24,
           background: 'linear-gradient(135deg, #A8894E, #D4BC8B)', color: '#fff',
-          border: 'none', fontSize: compact ? 10 : 12, cursor: loading ? 'wait' : 'pointer',
+          border: 'none', fontSize: compact ? 13 : 15, fontWeight: 500,
+          cursor: loading ? 'wait' : 'pointer',
           opacity: loading ? 0.6 : 1,
+          transition: 'transform 0.15s, box-shadow 0.15s',
+          boxShadow: '0 4px 16px rgba(168, 137, 78, 0.3)',
         }}
+        onMouseEnter={e => { (e.target as HTMLElement).style.transform = 'scale(1.02)' }}
+        onMouseLeave={e => { (e.target as HTMLElement).style.transform = 'scale(1)' }}
       >
         {loading ? 'Einen Moment …' : 'Kostenlos herunterladen'}
       </button>

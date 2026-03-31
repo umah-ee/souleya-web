@@ -14,7 +14,6 @@ export default function EbookStickyFooter({ articleId, headline }: Props) {
 
   useEffect(() => {
     function handleScroll() {
-      // Show after scrolling past 30% of the page
       const scrolled = window.scrollY / (document.body.scrollHeight - window.innerHeight);
       if (scrolled > 0.3 && !dismissed) {
         setVisible(true);
@@ -29,29 +28,35 @@ export default function EbookStickyFooter({ articleId, headline }: Props) {
   return (
     <div style={{
       position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
-      padding: '12px 24px',
+      padding: '14px 24px',
       background: 'var(--bg-elevated)',
       borderTop: '1px solid var(--glass-border)',
       backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
       display: 'flex', alignItems: 'center', gap: 16, justifyContent: 'center',
       animation: 'slideUp 0.3s ease-out',
     }}>
-      {/* Enso */}
-      <svg viewBox="0 0 100 100" width={24} height={24} style={{ flexShrink: 0 }}>
-        <defs>
-          <linearGradient id="sf-enso" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#A8894E" />
-            <stop offset="100%" stopColor="#D4BC8B" />
-          </linearGradient>
-        </defs>
-        <circle cx="50" cy="50" r="36" fill="none" stroke="url(#sf-enso)" strokeWidth="8" strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15" />
-      </svg>
+      {/* GRATIS Badge */}
+      <span style={{
+        display: 'inline-block', padding: '5px 14px', borderRadius: 16,
+        background: 'linear-gradient(135deg, #A8894E, #D4BC8B)', color: '#fff',
+        fontSize: 13, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase',
+        flexShrink: 0,
+      }}>
+        Gratis
+      </span>
 
-      <div style={{ fontSize: 12, color: 'var(--text-h)', fontWeight: 500 }}>
-        {headline || 'Kostenloses eBook zu diesem Thema'}
+      {/* Text */}
+      <div style={{ flexShrink: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 15, color: 'var(--text-h)', fontWeight: 500, lineHeight: 1.3 }}>
+          {headline || 'Kostenloses eBook zu diesem Thema'}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
+          Praktische Uebungen, Checklisten und Reflexionsfragen &middot; <span style={{ textDecoration: 'line-through' }}>19,90 &euro;</span> 0 &euro;
+        </div>
       </div>
 
-      <div style={{ width: 280, flexShrink: 0 }}>
+      {/* Form */}
+      <div style={{ width: 300, flexShrink: 0 }}>
         <EbookLeadForm articleId={articleId} source="sticky_footer" compact />
       </div>
 
@@ -59,12 +64,12 @@ export default function EbookStickyFooter({ articleId, headline }: Props) {
       <button
         onClick={() => setDismissed(true)}
         style={{
-          width: 28, height: 28, borderRadius: 8, border: '1px solid var(--glass-border)',
+          width: 32, height: 32, borderRadius: 8, border: '1px solid var(--glass-border)',
           background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexShrink: 0,
         }}
       >
-        <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="var(--text-muted)" strokeWidth={1.5} strokeLinecap="round">
+        <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="var(--text-muted)" strokeWidth={1.5} strokeLinecap="round">
           <path d="M18 6l-12 12M6 6l12 12" />
         </svg>
       </button>
