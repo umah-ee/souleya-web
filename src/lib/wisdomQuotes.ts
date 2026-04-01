@@ -9,7 +9,7 @@ export interface WisdomQuote {
   tradition: string;
 }
 
-const QUOTES: WisdomQuote[] = [
+export const QUOTES: WisdomQuote[] = [
   // ── Buddha / Buddhismus ────────────────────────────────────
   { text: 'Der Geist ist alles. Was du denkst, das wirst du.', author: 'Buddha', tradition: 'Buddhismus' },
   { text: 'Es gibt keinen Weg zum Glück. Glücklichsein ist der Weg.', author: 'Buddha', tradition: 'Buddhismus' },
@@ -93,13 +93,55 @@ const QUOTES: WisdomQuote[] = [
   { text: 'Wer nach außen schaut, träumt. Wer nach innen schaut, erwacht.', author: 'Carl Gustav Jung', tradition: 'Psychologie' },
 ];
 
+// ── Hintergrundbilder (kuratiert, hell, freundlich) ──────────
+export const QUOTE_BACKGROUNDS: string[] = [
+  'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1470509037663-253afd7f0f51?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1476673160081-cf065607f449?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1414609245224-afa02bfb3fda?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&h=1000&fit=crop',
+  'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=800&h=1000&fit=crop',
+];
+
+/** Einfacher String-Hash */
+function hashStr(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
 /**
- * Gibt den Spruch des Tages zurück.
- * Deterministisch: gleicher Spruch den ganzen Tag, basierend auf Tag-des-Jahres.
+ * Gibt den Spruch des Tages zurueck — individuell pro User.
+ * Kombination aus userId + dayOfYear sorgt dafuer, dass jeder User
+ * an jedem Tag ein anderes Zitat sieht.
+ * Ohne userId: Fallback auf dayOfYear (z.B. oeffentliche Seiten).
  */
-export function getDailyQuote(): WisdomQuote {
+export function getDailyQuote(userId?: string): WisdomQuote {
   const now = new Date();
   const startOfYear = new Date(now.getFullYear(), 0, 0);
   const dayOfYear = Math.floor((now.getTime() - startOfYear.getTime()) / 86400000);
+
+  if (userId) {
+    const userHash = hashStr(userId);
+    return QUOTES[(dayOfYear + userHash) % QUOTES.length];
+  }
+
   return QUOTES[dayOfYear % QUOTES.length];
 }
