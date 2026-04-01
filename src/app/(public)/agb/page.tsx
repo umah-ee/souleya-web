@@ -568,11 +568,11 @@ export default function AGBPage() {
             nutzen.
           </P>
           <p className="font-medium mb-1" style={{ color: 'var(--text-h)' }}>Folgen des Widerrufs</p>
-          <P className="mb-0">
+          <p className="mb-0">
             Wenn Sie diesen Vertrag widerrufen, haben wir alle Zahlungen, die wir von Ihnen
             erhalten haben, unverzüglich und spätestens binnen 14 Tagen ab dem Tag
             zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf bei uns eingegangen ist.
-          </P>
+          </p>
         </Hinweis>
 
         <H3>11.2 Erlöschen des Widerrufsrechts</H3>
