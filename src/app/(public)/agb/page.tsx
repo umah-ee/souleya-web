@@ -7,9 +7,13 @@ export const metadata: Metadata = {
 };
 
 /* ── Helpers ── */
-function H2({ children }: { children: React.ReactNode }) {
+function H2({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <h2 className="font-heading text-xl italic mb-3 mt-10" style={{ color: 'var(--text-h)' }}>
+    <h2
+      id={id}
+      className="font-heading text-xl italic mb-3 mt-10"
+      style={{ color: 'var(--text-h)', scrollMarginTop: '88px' }}
+    >
       {children}
     </h2>
   );
@@ -44,7 +48,7 @@ export default function AGBPage() {
 
         {/* Inhaltsverzeichnis */}
         <nav
-          className="rounded-[8px] border p-5 mb-10"
+          className="rounded-[8px] border p-6 mb-10"
           style={{
             background: 'var(--glass)',
             backdropFilter: 'blur(20px)',
@@ -52,31 +56,54 @@ export default function AGBPage() {
             borderColor: 'var(--glass-border)',
           }}
         >
-          <p className="font-medium mb-3" style={{ color: 'var(--text-h)' }}>Inhaltsverzeichnis</p>
-          <ol className="list-decimal pl-5 space-y-1 text-xs columns-2" style={{ color: 'var(--text-muted)' }}>
-            <li>Geltungsbereich und Vertragsparteien</li>
-            <li>Vertragsgegenstand und Leistungsbeschreibung</li>
-            <li>Registrierung und Zugangsbedingungen</li>
-            <li>Nutzungsrechte und Nutzerpflichten</li>
-            <li>Verbotene Inhalte und Verhaltensregeln</li>
-            <li>Abonnement-Modell und Preise</li>
-            <li>Seeds – Die interne Währung</li>
-            <li>Sabbatical-Modus</li>
-            <li>Empfehlungsprogramm</li>
-            <li>Zahlungsbedingungen</li>
-            <li>Widerrufsrecht</li>
-            <li>Kündigung und Vertragsbeendigung</li>
-            <li>Sperrung und Kündigung durch Souleya</li>
-            <li>Haftungsbeschränkung</li>
-            <li>Geistiges Eigentum und Urheberrecht</li>
-            <li>Datenschutz</li>
-            <li>Änderungen der AGB</li>
-            <li>Schlussbestimmungen</li>
+          <p className="font-medium text-base mb-5" style={{ color: 'var(--text-h)' }}>Inhaltsverzeichnis</p>
+          <ol className="space-y-2">
+            {([
+              [1,  'Geltungsbereich und Vertragsparteien'],
+              [2,  'Vertragsgegenstand und Leistungsbeschreibung'],
+              [3,  'Registrierung und Zugangsbedingungen'],
+              [4,  'Nutzungsrechte und Nutzerpflichten'],
+              [5,  'Verbotene Inhalte und Verhaltensregeln'],
+              [6,  'Abonnement-Modell und Preise'],
+              [7,  'Seeds – Die interne Währung'],
+              [8,  'Sabbatical-Modus'],
+              [9,  'Empfehlungsprogramm'],
+              [10, 'Zahlungsbedingungen'],
+              [11, 'Widerrufsrecht'],
+              [12, 'Kündigung und Vertragsbeendigung'],
+              [13, 'Sperrung und Kündigung durch Souleya'],
+              [14, 'Haftungsbeschränkung'],
+              [15, 'Geistiges Eigentum und Urheberrecht'],
+              [16, 'Datenschutz'],
+              [17, 'Änderungen der AGB'],
+              [18, 'Schlussbestimmungen'],
+            ] as [number, string][]).map(([num, label]) => (
+              <li key={num}>
+                <a
+                  href={`#sec-${num}`}
+                  className="group flex items-baseline gap-3 text-sm rounded transition-colors"
+                  style={{ color: 'var(--text-body)' }}
+                >
+                  <span
+                    className="flex-shrink-0 font-label text-xs font-semibold tabular-nums"
+                    style={{ color: 'var(--gold-text)', minWidth: '1.75rem' }}
+                  >
+                    {num}.
+                  </span>
+                  <span
+                    className="group-hover:translate-x-1 transition-transform duration-200"
+                    style={{ display: 'inline-block' }}
+                  >
+                    {label}
+                  </span>
+                </a>
+              </li>
+            ))}
           </ol>
         </nav>
 
         {/* 1 */}
-        <H2>1. Geltungsbereich und Vertragsparteien</H2>
+        <H2 id="sec-1">1. Geltungsbereich und Vertragsparteien</H2>
 
         <H3>1.1 Anbieter</H3>
         <ul className="list-disc pl-5 space-y-1 mb-3">
@@ -102,7 +129,7 @@ export default function AGBPage() {
         <P>Für die Registrierung ist die Angabe zutreffender und vollständiger Daten erforderlich.</P>
 
         {/* 2 */}
-        <H2>2. Vertragsgegenstand und Leistungsbeschreibung</H2>
+        <H2 id="sec-2">2. Vertragsgegenstand und Leistungsbeschreibung</H2>
 
         <H3>2.1 Was ist Souleya?</H3>
         <P>Community-Plattform mit Kernfunktionen:</P>
@@ -128,7 +155,7 @@ export default function AGBPage() {
         </P>
 
         {/* 3 */}
-        <H2>3. Registrierung und Zugangsbedingungen</H2>
+        <H2 id="sec-3">3. Registrierung und Zugangsbedingungen</H2>
 
         <H3>3.1 Registrierungsvoraussetzungen</H3>
         <ul className="list-disc pl-5 space-y-1 mb-3">
@@ -159,7 +186,7 @@ export default function AGBPage() {
         </P>
 
         {/* 4 */}
-        <H2>4. Nutzungsrechte und Nutzerpflichten</H2>
+        <H2 id="sec-4">4. Nutzungsrechte und Nutzerpflichten</H2>
 
         <H3>4.1 Nutzungsrecht</H3>
         <P>
@@ -185,7 +212,7 @@ export default function AGBPage() {
         </P>
 
         {/* 5 */}
-        <H2>5. Verbotene Inhalte und Verhaltensregeln</H2>
+        <H2 id="sec-5">5. Verbotene Inhalte und Verhaltensregeln</H2>
 
         <H3>5.1 Verbotene Inhalte</H3>
         <ul className="list-disc pl-5 space-y-1 mb-3">
@@ -216,7 +243,7 @@ export default function AGBPage() {
         </P>
 
         {/* 6 */}
-        <H2>6. Abonnement-Modell und Preise</H2>
+        <H2 id="sec-6">6. Abonnement-Modell und Preise</H2>
 
         <H3>6.1 Kostenpflichtige Mitgliedschaft</H3>
         <div className="overflow-x-auto mb-3">
@@ -269,7 +296,7 @@ export default function AGBPage() {
         </P>
 
         {/* 7 */}
-        <H2>7. Seeds – Die interne Währung</H2>
+        <H2 id="sec-7">7. Seeds – Die interne Währung</H2>
 
         <H3>7.1 Was sind Seeds?</H3>
         <P>
@@ -309,7 +336,7 @@ export default function AGBPage() {
         </P>
 
         {/* 8 */}
-        <H2>8. Sabbatical-Modus</H2>
+        <H2 id="sec-8">8. Sabbatical-Modus</H2>
 
         <H3>8.1 Bedingungen</H3>
         <ul className="list-disc pl-5 space-y-1 mb-3">
@@ -327,7 +354,7 @@ export default function AGBPage() {
         </P>
 
         {/* 9 */}
-        <H2>9. Empfehlungsprogramm</H2>
+        <H2 id="sec-9">9. Empfehlungsprogramm</H2>
 
         <H3>9.1 Funktionsweise</H3>
         <P>
@@ -351,7 +378,7 @@ export default function AGBPage() {
         </ul>
 
         {/* 10 */}
-        <H2>10. Zahlungsbedingungen</H2>
+        <H2 id="sec-10">10. Zahlungsbedingungen</H2>
 
         <H3>10.1 Zahlungsabwicklung</H3>
         <P>Via Stripe Payments Europe, Ltd. (Irland).</P>
@@ -377,7 +404,7 @@ export default function AGBPage() {
         </P>
 
         {/* 11 */}
-        <H2>11. Widerrufsrecht</H2>
+        <H2 id="sec-11">11. Widerrufsrecht</H2>
 
         <H3>11.1 Widerrufsrecht für Verbraucher</H3>
         <P>
@@ -400,7 +427,7 @@ export default function AGBPage() {
         </P>
 
         {/* 12 */}
-        <H2>12. Kündigung und Vertragsbeendigung</H2>
+        <H2 id="sec-12">12. Kündigung und Vertragsbeendigung</H2>
 
         <H3>12.1 Kündigung durch den Nutzer</H3>
         <ul className="list-disc pl-5 space-y-1 mb-3">
@@ -425,7 +452,7 @@ export default function AGBPage() {
         </P>
 
         {/* 13 */}
-        <H2>13. Sperrung und Kündigung durch Souleya</H2>
+        <H2 id="sec-13">13. Sperrung und Kündigung durch Souleya</H2>
 
         <H3>13.1 Ordentliche Kündigung</H3>
         <P>
@@ -445,7 +472,7 @@ export default function AGBPage() {
         <P>Bei ausserordentlicher Kündigung aus wichtigem Grund: kein Anspruch auf Rückerstattung.</P>
 
         {/* 14 */}
-        <H2>14. Haftungsbeschränkung</H2>
+        <H2 id="sec-14">14. Haftungsbeschränkung</H2>
 
         <H3>14.1 Haftung von Souleya</H3>
         <ul className="list-disc pl-5 space-y-1 mb-3">
@@ -460,7 +487,7 @@ export default function AGBPage() {
         <P>Souleya haftet nicht für Inhalte verlinkter externer Websites.</P>
 
         {/* 15 */}
-        <H2>15. Geistiges Eigentum und Urheberrecht</H2>
+        <H2 id="sec-15">15. Geistiges Eigentum und Urheberrecht</H2>
 
         <H3>15.1 Rechte von Souleya</H3>
         <P>
@@ -476,7 +503,7 @@ export default function AGBPage() {
         </P>
 
         {/* 16 */}
-        <H2>16. Datenschutz</H2>
+        <H2 id="sec-16">16. Datenschutz</H2>
         <P>
           Erhebung, Verarbeitung und Nutzung personenbezogener Daten erfolgt gemäss DSGVO und
           BDSG. Die ausführliche Datenschutzerklärung ist unter{' '}
@@ -487,7 +514,7 @@ export default function AGBPage() {
         </P>
 
         {/* 17 */}
-        <H2>17. Änderungen der AGB</H2>
+        <H2 id="sec-17">17. Änderungen der AGB</H2>
         <P>
           Souleya behält sich das Recht vor, die AGB mit Wirkung für die Zukunft zu ändern.
           Änderungen werden mindestens 30 Tage vor Inkrafttreten mitgeteilt. Ohne Widerspruch
@@ -495,7 +522,7 @@ export default function AGBPage() {
         </P>
 
         {/* 18 */}
-        <H2>18. Schlussbestimmungen</H2>
+        <H2 id="sec-18">18. Schlussbestimmungen</H2>
 
         <H3>18.1 Anwendbares Recht</H3>
         <P>
