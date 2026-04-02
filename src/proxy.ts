@@ -15,6 +15,14 @@ const PRE_LAUNCH = process.env.NEXT_PUBLIC_PRE_LAUNCH === 'true';
 const PRE_LAUNCH_ALLOWED = ['/', '/profile', '/u/', '/dashboard', '/willkommen'];
 
 export async function proxy(request: NextRequest) {
+  // ── www → non-www Redirect (canonical domain) ──
+  const host = request.headers.get('host') ?? '';
+  if (host.startsWith('www.')) {
+    const url = request.nextUrl.clone();
+    url.host = host.replace('www.', '');
+    return NextResponse.redirect(url, 301);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
   const { pathname } = request.nextUrl;
 
