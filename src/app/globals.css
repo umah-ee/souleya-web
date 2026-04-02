@@ -21,7 +21,7 @@ html { scroll-behavior: smooth; }
   --bg-elevated: #FFFFFF;
 
   --gold:          #C8A96E;
-  --gold-text:     #9A7218;
+  --gold-text:     #7D5C10;
   --gold-deep:     #7A6014;
   --gold-soft:     rgba(200,169,110, .08);
   --gold-softer:   rgba(200,169,110, .04);
@@ -34,7 +34,7 @@ html { scroll-behavior: smooth; }
   --text-h:        #1E180C;
   --text-body:     #3E3020;
   --text-sec:      #7A6040;
-  --text-muted:    #9A8870;
+  --text-muted:    #6B5F4A;
   --text-on-gold:  #FFFFFF;
 
   --glass:         rgba(255,255,255, .45);

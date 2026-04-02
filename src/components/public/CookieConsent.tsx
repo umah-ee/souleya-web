@@ -88,7 +88,7 @@ export default function CookieConsent() {
               <button
                 onClick={() => saveConsent('all')}
                 className="px-5 py-2 rounded-full text-xs font-medium transition-all hover:shadow-md"
-                style={{ background: 'var(--gold-text)', color: 'rgb(255, 255, 255)' }}
+                style={{ background: 'var(--gold-text)', color: 'var(--text-on-gold)' }}
               >
                 Alle akzeptieren
               </button>
@@ -194,14 +194,14 @@ export default function CookieConsent() {
               <button
                 onClick={() => saveConsent('all')}
                 className="flex-1 px-4 py-2.5 rounded-full text-xs font-medium transition-all hover:shadow-md"
-                style={{ background: 'var(--gold-text)', color: '#fff' }}
+                style={{ background: 'var(--gold-text)', color: 'var(--text-on-gold)' }}
               >
                 Alle akzeptieren
               </button>
               <button
                 onClick={() => saveConsent(marketingChecked ? 'all' : 'necessary')}
                 className="flex-1 px-4 py-2.5 rounded-full text-xs font-medium border transition-colors"
-                style={{ borderColor: 'var(--glass-border)', color: 'var(--text-body)' }}
+                style={{ borderColor: 'var(--glass-border)', color: 'var(--text-h)' }}
               >
                 Auswahl speichern
               </button>
