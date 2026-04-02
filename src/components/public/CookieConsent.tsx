@@ -88,21 +88,21 @@ export default function CookieConsent() {
               <button
                 onClick={() => saveConsent('all')}
                 className="px-5 py-2 rounded-full text-xs font-medium transition-all hover:shadow-md"
-                style={{ background: 'var(--gold-text)', color: '#fff' }}
+                style={{ background: 'var(--gold-text)', color: 'rgb(255, 255, 255)' }}
               >
                 Alle akzeptieren
               </button>
               <button
                 onClick={() => saveConsent('necessary')}
                 className="px-5 py-2 rounded-full text-xs font-medium border transition-colors"
-                style={{ borderColor: 'var(--glass-border)', color: 'var(--text-body)' }}
+                style={{ borderColor: 'var(--glass-border)', color: 'var(--text-h)' }}
               >
                 Nur notwendige
               </button>
               <button
                 onClick={() => { setShowSettings(true); setMarketingChecked(false); }}
                 className="px-5 py-2 rounded-full text-xs font-medium transition-colors"
-                style={{ color: 'var(--text-muted)' }}
+                style={{ color: 'var(--text-body)' }}
               >
                 Einstellungen
               </button>
