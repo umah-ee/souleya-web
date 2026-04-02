@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import FadeUp from './FadeUp';
 import PhotoCredit from '@/components/shared/PhotoCredit';
 import { getCreditForUrl } from '@/lib/unsplash-credits';
@@ -27,11 +28,14 @@ export default function HowItWorks() {
         {/* Image */}
         <FadeUp>
           <div className="rounded-2xl overflow-hidden relative group">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1525026198548-4baa812f1183?w=600&h=800&fit=crop"
               alt="Souleya Community – Menschen auf dem Weg zu persönlichem Wachstum"
+              width={600}
+              height={800}
               className="w-full h-auto object-cover photo-gold-wash"
               loading="lazy"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
             {(() => { const c = getCreditForUrl('https://images.unsplash.com/photo-1525026198548-4baa812f1183'); return c ? <PhotoCredit credit={c} /> : null; })()}
           </div>
