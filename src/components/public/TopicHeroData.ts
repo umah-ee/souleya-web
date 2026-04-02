@@ -34,12 +34,12 @@ export const TOPICS: Record<string, Topic> = {
   wachstum: {
     name: 'Persönliches Wachstum',
     tag: 'Wachse über dich hinaus',
-    img: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=960&h=540&fit=crop&fm=webp&q=75',
     subs: [
       {
         name: 'Glaubenssätze auflösen',
         desc: 'Erkenne und verändere die unsichtbaren Muster, die dich zurückhalten.',
-        img: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 14, y: 22,
         blog: {
           cat: 'Wachstum',
@@ -58,7 +58,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Selbstwert stärken',
         desc: 'Lerne, deinen eigenen Wert zu erkennen – unabhängig von Bestätigung.',
-        img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 68, y: 18, flip: true,
         blog: {
           cat: 'Selbstliebe',
@@ -77,7 +77,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Gewohnheiten & Routinen',
         desc: 'Kleine tägliche Schritte, die langfristig alles verändern.',
-        img: 'https://images.unsplash.com/photo-1484627147104-f5197bcd6651?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1484627147104-f5197bcd6651?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 38, y: 48,
         blog: {
           cat: 'Routinen',
@@ -96,7 +96,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Resilienz & Rückschläge',
         desc: 'Nicht das Fallen zählt, sondern wie du wieder aufstehst.',
-        img: 'https://images.unsplash.com/photo-1505455184862-554165e5f6ba?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1505455184862-554165e5f6ba?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 62, y: 44, flip: true,
         blog: {
           cat: 'Resilienz',
@@ -115,7 +115,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Journaling & Reflexion',
         desc: 'Schreibe deine Gedanken auf – und finde Klarheit.',
-        img: 'https://images.unsplash.com/photo-1517842645767-c639042777db?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1517842645767-c639042777db?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 18, y: 72,
         blog: {
           cat: 'Journaling',
@@ -136,12 +136,12 @@ export const TOPICS: Record<string, Topic> = {
   gesundheit: {
     name: 'Gesundheit',
     tag: 'Dein Körper als Zuhause',
-    img: 'https://images.unsplash.com/photo-1706267701238-b4d69fc8f640?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1706267701238-b4d69fc8f640?w=960&h=540&fit=crop&fm=webp&q=75',
     subs: [
       {
         name: 'Nervensystem & Stress',
         desc: 'Lerne, dein Nervensystem bewusst zu regulieren.',
-        img: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 16, y: 20,
         blog: {
           cat: 'Gesundheit',
@@ -160,7 +160,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Schlafoptimierung',
         desc: 'Guter Schlaf ist die Basis für alles andere.',
-        img: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 66, y: 16, flip: true,
         blog: {
           cat: 'Schlaf',
@@ -179,7 +179,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Hormongesundheit',
         desc: 'Verstehe, wie Hormone dein Wohlbefinden steuern.',
-        img: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 36, y: 50,
         blog: {
           cat: 'Gesundheit',
@@ -198,7 +198,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Mentale Gesundheit',
         desc: 'Dein Kopf verdient genauso viel Aufmerksamkeit wie dein Körper.',
-        img: 'https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 60, y: 48, flip: true,
         blog: {
           cat: 'Mental Health',
@@ -217,7 +217,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Burnout-Prävention',
         desc: 'Erkenne die Warnsignale, bevor es zu spät ist.',
-        img: 'https://images.unsplash.com/photo-1476231682828-37e571bc172f?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1476231682828-37e571bc172f?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 20, y: 74,
         blog: {
           cat: 'Burnout',
@@ -238,12 +238,12 @@ export const TOPICS: Record<string, Topic> = {
   worklife: {
     name: 'Work-Life Balance',
     tag: 'Freiheit mit Struktur',
-    img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=960&h=540&fit=crop&fm=webp&q=75',
     subs: [
       {
         name: 'Remote Work optimieren',
         desc: 'Arbeite von überall – ohne die Struktur zu verlieren.',
-        img: 'https://images.unsplash.com/photo-1551966775-a4ddc8df052b?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1551966775-a4ddc8df052b?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 14, y: 18,
         blog: {
           cat: 'Remote Work',
@@ -262,7 +262,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Finanzielle Freiheit',
         desc: 'Baue dir ein System, das für dich arbeitet.',
-        img: 'https://images.unsplash.com/photo-1504439468489-c8920d796a29?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1504439468489-c8920d796a29?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 64, y: 22, flip: true,
         blog: {
           cat: 'Finanzen',
@@ -281,7 +281,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Produktivität & Deep Work',
         desc: 'Weniger Stunden, mehr Ergebnis – durch echten Fokus.',
-        img: 'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 34, y: 52,
         blog: {
           cat: 'Produktivität',
@@ -300,7 +300,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Grenzen im Job setzen',
         desc: 'Nein sagen ohne schlechtes Gewissen.',
-        img: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 62, y: 46, flip: true,
         blog: {
           cat: 'Grenzen',
@@ -319,7 +319,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Sinnvolle Arbeit finden',
         desc: 'Arbeit, die sich nicht wie Arbeit anfühlt.',
-        img: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 18, y: 76,
         blog: {
           cat: 'Purpose',
@@ -340,12 +340,12 @@ export const TOPICS: Record<string, Topic> = {
   spiritualitaet: {
     name: 'Spiritualität',
     tag: 'Tiefe ohne Dogma',
-    img: 'https://images.unsplash.com/photo-1597682886233-61b9023db181?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1597682886233-61b9023db181?w=960&h=540&fit=crop&fm=webp&q=75',
     subs: [
       {
         name: 'Meditation & Atemübungen',
         desc: 'Finde Stille – selbst im lautesten Moment.',
-        img: 'https://images.unsplash.com/photo-1545389336-cf090694435e?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1545389336-cf090694435e?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 16, y: 20,
         blog: {
           cat: 'Meditation',
@@ -364,7 +364,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Achtsamkeit im Alltag',
         desc: 'Nicht auf dem Kissen – sondern beim Frühstück.',
-        img: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 66, y: 16, flip: true,
         blog: {
           cat: 'Achtsamkeit',
@@ -383,7 +383,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Human Design',
         desc: 'Verstehe, wie du funktionierst – und hör auf, dich zu verbiegen.',
-        img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 36, y: 50,
         blog: {
           cat: 'Human Design',
@@ -402,7 +402,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Manifestation',
         desc: 'Klarheit über das, was du willst – und dann loslegen.',
-        img: 'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 60, y: 44, flip: true,
         blog: {
           cat: 'Manifestation',
@@ -421,7 +421,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Mondzyklen & Astrologie',
         desc: 'Natürliche Rhythmen als Orientierung.',
-        img: 'https://images.unsplash.com/photo-1533577116850-9cc66cad8a9b?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1533577116850-9cc66cad8a9b?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 20, y: 74,
         blog: {
           cat: 'Astrologie',
@@ -442,12 +442,12 @@ export const TOPICS: Record<string, Topic> = {
   beziehungen: {
     name: 'Beziehungen & Verbindung',
     tag: 'Echte Freundschaften jenseits der Einsamkeit',
-    img: 'https://images.unsplash.com/photo-1758524945869-24a53c8cbc1e?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1758524945869-24a53c8cbc1e?w=960&h=540&fit=crop&fm=webp&q=75',
     subs: [
       {
         name: 'Einsamkeit überwinden',
         desc: 'Du bist nicht allein – du hast nur noch nicht die richtigen gefunden.',
-        img: 'https://images.unsplash.com/photo-1445543949571-ffc3e0e2f55e?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1445543949571-ffc3e0e2f55e?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 14, y: 22,
         blog: {
           cat: 'Verbindung',
@@ -466,7 +466,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Echte Freundschaften',
         desc: 'Tiefe Verbindungen statt oberflächlicher Kontakte.',
-        img: 'https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 65, y: 18, flip: true,
         blog: {
           cat: 'Freundschaft',
@@ -485,7 +485,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Bindungsstile verstehen',
         desc: 'Warum du so liebst, wie du liebst.',
-        img: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 36, y: 50,
         blog: {
           cat: 'Bindung',
@@ -504,7 +504,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Kommunikation & GFK',
         desc: 'Sag, was du meinst – ohne zu verletzen.',
-        img: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 62, y: 46, flip: true,
         blog: {
           cat: 'Kommunikation',
@@ -523,7 +523,7 @@ export const TOPICS: Record<string, Topic> = {
       {
         name: 'Grenzen setzen',
         desc: 'Nein sagen ist ein Akt der Liebe – auch dir selbst gegenüber.',
-        img: 'https://images.unsplash.com/photo-1528715471579-d1bcf0ba5e83?w=800&h=500&fit=crop',
+        img: 'https://images.unsplash.com/photo-1528715471579-d1bcf0ba5e83?w=480&h=300&fit=crop&fm=webp&q=75',
         x: 18, y: 74,
         blog: {
           cat: 'Grenzen',

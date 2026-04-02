@@ -60,17 +60,17 @@ export default function TopicHero() {
     loadSpotLinks();
   }, []);
 
-  // Preload all topic images
+  // Preload only active topic + its subtopic images (not all 30)
   useEffect(() => {
-    Object.values(TOPICS).forEach((t) => {
-      const img = new Image();
-      img.src = t.img;
-      t.subs.forEach((s) => {
-        const si = new Image();
-        si.src = s.img;
-      });
+    const t = TOPICS[activeTopic];
+    if (!t) return;
+    const img = new Image();
+    img.src = t.img;
+    t.subs.forEach((s) => {
+      const si = new Image();
+      si.src = s.img;
     });
-  }, []);
+  }, [activeTopic]);
 
   // Session-Check
   useEffect(() => {
