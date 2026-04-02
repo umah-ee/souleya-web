@@ -138,8 +138,11 @@ export interface MediaItem {
   download_count: number;
   rating_avg: number;
   rating_count: number;
+  is_meditation: boolean;
+  meditation_type: string | null;
   created_at: string;
   updated_at: string;
+  mentor?: { id: string; display_name: string | null; username: string | null; avatar_url: string | null; soul_level?: number; is_first_light?: boolean };
 }
 
 export interface CreateMediaData {
@@ -153,9 +156,17 @@ export interface CreateMediaData {
   tags?: string[];
   is_micro_content?: boolean;
   price_cents?: number;
+  is_meditation?: boolean;
+  meditation_type?: string;
 }
 
 export interface UpdateMediaData extends Partial<CreateMediaData> {}
+
+// ── Meditation Module ───────────────────────────────────
+export interface MeditationStreak {
+  streak: number;
+  total: number;
+}
 
 // ── Bewertungen ──────────────────────────────────────────
 export interface Review {

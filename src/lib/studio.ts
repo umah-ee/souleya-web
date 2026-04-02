@@ -2,7 +2,7 @@ import { apiFetch } from './api';
 import type {
   Course, CourseModule, CourseLesson, Enrollment, MediaItem, Review,
   F2FPricing, F2FSlot, F2FBooking, Coupon, MentorPayout,
-  Announcement, StudioDashboardKPIs,
+  Announcement, StudioDashboardKPIs, MeditationStreak,
   CreateCourseData, UpdateCourseData, CreateModuleData, CreateLessonData,
   CreateMediaData, UpdateMediaData, CreateF2FPricingData, CreateF2FSlotData,
   CreateCouponData, CreateAnnouncementData, FinanceOverview,
@@ -328,4 +328,37 @@ export async function fetchMentorProfile(): Promise<MentorProfile> {
 
 export async function updateMentorProfile(data: UpdateMentorProfileData): Promise<MentorProfile> {
   return apiFetch('/studio/profile', { method: 'PATCH', body: JSON.stringify(data) });
+}
+
+// ── Meditation Module ────────────────────────────────────────
+export async function fetchDailyMeditation(timeOfDay?: string): Promise<MediaItem | null> {
+  const params = timeOfDay ? `?time_of_day=${timeOfDay}` : '';
+  return apiFetch(`/studio/meditations/daily${params}`);
+}
+
+export async function fetchNextMeditation(excludeId: string, timeOfDay?: string): Promise<MediaItem | null> {
+  const params = timeOfDay ? `?time_of_day=${timeOfDay}` : '';
+  return apiFetch(`/studio/meditations/next/${excludeId}${params}`);
+}
+
+export async function fetchMeditationStreak(): Promise<MeditationStreak> {
+  return apiFetch('/studio/meditations/streak');
+}
+
+export async function completeMeditation(id: string, listenedSeconds: number): Promise<void> {
+  await apiFetch(`/studio/meditations/${id}/complete`, {
+    method: 'POST', body: JSON.stringify({ listened_seconds: listenedSeconds }),
+  });
+}
+
+export async function skipMeditation(id: string, listenedSeconds = 0): Promise<void> {
+  await apiFetch(`/studio/meditations/${id}/skip`, {
+    method: 'POST', body: JSON.stringify({ listened_seconds: listenedSeconds }),
+  });
+}
+
+export async function rateMeditation(id: string, type: 'like' | 'more_mentor' | 'less_mentor', listenedSeconds = 0): Promise<void> {
+  await apiFetch(`/studio/meditations/${id}/rate`, {
+    method: 'POST', body: JSON.stringify({ type, listened_seconds: listenedSeconds }),
+  });
 }

@@ -46,6 +46,8 @@ export default function ContentPage() {
   const [editTags, setEditTags] = useState('');
   const [editPrice, setEditPrice] = useState('');
   const [editVisibility, setEditVisibility] = useState<Visibility>('public');
+  const [editIsMeditation, setEditIsMeditation] = useState(false);
+  const [editMeditationType, setEditMeditationType] = useState('');
 
   // ── Daten laden ─────────────────────────────────────────
   const loadData = useCallback(async () => {
@@ -142,6 +144,8 @@ export default function ContentPage() {
     setEditTags((item.tags ?? []).join(', '));
     setEditPrice(item.price_cents > 0 ? (item.price_cents / 100).toFixed(0) : '');
     setEditVisibility('public');
+    setEditIsMeditation((item as any).is_meditation ?? false);
+    setEditMeditationType((item as any).meditation_type ?? '');
   };
 
   const saveEdit = async () => {
@@ -151,7 +155,9 @@ export default function ContentPage() {
       description: editDesc || undefined,
       tags: editTags.split(',').map(t => t.trim()).filter(Boolean),
       price_cents: editPrice ? Math.round(parseFloat(editPrice) * 100) : 0,
-    }).catch(() => {});
+      is_meditation: editIsMeditation,
+      meditation_type: editIsMeditation ? editMeditationType || undefined : undefined,
+    } as any).catch(() => {});
     setEditItem(null);
     loadData();
   };
@@ -506,6 +512,32 @@ export default function ContentPage() {
                   </div>
                 </div>
               </div>
+              {/* Meditation Toggle (nur fuer Audio) */}
+              {editItem?.content_type === 'audio' && (
+                <div className="rounded-[8px] p-3" style={{ background: editIsMeditation ? 'var(--gold-bg)' : 'var(--glass)', border: `1px solid ${editIsMeditation ? 'var(--gold-border-s)' : 'var(--glass-border)'}`, transition: 'all 0.2s' }}>
+                  <div className="flex items-center gap-2 cursor-pointer" onClick={() => setEditIsMeditation(v => !v)}>
+                    <div className="flex items-center justify-center" style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${editIsMeditation ? 'var(--gold)' : 'var(--text-muted)'}`, background: editIsMeditation ? 'var(--gold)' : 'transparent' }}>
+                      {editIsMeditation && <Icon name="check" size={12} style={{ color: 'var(--text-on-gold)' }} />}
+                    </div>
+                    <span style={{ fontSize: 11, color: editIsMeditation ? 'var(--gold-text)' : 'var(--text-h)', fontWeight: 500 }}>Meditation im Pulse-Modul</span>
+                  </div>
+                  {editIsMeditation && (
+                    <div className="mt-2.5">
+                      <label style={{ fontSize: 9, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: 3 }}>Art der Meditation</label>
+                      <div className="flex gap-1.5 flex-wrap">
+                        {['Gefuehrte Meditation', 'Body Scan', 'Atemmeditation', 'Klangmeditation', 'Yoga Nidra', 'Achtsamkeit', 'Tiefenentspannung'].map(t => (
+                          <button key={t} onClick={() => setEditMeditationType(t)} className="border-none cursor-pointer" style={{
+                            padding: '4px 10px', borderRadius: 9999, fontSize: 9,
+                            background: editMeditationType === t ? 'var(--gold)' : 'var(--glass)',
+                            color: editMeditationType === t ? 'var(--text-on-gold)' : 'var(--text-muted)',
+                            border: `1px solid ${editMeditationType === t ? 'var(--gold)' : 'var(--glass-border)'}`,
+                          }}>{t}</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
               <button onClick={saveEdit} className="border-none cursor-pointer w-full" style={{
                 padding: '10px 0', borderRadius: 9999, fontSize: 11, letterSpacing: '1px', textTransform: 'uppercase',
                 background: 'linear-gradient(135deg, var(--gold-deep), var(--gold))', color: 'var(--text-on-gold)',
