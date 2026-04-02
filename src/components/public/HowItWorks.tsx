@@ -28,7 +28,7 @@ export default function HowItWorks() {
         <FadeUp>
           <div className="rounded-2xl overflow-hidden relative group">
             <img
-              src="https://images.unsplash.com/photo-1525026198548-4baa812f1183?w=400&h=533&fit=crop&fm=webp&q=75"
+              src="https://images.unsplash.com/photo-1525026198548-4baa812f1183?w=600&h=800&fit=crop"
               alt="Souleya Community – Menschen auf dem Weg zu persönlichem Wachstum"
               className="w-full h-auto object-cover photo-gold-wash"
               loading="lazy"
