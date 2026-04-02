@@ -4,7 +4,7 @@ import { getCreditForUrl } from '@/lib/unsplash-credits';
 
 const FEATURES = [
   {
-    image: 'https://images.unsplash.com/photo-1722963220475-979db2dbf216?w=600&h=400&fit=crop&fm=webp&q=80',
+    image: 'https://images.unsplash.com/photo-1722963220475-979db2dbf216?w=600&h=400&fit=crop',
     label: 'Community',
     heading: 'Circles',
     alt: 'Menschen in einer Gemeinschaft – Circles für Meditation, Yoga und Achtsamkeit',
@@ -12,7 +12,7 @@ const FEATURES = [
       'Thematische Gruppen für Meditation, Ernährung, Yoga, Breathwork und mehr. Gemeinsam wachsen – in deinem Tempo, in einer Gemeinschaft, die dich trägt.',
   },
   {
-    image: 'https://images.unsplash.com/photo-1593811167562-9cef47bfc4d7?w=600&h=400&fit=crop&fm=webp&q=80',
+    image: 'https://images.unsplash.com/photo-1593811167562-9cef47bfc4d7?w=600&h=400&fit=crop',
     label: 'Wissen',
     heading: 'Studio',
     alt: 'Mentoring und Kurse – persönliche Weiterentwicklung mit erfahrenen Mentoren',
@@ -20,7 +20,7 @@ const FEATURES = [
       'Kurse und 1:1-Sessions von erfahrenen Mentoren. Lerne in deinem Tempo – von Mindset über innere Balance bis hin zu tiefem persönlichem Wachstum.',
   },
   {
-    image: 'https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=600&h=400&fit=crop&fm=webp&q=80',
+    image: 'https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=600&h=400&fit=crop',
     label: 'Begegnung',
     heading: 'Events',
     alt: 'Community-Events und Treffen – echte Begegnungen für persönliches Wachstum',
@@ -63,11 +63,8 @@ export default function FeaturesGrid() {
                   <img
                     src={f.image}
                     alt={f.alt}
-                    width={600}
-                    height={400}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                     loading="lazy"
-                    decoding="async"
                   />
                   {(() => { const c = getCreditForUrl(f.image); return c ? <PhotoCredit credit={c} /> : null; })()}
                 </div>
