@@ -45,15 +45,19 @@ export default function MobileHeader() {
           >
             {profile?.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <span
-                className="w-full h-full flex items-center justify-center text-xs"
-                style={{ background: 'var(--avatar-bg)', color: 'var(--gold-text)' }}
-              >
-                {initials || <Icon name="user" size={12} />}
-              </span>
-            )}
+              <img
+                src={profile.avatar_url}
+                alt=""
+                className="w-full h-full object-cover"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; if (e.target instanceof HTMLImageElement && e.target.nextElementSibling) (e.target.nextElementSibling as HTMLElement).style.display = 'flex'; }}
+              />
+            ) : null}
+            <span
+              className="w-full h-full items-center justify-center text-xs"
+              style={{ background: 'var(--avatar-bg)', color: 'var(--gold-text)', display: profile?.avatar_url ? 'none' : 'flex' }}
+            >
+              {initials || <Icon name="user" size={12} />}
+            </span>
           </EnsoRing>
         </Link>
       </div>
