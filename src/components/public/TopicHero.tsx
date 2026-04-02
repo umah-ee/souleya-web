@@ -95,15 +95,6 @@ export default function TopicHero() {
       }
     }
     load();
-
-    const channel = supabase
-      .channel('topic-hero-fl-counter')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
-        load();
-      })
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
   }, []);
 
   // Sync display count directly (no animation needed for mini counter)

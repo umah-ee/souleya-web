@@ -27,16 +27,6 @@ export default function FirstLightCounter() {
       }
     }
     load();
-
-    // Realtime: neue Profile → Counter aktualisieren
-    const channel = supabase
-      .channel('first-light-counter')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
-        load();
-      })
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
   }, []);
 
   return (

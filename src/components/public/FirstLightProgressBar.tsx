@@ -72,15 +72,6 @@ export default function FirstLightProgressBar() {
       }
     }
     load();
-
-    const channel = supabase
-      .channel('fl-progress-counter')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
-        load();
-      })
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
   }, []);
 
   // Animation starten sobald Count geladen ist

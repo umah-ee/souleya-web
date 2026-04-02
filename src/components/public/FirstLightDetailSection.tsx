@@ -71,15 +71,6 @@ export default function FirstLightDetailSection() {
       }
     }
     load();
-
-    const channel = supabase
-      .channel('fl-detail-counter')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
-        load();
-      })
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
   }, []);
 
   // Intersection observer for animation trigger
