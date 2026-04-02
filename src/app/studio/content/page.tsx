@@ -513,7 +513,7 @@ export default function ContentPage() {
                 </div>
               </div>
               {/* Meditation Toggle (nur fuer Audio) */}
-              {editItem?.content_type === 'audio' && (
+              {(editItem?.content_type === 'audio' || editItem?.content_type === 'video') && (
                 <div className="rounded-[8px] p-3" style={{ background: editIsMeditation ? 'var(--gold-bg)' : 'var(--glass)', border: `1px solid ${editIsMeditation ? 'var(--gold-border-s)' : 'var(--glass-border)'}`, transition: 'all 0.2s' }}>
                   <div className="flex items-center gap-2 cursor-pointer" onClick={() => setEditIsMeditation(v => !v)}>
                     <div className="flex items-center justify-center" style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${editIsMeditation ? 'var(--gold)' : 'var(--text-muted)'}`, background: editIsMeditation ? 'var(--gold)' : 'transparent' }}>
