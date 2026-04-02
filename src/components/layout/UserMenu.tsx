@@ -7,11 +7,9 @@ import { useCurrentProfile } from '@/hooks/useCurrentProfile';
 import { Icon } from '@/components/ui/Icon';
 
 export default function UserMenu() {
-  const { profile, isLoading } = useCurrentProfile();
+  const { profile } = useCurrentProfile();
 
-  if (isLoading || !profile) return null;
-
-  const initials = (profile.display_name ?? profile.username ?? '').slice(0, 1).toUpperCase();
+  const initials = (profile?.display_name ?? profile?.username ?? '').slice(0, 1).toUpperCase();
 
   return (
     <div
@@ -23,11 +21,11 @@ export default function UserMenu() {
       {/* Profile with EnsoRing */}
       <Link href="/profile" className="no-underline block cursor-pointer" title="Profil">
         <EnsoRing
-          soulLevel={profile.soul_level ?? 1}
-          isFirstLight={profile.is_first_light ?? false}
+          soulLevel={profile?.soul_level ?? 1}
+          isFirstLight={profile?.is_first_light ?? false}
           size="header"
         >
-          {profile.avatar_url ? (
+          {profile?.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={profile.avatar_url}
@@ -38,7 +36,7 @@ export default function UserMenu() {
           ) : null}
           <span
             className="w-full h-full items-center justify-center text-xs"
-            style={{ background: 'var(--avatar-bg)', color: 'var(--gold-text)', display: profile.avatar_url ? 'none' : 'flex' }}
+            style={{ background: 'var(--avatar-bg)', color: 'var(--gold-text)', display: profile?.avatar_url ? 'none' : 'flex' }}
           >
             {initials || <Icon name="user" size={14} />}
           </span>
