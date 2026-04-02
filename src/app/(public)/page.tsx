@@ -10,8 +10,9 @@ const HowItWorks = dynamic(() => import('@/components/public/HowItWorks'));
 const FaqAccordion = dynamic(() => import('@/components/public/FaqAccordion'));
 const CtaFinal = dynamic(() => import('@/components/public/CtaFinal'));
 
-// Default Hero-Bild (Thema "wachstum") für LCP-Preload
-const HERO_PRELOAD_IMG = 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&h=900&fit=crop';
+// Default Hero-Bild (Thema "wachstum") für LCP-Preload — responsive
+const HERO_IMG_MOBILE = 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&h=450&fit=crop&fm=webp&q=75';
+const HERO_IMG_DESKTOP = 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&h=900&fit=crop&fm=webp&q=75';
 
 export const metadata: Metadata = {
   title: 'Souleya – Community für persönliches Wachstum, Gesundheit & Spiritualität',
@@ -28,8 +29,13 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      {/* Preload LCP-Bild: Browser startet Download sofort beim HTML-Parse */}
-      <link rel="preload" as="image" href={HERO_PRELOAD_IMG} />
+      {/* Preload LCP-Bild: responsive — Mobile bekommt kleineres WebP */}
+      <link
+        rel="preload"
+        as="image"
+        imageSrcSet={`${HERO_IMG_MOBILE} 800w, ${HERO_IMG_DESKTOP} 1600w`}
+        imageSizes="100vw"
+      />
       <TopicHero />
       <FirstLightDetailSection />
       <JourneySection />

@@ -34,7 +34,7 @@ export const TOPICS: Record<string, Topic> = {
   wachstum: {
     name: 'Persönliches Wachstum',
     tag: 'Wachse über dich hinaus',
-    img: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&h=900&fit=crop&fm=webp&q=75',
     subs: [
       {
         name: 'Glaubenssätze auflösen',
@@ -136,7 +136,7 @@ export const TOPICS: Record<string, Topic> = {
   gesundheit: {
     name: 'Gesundheit',
     tag: 'Dein Körper als Zuhause',
-    img: 'https://images.unsplash.com/photo-1706267701238-b4d69fc8f640?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1706267701238-b4d69fc8f640?w=1600&h=900&fit=crop&fm=webp&q=75',
     subs: [
       {
         name: 'Nervensystem & Stress',
@@ -238,7 +238,7 @@ export const TOPICS: Record<string, Topic> = {
   worklife: {
     name: 'Work-Life Balance',
     tag: 'Freiheit mit Struktur',
-    img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&h=900&fit=crop&fm=webp&q=75',
     subs: [
       {
         name: 'Remote Work optimieren',
@@ -340,7 +340,7 @@ export const TOPICS: Record<string, Topic> = {
   spiritualitaet: {
     name: 'Spiritualität',
     tag: 'Tiefe ohne Dogma',
-    img: 'https://images.unsplash.com/photo-1597682886233-61b9023db181?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1597682886233-61b9023db181?w=1600&h=900&fit=crop&fm=webp&q=75',
     subs: [
       {
         name: 'Meditation & Atemübungen',
@@ -442,7 +442,7 @@ export const TOPICS: Record<string, Topic> = {
   beziehungen: {
     name: 'Beziehungen & Verbindung',
     tag: 'Echte Freundschaften jenseits der Einsamkeit',
-    img: 'https://images.unsplash.com/photo-1758524945869-24a53c8cbc1e?w=1600&h=900&fit=crop',
+    img: 'https://images.unsplash.com/photo-1758524945869-24a53c8cbc1e?w=1600&h=900&fit=crop&fm=webp&q=75',
     subs: [
       {
         name: 'Einsamkeit überwinden',
