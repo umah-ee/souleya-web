@@ -12,18 +12,21 @@ const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   style: ['normal', 'italic'],
+  display: 'swap',
 });
 
 const josefin = Josefin_Sans({
   variable: '--font-josefin',
   subsets: ['latin'],
   weight: ['200', '300', '400', '500', '600'],
+  display: 'swap',
 });
 
 const quicksand = Quicksand({
   variable: '--font-quicksand',
   subsets: ['latin'],
   weight: ['500', '600'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {

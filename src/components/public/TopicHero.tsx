@@ -193,6 +193,7 @@ export default function TopicHero() {
             className="th-hero-img"
             style={{ opacity: imgOpacity }}
             onLoad={handleImgLoad}
+            fetchPriority="high"
           />
           <div className="th-hero-dim" />
 
