@@ -60,15 +60,16 @@ export default function TopicHero() {
     loadSpotLinks();
   }, []);
 
-  // Preload nur das aktive Hero-Bild (nicht alle 25+)
+  // Preload all topic images
   useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'image';
-    link.href = TOPICS.wachstum.img;
-    link.setAttribute('fetchpriority', 'high');
-    document.head.appendChild(link);
-    return () => { document.head.removeChild(link); };
+    Object.values(TOPICS).forEach((t) => {
+      const img = new Image();
+      img.src = t.img;
+      t.subs.forEach((s) => {
+        const si = new Image();
+        si.src = s.img;
+      });
+    });
   }, []);
 
   // Session-Check
@@ -201,10 +202,6 @@ export default function TopicHero() {
             className="th-hero-img"
             style={{ opacity: imgOpacity }}
             onLoad={handleImgLoad}
-            width={1600}
-            height={900}
-            decoding="async"
-            fetchPriority="high"
           />
           <div className="th-hero-dim" />
 
@@ -428,9 +425,6 @@ export default function TopicHero() {
                 src={t.img.replace('1600', '600').replace('900', '340')}
                 alt={t.name}
                 loading="lazy"
-                decoding="async"
-                width={600}
-                height={340}
                 className="th-tcard-img"
               />
               <div className="th-tcard-ov" />
