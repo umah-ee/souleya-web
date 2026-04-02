@@ -88,7 +88,8 @@ export default function ContentPage() {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      setUploadProgress(Math.round(((i) / files.length) * 100));
+      // Bei Einzeldatei: sofort 10% zeigen damit man sieht dass es laeuft
+      setUploadProgress(Math.max(Math.round(((i) / files.length) * 100), 10));
 
       // Typ erkennen
       let contentType = 'pdf';
@@ -101,12 +102,25 @@ export default function ContentPage() {
       const ext = file.name.split('.').pop() ?? 'bin';
       const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
+      // Fortschritts-Simulation fuer grosse Dateien (Supabase SDK hat kein onProgress)
+      const sizeMB = file.size / (1024 * 1024);
+      const estimatedMs = Math.max(sizeMB * 500, 2000); // ~2MB/s geschaetzt
+      const progressTimer = setInterval(() => {
+        setUploadProgress(prev => {
+          const next = prev + 3;
+          return next < 85 ? next : prev; // Stoppt bei 85%, wartet auf echten Upload
+        });
+      }, estimatedMs / 25);
+
       const { error: uploadError } = await supabase.storage
         .from('media-items')
         .upload(path, file, { contentType: file.type, upsert: false });
 
+      clearInterval(progressTimer);
+
       if (uploadError) {
         console.warn('[Content] Upload fehlgeschlagen:', uploadError.message);
+        alert(`Upload fehlgeschlagen: ${uploadError.message}`);
         continue;
       }
 
@@ -115,12 +129,15 @@ export default function ContentPage() {
         .getPublicUrl(path);
 
       // Media-Item erstellen
+      setUploadProgress(90);
       await createMediaItem({
         title: file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '),
         content_type: contentType,
         file_url: publicUrl,
         file_size_bytes: file.size,
-      }).catch(() => {});
+      }).catch((err) => {
+        console.warn('[Content] Media-Item erstellen fehlgeschlagen:', err);
+      });
 
       setUploadProgress(Math.round(((i + 1) / files.length) * 100));
     }
