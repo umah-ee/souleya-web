@@ -158,7 +158,7 @@ export default function MeditationModule({ onRemove }: Props) {
     >
       {/* Header */}
       <div className="flex items-center gap-2 px-4 pt-3">
-        <Icon name="music" size={18} style={{ color: 'var(--gold)' }} />
+        <Icon name="sparkles" size={18} style={{ color: 'var(--gold)' }} />
         <span className="flex-1 font-label text-[11px] tracking-[0.06em] uppercase" style={{ color: 'var(--text-h)' }}>
           Meditation
         </span>
