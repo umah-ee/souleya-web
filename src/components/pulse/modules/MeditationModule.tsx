@@ -187,7 +187,7 @@ export default function MeditationModule({ onRemove }: Props) {
 
         {phase === 'empty' && (
           <div className="flex flex-col items-center gap-2 py-4">
-            <Icon name="music-off" size={24} style={{ color: 'var(--text-muted)' }} />
+            <Icon name="info" size={24} style={{ color: 'var(--text-muted)' }} />
             <span style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center' }}>
               Noch keine Meditationen verfuegbar.
             </span>
@@ -230,7 +230,7 @@ export default function MeditationModule({ onRemove }: Props) {
                 style={{ border: '1px solid var(--glass-border)', background: 'transparent', color: 'var(--text-muted)' }}
                 title="Naechste Meditation"
               >
-                <Icon name="player-skip-forward" size={14} />
+                <Icon name="chevron-right" size={14} />
               </button>
             </div>
 
@@ -288,7 +288,7 @@ export default function MeditationModule({ onRemove }: Props) {
                 className="flex flex-col items-center gap-1 px-4 py-2 rounded-[8px] cursor-pointer border-none transition-all"
                 style={{ background: 'var(--glass)', border: '1px solid var(--glass-border)' }}
               >
-                <Icon name="arrow-right" size={20} style={{ color: 'var(--text-muted)' }} />
+                <Icon name="chevron-right" size={20} style={{ color: 'var(--text-muted)' }} />
                 <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>Weiter</span>
               </button>
             </div>
