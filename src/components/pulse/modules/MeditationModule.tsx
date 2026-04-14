@@ -202,7 +202,7 @@ export default function MeditationModule({ onRemove }: Props) {
                 <EnsoRing
                   soulLevel={mentor?.soul_level ?? 1}
                   isFirstLight={mentor?.is_first_light ?? false}
-                  size="small"
+                  size="feed"
                 >
                   {mentor?.avatar_url ? (
                     <img src={mentor.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
