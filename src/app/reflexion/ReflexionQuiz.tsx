@@ -104,7 +104,7 @@ const RESULTS = [
 
 function EnsoRing({ size = 100, id = 'enso' }: { size?: number; id?: string }) {
   return (
-    <svg viewBox="0 0 100 100" fill="none" style={{ width: size, height: size }}>
+    <svg viewBox="0 0 100 100" fill="none" style={{ width: size, height: size, display: 'block', margin: '0 auto' }}>
       <defs>
         <linearGradient id={`enso-grad-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#A8894E" />
@@ -137,6 +137,7 @@ export default function ReflexionQuiz() {
   const [fading, setFading] = useState(false);
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [answerHistory, setAnswerHistory] = useState<number[]>([]);
 
   const getResult = useCallback(() => {
     const [connected, seeking, longing] = scores;
@@ -155,6 +156,7 @@ export default function ReflexionQuiz() {
   function startQuiz() {
     setCurrentQ(0);
     setScores([0, 0, 0]);
+    setAnswerHistory([]);
     setScreen('quiz');
     window.scrollTo(0, 0);
   }
@@ -165,6 +167,7 @@ export default function ReflexionQuiz() {
 
     const answerScore = QUESTIONS[currentQ].answers[idx].score;
     setScores(prev => prev.map((s, i) => s + answerScore[i]));
+    setAnswerHistory(prev => [...prev, idx]);
 
     setTimeout(() => {
       setFading(true);
@@ -179,6 +182,18 @@ export default function ReflexionQuiz() {
         setFading(false);
       }, 400);
     }, 600);
+  }
+
+  function goBack() {
+    if (currentQ === 0) return;
+    const prevQ = currentQ - 1;
+    const prevAnswerIdx = answerHistory[prevQ];
+    const prevScore = QUESTIONS[prevQ].answers[prevAnswerIdx].score;
+
+    setScores(prev => prev.map((s, i) => s - prevScore[i]));
+    setAnswerHistory(prev => prev.slice(0, -1));
+    setCurrentQ(prevQ);
+    setSelected(null);
   }
 
   async function handleEmailSubmit(e: React.FormEvent) {
@@ -217,6 +232,7 @@ export default function ReflexionQuiz() {
     setCurrentQ(0);
     setScores([0, 0, 0]);
     setSelected(null);
+    setAnswerHistory([]);
     setEmail('');
     setScreen('intro');
     window.scrollTo(0, 0);
@@ -261,8 +277,18 @@ export default function ReflexionQuiz() {
             ))}
           </div>
 
-          <div style={{ fontSize: 12, color: '#8A7A66', marginBottom: 16, letterSpacing: 1, width: '100%' }}>
-            {currentQ + 1} von {total}
+          <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: 16 }}>
+            {currentQ > 0 && (
+              <button
+                onClick={goBack}
+                style={{ padding: '6px 14px', background: 'rgba(200,169,110,0.1)', border: '1.5px solid rgba(200,169,110,0.25)', borderRadius: 20, color: '#8A7A66', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', marginRight: 12 }}
+              >
+                ← Zurück
+              </button>
+            )}
+            <span style={{ fontSize: 12, color: '#8A7A66', letterSpacing: 1 }}>
+              {currentQ + 1} von {total}
+            </span>
           </div>
 
           <h2 style={{ fontSize: 'clamp(22px, 5vw, 28px)', fontWeight: 400, color: '#1E180C', lineHeight: 1.4, marginBottom: 36, fontFamily: "Georgia, 'Times New Roman', serif", width: '100%' }}>
