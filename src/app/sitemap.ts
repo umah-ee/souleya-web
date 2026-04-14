@@ -65,6 +65,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     },
     {
+      url: 'https://souleya.com/reflexion',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: 'https://souleya.com/impressum',
       lastModified: new Date(),
       changeFrequency: 'yearly',
