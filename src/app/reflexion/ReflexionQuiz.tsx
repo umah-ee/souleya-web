@@ -6,19 +6,19 @@ import { useState, useCallback } from 'react';
 
 const QUESTIONS = [
   {
-    question: 'Hand aufs Herz. Wann hattest du zuletzt ein Gespraech, das dich danach wirklich aufgetankt hat?',
+    question: 'Hand aufs Herz. Wann hattest du zuletzt ein Gespräch, das dich danach wirklich aufgetankt hat?',
     answers: [
       { text: 'Letzte Woche. Ich hab Menschen um mich, mit denen das geht.', score: [4, 0, 0] },
       { text: 'Vor ein paar Wochen vielleicht. Kommt selten vor.', score: [2, 1, 1] },
-      { text: 'Ich muss echt ueberlegen. Lange her.', score: [0, 2, 2] },
-      { text: 'Ehrlich? Ich weiss es nicht mehr.', score: [0, 3, 3] },
+      { text: 'Ich muss echt überlegen. Lange her.', score: [0, 2, 2] },
+      { text: 'Ehrlich? Ich weiß es nicht mehr.', score: [0, 3, 3] },
     ],
   },
   {
-    question: 'Du scrollst abends durch dein Handy. Instagram, WhatsApp, vielleicht noch ein Podcast. Wie fuehlst du dich danach?',
+    question: 'Du scrollst abends durch dein Handy. Instagram, WhatsApp, vielleicht noch ein Podcast. Wie fühlst du dich danach?',
     answers: [
       { text: 'Inspiriert. Ich nehm oft was mit.', score: [3, 0, 1] },
-      { text: 'Abgelenkt. Es fuellt die Zeit, mehr nicht.', score: [1, 2, 1] },
+      { text: 'Abgelenkt. Es füllt die Zeit, mehr nicht.', score: [1, 2, 1] },
       { text: 'Leerer als vorher, wenn ich ehrlich bin.', score: [0, 3, 2] },
       { text: 'Ich merk es schon gar nicht mehr. Es ist einfach Routine.', score: [0, 2, 3] },
     ],
@@ -26,25 +26,25 @@ const QUESTIONS = [
   {
     question: 'Jemand fragt dich: Wie geht\u2019s dir? Was passiert in dir?',
     answers: [
-      { text: 'Ich antworte ehrlich. Auch wenn\u2019s gerade nicht so laeuft.', score: [4, 0, 0] },
+      { text: 'Ich antworte ehrlich. Auch wenn\u2019s gerade nicht so läuft.', score: [4, 0, 0] },
       { text: 'Kommt drauf an wer fragt. Bei den meisten sage ich: gut.', score: [2, 1, 1] },
-      { text: 'Ich sage immer gut. Weil niemand die echte Antwort hoeren will.', score: [0, 3, 2] },
-      { text: 'Ich weiss manchmal selbst nicht, wie ich antworten soll.', score: [0, 2, 3] },
+      { text: 'Ich sage immer gut. Weil niemand die echte Antwort hören will.', score: [0, 3, 2] },
+      { text: 'Ich weiß manchmal selbst nicht, wie ich antworten soll.', score: [0, 2, 3] },
     ],
   },
   {
-    question: 'Stell dir vor, du haettest morgen einen komplett freien Tag. Keine Verpflichtungen. Was machst du?',
+    question: 'Stell dir vor, du hättest morgen einen komplett freien Tag. Keine Verpflichtungen. Was machst du?',
     answers: [
       { text: 'Ich treff mich mit jemandem, der mir gut tut.', score: [4, 0, 0] },
       { text: 'Endlich mal durchatmen. Allein sein. Ruhe.', score: [2, 0, 2] },
-      { text: 'Ich wuerd gern was mit jemandem machen. Aber mir faellt niemand ein, den ich anrufen wuerde.', score: [0, 3, 2] },
+      { text: 'Ich würd gern was mit jemandem machen. Aber mir fällt niemand ein, den ich anrufen würde.', score: [0, 3, 2] },
       { text: 'Wahrscheinlich das Gleiche wie immer. Couch, Netflix, Handy.', score: [0, 2, 3] },
     ],
   },
   {
     question: 'Wie viele Menschen in deinem Leben kennen dich wirklich? Nicht den Job, nicht die Rolle. Dich.',
     answers: [
-      { text: 'Mehr als drei. Ich hab Glueck.', score: [4, 0, 0] },
+      { text: 'Mehr als drei. Ich hab Glück.', score: [4, 0, 0] },
       { text: 'Vielleicht eine oder zwei Personen.', score: [2, 1, 1] },
       { text: 'Ich glaube, niemand kennt mich so richtig.', score: [0, 3, 2] },
       { text: 'Ich bin mir nicht sicher, ob ich mich selbst so richtig kenne.', score: [0, 2, 3] },
@@ -54,24 +54,24 @@ const QUESTIONS = [
     question: 'Du bist auf einer Veranstaltung. Viele Leute, gute Stimmung. Wie geht es dir?',
     answers: [
       { text: 'Super. Ich liebe es, neue Leute kennenzulernen.', score: [3, 0, 1] },
-      { text: 'Ich geniess es, aber echte Gespraeche entstehen da selten.', score: [2, 2, 0] },
-      { text: 'Ich steh oft daneben und frage mich, ob das hier ueberhaupt mein Ding ist.', score: [0, 3, 1] },
+      { text: 'Ich genieß es, aber echte Gespräche entstehen da selten.', score: [2, 2, 0] },
+      { text: 'Ich steh oft daneben und frage mich, ob das hier überhaupt mein Ding ist.', score: [0, 3, 1] },
       { text: 'Ich geh meistens gar nicht erst hin.', score: [0, 2, 3] },
     ],
   },
   {
-    question: 'Wenn du an die letzten drei Monate denkst: Gab es einen Moment, in dem du dich wirklich gesehen gefuehlt hast?',
+    question: 'Wenn du an die letzten drei Monate denkst: Gab es einen Moment, in dem du dich wirklich gesehen gefühlt hast?',
     answers: [
       { text: 'Ja, mehrere sogar.', score: [4, 0, 0] },
       { text: 'Einen vielleicht. Aber der war besonders.', score: [2, 1, 1] },
-      { text: 'Gesehen? Ich weiss nicht, ob das oft passiert in meinem Leben.', score: [0, 3, 2] },
-      { text: 'Ich glaube, ich hab mich daran gewoehnt, unsichtbar zu sein.', score: [0, 2, 4] },
+      { text: 'Gesehen? Ich weiß nicht, ob das oft passiert in meinem Leben.', score: [0, 3, 2] },
+      { text: 'Ich glaube, ich hab mich daran gewöhnt, unsichtbar zu sein.', score: [0, 2, 4] },
     ],
   },
   {
-    question: 'Was wuerdest du dir wuenschen, wenn du ganz ehrlich bist?',
+    question: 'Was würdest du dir wünschen, wenn du ganz ehrlich bist?',
     answers: [
-      { text: 'Mehr davon, was ich schon habe. Tiefe Gespraeche, echte Menschen.', score: [4, 0, 0] },
+      { text: 'Mehr davon, was ich schon habe. Tiefe Gespräche, echte Menschen.', score: [4, 0, 0] },
       { text: 'Einen Ort, an dem ich einfach sein kann. Ohne Rolle, ohne Maske.', score: [1, 2, 2] },
       { text: 'Menschen, die den gleichen Weg gehen. Wegbegleiter, nicht nur Kontakte.', score: [0, 3, 1] },
       { text: 'Dass sich jemand meldet. Einfach so. Ohne dass ich immer den ersten Schritt mache.', score: [0, 2, 3] },
@@ -83,51 +83,41 @@ const RESULTS = [
   {
     title: 'Du bist verbunden.',
     subtitle: 'Und das ist selten.',
-    description: 'Du hast etwas, das viele suchen: echte Menschen in deinem Leben, die dich kennen. Das ist nicht selbstverstaendlich. Aber vielleicht kennst du jemanden, dem das fehlt. Jemand der gerade alleine auf dem Weg ist.',
-    cta: 'Teile die Reflexion mit jemandem, dem es gut tun koennte.',
+    description: 'Du hast etwas, das viele suchen: echte Menschen in deinem Leben, die dich kennen. Das ist nicht selbstverständlich. Aber vielleicht kennst du jemanden, dem das fehlt. Jemand der gerade alleine auf dem Weg ist.',
+    cta: 'Teile die Reflexion mit jemandem, dem es gut tun könnte.',
   },
   {
     title: 'Du suchst. Und das ist mutig.',
     subtitle: 'Die meisten geben sich mit Smalltalk zufrieden.',
-    description: 'Du spuerst, dass da mehr sein koennte. Mehr Tiefe, mehr echte Gespraeche, mehr Menschen die verstehen ohne dass du dich erklaeren musst. Du bist nicht anspruchsvoll. Du bist ehrlich. Und genau das braucht die Welt.',
-    cta: 'Souleya ist fuer Menschen wie dich. Fuer Begegnungen, die man nicht erklaeren muss.',
+    description: 'Du spürst, dass da mehr sein könnte. Mehr Tiefe, mehr echte Gespräche, mehr Menschen die verstehen ohne dass du dich erklären musst. Du bist nicht anspruchsvoll. Du bist ehrlich. Und genau das braucht die Welt.',
+    cta: 'Souleya ist für Menschen wie dich. Für Begegnungen, die man nicht erklären muss.',
   },
   {
-    title: 'Da fehlt was. Du weisst es.',
+    title: 'Da fehlt was. Du weißt es.',
     subtitle: 'Und du bist nicht die einzige Person, der es so geht.',
-    description: 'Du hast dich vielleicht daran gewoehnt, dass echte Verbindung selten ist. Dass man halt funktioniert. Dass niemand wirklich fragt, wie es dir geht. Aber tief drin weisst du: So soll es nicht bleiben. Und allein die Tatsache, dass du diese Reflexion bis hierher gemacht hast, zeigt, dass du bereit bist.',
+    description: 'Du hast dich vielleicht daran gewöhnt, dass echte Verbindung selten ist. Dass man halt funktioniert. Dass niemand wirklich fragt, wie es dir geht. Aber tief drin weißt du: So soll es nicht bleiben. Und allein die Tatsache, dass du diese Reflexion bis hierher gemacht hast, zeigt, dass du bereit bist.',
     cta: 'Du musst den Weg nicht alleine gehen. Souleya bringt dich zu Menschen, die verstehen.',
   },
 ];
 
-const IMPULSES = [
-  { question: 'Wer in deinem Leben hat gerade mal wieder ein richtiges Danke verdient? Wofuer?', context: 'Schick es ihm heute. Kein Anlass noetig.' },
-  { question: 'Bei welcher Sache oder in welchem Moment bist du dir selbst am liebsten?', context: 'Die meisten wissen was sie an anderen moegen. An sich selbst? Selten.' },
-  { question: 'Bei wem darfst du sein wie du wirklich bist, ohne dich zu erklaeren?', context: 'Genau das ist echte Verbindung. Sag dieser Person beim naechsten Treffen wie wertvoll das fuer dich ist.' },
-  { question: 'Wer hat dich so sehr gepraegt, dass du heute noch seine oder ihre Saetze denkst?', context: 'Manchmal sind es nicht die lautesten Menschen, sondern die stillsten.' },
-  { question: 'Was hast du in den letzten Monaten geschafft, wofuer du dich viel zu wenig gefeiert hast?', context: 'Kleine Sachen zaehlen oft mehr als die grossen.' },
-  { question: 'Zu welcher Sache hast du zuletzt Ja gesagt, obwohl dein Bauchgefuehl Nein gesagt hat?', context: 'Kein Vorwurf. Nur ein Hinweis darauf wo du dir gerade nicht zuhoerst.' },
-  { question: 'Wer in deinem Leben sollte unbedingt wissen, wie viel er dir bedeutet? Und weiss er es schon?', context: 'Wenn nicht, dann sag es heute. In zwei Saetzen. Das reicht.' },
-];
-
-// ── Enso SVG ──────────────────────────────────────
+// ── Kanonischer Enso-Ring (viewBox 0 0 100 100) ──
 
 function EnsoRing({ size = 100, id = 'enso' }: { size?: number; id?: string }) {
   return (
-    <svg viewBox="0 0 1000 1000" fill="none" style={{ width: size, height: size }}>
+    <svg viewBox="0 0 100 100" fill="none" style={{ width: size, height: size }}>
       <defs>
-        <linearGradient id={`goldGrad-${id}`} x1="0%" y1="100%" x2="100%" y2="0%">
+        <linearGradient id={`enso-grad-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#A8894E" />
-          <stop offset="50%" stopColor="#C8A96E" />
-          <stop offset="100%" stopColor="#DAC08A" />
+          <stop offset="100%" stopColor="#D4BC8B" />
         </linearGradient>
       </defs>
-      <path
-        d="M 847.73 406.83 A 360.00 360.00 0 1 1 593.17 152.27"
-        fill="none"
-        stroke={`url(#goldGrad-${id})`}
-        strokeWidth="85"
+      <circle
+        cx="50" cy="50" r="36" fill="none"
+        stroke={`url(#enso-grad-${id})`}
+        strokeWidth="8"
         strokeLinecap="round"
+        strokeDasharray="196 30"
+        strokeDashoffset="15"
       />
     </svg>
   );
@@ -204,7 +194,7 @@ export default function ReflexionQuiz() {
         body: JSON.stringify({ email: email.trim(), quizResult: getResultType() }),
       });
     } catch {
-      // Impulse trotzdem anzeigen
+      // Bestätigung trotzdem anzeigen
     }
 
     setSubmitting(false);
@@ -252,12 +242,12 @@ export default function ReflexionQuiz() {
             Wie verbunden bist du wirklich?
           </h1>
           <p style={{ fontSize: 17, color: '#3E3020', lineHeight: 1.7, maxWidth: 440, marginBottom: 48 }}>
-            8 ehrliche Fragen. Kein richtig oder falsch. Nur du und ein Moment der Klarheit darueber, was in deinem Leben vielleicht zu kurz kommt.
+            8 ehrliche Fragen. Kein richtig oder falsch. Nur du und ein Moment der Klarheit darüber, was in deinem Leben vielleicht zu kurz kommt.
           </p>
           <button onClick={startQuiz} style={{ padding: '18px 48px', background: '#C8A96E', color: '#fff', border: 'none', borderRadius: 24, fontSize: 16, fontWeight: 600, cursor: 'pointer', boxShadow: '0 8px 32px rgba(200,169,110,0.3)', fontFamily: "Georgia, 'Times New Roman', serif" }}>
             Lass uns anfangen
           </button>
-          <p style={{ fontSize: 13, color: '#8A7A66', marginTop: 24 }}>Dauert etwa 2 Minuten. Kein Account noetig.</p>
+          <p style={{ fontSize: 13, color: '#8A7A66', marginTop: 24 }}>Dauert etwa 2 Minuten. Kein Account nötig.</p>
         </div>
       )}
 
@@ -330,7 +320,7 @@ export default function ReflexionQuiz() {
           {/* E-Mail Signup */}
           <div style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderRadius: 20, padding: 28, maxWidth: 400, width: '100%', marginBottom: 32, border: '1px solid rgba(200,169,110,0.2)' }}>
             <p style={{ fontSize: 15, color: '#3E3020', lineHeight: 1.7, marginBottom: 20 }}>
-              Du willst wissen, wie echte Gespraeche sich anfuehlen? Wir schicken dir 7 Fragen, die jedes Gespraech vertiefen. Sofort. Kostenlos.
+              Du willst wissen, wie echte Gespräche sich anfühlen? Wir schicken dir 7 Fragen, die jedes Gespräch vertiefen. Sofort. Kostenlos.
             </p>
             <form onSubmit={handleEmailSubmit}>
               <input
@@ -346,7 +336,7 @@ export default function ReflexionQuiz() {
                 disabled={submitting}
                 style={{ width: '100%', padding: '16px 36px', background: '#C8A96E', color: '#fff', border: 'none', borderRadius: 24, fontSize: 15, fontWeight: 600, cursor: submitting ? 'wait' : 'pointer', fontFamily: "Georgia, 'Times New Roman', serif", opacity: submitting ? 0.7 : 1 }}
               >
-                {submitting ? 'Wird gesendet …' : '7 Gespraechsimpulse erhalten'}
+                {submitting ? 'Wird gesendet …' : '7 Gesprächsimpulse erhalten'}
               </button>
               <p style={{ fontSize: 12, color: '#8A7A66', marginTop: 8 }}>
                 Kein Spam. Kein Newsletter. Nur die 7 Impulse.
@@ -357,10 +347,10 @@ export default function ReflexionQuiz() {
           {/* Souleya Teaser */}
           <div style={{ background: 'rgba(255,255,255,0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: 20, padding: '24px 28px', maxWidth: 400, width: '100%', marginBottom: 32, border: '1px solid rgba(200,169,110,0.12)', textAlign: 'center' }}>
             <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 17, color: '#1E180C', fontWeight: 400, marginBottom: 10 }}>
-              Genau dafuer bauen wir gerade etwas.
+              Genau dafür bauen wir gerade etwas.
             </p>
             <p style={{ fontSize: 14, color: '#3E3020', lineHeight: 1.7 }}>
-              Souleya bringt Menschen zusammen, die echte Verbindung suchen. Online finden, offline treffen. Wir starten bald. Wer sich hier eintraegt, erfaehrt es als Erstes.
+              Souleya bringt Menschen zusammen, die echte Verbindung suchen. Online finden, offline treffen. Wir starten bald. Wer sich hier einträgt, erfährt es als Erstes.
             </p>
           </div>
 
@@ -377,42 +367,37 @@ export default function ReflexionQuiz() {
         </div>
       )}
 
-      {/* ── THANK YOU ────────────────────────── */}
+      {/* ── BESTÄTIGUNG ──────────────────────── */}
       {screen === 'thankyou' && (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', textAlign: 'center', animation: 'fadeIn 0.6s ease' }}>
-          <div style={{ fontSize: 'clamp(26px, 6vw, 36px)', fontWeight: 400, color: '#1E180C', lineHeight: 1.3, marginBottom: 8, fontFamily: "Georgia, 'Times New Roman', serif" }}>
-            Hier sind sie.
+          <EnsoRing size={80} id="thankyou-hero" />
+
+          <div style={{ fontSize: 'clamp(26px, 6vw, 36px)', fontWeight: 400, color: '#1E180C', lineHeight: 1.3, marginTop: 24, marginBottom: 8, fontFamily: "Georgia, 'Times New Roman', serif" }}>
+            Die 7 Impulse sind auf dem Weg zu dir.
           </div>
           <p style={{ fontSize: 17, color: '#C8A96E', fontStyle: 'italic', marginBottom: 32, fontFamily: "Georgia, 'Times New Roman', serif" }}>
-            7 Fragen, die jedes Gespraech veraendern koennen.
+            Schau in dein Postfach.
           </p>
-          <p style={{ fontSize: 15, color: '#3E3020', lineHeight: 1.7, maxWidth: 440, marginBottom: 32 }}>
-            Nimm dir eine davon mit ins naechste Gespraech. Nicht alle auf einmal. Eine reicht. Du wirst merken, was passiert.
+          <p style={{ fontSize: 15, color: '#3E3020', lineHeight: 1.7, maxWidth: 440, marginBottom: 40 }}>
+            Wir haben dir 7 Fragen geschickt, die jedes Gespräch verändern können. Nimm dir eine davon mit ins nächste Gespräch. Nicht alle auf einmal. Eine reicht.
           </p>
 
-          {IMPULSES.map((impulse, i) => (
-            <div key={i} style={{ textAlign: 'left', padding: '18px 22px', background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(200,169,110,0.12)', borderRadius: 16, marginBottom: 10, maxWidth: 440, width: '100%' }}>
-              <div style={{ fontSize: 12, color: '#C8A96E', fontWeight: 600, letterSpacing: 1, marginBottom: 6 }}>
-                0{i + 1}
-              </div>
-              <div style={{ fontSize: 16, color: '#1E180C', fontFamily: "Georgia, 'Times New Roman', serif", lineHeight: 1.5 }}>
-                {impulse.question}
-              </div>
-              <div style={{ fontSize: 13, color: '#8A7A66', marginTop: 6, lineHeight: 1.5 }}>
-                {impulse.context}
-              </div>
-            </div>
-          ))}
-
-          <div style={{ maxWidth: 440, width: '100%', marginTop: 32, textAlign: 'center' }}>
-            <p style={{ fontSize: 14, color: '#8A7A66', lineHeight: 1.7, marginBottom: 24 }}>
-              Diese Fragen sind erst der Anfang. Souleya bringt dich zu Menschen, bei denen solche Gespraeche selbstverstaendlich sind. Wir starten bald.
+          {/* Souleya Teaser */}
+          <div style={{ background: 'rgba(255,255,255,0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: 20, padding: '24px 28px', maxWidth: 400, width: '100%', marginBottom: 32, border: '1px solid rgba(200,169,110,0.12)', textAlign: 'center' }}>
+            <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 17, color: '#1E180C', fontWeight: 400, marginBottom: 10 }}>
+              Genau dafür bauen wir gerade etwas.
+            </p>
+            <p style={{ fontSize: 14, color: '#3E3020', lineHeight: 1.7 }}>
+              Souleya bringt Menschen zusammen, die echte Verbindung suchen. Online finden, offline treffen. Wir starten bald.
             </p>
           </div>
 
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' as const, justifyContent: 'center' }}>
             <button onClick={shareQuiz} style={{ padding: '12px 28px', background: 'rgba(200,169,110,0.1)', border: '2px solid rgba(200,169,110,0.27)', borderRadius: 24, color: '#7A6014', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               Reflexion teilen
+            </button>
+            <button onClick={restart} style={{ padding: '12px 28px', background: 'transparent', border: '2px solid rgba(200,169,110,0.2)', borderRadius: 24, color: '#8A7A66', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+              Nochmal machen
             </button>
           </div>
 
@@ -439,7 +424,7 @@ function Footer({ id }: { id: string }) {
         Souleya
       </div>
       <p style={{ fontSize: 12, color: '#8A7A66', marginTop: 8 }}>
-        Fuer Begegnungen, die man spuert.
+        Für Begegnungen, die man spürt.
       </p>
     </div>
   );
