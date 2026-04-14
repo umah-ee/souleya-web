@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Icon } from '@/components/ui/Icon';
-import { EnsoRing } from '@/components/ui/EnsoRing';
+import EnsoRing from '@/components/ui/EnsoRing';
 import {
   fetchDailyMeditation, fetchNextMeditation, fetchMeditationStreak,
   completeMeditation, skipMeditation, rateMeditation,
