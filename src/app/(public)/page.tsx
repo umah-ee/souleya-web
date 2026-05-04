@@ -8,9 +8,9 @@ const FeaturesGrid = dynamic(() => import('@/components/public/FeaturesGrid'));
 const HowItWorks = dynamic(() => import('@/components/public/HowItWorks'));
 const FaqAccordion = dynamic(() => import('@/components/public/FaqAccordion'));
 
-// Default Hero-Bild (Thema "wachstum") für LCP-Preload — responsive
-const HERO_IMG_MOBILE = 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&h=450&fit=crop&fm=webp&q=75';
-const HERO_IMG_DESKTOP = 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&h=900&fit=crop&fm=webp&q=75';
+// Hero-Bild (Thema "Beziehungen & Verbindung") für LCP-Preload — responsive
+const HERO_IMG_MOBILE = 'https://images.unsplash.com/photo-1758524945869-24a53c8cbc1e?w=800&h=450&fit=crop&fm=webp&q=75';
+const HERO_IMG_DESKTOP = 'https://images.unsplash.com/photo-1758524945869-24a53c8cbc1e?w=1600&h=900&fit=crop&fm=webp&q=75';
 
 export const metadata: Metadata = {
   title: 'Souleya – Community für persönliches Wachstum, Gesundheit & Spiritualität',

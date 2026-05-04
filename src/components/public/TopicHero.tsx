@@ -1,151 +1,9 @@
-'use client';
+import { TOPICS } from './TopicHeroData';
 
-import { useState, useEffect, useCallback } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
-import SignupModal from './SignupModal';
-import ArticleOverlay from './ArticleOverlay';
-import { TOPICS, TOPIC_ORDER } from './TopicHeroData';
-
-const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
+const HERO_TOPIC_ID = 'beziehungen';
 
 export default function TopicHero() {
-  const [activeTopic, setActiveTopic] = useState('wachstum');
-  const [inMorph, setInMorph] = useState(false);
-  const [morphIdx, setMorphIdx] = useState(0);
-  const [imgSrc, setImgSrc] = useState(TOPICS.wachstum.img);
-  const [imgOpacity, setImgOpacity] = useState(1);
-  const [hasSession, setHasSession] = useState(false);
-  const [spotLinks, setSpotLinks] = useState<Record<string, { title: string; excerpt: string; category: string; reading_time_min: number; slug: string; og_image_url?: string; label?: string }>>({});
-  const [showSignup, setShowSignup] = useState(false);
-  const [overlaySlug, setOverlaySlug] = useState<string | null>(null);
-  // sliderPaused entfernt — kein Auto-Slider mehr
-
-  // Load spot-links (dynamic blog data)
-  useEffect(() => {
-    async function loadSpotLinks() {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-5821e.up.railway.app';
-        const res = await fetch(`${apiUrl}/articles/spot-links`);
-        if (res.ok) {
-          const data = await res.json();
-          const map: typeof spotLinks = {};
-          for (const link of data) {
-            if (link.article) {
-              map[`${link.topic_index}-${link.subtopic_index}`] = {
-                title: link.article.title,
-                excerpt: link.article.excerpt || '',
-                category: link.article.category || '',
-                reading_time_min: link.article.reading_time_min || 5,
-                slug: link.article.slug,
-                og_image_url: link.article.og_image_url || undefined,
-                label: link.label || undefined,
-              };
-            }
-          }
-          setSpotLinks(map);
-        }
-      } catch {
-        // Fallback to hardcoded data silently
-      }
-    }
-    loadSpotLinks();
-  }, []);
-
-  // Preload all topic images
-  useEffect(() => {
-    Object.values(TOPICS).forEach((t) => {
-      const img = new Image();
-      img.src = t.img;
-      t.subs.forEach((s) => {
-        const si = new Image();
-        si.src = s.img;
-      });
-    });
-  }, []);
-
-  // Session-Check
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) setHasSession(true);
-    });
-  }, []);
-
-  // Crossfade image helper
-  const crossfade = useCallback((src: string) => {
-    setImgOpacity(0);
-    setTimeout(() => {
-      setImgSrc(src);
-    }, 500);
-  }, []);
-
-  const handleImgLoad = useCallback(() => {
-    setImgOpacity(1);
-  }, []);
-
-  // Set active topic
-  const handleSetActive = useCallback((tid: string) => {
-    if (inMorph) {
-      setInMorph(false);
-    }
-    setActiveTopic(tid);
-    crossfade(TOPICS[tid].img);
-  }, [inMorph, crossfade]);
-
-  // Helper: Artikel-Bild oder Fallback-Subtopic-Bild
-  const getSpotImage = useCallback((topicId: string, subIdx: number) => {
-    const topicIdx = TOPIC_ORDER.indexOf(topicId);
-    const link = spotLinks[`${topicIdx}-${subIdx}`];
-    let url = link?.og_image_url || TOPICS[topicId].subs[subIdx].img;
-    // Unsplash: hochaufgeloest fuer Fullscreen
-    if (url.includes('images.unsplash.com') && url.includes('w=1080')) {
-      url = url.replace('w=1080', 'w=1920');
-    }
-    return url;
-  }, [spotLinks]);
-
-  // Morph functions
-  const openMorph = useCallback((idx: number) => {
-    setInMorph(true);
-    setMorphIdx(idx);
-    crossfade(getSpotImage(activeTopic, idx));
-  }, [activeTopic, crossfade, getSpotImage]);
-
-  const morphBack = useCallback(() => {
-    setInMorph(false);
-    setOverlaySlug(null);
-    crossfade(TOPICS[activeTopic].img);
-  }, [activeTopic, crossfade]);
-
-  const morphNext = useCallback(() => {
-    const subs = TOPICS[activeTopic].subs;
-    const next = (morphIdx + 1) % subs.length;
-    setMorphIdx(next);
-    crossfade(getSpotImage(activeTopic, next));
-  }, [activeTopic, morphIdx, crossfade, getSpotImage]);
-
-  const morphPrev = useCallback(() => {
-    const subs = TOPICS[activeTopic].subs;
-    const prev = (morphIdx - 1 + subs.length) % subs.length;
-    setMorphIdx(prev);
-    crossfade(getSpotImage(activeTopic, prev));
-  }, [activeTopic, morphIdx, crossfade, getSpotImage]);
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && inMorph) morphBack();
-      if (inMorph && e.key === 'ArrowRight') morphNext();
-      if (inMorph && e.key === 'ArrowLeft') morphPrev();
-    };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, [inMorph, morphBack, morphNext, morphPrev]);
-
-  const topic = TOPICS[activeTopic];
-  const sub = topic.subs[morphIdx];
+  const topic = TOPICS[HERO_TOPIC_ID];
 
   return (
     <>
@@ -153,186 +11,34 @@ export default function TopicHero() {
       <section id="anmeldung" className="th-hero">
         <div className="th-hero-img-wrap">
           <img
-            src={imgSrc}
+            src={topic.img}
             alt={`${topic.name} – Community für persönliches Wachstum bei Souleya`}
             className="th-hero-img"
-            style={{ opacity: imgOpacity }}
-            onLoad={handleImgLoad}
             fetchPriority="high"
           />
           <div className="th-hero-dim" />
 
-          {/* Topic info (hidden during morph) */}
-          {!inMorph && (
-            <div className="th-hero-info">
-              <h1 className="th-hero-name">{topic.name}</h1>
-              <div className="th-hero-tag">{topic.tag}</div>
-            </div>
-          )}
-
-          {/* Hotpick-Navigation (immer sichtbar) */}
-          <div className="th-slider-bar">
-            {topic.subs.map((s, i) => {
-              const topicIdx = TOPIC_ORDER.indexOf(activeTopic);
-              const link = spotLinks[`${topicIdx}-${i}`];
-              const label = link?.label || s.name;
-              const isActive = inMorph && morphIdx === i;
-              return (
-                <button
-                  key={s.name}
-                  className={`th-slider-tab${isActive ? ' th-slider-tab--active' : ''}`}
-                  onClick={() => {
-                    if (link) {
-                      if (inMorph && morphIdx === i) {
-                        morphBack();
-                      } else {
-                        openMorph(i);
-                      }
-                    }
-                  }}
-                >
-                  <span className="th-slider-tab-name">{label}</span>
-                </button>
-              );
-            })}
+          <div className="th-hero-info">
+            <h1 className="th-hero-name">{topic.name}</h1>
+            <div className="th-hero-tag">{topic.tag}</div>
           </div>
 
-          {/* Kernaussagen (hidden during morph) */}
-          {!inMorph && (
-            <div className="th-kern">
-              <div className="th-kern-line">
-                <div className="th-kern-dot" />
-                Triff Menschen, die zu <em>Dir passen.</em>
-              </div>
-              <div className="th-kern-line">
-                <div className="th-kern-dot" />
-                Sprich über Themen, die <em>dich bewegen.</em>
-              </div>
-              <div className="th-kern-line">
-                <div className="th-kern-dot" />
-                An Orten, die du <em>liebst.</em>
-              </div>
+          <div className="th-kern">
+            <div className="th-kern-line">
+              <div className="th-kern-dot" />
+              Triff Menschen, die zu <em>Dir passen.</em>
             </div>
-          )}
-
-          {/* Morph navigation */}
-          {inMorph && (
-            <>
-              <div className="th-morph-bar">
-                <button className="th-morph-back" onClick={morphBack}>
-                  ← Zurück
-                </button>
-                <button className="th-morph-arr" onClick={morphPrev}>‹</button>
-                <span className="th-morph-counter">{morphIdx + 1}/{topic.subs.length}</span>
-                <button className="th-morph-arr" onClick={morphNext}>›</button>
-              </div>
-
-              {/* Sub-topic name bottom-left */}
-              <div className="th-morph-info">
-                <div className="th-morph-name">{sub.name}</div>
-              </div>
-
-              {/* Floating Blog Card */}
-              {(() => {
-                const topicIdx = TOPIC_ORDER.indexOf(activeTopic);
-                const dynamicBlog = spotLinks[`${topicIdx}-${morphIdx}`];
-                const blogCat = dynamicBlog?.category || sub.blog.cat;
-                const blogTime = dynamicBlog ? `${dynamicBlog.reading_time_min} Min.` : sub.blog.time;
-                const blogTitle = dynamicBlog?.title || sub.blog.title;
-                const blogExcerpt = dynamicBlog?.excerpt || sub.blog.excerpt;
-                const blogSlug = dynamicBlog?.slug;
-                return (
-                <div className="th-float-card th-card-blog" key={`blog-${activeTopic}-${morphIdx}`}>
-                  <div className="th-fc-header">
-                    <span className="th-fc-tag">{blogCat}</span>
-                    <span className="th-fc-time">
-                      <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
-                      </svg>
-                      {blogTime}
-                    </span>
-                  </div>
-                  <div className="th-fc-title">{blogTitle}</div>
-                  <div className="th-fc-excerpt">{blogExcerpt}</div>
-                  <button onClick={() => blogSlug ? setOverlaySlug(blogSlug) : setShowSignup(true)} className="th-fc-cta">
-                    Weiterlesen
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12h14M13 6l6 6-6 6"/>
-                    </svg>
-                  </button>
-                </div>
-                );
-              })()}
-
-              {/* Floating Talk Card */}
-              <div className="th-float-card th-card-talk" key={`talk-${activeTopic}-${morphIdx}`}>
-                <div className="th-fc-header">
-                  <span className="th-fc-tag th-fc-tag--talk">Community</span>
-                  <span className="th-fc-members">
-                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/>
-                    </svg>
-                    {sub.members}
-                  </span>
-                </div>
-                <div className="th-fc-circle-name">{sub.circle}</div>
-                <div className="th-talk-msgs">
-                  {sub.msgs.map((msg, mi) => (
-                    <div key={mi} className={`th-talk-msg${mi === sub.msgs.length - 1 ? ' th-talk-msg--blur' : ''}`}>
-                      <div className="th-talk-avatar">
-                        {msg.name.charAt(0)}
-                      </div>
-                      <div className="th-talk-bubble">
-                        <div className="th-talk-meta">
-                          <span className="th-talk-name">{msg.name}</span>
-                          <span className="th-talk-soul">{msg.soul}</span>
-                          <span className="th-talk-ts">{msg.time}</span>
-                        </div>
-                        <div className="th-talk-txt">{msg.txt}</div>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="th-talk-lock">
-                    <div className="th-talk-lock-overlay" />
-                    <div className="th-talk-lock-cta">
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-                      </svg>
-                      <button onClick={() => hasSession ? window.location.href = '/circles' : setShowSignup(true)} className="th-talk-lock-btn">Jetzt mitmachen</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
+            <div className="th-kern-line">
+              <div className="th-kern-dot" />
+              Sprich über Themen, die <em>dich bewegen.</em>
+            </div>
+            <div className="th-kern-line">
+              <div className="th-kern-dot" />
+              An Orten, die du <em>liebst.</em>
+            </div>
+          </div>
         </div>
       </section>
-
-      {/* ═══ 4 TOPIC CARDS ═══ */}
-      <div className="th-cards-row">
-        {TOPIC_ORDER.filter((id) => id !== activeTopic).map((id) => {
-          const t = TOPICS[id];
-          return (
-            <div
-              key={id}
-              className="th-tcard"
-              onClick={() => handleSetActive(id)}
-            >
-              <img
-                src={t.img.replace('1600', '600').replace('900', '340')}
-                alt={t.name}
-                loading="lazy"
-                className="th-tcard-img"
-              />
-              <div className="th-tcard-ov" />
-              <div className="th-tcard-content">
-                <div className="th-tcard-name">{t.name}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
 
       {/* Helle Zwischensektion — Atemsekunde */}
       <div className="th-breathe">
@@ -355,19 +61,6 @@ export default function TopicHero() {
           </p>
         </div>
       </div>
-
-      {/* Signup Modal */}
-      {showSignup && <SignupModal onClose={() => setShowSignup(false)} />}
-
-      {/* Article Overlay */}
-      {overlaySlug && (
-        <ArticleOverlay
-          slug={overlaySlug}
-          hasSession={hasSession}
-          onClose={() => setOverlaySlug(null)}
-          onSignup={() => setShowSignup(true)}
-        />
-      )}
     </>
   );
 }
