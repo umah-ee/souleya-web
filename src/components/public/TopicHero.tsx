@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
-import SignupForm from './SignupForm';
 import SignupModal from './SignupModal';
 import ArticleOverlay from './ArticleOverlay';
 import { TOPICS, TOPIC_ORDER } from './TopicHeroData';
@@ -12,17 +11,12 @@ const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
 
-const FL_TOTAL = 500;
-const FL_EARLY = 200;
-
 export default function TopicHero() {
   const [activeTopic, setActiveTopic] = useState('wachstum');
   const [inMorph, setInMorph] = useState(false);
   const [morphIdx, setMorphIdx] = useState(0);
   const [imgSrc, setImgSrc] = useState(TOPICS.wachstum.img);
   const [imgOpacity, setImgOpacity] = useState(1);
-  const [flCount, setFlCount] = useState(0);
-  const [displayCount, setDisplayCount] = useState(0);
   const [hasSession, setHasSession] = useState(false);
   const [spotLinks, setSpotLinks] = useState<Record<string, { title: string; excerpt: string; category: string; reading_time_min: number; slug: string; og_image_url?: string; label?: string }>>({});
   const [showSignup, setShowSignup] = useState(false);
@@ -78,29 +72,6 @@ export default function TopicHero() {
       if (session?.user) setHasSession(true);
     });
   }, []);
-
-  // Supabase: load First Light count + Realtime
-  useEffect(() => {
-    async function load() {
-      try {
-        const { data } = await supabase
-          .from('public_stats')
-          .select('first_light_count')
-          .single();
-        if (data?.first_light_count != null) {
-          setFlCount(data.first_light_count);
-        }
-      } catch {
-        // Silent fail
-      }
-    }
-    load();
-  }, []);
-
-  // Sync display count directly (no animation needed for mini counter)
-  useEffect(() => {
-    setDisplayCount(flCount);
-  }, [flCount]);
 
   // Crossfade image helper
   const crossfade = useCallback((src: string) => {
@@ -175,12 +146,6 @@ export default function TopicHero() {
 
   const topic = TOPICS[activeTopic];
   const sub = topic.subs[morphIdx];
-
-  // Mini progress bar calculations
-  const earlyWidth = Math.min(flCount, FL_EARLY) / FL_EARLY * 40;
-  const flWidth = Math.max(0, flCount - FL_EARLY) / (FL_TOTAL - FL_EARLY) * 60;
-  const markerLeft = flCount / FL_TOTAL * 100;
-  const shimmerClip = `inset(0 ${100 - (earlyWidth + flWidth)}% 0 0)`;
 
   return (
     <>
@@ -341,65 +306,6 @@ export default function TopicHero() {
             </>
           )}
 
-          {/* ── Compact Signup Panel (bottom-right) – nur für nicht eingeloggte User und nicht im Morph-Modus ── */}
-          {!hasSession && !inMorph && <div className="th-signup-panel">
-            <p className="th-fl-urgency-teaser">
-              Sei schnell – sichere dir einen <strong>First Light</strong> Platz und erhalte lebenslange Vorteile.
-            </p>
-            <SignupForm />
-            <div className="th-fl-mini">
-              <div className="th-fl-mini-bar">
-                <div
-                  className="th-fl-mini-zone th-fl-mini-early"
-                  style={{ width: `${earlyWidth}%` }}
-                />
-                <div
-                  className="th-fl-mini-zone th-fl-mini-fl"
-                  style={{ width: `${flWidth}%` }}
-                />
-                <div
-                  className="th-fl-mini-shimmer"
-                  style={{ clipPath: shimmerClip }}
-                />
-                <div className="th-fl-mini-div" />
-                <svg
-                  className="th-fl-mini-marker"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 100 100"
-                  style={{ left: `${markerLeft}%` }}
-                >
-                  <defs>
-                    <linearGradient id="th-fmg" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#A8894E" />
-                      <stop offset="100%" stopColor="#D4BC8B" />
-                    </linearGradient>
-                  </defs>
-                  <circle
-                    cx="50" cy="50" r="36" fill="none"
-                    stroke="url(#th-fmg)" strokeWidth="9"
-                    strokeLinecap="round" strokeDasharray="196 30" strokeDashoffset="15"
-                  />
-                </svg>
-              </div>
-              <div className="th-fl-mini-row">
-                <div className="th-fl-mini-counter">
-                  <span className="th-fl-mini-num">{displayCount}</span>
-                  <span className="th-fl-mini-total"> / 500 vergeben</span>
-                </div>
-              </div>
-              <a href="#first-light-detail" className="th-fl-firstlight-btn">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M12 8v4m0 4h.01" />
-                </svg>
-                Was ist First Light?
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <path d="M6 9l6 6l6 -6" />
-                </svg>
-              </a>
-            </div>
-          </div>}
         </div>
       </section>
 

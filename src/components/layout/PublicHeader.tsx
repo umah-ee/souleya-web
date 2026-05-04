@@ -52,7 +52,6 @@ export default function PublicHeader() {
 
   const navLinks = [
     { href: `/${currentLocale}/blog`, label: 'Blog' },
-    { href: '/preise', label: 'Preise' },
     { href: '/ueber-uns', label: 'Über uns' },
   ];
 

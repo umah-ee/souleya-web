@@ -46,7 +46,6 @@ export default function PublicFooter() {
               <Link href="/features/circles" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Circles</Link>
               <Link href="/features/studio" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Studio</Link>
               <Link href="/features/events" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Events</Link>
-              <Link href="/preise" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Preise</Link>
               <Link href="/mentor" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Als Mentor bewerben</Link>
             </div>
             <div className="flex items-center gap-5 flex-wrap justify-center">

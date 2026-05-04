@@ -1,14 +1,12 @@
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import TopicHero from '@/components/public/TopicHero';
-import FirstLightDetailSection from '@/components/public/FirstLightDetailSection';
 
 // Below-fold Komponenten lazy laden — nicht im initialen JS-Bundle
 const JourneySection = dynamic(() => import('@/components/public/JourneySection'));
 const FeaturesGrid = dynamic(() => import('@/components/public/FeaturesGrid'));
 const HowItWorks = dynamic(() => import('@/components/public/HowItWorks'));
 const FaqAccordion = dynamic(() => import('@/components/public/FaqAccordion'));
-const CtaFinal = dynamic(() => import('@/components/public/CtaFinal'));
 
 // Default Hero-Bild (Thema "wachstum") für LCP-Preload — responsive
 const HERO_IMG_MOBILE = 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&h=450&fit=crop&fm=webp&q=75';
@@ -37,12 +35,10 @@ export default function HomePage() {
         imageSizes="100vw"
       />
       <TopicHero />
-      <FirstLightDetailSection />
       <JourneySection />
       <FeaturesGrid />
       <HowItWorks />
       <FaqAccordion />
-      <CtaFinal />
     </>
   );
 }
