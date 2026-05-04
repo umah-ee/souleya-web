@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { findRaum, RAEUME } from '@/lib/raeume';
+import { readSessionCookie, SESSION_COOKIE } from '@/lib/raeume-auth';
+import { getCallSeatsTaken } from '@/lib/raeume-mail';
 import RaumDetailClient from './RaumDetailClient';
 
 type Params = { slug: string };
@@ -30,5 +33,20 @@ export default async function RaumDetailPage({
   const raum = findRaum(slug);
   if (!raum) notFound();
 
-  return <RaumDetailClient raum={raum} />;
+  const store = await cookies();
+  const session = readSessionCookie(store.get(SESSION_COOKIE)?.value);
+
+  // Live-Plätze für aktive Call-Räume aus Resend ziehen — Fallback Mock
+  let liveTakenSlots: number | null = null;
+  if (raum.type === 'call' && !raum.ended) {
+    liveTakenSlots = await getCallSeatsTaken();
+  }
+
+  return (
+    <RaumDetailClient
+      raum={raum}
+      sessionEmail={session?.email ?? null}
+      liveTakenSlots={liveTakenSlots}
+    />
+  );
 }

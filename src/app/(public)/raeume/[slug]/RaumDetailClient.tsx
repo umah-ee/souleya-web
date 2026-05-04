@@ -2,10 +2,16 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import type { Raum, RaumComment } from '@/lib/raeume';
+import type { Raum, RaumComment, CallRaum } from '@/lib/raeume';
 import { commentCount } from '@/lib/raeume';
 
-export default function RaumDetailClient({ raum }: { raum: Raum }) {
+type Props = {
+  raum: Raum;
+  sessionEmail: string | null;
+  liveTakenSlots: number | null;
+};
+
+export default function RaumDetailClient({ raum, sessionEmail, liveTakenSlots }: Props) {
   return (
     <div className="raum-container raum-detail">
       <Link href="/raeume" className="raum-back">
@@ -28,35 +34,67 @@ export default function RaumDetailClient({ raum }: { raum: Raum }) {
       <div className="raum-impuls-frage">{raum.impulsFrage}</div>
 
       {raum.type === 'call' && !raum.ended && (
-        <CallSignup
-          dateLong={raum.callDateLong}
-          durationMin={raum.callDurationMin}
-          slotsLeft={raum.callMaxSlots - raum.callTakenSlots}
-        />
+        <CallSignup raum={raum} liveTakenSlots={liveTakenSlots} />
       )}
 
       {raum.type === 'call' && raum.ended && (
         <CallEnded date={raum.callDate} summary={raum.callSummary} />
       )}
 
-      <Comments raum={raum} />
+      <Comments raum={raum} sessionEmail={sessionEmail} />
     </div>
   );
 }
 
+/* ───────────────── Call-Anmeldung ───────────────── */
+
 function CallSignup({
-  dateLong,
-  durationMin,
-  slotsLeft,
+  raum,
+  liveTakenSlots,
 }: {
-  dateLong: string;
-  durationMin: number;
-  slotsLeft: number;
+  raum: CallRaum;
+  liveTakenSlots: number | null;
 }) {
-  const [done, setDone] = useState(false);
+  const taken = liveTakenSlots ?? raum.callTakenSlots;
+  const slotsLeft = Math.max(0, raum.callMaxSlots - taken);
+
+  const [state, setState] = useState<
+    | { kind: 'idle' }
+    | { kind: 'loading' }
+    | { kind: 'confirmed' }
+    | { kind: 'waitlist' }
+    | { kind: 'error'; message: string }
+  >({ kind: 'idle' });
   const [email, setEmail] = useState('');
 
-  if (done) {
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setState({ kind: 'loading' });
+    try {
+      const res = await fetch('/api/raeume/subscribe-call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), slug: raum.slug }),
+      });
+      const body = await res.json();
+      if (!res.ok || !body.ok) {
+        setState({
+          kind: 'error',
+          message: friendlyError(body.error),
+        });
+        return;
+      }
+      setState({ kind: body.status === 'waitlist' ? 'waitlist' : 'confirmed' });
+    } catch {
+      setState({
+        kind: 'error',
+        message: 'Das hat leider nicht geklappt. Versuch es gerne nochmal.',
+      });
+    }
+  }
+
+  if (state.kind === 'confirmed') {
     return (
       <div className="raum-call-signup">
         <div className="raum-call-done">
@@ -70,31 +108,53 @@ function CallSignup({
     );
   }
 
+  if (state.kind === 'waitlist') {
+    return (
+      <div className="raum-call-signup">
+        <div className="raum-call-done">
+          <div className="raum-call-done-check" aria-hidden="true">✉</div>
+          <h3>Schade — der Raum ist schon voll.</h3>
+          <p>
+            Wir machen einen zweiten Termin. Sobald das Datum steht, schicken wir dir eine Mail.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="raum-call-signup">
       <h3>Darüber reden wir am Samstag.</h3>
       <div className="raum-call-details">
-        {dateLong} · Kleine Runde, {durationMin} Minuten, eine Frage.
+        {raum.callDateLong} · Kleine Runde, {raum.callDurationMin} Minuten, eine Frage.
       </div>
-      <div className="raum-call-slots">Noch {slotsLeft} Plätze frei</div>
-      <form
-        className="raum-call-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (email.trim()) setDone(true);
-        }}
-      >
+      <div className="raum-call-slots">
+        {slotsLeft > 0
+          ? `Noch ${slotsLeft} Plätze frei`
+          : 'Aktuell keine Plätze frei — du landest auf der Warteliste'}
+      </div>
+      <form className="raum-call-form" onSubmit={submit}>
         <input
           type="email"
           required
           placeholder="deine@email.de"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={state.kind === 'loading'}
         />
-        <button type="submit" className="raum-call-btn">
-          Anmelden
+        <button
+          type="submit"
+          className="raum-call-btn"
+          disabled={state.kind === 'loading'}
+        >
+          {state.kind === 'loading' ? 'Einen Moment …' : 'Anmelden'}
         </button>
       </form>
+      {state.kind === 'error' && (
+        <p className="raum-login-prompt-hint" style={{ color: '#A8894E', marginTop: 12 }}>
+          {state.message}
+        </p>
+      )}
     </div>
   );
 }
@@ -113,7 +173,9 @@ function CallEnded({ date, summary }: { date: string; summary?: string }) {
   );
 }
 
-function Comments({ raum }: { raum: Raum }) {
+/* ───────────────── Kommentare ───────────────── */
+
+function Comments({ raum, sessionEmail }: { raum: Raum; sessionEmail: string | null }) {
   const count = commentCount(raum);
   const heading =
     count === 0
@@ -135,7 +197,11 @@ function Comments({ raum }: { raum: Raum }) {
         <CommentBlock key={c.id} comment={c} />
       ))}
 
-      <LoginPrompt slug={raum.slug} />
+      {sessionEmail ? (
+        <CommentForm email={sessionEmail} />
+      ) : (
+        <LoginPrompt slug={raum.slug} />
+      )}
     </section>
   );
 }
@@ -190,21 +256,52 @@ function Avatar({ comment }: { comment: RaumComment }) {
     <div
       className={`raum-comment-avatar${comment.isFounder ? ' is-founder' : ''}`}
     >
-      {comment.name.charAt(0)}
+      {comment.name.charAt(0).toUpperCase()}
     </div>
   );
 }
 
+/* ───────────────── Login-Prompt (nicht eingeloggt) ───────────────── */
+
 function LoginPrompt({ slug }: { slug: string }) {
-  const [sent, setSent] = useState(false);
+  const [state, setState] = useState<
+    | { kind: 'idle' }
+    | { kind: 'loading' }
+    | { kind: 'sent' }
+    | { kind: 'error'; message: string }
+  >({ kind: 'idle' });
   const [email, setEmail] = useState('');
 
-  if (sent) {
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setState({ kind: 'loading' });
+    try {
+      const res = await fetch('/api/raeume/subscribe-newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), slug }),
+      });
+      const body = await res.json();
+      if (!res.ok || !body.ok) {
+        setState({ kind: 'error', message: friendlyError(body.error) });
+        return;
+      }
+      setState({ kind: 'sent' });
+    } catch {
+      setState({
+        kind: 'error',
+        message: 'Das hat leider nicht geklappt. Versuch es gerne nochmal.',
+      });
+    }
+  }
+
+  if (state.kind === 'sent') {
     return (
       <div className="raum-login-prompt">
         <p>Check dein Postfach. Wir haben dir einen Link geschickt.</p>
         <p className="raum-login-prompt-hint">
-          Ein Klick und du kannst hier weiterschreiben.
+          Ein Klick und du kannst hier weiterschreiben. Du bleibst eingeloggt — beim nächsten Besuch musst du keinen neuen Link anfordern.
         </p>
       </div>
     );
@@ -213,28 +310,126 @@ function LoginPrompt({ slug }: { slug: string }) {
   return (
     <div className="raum-login-prompt">
       <p>Möchtest du deine Gedanken teilen?</p>
-      <form
-        className="raum-call-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (email.trim()) setSent(true);
-        }}
-        aria-label={`Mitmachen im Raum ${slug}`}
-      >
+      <form className="raum-call-form" onSubmit={submit}>
         <input
           type="email"
           required
           placeholder="deine@email.de"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={state.kind === 'loading'}
         />
-        <button type="submit" className="raum-call-btn">
-          Mitmachen
+        <button
+          type="submit"
+          className="raum-call-btn"
+          disabled={state.kind === 'loading'}
+        >
+          {state.kind === 'loading' ? 'Einen Moment …' : 'Mitmachen'}
         </button>
       </form>
       <div className="raum-login-prompt-hint">
         Du bekommst einen Link per Mail. Ein Klick und du kannst schreiben. Du kannst auch anonym posten.
       </div>
+      {state.kind === 'error' && (
+        <p className="raum-login-prompt-hint" style={{ color: '#A8894E', marginTop: 8 }}>
+          {state.message}
+        </p>
+      )}
     </div>
   );
+}
+
+/* ───────────────── Comment-Form (eingeloggt) ───────────────── */
+
+function CommentForm({ email }: { email: string }) {
+  const [text, setText] = useState('');
+  const [anon, setAnon] = useState(false);
+  const [state, setState] = useState<'idle' | 'sent'>('idle');
+
+  if (state === 'sent') {
+    return (
+      <div className="raum-login-prompt">
+        <p>Danke. Dein Gedanke ist da.</p>
+        <p className="raum-login-prompt-hint">
+          Sobald wir die Räume veröffentlichen, erscheint er für die anderen.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="raum-login-prompt" style={{ textAlign: 'left' }}>
+      <p style={{ fontFamily: 'var(--font-label, "Josefin Sans", sans-serif)', fontSize: 13, color: 'var(--text-muted)', marginBottom: 12, letterSpacing: 0.3 }}>
+        Angemeldet als <strong style={{ color: 'var(--text-body)' }}>{email}</strong>
+        <button
+          type="button"
+          onClick={async () => {
+            await fetch('/api/raeume/me', { method: 'DELETE' });
+            window.location.reload();
+          }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', marginLeft: 12, fontSize: 12, textDecoration: 'underline' }}
+        >
+          Abmelden
+        </button>
+      </p>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (text.trim()) setState('sent');
+        }}
+      >
+        <textarea
+          placeholder="Was denkst du darüber?"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          required
+          style={{
+            width: '100%',
+            minHeight: 100,
+            padding: 14,
+            border: '1px solid var(--glass-border)',
+            borderRadius: 12,
+            fontFamily: 'var(--font-body, "Quicksand", sans-serif)',
+            fontSize: 15,
+            background: 'rgba(255,255,255,0.5)',
+            color: 'var(--text-h)',
+            outline: 'none',
+            resize: 'vertical',
+            lineHeight: 1.6,
+          }}
+        />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+          <label style={{ fontFamily: 'var(--font-label, "Josefin Sans", sans-serif)', fontSize: 13, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={anon}
+              onChange={(e) => setAnon(e.target.checked)}
+              style={{ accentColor: 'var(--gold)' }}
+            />
+            Anonym posten
+          </label>
+          <button type="submit" className="raum-call-btn">
+            Gedanken teilen
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+/* ───────────────── Helpers ───────────────── */
+
+function friendlyError(code: unknown): string {
+  switch (code) {
+    case 'invalid_email':
+      return 'Die E-Mail-Adresse sieht nicht ganz richtig aus. Schau bitte nochmal.';
+    case 'mail_not_configured':
+    case 'audience_not_configured':
+    case 'magic_link_secret_not_configured':
+      return 'Bei uns läuft gerade etwas nicht. Schreib uns kurz an hello@souleya.com.';
+    case 'raum_not_available':
+      return 'Dieser Raum ist gerade nicht für Anmeldungen offen.';
+    default:
+      return 'Das hat leider nicht geklappt. Versuch es gerne nochmal.';
+  }
 }

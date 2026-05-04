@@ -19,12 +19,14 @@ type RaumBase = {
 
 export type CallRaum = RaumBase & {
   type: 'call';
-  callDate: string;
-  callDateLong: string;
-  callTime: string;
+  callDate: string;            // Card-Badge: "Samstag 10. Mai"
+  callDateLong: string;        // Detail-Badge: "10. Mai, 9 Uhr"
+  callTime: string;            // "9 Uhr"
   callDurationMin: number;
   callMaxSlots: number;
-  callTakenSlots: number;
+  callTakenSlots: number;      // Fallback wenn Resend nicht erreichbar
+  callMailDate: string;        // Mail-Header: "Samstag, 10. Mai 2026 · 9:00 Uhr"
+  callCalendarLink: string;    // Google-Calendar-/Meet-Link in der Bestätigungsmail
   ended: boolean;
   callSummary?: string;
 };
@@ -45,6 +47,8 @@ export const RAEUME: Raum[] = [
     callDurationMin: 20,
     callMaxSlots: 12,
     callTakenSlots: 4,
+    callMailDate: 'Samstag, 10. Mai 2026 · 9:00 Uhr',
+    callCalendarLink: 'https://calendar.app.google/wMSJY8SNQqisai8n8',
     ended: false,
     question:
       'Gibt es einen Menschen in deinem Leben mit dem du früher über alles reden konntest und heute irgendwie nicht mehr?',
