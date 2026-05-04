@@ -358,16 +358,16 @@ function CommentForm({ email }: { email: string }) {
   }
 
   return (
-    <div className="raum-login-prompt" style={{ textAlign: 'left' }}>
-      <p style={{ fontFamily: 'var(--font-label, "Josefin Sans", sans-serif)', fontSize: 13, color: 'var(--text-muted)', marginBottom: 12, letterSpacing: 0.3 }}>
-        Angemeldet als <strong style={{ color: 'var(--text-body)' }}>{email}</strong>
+    <div className="raum-comment-form-wrap">
+      <p className="raum-comment-form-meta">
+        Angemeldet als <strong>{email}</strong>
         <button
           type="button"
+          className="raum-comment-form-logout"
           onClick={async () => {
             await fetch('/api/raeume/me', { method: 'DELETE' });
             window.location.reload();
           }}
-          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', marginLeft: 12, fontSize: 12, textDecoration: 'underline' }}
         >
           Abmelden
         </button>
@@ -379,32 +379,18 @@ function CommentForm({ email }: { email: string }) {
         }}
       >
         <textarea
+          className="raum-comment-textarea"
           placeholder="Was denkst du darüber?"
           value={text}
           onChange={(e) => setText(e.target.value)}
           required
-          style={{
-            width: '100%',
-            minHeight: 100,
-            padding: 14,
-            border: '1px solid var(--glass-border)',
-            borderRadius: 12,
-            fontFamily: 'var(--font-body, "Quicksand", sans-serif)',
-            fontSize: 15,
-            background: 'rgba(255,255,255,0.5)',
-            color: 'var(--text-h)',
-            outline: 'none',
-            resize: 'vertical',
-            lineHeight: 1.6,
-          }}
         />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-          <label style={{ fontFamily: 'var(--font-label, "Josefin Sans", sans-serif)', fontSize: 13, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+        <div className="raum-comment-form-actions">
+          <label className="raum-anon-check">
             <input
               type="checkbox"
               checked={anon}
               onChange={(e) => setAnon(e.target.checked)}
-              style={{ accentColor: 'var(--gold)' }}
             />
             Anonym posten
           </label>

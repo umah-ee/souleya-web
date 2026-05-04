@@ -2102,6 +2102,81 @@ select:focus {
   letter-spacing: 0.3px;
 }
 
+/* ── Comment Form (eingeloggt) ── */
+.raum-comment-form-wrap {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur, 8px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 8px));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 28px;
+  margin-top: 24px;
+  box-shadow: var(--glass-shadow);
+}
+.raum-comment-form-meta {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  letter-spacing: 0.3px;
+}
+.raum-comment-form-meta strong {
+  color: var(--text-body);
+  font-weight: 500;
+}
+.raum-comment-form-logout {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-left: 12px;
+  font-size: 12px;
+  text-decoration: underline;
+  font-family: inherit;
+  padding: 0;
+}
+.raum-comment-form-logout:hover { color: var(--gold-text); }
+
+.raum-comment-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 15px;
+  background: rgba(255,255,255,0.6);
+  color: var(--text-h);
+  outline: none;
+  resize: vertical;
+  line-height: 1.6;
+  transition: border-color 0.2s;
+}
+[data-theme="dark"] .raum-comment-textarea {
+  background: rgba(255,255,255,0.04);
+}
+.raum-comment-textarea:focus { border-color: var(--gold); }
+.raum-comment-textarea::placeholder { color: var(--text-muted); }
+
+.raum-comment-form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.raum-anon-check {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.raum-anon-check input { accent-color: var(--gold); }
+
 @media (max-width: 600px) {
   .raum-container { padding: 0 20px; }
   .raum-site-header { padding: 40px 0 30px; }
