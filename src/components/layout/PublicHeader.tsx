@@ -51,6 +51,7 @@ export default function PublicHeader() {
   const otherLocale = currentLocale === 'de' ? 'en' : 'de';
 
   const navLinks = [
+    { href: '/raeume', label: 'Räume' },
     { href: `/${currentLocale}/blog`, label: 'Blog' },
     { href: '/ueber-uns', label: 'Über uns' },
   ];

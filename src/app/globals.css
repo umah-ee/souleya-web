@@ -1642,3 +1642,471 @@ select:focus {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ══════════════════════════════════════════════════════════
+   Räume — Gespräche die bleiben
+   ══════════════════════════════════════════════════════════ */
+
+.raum-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 30px;
+}
+
+.raum-site-header {
+  text-align: center;
+  padding: 60px 0 40px;
+}
+.raum-site-header h1 {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--text-h);
+  margin: 16px 0 12px;
+  letter-spacing: 0.5px;
+}
+.raum-site-header p {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 16px;
+  color: var(--text-body);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+.raum-site-header svg {
+  display: block;
+  margin: 0 auto;
+  opacity: 0.85;
+}
+
+.raum-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  padding: 20px 0 80px;
+}
+
+.raum-card {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 32px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  text-decoration: none;
+  display: block;
+  box-shadow: var(--glass-shadow);
+}
+.raum-card:hover {
+  background: var(--glass-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+.raum-card.featured {
+  border-color: var(--gold-border);
+}
+
+.raum-badge {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.raum-badge-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: raum-pulse 2s infinite;
+}
+@keyframes raum-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.raum-card h3 {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0 0 12px;
+  color: var(--text-h);
+}
+
+.raum-teaser {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 15px;
+  color: var(--text-body);
+  line-height: 1.6;
+}
+
+.raum-call-info {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 12px;
+  color: var(--gold-text);
+  background: var(--gold-bg);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-top: 14px;
+  display: inline-block;
+  letter-spacing: 0.5px;
+}
+
+.raum-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.raum-meta-read {
+  color: var(--gold-text);
+  transition: color 0.2s;
+}
+.raum-card:hover .raum-meta-read { color: var(--gold-deep); }
+
+/* ── Detail ── */
+.raum-detail {
+  padding: 40px 0 80px;
+}
+.raum-back {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 30px;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  text-decoration: none;
+}
+.raum-back:hover { color: var(--gold-text); }
+
+.raum-detail-badge {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  margin-bottom: 16px;
+}
+.raum-detail h2 {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: clamp(24px, 3.5vw, 30px);
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0 0 30px;
+  color: var(--text-h);
+}
+
+.raum-impuls {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 16px;
+  line-height: 1.85;
+  color: var(--text-body);
+  margin-bottom: 32px;
+}
+.raum-impuls p { margin-bottom: 16px; }
+.raum-impuls p:last-child { margin-bottom: 0; }
+
+.raum-impuls-frage {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-style: italic;
+  color: var(--text-h);
+  font-size: 19px;
+  line-height: 1.5;
+  margin: 30px 0 8px;
+  padding-left: 18px;
+  border-left: 2px solid var(--gold-border);
+}
+
+/* ── Call Anmeldeblock ── */
+.raum-call-signup {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 32px;
+  margin: 40px 0;
+  text-align: center;
+  box-shadow: var(--glass-shadow);
+}
+.raum-call-signup h3 {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: 22px;
+  font-weight: 400;
+  margin: 0 0 8px;
+  color: var(--text-h);
+}
+.raum-call-signup .raum-call-details {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 14px;
+  color: var(--text-body);
+  margin-bottom: 6px;
+}
+.raum-call-signup .raum-call-slots {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 13px;
+  color: var(--gold-text);
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+}
+.raum-call-signup .raum-call-form {
+  display: flex;
+  gap: 10px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+.raum-call-signup input[type="email"] {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 14px;
+  background: rgba(255,255,255,0.6);
+  color: var(--text-h);
+  outline: none;
+  transition: border-color 0.2s;
+}
+[data-theme="dark"] .raum-call-signup input[type="email"] {
+  background: rgba(255,255,255,0.04);
+  color: var(--text-h);
+}
+.raum-call-signup input[type="email"]:focus { border-color: var(--gold); }
+.raum-call-btn {
+  padding: 12px 24px;
+  background: var(--gold);
+  color: var(--text-on-gold);
+  border: none;
+  border-radius: 9999px;
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  white-space: nowrap;
+}
+.raum-call-btn:hover { opacity: 0.9; }
+.raum-call-btn:disabled { opacity: 0.5; cursor: default; }
+
+.raum-call-done {
+  text-align: center;
+  padding: 16px 0;
+}
+.raum-call-done-check {
+  font-size: 32px;
+  margin-bottom: 12px;
+  color: var(--gold-text);
+}
+.raum-call-done h3 {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: 22px;
+  font-weight: 400;
+  margin: 0 0 8px;
+  color: var(--text-h);
+}
+.raum-call-done p {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 15px;
+  color: var(--text-body);
+}
+
+/* ── Call beendet ── */
+.raum-call-ended {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 32px;
+  margin: 40px 0;
+  box-shadow: var(--glass-shadow);
+}
+.raum-call-ended-label {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.raum-call-ended-text {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 16px;
+  line-height: 1.85;
+  color: var(--text-body);
+}
+
+/* ── Kommentare ── */
+.raum-comments {
+  margin-top: 50px;
+  padding-top: 30px;
+  border-top: 1px solid var(--gold-border-s);
+}
+.raum-comments h4 {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 24px;
+}
+.raum-comments-empty {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.raum-comment {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.raum-comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gold-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gold-text);
+  flex-shrink: 0;
+}
+.raum-comment-avatar.is-founder {
+  background: var(--gold);
+  color: var(--text-on-gold);
+}
+.raum-comment-avatar.is-anon {
+  background: var(--gold-softer);
+  color: var(--text-muted);
+  font-size: 16px;
+}
+.raum-comment-body { flex: 1; min-width: 0; }
+.raum-comment-header {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.raum-comment-name { color: var(--text-body); font-weight: 500; }
+.raum-comment-founder-badge {
+  font-size: 10px;
+  background: var(--gold-bg);
+  color: var(--gold-text);
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin: 0 6px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.raum-comment-text {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 15px;
+  color: var(--text-body);
+  line-height: 1.65;
+}
+.raum-comment-reply-btn {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 8px;
+  padding: 0;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+.raum-comment-reply-btn:hover { color: var(--gold-text); }
+
+.raum-comment-reply {
+  display: flex;
+  gap: 12px;
+  margin: 12px 0 24px 50px;
+  padding-left: 14px;
+  border-left: 2px solid var(--gold-border-s);
+}
+.raum-comment-reply .raum-comment-avatar {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+
+/* ── Login Prompt ── */
+.raum-login-prompt {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur, 8px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 8px));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 28px;
+  text-align: center;
+  margin-top: 24px;
+  box-shadow: var(--glass-shadow);
+}
+.raum-login-prompt p {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 16px;
+  color: var(--text-body);
+  margin-bottom: 16px;
+}
+.raum-login-prompt .raum-call-form {
+  display: flex;
+  gap: 10px;
+  max-width: 380px;
+  margin: 0 auto 8px;
+}
+.raum-login-prompt input[type="email"] {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 14px;
+  background: rgba(255,255,255,0.6);
+  color: var(--text-h);
+  outline: none;
+}
+[data-theme="dark"] .raum-login-prompt input[type="email"] {
+  background: rgba(255,255,255,0.04);
+}
+.raum-login-prompt input[type="email"]:focus { border-color: var(--gold); }
+.raum-login-prompt .raum-call-btn { padding: 10px 20px; }
+.raum-login-prompt-hint {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 600px) {
+  .raum-container { padding: 0 20px; }
+  .raum-site-header { padding: 40px 0 30px; }
+  .raum-card { padding: 24px; }
+  .raum-card h3 { font-size: 20px; }
+  .raum-call-signup .raum-call-form,
+  .raum-login-prompt .raum-call-form { flex-direction: column; }
+}

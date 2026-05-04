@@ -42,6 +42,7 @@ export default function PublicFooter() {
           {/* Navigation Links */}
           <nav className="flex flex-col items-center gap-4 text-xs">
             <div className="flex items-center gap-5 flex-wrap justify-center">
+              <Link href="/raeume" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Räume</Link>
               <Link href="/was-ist-souleya" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Was ist Souleya?</Link>
               <Link href="/features/circles" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Circles</Link>
               <Link href="/features/studio" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Studio</Link>
