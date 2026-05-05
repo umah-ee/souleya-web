@@ -1779,6 +1779,130 @@ select:focus {
 }
 
 /* ══════════════════════════════════════════════════════════
+   Über uns
+   ══════════════════════════════════════════════════════════ */
+
+.about-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 30px 80px;
+}
+.about-page h2 {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: clamp(26px, 4vw, 32px);
+  font-weight: 400;
+  text-align: center;
+  margin: 0 0 10px;
+  color: var(--text-h);
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+}
+.about-subtitle {
+  text-align: center;
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text-body);
+  margin: 0 auto 50px;
+  max-width: 540px;
+}
+.about-page h3 {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: 22px;
+  font-weight: 400;
+  font-style: italic;
+  margin: 0 0 20px;
+  color: var(--text-h);
+}
+.about-text {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 16px;
+  line-height: 1.85;
+  color: var(--text-body);
+  margin: 0 0 16px;
+}
+.about-text em {
+  color: var(--gold-text);
+  font-style: italic;
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: 17px;
+}
+
+.about-banner {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 28px;
+  text-align: center;
+  margin: 40px 0;
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  box-shadow: var(--glass-shadow);
+}
+
+.about-bridge {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 16px;
+  line-height: 1.85;
+  color: var(--text-body);
+  margin: 0 0 16px;
+}
+.about-bridge strong {
+  color: var(--text-h);
+  font-weight: 400;
+}
+
+.about-team-heading { margin-top: 50px; }
+
+.about-team-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 40px;
+}
+.about-team-card {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: var(--glass-shadow);
+}
+.about-team-name {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 4px;
+  color: var(--text-h);
+}
+.about-team-role {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--gold-text);
+  margin-bottom: 14px;
+}
+.about-team-desc {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 15px;
+  color: var(--text-body);
+  line-height: 1.65;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .about-page { padding: 30px 20px 60px; }
+  .about-subtitle { margin-bottom: 36px; }
+  .about-team-grid { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════════════════════════════
    Räume — Gespräche die bleiben
    ══════════════════════════════════════════════════════════ */
 
