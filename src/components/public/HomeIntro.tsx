@@ -1,31 +1,32 @@
 import Link from 'next/link';
 import { sortedRaeume } from '@/lib/raeume';
 
-export default function HomeIntro() {
-  // Featured-Card zeigt auf den ersten aktiven Call-Raum (sortedRaeume pinnt
-  // ihn an die Spitze). Fallback: Räume-Übersicht.
-  const top = sortedRaeume()[0];
-  const featuredHref =
-    top && top.type === 'call' && !top.ended ? `/raeume/${top.slug}` : '/raeume';
+export default async function HomeIntro() {
+  // Featured-Card nur zeigen, wenn ein aktiver Call-Raum existiert
+  const raeume = await sortedRaeume();
+  const top = raeume[0];
+  const showFeatured = top && top.type === 'call' && !top.ended;
 
   return (
     <div className="home-intro">
-      <section className="home-featured">
-        <div className="home-featured-badge">
-          <span className="home-featured-dot" aria-hidden="true" />
-          Impuls #01 · Call Raum · Anmeldung offen
-        </div>
-        <h2>Du hast genug Menschen um dich. Nur keinen der dich versteht.</h2>
-        <p className="home-featured-sub">
-          Die normalen Gespräche fühlen sich leer an. Und du weißt nicht wem du das sagen sollst.
-        </p>
-        <div className="home-featured-tags">
-          500 Kontakte im Handy. Und trotzdem niemanden den du um Mitternacht anrufen würdest.
-        </div>
-        <Link className="home-featured-link" href={featuredHref}>
-          Lesen →
-        </Link>
-      </section>
+      {showFeatured && (
+        <section className="home-featured">
+          <div className="home-featured-badge">
+            <span className="home-featured-dot" aria-hidden="true" />
+            Impuls #01 · Call Raum · Anmeldung offen
+          </div>
+          <h2>Du hast genug Menschen um dich. Nur keinen der dich versteht.</h2>
+          <p className="home-featured-sub">
+            Die normalen Gespräche fühlen sich leer an. Und du weißt nicht wem du das sagen sollst.
+          </p>
+          <div className="home-featured-tags">
+            500 Kontakte im Handy. Und trotzdem niemanden den du um Mitternacht anrufen würdest.
+          </div>
+          <Link className="home-featured-link" href={`/raeume/${top.slug}`}>
+            Lesen →
+          </Link>
+        </section>
+      )}
 
       <section className="home-recognize">
         <div className="home-recognize-badge">Erkennst du dich wieder?</div>

@@ -1,17 +1,19 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { Raum, RaumComment, CallRaum } from '@/lib/raeume';
 import { commentCount } from '@/lib/raeume';
 
 type Props = {
   raum: Raum;
+  comments: RaumComment[];
   sessionEmail: string | null;
   liveTakenSlots: number | null;
 };
 
-export default function RaumDetailClient({ raum, sessionEmail, liveTakenSlots }: Props) {
+export default function RaumDetailClient({ raum, comments, sessionEmail, liveTakenSlots }: Props) {
   return (
     <div className="raum-container raum-detail">
       <Link href="/raeume" className="raum-back">
@@ -41,7 +43,11 @@ export default function RaumDetailClient({ raum, sessionEmail, liveTakenSlots }:
         <CallEnded date={raum.callDate} summary={raum.callSummary} />
       )}
 
-      <Comments raum={raum} sessionEmail={sessionEmail} />
+      <Comments
+        raum={raum}
+        comments={comments}
+        sessionEmail={sessionEmail}
+      />
     </div>
   );
 }
@@ -55,7 +61,7 @@ function CallSignup({
   raum: CallRaum;
   liveTakenSlots: number | null;
 }) {
-  const taken = liveTakenSlots ?? raum.callTakenSlots;
+  const taken = liveTakenSlots ?? 0;
   const slotsLeft = Math.max(0, raum.callMaxSlots - taken);
 
   const [state, setState] = useState<
@@ -175,8 +181,17 @@ function CallEnded({ date, summary }: { date: string; summary?: string }) {
 
 /* ───────────────── Kommentare ───────────────── */
 
-function Comments({ raum, sessionEmail }: { raum: Raum; sessionEmail: string | null }) {
-  const count = commentCount(raum);
+function Comments({
+  raum,
+  comments,
+  sessionEmail,
+}: {
+  raum: Raum;
+  comments: RaumComment[];
+  sessionEmail: string | null;
+}) {
+  const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null);
+  const count = commentCount(comments);
   const heading =
     count === 0
       ? 'Noch keine Gedanken'
@@ -187,18 +202,28 @@ function Comments({ raum, sessionEmail }: { raum: Raum; sessionEmail: string | n
   return (
     <section className="raum-comments">
       <h4>{heading}</h4>
-      {isCallEnded && raum.comments.length > 0 && (
+      {isCallEnded && comments.length > 0 && (
         <div className="raum-comments-empty">
           Dieser Raum bleibt offen. Du kannst weiter schreiben.
         </div>
       )}
 
-      {raum.comments.map((c) => (
-        <CommentBlock key={c.id} comment={c} />
+      {comments.map((c) => (
+        <CommentBlock
+          key={c.id}
+          comment={c}
+          canReply={!!sessionEmail}
+          onReply={(id, name) => setReplyTo({ id, name })}
+        />
       ))}
 
       {sessionEmail ? (
-        <CommentForm email={sessionEmail} />
+        <CommentForm
+          email={sessionEmail}
+          slug={raum.slug}
+          replyTo={replyTo}
+          onCancelReply={() => setReplyTo(null)}
+        />
       ) : (
         <LoginPrompt slug={raum.slug} />
       )}
@@ -206,7 +231,15 @@ function Comments({ raum, sessionEmail }: { raum: Raum; sessionEmail: string | n
   );
 }
 
-function CommentBlock({ comment }: { comment: RaumComment }) {
+function CommentBlock({
+  comment,
+  canReply,
+  onReply,
+}: {
+  comment: RaumComment;
+  canReply: boolean;
+  onReply: (id: string, name: string) => void;
+}) {
   return (
     <>
       <div className="raum-comment">
@@ -214,15 +247,16 @@ function CommentBlock({ comment }: { comment: RaumComment }) {
         <div className="raum-comment-body">
           <div className="raum-comment-header">
             <span className="raum-comment-name">{comment.name}</span>
-            {comment.isFounder && (
-              <span className="raum-comment-founder-badge">Gründerin</span>
-            )}
-            {!comment.isFounder && ' · '}
+            {' · '}
             {comment.timeAgo}
           </div>
           <div className="raum-comment-text">{comment.text}</div>
-          {!comment.isAnonymous && (
-            <button type="button" className="raum-comment-reply-btn">
+          {canReply && (
+            <button
+              type="button"
+              className="raum-comment-reply-btn"
+              onClick={() => onReply(comment.id, comment.name)}
+            >
               Antworten
             </button>
           )}
@@ -234,10 +268,7 @@ function CommentBlock({ comment }: { comment: RaumComment }) {
           <div className="raum-comment-body">
             <div className="raum-comment-header">
               <span className="raum-comment-name">{reply.name}</span>
-              {reply.isFounder && (
-                <span className="raum-comment-founder-badge">Gründerin</span>
-              )}
-              {!reply.isFounder && ' · '}
+              {' · '}
               {reply.timeAgo}
             </div>
             <div className="raum-comment-text">{reply.text}</div>
@@ -253,9 +284,7 @@ function Avatar({ comment }: { comment: RaumComment }) {
     return <div className="raum-comment-avatar is-anon">?</div>;
   }
   return (
-    <div
-      className={`raum-comment-avatar${comment.isFounder ? ' is-founder' : ''}`}
-    >
+    <div className="raum-comment-avatar">
       {comment.name.charAt(0).toUpperCase()}
     </div>
   );
@@ -341,20 +370,58 @@ function LoginPrompt({ slug }: { slug: string }) {
 
 /* ───────────────── Comment-Form (eingeloggt) ───────────────── */
 
-function CommentForm({ email }: { email: string }) {
+function CommentForm({
+  email,
+  slug,
+  replyTo,
+  onCancelReply,
+}: {
+  email: string;
+  slug: string;
+  replyTo: { id: string; name: string } | null;
+  onCancelReply: () => void;
+}) {
+  const router = useRouter();
   const [text, setText] = useState('');
+  const [name, setName] = useState(() => defaultNameFromEmail(email));
   const [anon, setAnon] = useState(false);
-  const [state, setState] = useState<'idle' | 'sent'>('idle');
+  const [state, setState] = useState<
+    | { kind: 'idle' }
+    | { kind: 'loading' }
+    | { kind: 'error'; message: string }
+  >({ kind: 'idle' });
 
-  if (state === 'sent') {
-    return (
-      <div className="raum-login-prompt">
-        <p>Danke. Dein Gedanke ist da.</p>
-        <p className="raum-login-prompt-hint">
-          Sobald wir die Räume veröffentlichen, erscheint er für die anderen.
-        </p>
-      </div>
-    );
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!text.trim() || !name.trim()) return;
+    setState({ kind: 'loading' });
+    try {
+      const res = await fetch('/api/raeume/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug,
+          text: text.trim(),
+          display_name: name.trim(),
+          is_anonymous: anon,
+          parent_id: replyTo?.id ?? null,
+        }),
+      });
+      const body = await res.json();
+      if (!res.ok || !body.ok) {
+        setState({ kind: 'error', message: friendlyError(body.error) });
+        return;
+      }
+      setText('');
+      setState({ kind: 'idle' });
+      onCancelReply();
+      router.refresh();
+    } catch {
+      setState({
+        kind: 'error',
+        message: 'Das hat leider nicht geklappt. Versuch es gerne nochmal.',
+      });
+    }
   }
 
   return (
@@ -372,18 +439,66 @@ function CommentForm({ email }: { email: string }) {
           Abmelden
         </button>
       </p>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (text.trim()) setState('sent');
-        }}
-      >
+
+      {replyTo && (
+        <div
+          style={{
+            padding: '8px 12px',
+            marginBottom: 12,
+            borderRadius: 8,
+            background: 'var(--gold-bg)',
+            border: '1px solid var(--gold-border-s)',
+            fontSize: 13,
+            color: 'var(--text-body)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 12,
+          }}
+        >
+          <span>
+            Antwort an <strong>{replyTo.name}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={onCancelReply}
+            className="raum-comment-form-logout"
+            style={{ marginLeft: 0 }}
+          >
+            Abbrechen
+          </button>
+        </div>
+      )}
+
+      <form onSubmit={submit}>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Dein Name"
+          disabled={anon}
+          required={!anon}
+          style={{
+            width: '100%',
+            padding: '10px 14px',
+            marginBottom: 8,
+            borderRadius: 8,
+            border: '1px solid var(--glass-border)',
+            background: 'rgba(255,255,255,0.6)',
+            color: 'var(--text-h)',
+            fontFamily: 'var(--font-body, "Quicksand", sans-serif)',
+            fontSize: 14,
+            outline: 'none',
+            opacity: anon ? 0.5 : 1,
+          }}
+        />
         <textarea
           className="raum-comment-textarea"
           placeholder="Was denkst du darüber?"
           value={text}
           onChange={(e) => setText(e.target.value)}
           required
+          disabled={state.kind === 'loading'}
         />
         <div className="raum-comment-form-actions">
           <label className="raum-anon-check">
@@ -394,13 +509,27 @@ function CommentForm({ email }: { email: string }) {
             />
             Anonym posten
           </label>
-          <button type="submit" className="raum-call-btn">
-            Gedanken teilen
+          <button
+            type="submit"
+            className="raum-call-btn"
+            disabled={state.kind === 'loading'}
+          >
+            {state.kind === 'loading' ? 'Einen Moment …' : 'Gedanken teilen'}
           </button>
         </div>
+        {state.kind === 'error' && (
+          <p className="raum-login-prompt-hint" style={{ color: '#A8894E', marginTop: 8 }}>
+            {state.message}
+          </p>
+        )}
       </form>
     </div>
   );
+}
+
+function defaultNameFromEmail(email: string): string {
+  const prefix = email.split('@')[0] ?? '';
+  return prefix.charAt(0).toUpperCase() + prefix.slice(1);
 }
 
 /* ───────────────── Helpers ───────────────── */

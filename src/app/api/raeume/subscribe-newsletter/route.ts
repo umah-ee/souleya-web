@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: 'invalid_email' }, { status: 400 });
   }
 
-  const raum = findRaum(slug);
+  const raum = await findRaum(slug);
   if (!raum) {
     return NextResponse.json({ ok: false, error: 'raum_not_found' }, { status: 404 });
   }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { sortedRaeume, commentCount, type Raum } from '@/lib/raeume';
+import { createClient } from '@/lib/supabase/server';
+import { sortedRaeume, type Raum } from '@/lib/raeume';
 import { getCallSeatsTaken } from '@/lib/raeume-mail';
 
 // Plätze-Zähler 60s cachen damit nicht jeder Page-Load Resend hits
@@ -12,9 +13,26 @@ export const metadata: Metadata = {
     'Jeder Impuls öffnet einen Raum. Manche mit Gespräch, manche mit einer Frage die bleibt.',
 };
 
+async function getCommentCounts(roomIds: string[]): Promise<Record<string, number>> {
+  if (roomIds.length === 0) return {};
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('room_comments')
+    .select('room_id')
+    .in('room_id', roomIds);
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) {
+    counts[row.room_id] = (counts[row.room_id] ?? 0) + 1;
+  }
+  return counts;
+}
+
 export default async function RaeumePage() {
-  const raeume = sortedRaeume();
-  const liveTakenSlots = await getCallSeatsTaken();
+  const raeume = await sortedRaeume();
+  const [liveTakenSlots, commentCounts] = await Promise.all([
+    getCallSeatsTaken(),
+    getCommentCounts(raeume.map((r) => r.id)),
+  ]);
 
   return (
     <div className="raum-container">
@@ -25,15 +43,30 @@ export default async function RaeumePage() {
         </p>
       </header>
 
-      <section className="raum-grid">
-        {raeume.map((raum) => (
-          <RaumCard
-            key={raum.slug}
-            raum={raum}
-            liveTakenSlots={raum.type === 'call' && !raum.ended ? liveTakenSlots : null}
-          />
-        ))}
-      </section>
+      {raeume.length === 0 ? (
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '60px 20px 80px',
+            color: 'var(--text-muted)',
+            fontFamily: 'var(--font-body, "Quicksand", sans-serif)',
+            fontSize: 16,
+          }}
+        >
+          Bald geht's los. Der erste Raum öffnet in Kürze.
+        </div>
+      ) : (
+        <section className="raum-grid">
+          {raeume.map((raum) => (
+            <RaumCard
+              key={raum.slug}
+              raum={raum}
+              liveTakenSlots={raum.type === 'call' && !raum.ended ? liveTakenSlots : null}
+              commentCount={commentCounts[raum.id] ?? 0}
+            />
+          ))}
+        </section>
+      )}
     </div>
   );
 }
@@ -41,15 +74,14 @@ export default async function RaeumePage() {
 function RaumCard({
   raum,
   liveTakenSlots,
+  commentCount,
 }: {
   raum: Raum;
   liveTakenSlots: number | null;
+  commentCount: number;
 }) {
   const isLiveCall = raum.type === 'call' && !raum.ended;
-  const count = commentCount(raum);
-  const taken = isLiveCall && raum.type === 'call'
-    ? liveTakenSlots ?? raum.callTakenSlots
-    : 0;
+  const taken = isLiveCall && raum.type === 'call' ? liveTakenSlots ?? 0 : 0;
   const slotsLeft = raum.type === 'call' ? Math.max(0, raum.callMaxSlots - taken) : 0;
 
   return (
@@ -72,7 +104,7 @@ function RaumCard({
         </div>
       )}
       <div className="raum-meta">
-        <span>{count === 0 ? 'Noch keine Gedanken' : `${count} ${count === 1 ? 'Gedanke' : 'Gedanken'}`}</span>
+        <span>{commentCount === 0 ? 'Noch keine Gedanken' : `${commentCount} ${commentCount === 1 ? 'Gedanke' : 'Gedanken'}`}</span>
         <span className="raum-meta-read">Lesen →</span>
       </div>
     </Link>
