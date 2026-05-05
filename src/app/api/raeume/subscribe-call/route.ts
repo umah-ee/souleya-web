@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { findRaum } from '@/lib/raeume';
+import { findRaum } from '@/lib/raeume-db';
 import { callSubscribe } from '@/lib/raeume-mail';
 
 export async function POST(request: Request) {

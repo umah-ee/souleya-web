@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { sortedRaeume, type Raum } from '@/lib/raeume';
+import { sortedRaeume } from '@/lib/raeume-db';
+import type { Raum } from '@/lib/raeume';
 import { getCallSeatsTaken } from '@/lib/raeume-mail';
 
 // Plätze-Zähler 60s cachen damit nicht jeder Page-Load Resend hits

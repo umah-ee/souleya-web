@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { sortedRaeume } from '@/lib/raeume';
+import { sortedRaeume } from '@/lib/raeume-db';
 
 export default async function HomeIntro() {
   // Featured-Card nur zeigen, wenn ein aktiver Call-Raum existiert

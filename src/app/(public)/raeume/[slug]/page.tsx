@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { findRaum, getRaumComments } from '@/lib/raeume';
+import { findRaum, getRaumComments } from '@/lib/raeume-db';
 import { readSessionCookie, SESSION_COOKIE } from '@/lib/raeume-auth';
 import { getCallSeatsTaken } from '@/lib/raeume-mail';
 import RaumDetailClient from './RaumDetailClient';

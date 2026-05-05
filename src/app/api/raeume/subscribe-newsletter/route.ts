@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { findRaum } from '@/lib/raeume';
+import { findRaum } from '@/lib/raeume-db';
 import { newsletterSubscribeWithMagicLink } from '@/lib/raeume-mail';
 import { signMagicToken } from '@/lib/raeume-auth';
 
