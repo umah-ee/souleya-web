@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import TopicHero from '@/components/public/TopicHero';
+import HomeIntro from '@/components/public/HomeIntro';
 
 // Hero-Bild (Thema "Beziehungen & Verbindung") für LCP-Preload — responsive
 const HERO_IMG_MOBILE = 'https://images.unsplash.com/photo-1758524945869-24a53c8cbc1e?w=800&h=450&fit=crop&fm=webp&q=75';
@@ -28,6 +29,7 @@ export default function HomePage() {
         imageSizes="100vw"
       />
       <TopicHero />
+      <HomeIntro />
     </>
   );
 }

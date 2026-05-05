@@ -1644,6 +1644,141 @@ select:focus {
 }
 
 /* ══════════════════════════════════════════════════════════
+   Home Intro — Featured Raum + Erkennst du dich + Was ist Souleya
+   ══════════════════════════════════════════════════════════ */
+
+.home-intro {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 30px;
+}
+
+.home-featured {
+  padding: 60px 0 0;
+  text-align: center;
+}
+.home-featured-badge {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.home-featured-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: home-pulse 2s infinite;
+}
+@keyframes home-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.home-featured h2 {
+  font-family: var(--font-heading, 'Cormorant Garamond', serif);
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 400;
+  line-height: 1.3;
+  margin: 0 auto 14px;
+  color: var(--text-h);
+  max-width: 600px;
+}
+.home-featured-sub {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 17px;
+  color: var(--text-body);
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto 20px;
+}
+.home-featured-tags {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  letter-spacing: 0.3px;
+}
+.home-featured-link {
+  display: inline-block;
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 14px;
+  color: var(--gold-text);
+  text-decoration: none;
+  padding: 10px 0;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+.home-featured-link:hover { color: var(--gold-deep); }
+
+.home-recognize {
+  padding: 80px 0;
+  text-align: center;
+}
+.home-recognize-badge {
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  display: inline-block;
+  border: 1px solid var(--gold-border-s);
+  padding: 6px 16px;
+  border-radius: 30px;
+  margin-bottom: 30px;
+}
+.home-recognize p {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 17px;
+  color: var(--text-body);
+  line-height: 1.8;
+  max-width: 580px;
+  margin: 0 auto 16px;
+}
+
+.home-whatis {
+  padding: 40px 0 80px;
+  text-align: center;
+}
+.home-whatis-divider {
+  width: 40px;
+  height: 1px;
+  background: var(--gold-border-s);
+  margin: 0 auto 40px;
+}
+.home-whatis p {
+  font-family: var(--font-body, 'Quicksand', sans-serif);
+  font-size: 17px;
+  color: var(--text-body);
+  line-height: 1.8;
+  max-width: 540px;
+  margin: 0 auto 16px;
+}
+.home-whatis-link {
+  display: inline-block;
+  font-family: var(--font-label, 'Josefin Sans', sans-serif);
+  font-size: 14px;
+  color: var(--gold-text);
+  text-decoration: none;
+  margin-top: 16px;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+.home-whatis-link:hover { color: var(--gold-deep); }
+
+@media (max-width: 600px) {
+  .home-intro { padding: 0 20px; }
+  .home-featured { padding: 40px 0 0; }
+  .home-featured h2 { font-size: 24px; }
+  .home-recognize { padding: 60px 0; }
+  .home-whatis { padding: 30px 0 60px; }
+}
+
+/* ══════════════════════════════════════════════════════════
    Räume — Gespräche die bleiben
    ══════════════════════════════════════════════════════════ */
 
