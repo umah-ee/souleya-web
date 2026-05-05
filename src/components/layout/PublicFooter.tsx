@@ -40,20 +40,10 @@ export default function PublicFooter() {
           </div>
 
           {/* Navigation Links */}
-          <nav className="flex flex-col items-center gap-4 text-xs">
-            <div className="flex items-center gap-5 flex-wrap justify-center">
-              <Link href="/raeume" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Räume</Link>
-              <Link href="/was-ist-souleya" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Was ist Souleya?</Link>
-              <Link href="/features/circles" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Circles</Link>
-              <Link href="/features/studio" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Studio</Link>
-              <Link href="/features/events" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Events</Link>
-              <Link href="/mentor" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Als Mentor bewerben</Link>
-            </div>
-            <div className="flex items-center gap-5 flex-wrap justify-center">
-              <Link href="/impressum" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Impressum</Link>
-              <Link href="/datenschutz" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Datenschutz</Link>
-              <Link href="/agb" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>AGB</Link>
-            </div>
+          <nav className="flex items-center gap-5 flex-wrap justify-center text-xs">
+            <Link href="/impressum" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Impressum</Link>
+            <Link href="/datenschutz" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>Datenschutz</Link>
+            <Link href="/agb" className="hover:text-[var(--gold-text)] transition-colors" style={{ color: 'var(--text-muted)' }}>AGB</Link>
           </nav>
 
           {/* Social Icons */}
