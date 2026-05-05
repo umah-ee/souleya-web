@@ -1,12 +1,5 @@
 import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 import TopicHero from '@/components/public/TopicHero';
-
-// Below-fold Komponenten lazy laden — nicht im initialen JS-Bundle
-const JourneySection = dynamic(() => import('@/components/public/JourneySection'));
-const FeaturesGrid = dynamic(() => import('@/components/public/FeaturesGrid'));
-const HowItWorks = dynamic(() => import('@/components/public/HowItWorks'));
-const FaqAccordion = dynamic(() => import('@/components/public/FaqAccordion'));
 
 // Hero-Bild (Thema "Beziehungen & Verbindung") für LCP-Preload — responsive
 const HERO_IMG_MOBILE = 'https://images.unsplash.com/photo-1758524945869-24a53c8cbc1e?w=800&h=450&fit=crop&fm=webp&q=75';
@@ -35,10 +28,6 @@ export default function HomePage() {
         imageSizes="100vw"
       />
       <TopicHero />
-      <JourneySection />
-      <FeaturesGrid />
-      <HowItWorks />
-      <FaqAccordion />
     </>
   );
 }

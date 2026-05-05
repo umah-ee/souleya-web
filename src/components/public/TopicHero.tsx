@@ -16,27 +16,6 @@ export default function TopicHero() {
             className="th-hero-img"
             fetchPriority="high"
           />
-          <div className="th-hero-dim" />
-
-          <div className="th-hero-info">
-            <h1 className="th-hero-name">{topic.name}</h1>
-            <div className="th-hero-tag">{topic.tag}</div>
-          </div>
-
-          <div className="th-kern">
-            <div className="th-kern-line">
-              <div className="th-kern-dot" />
-              Triff Menschen, die zu <em>Dir passen.</em>
-            </div>
-            <div className="th-kern-line">
-              <div className="th-kern-dot" />
-              Sprich über Themen, die <em>dich bewegen.</em>
-            </div>
-            <div className="th-kern-line">
-              <div className="th-kern-dot" />
-              An Orten, die du <em>liebst.</em>
-            </div>
-          </div>
         </div>
       </section>
 
