@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 const PUBLIC_ROUTES = [
   '/', '/login', '/auth/', '/api/',
   '/de/blog', '/en/blog', '/blog',
-  '/impressum', '/datenschutz', '/agb', '/preise', '/ueber-uns', '/mentor', '/wisdom/', '/reflexion', '/raeume',
+  '/impressum', '/datenschutz', '/agb', '/preise', '/ueber-uns', '/mentor', '/wisdom/', '/reflexion', '/raeume', '/karten/',
   '/was-ist-souleya', '/features/',
   '/u/',
 ];
